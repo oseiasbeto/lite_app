@@ -25,7 +25,7 @@ router.beforeEach((to, from, next) => {
   else if (to.matched.some(record => record.meta.routeAuth)) {
     // Se o usuário já estiver autenticado, redireciona para a página inicial
     if (token) {
-      next('/chats');
+      next('/home');
     } else {
       // Caso contrário, permite o acesso à rota
       next();
@@ -36,5 +36,6 @@ router.beforeEach((to, from, next) => {
     next();
   }
 })
+
 
 export default router

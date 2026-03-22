@@ -15,14 +15,32 @@
             <button
                 class="h-9 px-5 text-sm rounded-full text-white disabled:opacity-60 disabled:pointer-events-none font-semibold bg-primary-500"
                 @click="handleSubmit" :disabled="!canPost || createKoolLoading || selectFileLoading || isUploading">
-                {{ createKoolLoading ? `${replyTo ? 'Respondendo...' : 'Postando'}` : `${replyTo ? 'Responder' :
-                    'Postar'}` }}
+                Postar
             </button>
         </div>
         <!--end header-->
 
         <!--start body-->
         <div class="flex-1 max-h-full justify-between flex-col mt-14 ">
+            <div>
+                <div>
+                    <select class="dark:text-black" v-model="postType">
+                        <option value="question">Pergunta</option>
+                        <option value="post">Postagem</option>
+                    </select>
+                </div>
+
+                <div class="px-2 flex flex-col gap-1 py-2" v-if="postType === 'question'">
+                    <div v-if="topicList.length" class="flex flex-wrap gap-1">
+                       <button class="dark:bg-gray-800 text-xs w-auto h-auto px-1 p-0.5 dark:text-white" @click="pushTopic(item._id)" v-for="item in topicList" :key="item._id"
+                       :class="{'!bg-sky-500': topics.includes(item._id)}"
+                       >
+                        {{ item.name }}
+                       </button>
+                    </div>
+                    <input class="dark:text-black" v-model="postTitle" type="text" placeholder="Titulo">
+                </div>
+            </div>
             <div>
                 <!--start error alert-->
                 <div v-if="error" class="px-4 mb-5">
@@ -51,20 +69,20 @@
 
                 <!--star quill editor -->
                 <label for="quillText">
-                    <!--start reply to-->
+                    <!--start reply to
                     <reply-to-original-post
                         :original-post="originalPost.is_repost ? originalPost.original_post : originalPost"
-                        v-if="!loadingGetPostById && replyTo && originalPost?._id" />
-                    <!--end reply to-->
+                        v-if="!loadingGetPostById && originalPost?._id" />
+                    end reply to-->
 
                     <div class="px-4 flex flex-row">
                         <div>
-                            <Avatar :url="user?.profileImage?.url" />
+                            <Avatar :url="user?.profile_image?.url" />
                         </div>
                         <div class="flex-1">
                             <textarea :class="{ 'pointer-events-none': createKoolLoading }" id="quillText"
                                 maxlength="280" v-model="postContent" ref="textAreaRef"
-                                :placeholder="replyTo ? 'Escrever a resposta...' : 'Mekie?'"
+                                placeholder="Escrever a resposta..."
                                 class="w-full placeholder:text-text-light placeholder:dark:text-dark-text-light text-base ml-2 p-1.5 bg-light-bg dark:bg-dark-bg leading-5 text-text-secondary dark:text-dark-text-primary resize-none outline-none placeholder-gray-500 mb-3"
                                 @input="adjustTextareaHeight">
                             </textarea>
@@ -225,12 +243,8 @@ import axios from 'axios';
 import { useStore } from 'vuex';
 //import ReplyToOriginalPost from '../components/ReplyToOriginalPost.vue';
 import CryptoJS from 'crypto-js';
-import Avatar from '@/components/UI/Avatar.vue';
 import Drawer from '@/components/drawer/Drawer.vue';
-
-import { useKool } from '@/repositories/kool-repository';
-
-const { createKool, loading: createKoolLoading } = useKool();
+import Avatar from '../../users/components/Avatar.vue';
 
 // Constantes do Cloudinary
 const CLOUD_NAME = 'daujoblcc';
@@ -238,27 +252,36 @@ const UPLOAD_PRESET = 'social_media_upload';
 const API_KEY = '686559434489718'; // Substitua pelo sua API Key do Cloudinary
 const API_SECRET = 'oAYl12OIZf2HkieFNDQQk2romHM'; // Substitua pelo seu API Secret do Cloudinary
 
-//const { createPost, loading: createKoolLoading } = usePost();
-//const { getPostById, loading: loadingGetPostById } = usePost();
-
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
 
 const textAreaRef = ref(null);
+const createKoolLoading = ref(false)
 const mediaContainer = ref(null);
 const selectFileLoading = ref(false);
+
+const isAnonymous = ref(true);
+const privacy = ref("public");
+const topics = ref([])
 const postContent = ref('');
+const postType = ref('question')
+const postTitle = ref('')
+
+const topicList = computed(() => store.getters.topicList || [])
+
 const mediaPreviews = ref([]);
 const uploadProgress = ref({});
-const privacy = ref("public");
+
 const cancelTokens = ref({});
 const error = ref(null);
+
 const showModal = ref(false);
 const uploadedMediaIds = ref([]); // Rastreia public_ids das mídias carregadas
 
 const imageInput = ref(null);
 const videoInput = ref(null);
+
 const isKeyboardOpen = ref(false);
 const viewportHeight = ref(window.visualViewport.height);
 
@@ -268,12 +291,8 @@ const MAX_IMAGES = 4;
 const MAX_VIDEO_SIZE_MB = 50;
 
 const remainingChars = computed(() => MAX_CHARS - postContent.value.length);
-const replyTo = computed(() => route.query.replyto || null);
-const postModule = computed(() => route.query.post_module || null);
-const originalRepost = computed(() => route.query.original_repost || null);
-const originalRepostId = computed(() => route.query.original_repost_id || null);
-const shouldAddReply = computed(() => route.query.should_add_reply_from_replies || false);
-const addReplyFrom = computed(() => route.query.add_reply_from || null);
+const module = computed(() => route.query.module || null);
+
 const hasImages = computed(() => mediaPreviews.value.some(m => m.type === 'image'));
 const hasVideo = computed(() => mediaPreviews.value.some(m => m.type === 'video'));
 const isUploading = computed(() => {
@@ -285,11 +304,10 @@ const hasUploadedVideo = computed(() => {
 });
 
 const canPost = computed(() => {
-    return (
-        postContent.value.trim().length > 0 ||
-        mediaPreviews.value.length > 0
-    ) && remainingChars.value >= 0;
+    if (postContent.value.trim().length > 0 && postType.value !== 'question' || mediaPreviews.value.length > 0 && postType.value !== 'question' || postType.value === 'question' && postTitle.value.trim().length > 0) return true
+    else return false
 });
+
 const user = computed(() => store.getters.user);
 
 const originalPost = computed(() => store.getters.originalPost);
@@ -328,6 +346,16 @@ const footerTransform = computed(() =>
     isKeyboardOpen.value ? `translateY(-${window.innerHeight - window.visualViewport.height}px)` : ''
 );
 
+const pushTopic = (topicId) => {
+    const index = topics.value?.findIndex(tId => tId === topicId)
+
+    if (index !== -1) {
+        topics.value.splice(index, 1)
+    } else {
+        topics.value.push(topicId)
+    }
+}
+
 const handleViewportResize = () => {
     viewportHeight.value = window.visualViewport.height;
     isKeyboardOpen.value = (window.visualViewport.height < window.innerHeight * 0.8);
@@ -340,6 +368,10 @@ const handleViewportResize = () => {
 
 const resetForm = () => {
     postContent.value = '';
+    postType.value = 'question'
+    postTitle.value = '';
+    topics.value = [];
+    privacy.value = 'public';
     mediaPreviews.value = [];
     uploadProgress.value = {};
     cancelTokens.value = {};
@@ -692,6 +724,7 @@ const confirmCancel = async () => {
 };
 
 const handleSubmit = async () => {
+
     if (!canPost.value || isUploading.value) return;
 
     // Usar diretamente as mídias válidas em mediaPreviews (já carregadas)
@@ -709,30 +742,22 @@ const handleSubmit = async () => {
             height: m.height,
             duration: m.duration
         })),
+        postType: postType.value,
+        postTitle: postTitle.value,
+        isAnonymous: isAnonymous.value,
+        topics: topics.value || [],
         privacy: privacy.value,
-        shouldAddReply: Boolean(shouldAddReply.value),
-        originalRepost: originalPost.value?.original_post?._id,
-        isRepost: originalPost.value?.is_repost,
-        byRepostId: originalRepost.value ?? undefined,
-        originalRepostId: originalRepostId.value ?? undefined,
-        addReplyFrom: addReplyFrom.value,
-        postModule: postModule.value,
-        ...(originalPost.value?._id && replyTo.value && {
-            isReply: true,
-            originalPost: originalPost.value._id
-        })
+        module: module.value,
     };
 
-    if (postData.content || postData.media.length > 0) {
-        try {
-            await createKool({ ...postData, shouldAddReply: false });
-            resetForm();
-            router.back();
-        } catch (error) {
-            resetForm();
-            router.back();
-            console.log(error);
-        }
+    try {
+        await store.dispatch('createPost', postData);
+        resetForm();
+        router.back();
+    } catch (error) {
+        resetForm();
+        router.back();
+        console.log(error);
     }
 };
 
@@ -749,8 +774,8 @@ onBeforeRouteLeave((to, from, next) => {
 onMounted(async () => {
     window.visualViewport.addEventListener('resize', handleViewportResize);
     textAreaRef.value.focus();
-    if (!originalPost.value?._id && route?.query?.replyto) {
-        await getPostById(route?.query?.replyto);
+    if (!originalPost.value?._id) {
+       // await getPostById(119);
     }
     adjustTextareaHeight();
 });

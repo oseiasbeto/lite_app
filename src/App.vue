@@ -417,6 +417,9 @@ onMounted(async () => {
   // Se tiver sessão salva, tentar restaurar
   if (sessionId && !isAuthenticated.value) {
     await handleRefreshToken()
+    .then(async () => {
+      await store.dispatch("getTopicList")
+    })
   } else {
     loading.value = false
   }
@@ -428,6 +431,8 @@ onMounted(async () => {
 watch(() => isNewSession.value, () => {
   
   initializeSocket()
+
+  
   // Configurar listeners de conexão
   setupConnectionListeners();
 
@@ -438,6 +443,8 @@ watch(() => isNewSession.value, () => {
   } else {
     setThemeColor('system')
   }
+
+  store.dispatch("getTopicList")
 })
 
 onUnmounted(() => {

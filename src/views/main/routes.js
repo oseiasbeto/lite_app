@@ -5,7 +5,7 @@ export default [
         meta: {
             requiresAuth: true,
             rootPage: 'main',
-            title: 'Home'
+            title: 'Página inicial'
         },
         component: () => import('./views/Home.vue')
     }

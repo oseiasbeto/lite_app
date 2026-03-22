@@ -143,6 +143,6 @@ export default {
         accessToken: (state) => state.token,
         isNewSession: (state) => state.newSession,
         isNewUser: (state) => state.newUser,
-        currentUser: (state) => state.user,
+        currentUser: (state) => state.user
     }
 }
