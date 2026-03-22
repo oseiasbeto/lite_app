@@ -174,7 +174,7 @@ async function handleNext() {
             toast.value.show = true
             isRedirectingFromLogin.value = true
             setTimeout(() => {
-                 router.push({ name: 'SignIn' })
+                router.push({ name: 'SignIn' })
             }, 2000)
 
         } catch (err) {
@@ -250,39 +250,42 @@ onBeforeRouteLeave((to, from, next) => {
             <!-- Formulário -->
             <div class="w-full max-w-sm flex flex-col gap-5">
                 <template v-if="step === 1">
-                    <Input v-model="email" title="E-mail" label="email" type="email" :error="emailError" />
-                    <ButtonPrimary @click="handleNext" :disabled="!email.trim()" :loading="isCheckingEmail">
+                    <Input @update:model-value="validateEmail" v-model="email" title="E-mail" label="email" type="email"
+                        :error="emailError" />
+                    <ButtonPrimary @click="handleNext" :disabled="!email.trim() || emailError?.show"
+                        :loading="isCheckingEmail">
                         Avançar
                     </ButtonPrimary>
                 </template>
 
                 <template v-else-if="step === 2">
                     <!-- Campo de código -->
-                    <Input v-model="verificationCode" title="Código de verificação (6 dígitos)" label="code"
-                        :error="codeError" />
+                    <Input @update:model-value="validateCode" v-model="verificationCode"
+                        title="Código de verificação (6 dígitos)" label="code" :error="codeError" />
+                    <!-- Botão Verificar -->
+
+                    <ButtonPrimary @click="handleNext" :loading="isVerifyingCode"
+                        :disabled="!verificationCode.trim() || isVerifyingCode || codeError?.show">
+                        Verificar e criar conta
+                    </ButtonPrimary>
 
                     <!-- Botão Resend (com loading) -->
                     <ButtonSecondary @click="resendVerificationCode" :loading="isResendingCode"
                         :disabled="isResendingCode">
-                        {{ isResendingCode ? 'Reenviando...' : 'Reenviar código' }}
+                        Reenviar código
                     </ButtonSecondary>
 
-                    <!-- Botão Verificar -->
-                    <ButtonPrimary @click="handleNext" :loading="isVerifyingCode"
-                        :loading-text="isVerifyingCode ? 'Verificando...' : undefined"
-                        :disabled="!verificationCode.trim() || isVerifyingCode">
-                        Verificar e criar conta
-                    </ButtonPrimary>
-                    
+
+
                 </template>
 
                 <template v-else-if="step === 3">
-                    <Input v-model="newPassword" title="Nova senha" label="password" type="password"
+                    <Input @update:model-value="validatePassword" v-model="newPassword" title="Nova senha" label="password" type="password"
                         :error="newPasswordError" />
-                    <Input v-model="confirmPassword" title="Confirme a nova senha" label="confirm" type="password"
+                    <Input @update:model-value="validateConfirmPassword" v-model="confirmPassword" title="Confirme a nova senha" label="confirm" type="password"
                         :error="confirmError" />
-                    <ButtonPrimary @click="handleNext" :disabled="!newPassword.trim() || !confirmPassword.trim()"
-                        :loading-text="isRedirectingFromLogin ? 'Redirecionando...' : undefined"
+                    <ButtonPrimary @click="handleNext" :disabled="!newPassword.trim() || !confirmPassword.trim() || newPasswordError?.show || confirmError?.show"
+                        
                         :loading="isResetingPassword || isRedirectingFromLogin">
                         Avançar
                     </ButtonPrimary>

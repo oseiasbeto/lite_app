@@ -81,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
 const props = defineProps({
   title: {
@@ -110,4 +110,10 @@ const props = defineProps({
 
 const inputValue = defineModel()
 const showPassword = ref(false) // Estado local para controlar visibilidade da senha
+
+const emit = defineEmits(['update:modelValue'])
+
+watch(inputValue, (newValue) => {
+  emit('update:modelValue', newValue)
+})
 </script>

@@ -141,7 +141,10 @@ async function handleNext() {
     if (!valid) return
     isCheckingEmail.value = true
     try {
-      await store.dispatch("checkEmailExisists", email.value)
+      await store.dispatch("register", {
+        name: name.value,
+        email: email.value
+      })
       step.value = 2
     } catch (err) {
       email.value = ""
@@ -155,28 +158,6 @@ async function handleNext() {
     }
 
   } else if (step.value === 2) {
-    valid = validatePassword() && validateConfirmPassword()
-    if (!valid) return
-    isSigningUp.value = true
-    try {
-      await store.dispatch("register", {
-        name: name.value,
-        email: email.value,
-        password: password.value
-      }) // Envia código ao registrar no step 3
-
-      step.value = 3
-    } catch (err) {
-      password.value = ""
-      confirmPassword.value = ""
-      toast.value.message = err.response?.data?.message || 'Erro ao criar conta.'
-      toast.value.show = true
-      toast.value.type = 'error'
-      setTimeout(() => { toast.value.show = false; toast.value.type = undefined }, 3000)
-    } finally {
-      isSigningUp.value = false
-    }
-  } else if (step.value === 3) {
     valid = validateCode()
     if (!valid) return
 
@@ -188,14 +169,7 @@ async function handleNext() {
         code: verificationCode.value
       }
       await store.dispatch('verifyEmail', payload)
-
-      // Sucesso
-      toast.value.message = 'Conta criada com sucesso!'
-      toast.value.show = true
-      isRedirectingFromHome.value = true
-      setTimeout(() => {
-        router.push('/home')
-      }, 2000)
+      step.value = 3
     } catch (err) {
       verificationCode.value = ''
       toast.value.message = err.response?.data?.message || 'Código inválido ou expirado.'
@@ -204,6 +178,30 @@ async function handleNext() {
       setTimeout(() => { toast.value.show = false; toast.value.type = undefined }, 3000)
     } finally {
       isVerifyingCode.value = false
+    }
+  } else if (step.value === 3) {
+    valid = validatePassword() && validateConfirmPassword()
+    if (!valid) return
+    isSigningUp.value = true
+    try {
+      await store.dispatch("completeRegistration", {
+        email: email.value,
+        password: password.value
+      }) // Envia código ao registrar no step 3
+
+      // Sucesso
+      isRedirectingFromHome.value = true
+      router.push('/home')
+
+    } catch (err) {
+      password.value = ""
+      confirmPassword.value = ""
+      toast.value.message = err.response?.data?.message || 'Erro ao criar conta.'
+      toast.value.show = true
+      toast.value.type = 'error'
+      setTimeout(() => { toast.value.show = false; toast.value.type = undefined }, 3000)
+    } finally {
+      isSigningUp.value = false
     }
   }
 }
@@ -261,55 +259,46 @@ onBeforeRouteLeave((to, from, next) => {
 
       <!-- Título dinâmico -->
       <h1 class="text-4xl font-bold text-text-primary mb-10 text-center">
-        {{ step === 1 ? 'Criar sua conta no 1kole' : step === 2 ? 'Crie uma senha segura' : 'Verifique seu e-mail' }}
+        {{ step === 1 ? 'Criar sua conta' : step === 2 ? 'Verifique seu e-mail' : 'Crie uma senha segura' }}
       </h1>
 
       <!-- Formulário -->
       <div class="w-full max-w-sm flex flex-col gap-5">
         <template v-if="step === 1">
-          <Input v-model="name" title="Nome" label="name" :error="nameError" />
-          <Input v-model="email" title="E-mail" label="email" type="email" :error="emailError" />
-          <ButtonPrimary @click="handleNext" :disabled="!name.trim() || !email.trim()" :loading="isCheckingEmail">
+          <Input @update:model-value="validateName" v-model="name" title="Nome" label="name" :error="nameError" />
+          <Input @update:model-value="validateEmail" v-model="email" title="E-mail" label="email" type="email" :error="emailError" />
+          <ButtonPrimary @click="handleNext" :disabled="!name.trim() || !email.trim() || nameError?.show || emailError?.show" :loading="isCheckingEmail">
             Avançar
           </ButtonPrimary>
         </template>
 
         <template v-else-if="step === 2">
-          <Input v-model="password" title="Senha" label="password" type="password" :error="passwordError" />
-          <Input v-model="confirmPassword" title="Confirme a senha" label="confirm" type="password"
-            :error="confirmError" />
-          <ButtonPrimary @click="handleNext" :disabled="!password.trim() || !confirmPassword.trim()"
-            :loading="isSigningUp">
-            Avançar
-          </ButtonPrimary>
-          <ButtonSecondary @click="handleBack">
-            Voltar
-          </ButtonSecondary>
-        </template>
-
-        <template v-else-if="step === 3">
           <!-- Campo de código -->
-          <Input v-model="verificationCode" title="Código de verificação (6 dígitos)" label="code" :error="codeError" />
+          <Input @update:model-value="validateCode" v-model="verificationCode" title="Código de verificação (6 dígitos)" label="code" :error="codeError" />
 
           <!-- Botão Resend (com loading) -->
           <ButtonSecondary @click="resendVerificationCode" :loading="isResendingCode" :disabled="isResendingCode">
-            {{ isResendingCode ? 'Reenviando...' : 'Reenviar código' }}
+            Reenviar código
           </ButtonSecondary>
 
           <!-- Botão Verificar -->
-          <ButtonPrimary @click="handleNext" :loading="isVerifyingCode || isRedirectingFromHome"
-            :loading-text="isRedirectingFromHome ? 'Redirecionando...' : isVerifyingCode ? 'Verificando...' : undefined"
-            :disabled="!verificationCode.trim() || isVerifyingCode || isRedirectingFromHome">
+          <ButtonPrimary @click="handleNext" :loading="isVerifyingCode"
+            
+            :disabled="!verificationCode.trim() || isVerifyingCode || codeError?.show">
             Verificar e criar conta
           </ButtonPrimary>
         </template>
-      </div>
 
-      <!-- Termos no step 1 -->
-      <p v-if="step === 1" class="mt-8 text-gray-500 text-xs text-center max-w-xs mx-auto">
-        Ao se inscrever, você concorda com os <a href="#" class="text-primary hover:underline">Termos</a> e <a href="#"
-          class="text-primary hover:underline">Política de Privacidade</a>.
-      </p>
+        <template v-else-if="step === 3">
+          <Input @update:model-value="validatePassword" v-model="password" title="Senha" label="password" type="password" :error="passwordError" />
+          <Input @update:model-value="validateConfirmPassword" v-model="confirmPassword" title="Confirme a senha" label="confirm" type="password"
+            :error="confirmError" />
+          <ButtonPrimary @click="handleNext" :disabled="!password.trim() || !confirmPassword.trim() || passwordError?.show || confirmError?.show"
+            :loading="isSigningUp">
+            Avançar
+          </ButtonPrimary>
+        </template>
+      </div>
     </div>
 
     <!-- Toast -->

@@ -34,8 +34,8 @@ let socket;
 const user = computed(() => {
   return store.getters.currentUser
 })
-const newSession = computed(() => {
-  return store.getters.newSession
+const isNewSession = computed(() => {
+  return store.getters.isNewSession
 })
 
 // Estado da rede
@@ -423,7 +423,7 @@ onMounted(async () => {
   }, 2000);
 })
 
-watch(() => newSession.value, () => {
+watch(() => isNewSession.value, () => {
   initializeSocket()
 
   // setar com base no valor do corrente usuario

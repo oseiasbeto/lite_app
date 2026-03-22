@@ -3,19 +3,16 @@ import { ref } from 'vue'
 import Input from '../components/Input.vue'
 import ButtonPrimary from '../components/ButtonPrimary.vue'
 import ButtonSecondary from '../components/ButtonSecondary.vue'
-import { onBeforeRouteLeave, useRouter } from 'vue-router';
+import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
 import Toast from '@/components/UI/Toast.vue';
 
-const step = ref(1)
 const identifier = ref('')
 const password = ref('')
 const identifierError = ref({ show: false, message: '' })
 const passwordError = ref({ show: false, message: '' })
-const userInfo = ref(null) // Simula info do usuário após verificação do identificador
 const isLoggingIn = ref(false) // Para simular estado de login
-const isLogged = ref(false) // Mensagem do toast
 
 const toast = ref({
   show: false,
@@ -29,55 +26,18 @@ const store = useStore() // Para acessar ações do Vuex
 function validateIdentifier() {
   const value = identifier.value.trim()
   if (!value) {
-    identifierError.value = { show: true, message: 'Insira um e-mail ou nome de usuário.' }
+    identifierError.value = { show: true, message: 'O e-mail é obrigatório.' }
     return false
-  }
+  } 
 
-  // Validação simples como no X: aceita email ou @username (com ou sem @ inicial)
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  let normalizedValue = value
-  const usernameRegex = /^[a-zA-Z0-9_]{1,15}$/
-  const atUsernameRegex = /^@[a-zA-Z0-9_]{1,15}$/
-
-  if (atUsernameRegex.test(value)) {
-    // Já tem @, ok
-  } else if (usernameRegex.test(value)) {
-    // Sem @, assume username e adiciona @
-    normalizedValue = '@' + value
-  } else if (!emailRegex.test(value)) {
-    identifierError.value = { show: true, message: 'Insira um e-mail ou nome de usuário válido.' }
-    return false
-  }
-
-  identifier.value = normalizedValue // Normaliza se necessário
   identifierError.value = { show: false, message: '' }
   return true
-}
-
-function handleBack() {
-  step.value = 1
-  password.value = ''
-}
-
-function handleNext() {
-  if (!validateIdentifier()) return
-
-  // Simula chamada API para verificar se o usuário existe (no real, use axios/fetch)
-  // Para demo: assume que existe e "fetch" info básica
-  // Em produção: envie para backend e lide com erros (ex: "Usuário não encontrado")
-  setTimeout(() => {
-    userInfo.value = {
-      username: identifier.value.startsWith('@') ? identifier.value : '@' + identifier.value.split('@')[0],
-      display: identifier.value
-    }
-    step.value = 2
-  }, 500) // Simula delay de rede
 }
 
 function validatePassword() {
   const value = password.value.trim()
   if (!value) {
-    passwordError.value = { show: true, message: 'Insira sua senha.' }
+    passwordError.value = { show: true, message: 'A senha é obrigatória.' }
     return false
   }
 
@@ -86,25 +46,18 @@ function validatePassword() {
   return true
 }
 
-async function handleLogin() {
-  if (!validatePassword()) return
+async function handleSignin() {
+  if (!validateIdentifier || !validatePassword()) return
 
   isLoggingIn.value = true
   try {
     await store.dispatch('login', { identifier: identifier.value, password: password.value })
-    isLogged.value = true
 
     router.push('/home') // Redireciona para a página inicial após login
   } catch (err) {
     let errorMessage = 'Credenciais inválidas. Tente novamente.'
-    if (err.response) {
-      // Personaliza a mensagem baseada no erro do backend
-      if (err.response.status === 401) {
-        errorMessage = 'Usuário ou senha incorretos.'
-      } else if (err.response.data && err.response.data.message) {
-        errorMessage = err.response.data.message
-      }
-    }
+
+    identifier.value = ""
     password.value = ""
     toast.value.message = errorMessage
     toast.value.type = 'error'
@@ -123,21 +76,8 @@ function handleForgotPassword() {
 }
 
 function handleClose() {
-  if (step.value == 2) {
-    handleBack()
-  } else {
-    router.back()
-  }
+  router.back()
 }
-
-onBeforeRouteLeave((to, from, next) => {
-  if (step.value === 2 && !isLogged.value) {
-    handleBack()
-    next(false)
-  } else {
-    next()
-  }
-})
 </script>
 
 <template>
@@ -170,40 +110,20 @@ onBeforeRouteLeave((to, from, next) => {
 
       <!-- Título dinâmico -->
       <h1 class="text-4xl font-bold text-text-primary mb-10 text-center">
-        {{ step === 1 ? 'Entrar no 1kole' : 'Insira sua senha' }}
+        Entrar no 1kole
       </h1>
 
       <!-- Formulário -->
       <div class="w-full max-w-sm flex flex-col gap-5">
-        <template v-if="step === 1">
-          <!-- Campo de identificação -->
-          <Input v-model="identifier" title="Email ou nome de usuário" label="identifier" :error="identifierError" />
+        <!-- Campo de identificação -->
+        <Input @update:model-value="validateIdentifier" v-model="identifier" title="Email" label="identifier" :error="identifierError" />
+        <!-- Campo de senha -->
+        <Input @update:model-value="validatePassword" v-model="password" title="Senha" label="password" type="password" :error="passwordError" />
 
-          <!-- Botão Avançar -->
-          <ButtonPrimary @click="handleNext" :disabled="!identifier.trim()">
-            Avançar
-          </ButtonPrimary>
-        </template>
-
-        <template v-else-if="step === 2">
-          <!-- Info do usuário (como no X: mostra o identificador ou @) -->
-          <div class="text-center mb-4 text-gray-500">
-            Entrando como {{ userInfo.username }} ({{ userInfo.display }})
-          </div>
-
-          <!-- Campo de senha -->
-          <Input v-model="password" title="Senha" label="password" type="password" :error="passwordError" />
-
-          <!-- Botão Entrar -->
-          <ButtonPrimary :loading="isLoggingIn" :disabled="!password.trim() || isLoggingIn" @click="handleLogin">
-            Entrar
-          </ButtonPrimary>
-
-          <!-- Botão Voltar -->
-          <ButtonSecondary @click="handleBack" :disabled="isLoggingIn">
-            Usar outro identificador
-          </ButtonSecondary>
-        </template>
+        <!-- Botão Avançar -->
+        <ButtonPrimary @click="handleSignin" :disabled="!identifier.trim() || !password.trim() || identifierError?.show || passwordError?.show">
+          Entrar
+        </ButtonPrimary>
 
         <!-- Botão de senha esquecida (visível em ambos steps, mas ação depende) -->
         <ButtonSecondary @click="handleForgotPassword" :disabled="isLoggingIn">
@@ -212,7 +132,7 @@ onBeforeRouteLeave((to, from, next) => {
       </div>
 
       <!-- Link para cadastro (visível apenas no step 1) -->
-      <p v-if="step === 1" class="mt-8 text-gray-500 text-base">
+      <p class="mt-8 text-gray-500 text-base">
         Não tem conta?
         <router-link to="/auth/signup" class="text-primary hover:underline font-semibold">
           Inscrever-se

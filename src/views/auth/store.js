@@ -12,14 +12,16 @@ export default {
         user: null,
         token: null,
         sessionId: null,
-        newSession: false
+        newSession: false,
+        newUser: false
     },
     mutations: {
-        SET_AUTH(state, { user, new_session = false, access_token, session_id }) {
+        SET_AUTH(state, { user, new_user = false, new_session = false, access_token, session_id }) {
             state.user = user
             state.token = access_token
             state.sessionId = session_id
             state.newSession = new_session
+            state.newUser = new_user
 
             setSessionIdFromCookies(session_id);
 
@@ -77,21 +79,30 @@ export default {
                 throw err  // Propaga o erro para que o componente possa lidarhar adequadamente (exibir mensagem de erro, etc).
             }
         },
-        async register({ commit }, { name, email, password }) {
+        async register({ commit }, { name, email }) {
             try {
-                const res = await api.post("/auth/register", { name, email, password });
+                const res = await api.post("/auth/register", { name, email });
                 return res
             } catch (err) {
                 logger.error('Erro ao criar uma conta:', err.message);
                 throw err  // Propaga o erro para que o componente possa lidarhar adequadamente (exibir mensagem de erro, etc).
             }
         },
+        async completeRegistration({ commit }, { email, password }) {
+            try {
+                const res = await api.put("/auth/register/complete", { email, password });
+                const { user, access_token, session_id } = res.data;
+
+                commit('SET_AUTH', { user, new_user: true, new_session: true, access_token, session_id })
+                return res
+            } catch (err) {
+                logger.error('Erro ao completar o registo da conta:', err.message);
+                throw err  // Propaga o erro para que o componente possa lidarhar adequadamente (exibir mensagem de erro, etc).
+            }
+        },
         async verifyEmail({ commit }, { email, code }) {
             try {
                 const res = await api.post("/auth/verify-email", { email, code });
-                const { user, access_token, session_id } = res.data;
-
-                commit('SET_AUTH', { user, new_session: true, access_token, session_id })
                 return res
             } catch (err) {
                 logger.error('Erro ao verificar conta:', err.message);
@@ -126,20 +137,12 @@ export default {
                 logger.error('Erro ao redefinir a senha:', err.message);
                 throw err  // Propaga o erro para que o componente possa lidarhar adequadamente (exibir mensagem de erro, etc).
             }
-        },
-        async checkEmailExisists({ commit }, email) {
-            try {
-                const res = await api.post("/auth/check-email", { email });
-                return res
-            } catch (err) {
-                logger.error('Erro ao checar e-mail:', err.message);
-                throw err  // Propaga o erro para que o componente possa lidarhar adequadamente (exibir mensagem de erro, etc).
-            }
         }
     },
     getters: {
         accessToken: (state) => state.token,
-        newSession: (state) => state.newSession,
+        isNewSession: (state) => state.newSession,
+        isNewUser: (state) => state.newUser,
         currentUser: (state) => state.user,
     }
 }
