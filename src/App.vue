@@ -409,8 +409,10 @@ onMounted(async () => {
   // Aplicar tema salvo
   setThemeColor(savedTheme.value)
 
-  // Configurar listeners de conexão
-  setupConnectionListeners();
+  if (sessionId) {
+    // Configurar listeners de conexão
+    setupConnectionListeners();
+  }
 
   // Se tiver sessão salva, tentar restaurar
   if (sessionId && !isAuthenticated.value) {
@@ -424,7 +426,10 @@ onMounted(async () => {
 })
 
 watch(() => isNewSession.value, () => {
+  
   initializeSocket()
+  // Configurar listeners de conexão
+  setupConnectionListeners();
 
   // setar com base no valor do corrente usuario
   if (user.value) {
@@ -442,8 +447,12 @@ onUnmounted(() => {
     disconnectSocket()
   }
 
-  // Remover listeners de conexão
-  removeConnectionListeners()
+
+  if (sessionId) {
+    // Remover listeners de conexão
+    removeConnectionListeners()
+  }
+
 
   clearInterval(heartbeat);
 });
