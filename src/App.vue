@@ -1,5 +1,5 @@
 <script setup>
-import SplashScreen from "./components/UI/SplashScreen.vue"
+import LoadingScreen from "./components/UI/LoadingScreen.vue"
 import { useStore } from "vuex"
 import { computed, onMounted, ref, watch, onUnmounted } from "vue";
 import { useRoute } from "vue-router";
@@ -474,7 +474,7 @@ onUnmounted(() => {
       <!--start content-->
       <div class="h-full">
         <router-view v-slot="{ Component }">
-          <keep-alive :include="['ActiveChats', 'ArchivedChats', 'NewMessage', 'Messages']">
+          <keep-alive :include="['ActiveChats', 'Home', 'ArchivedChats', 'NewMessage', 'Messages']">
             <component :is="Component" />
           </keep-alive>
         </router-view>
@@ -488,7 +488,7 @@ onUnmounted(() => {
       <!--end modals-->
     </div>
     <div v-else>
-      <splash-screen />
+      <loading-screen />
     </div>
     <!-- end main app area-->
   </div>

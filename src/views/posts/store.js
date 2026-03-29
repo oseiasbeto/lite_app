@@ -7,38 +7,81 @@ export default {
         parentPost: {}
     },
     mutations: {
-        PUSH_POST(state, payload) {
-            const { post, module = 'feed' } = payload
-            const moduleIndex = state.posts.findIndex((m) => m.module === module);
+        SET_MODULE_POSTS(state, payload) {
+            const posts = state.posts;
 
-            if (moduleIndex === -1) {
-                const newModule = {
-                    module,
-                    items: [post],
-                    pagination: {
-                        total: 1,
-                        page: 1,
-                        totalPages: 1,
-                        hasMore: false
-                    }
-                }
-                const posts = state.posts
-                posts.push(newModule)
+            if (!posts) return;
+
+            const byModule = payload?.module || null
+
+            const index = posts.findIndex(p => p.module === byModule)
+
+            if (index === -1) {
+                posts.push(payload);
             } else {
-                const module = state.posts[moduleIndex];
+                const cachedModule = state.posts[index];
+                const posts = payload?.posts || []
+                const { page, totalPages, hasMore } = payload?.pagination || {}
 
-                module.items = [
-                    post,
-                    ...(Array.isArray(module.items) ? module.items : [])
-                ];
+                if (!posts.length) return
 
-                // Atualiza paginação sem conflitos
-                module.pagination.total += 1;
-                module.pagination.totalPages = Math.ceil(
-                    module.pagination.total / module.pagination.limit || 10
-                )
+                // Filtra os novos posts para remover quaisquer que já existam no cache
+                const uniqueNewPosts = posts.filter(
+                    (newPost) =>
+                        !cachedModule.posts.some(
+                            (existingPost) => existingPost._id === newPost._id
+                        )
+                );
+
+                cachedModule.posts = [...cachedModule.posts, ...uniqueNewPosts];
+                cachedModule.pagination.page = page;
+                cachedModule.pagination.totalPages = totalPages;
+                cachedModule.pagination.hasMore = hasMore
             }
         },
+        SET_POST(state, payload) {
+            state.post = payload
+        },
+        UPDATE_REACTIONS_POST(state, { module, payload }) {
+            if (!module || !payload) return
+
+            const {
+                post_id,
+                upvotes,
+                upvotes_count,
+                downvotes,
+                comment_count,
+                shares_count,
+                downvotes_count
+            } = payload
+
+            const modulePosts = state.posts.find(m => m.module === module)
+
+            if (modulePosts?.posts?.length) {
+                const post = modulePosts.posts.find(p => p?._id === post_id)
+
+                if (!post) return
+                else {
+                    post.upvotes = upvotes
+                    post.upvotes_count = upvotes_count
+                    post.downvotes = downvotes
+                    post.downvotes_count = downvotes_count
+                    post.comment_count = comment_count
+                    post.shares_count = shares_count
+                }
+            }
+
+            const post = state.post
+
+            if (post?._id === post_id) {
+                post.upvotes = upvotes
+                post.upvotes_count = upvotes_count
+                post.downvotes = downvotes
+                post.downvotes_count = downvotes_count
+                post.comment_count = comment_count
+                post.shares_count = shares_count
+            }
+        }
     },
     actions: {
         async createPost({ commit }, data) {
@@ -46,23 +89,108 @@ export default {
                 const response = await api.post('/posts', data);
                 const { new_post } = response.data
 
-                if (data?.postShared) {
-                    commit("INCREMENT_SHARE_COUNT_POST", {
-                        byId: data?.byId,
-                        postId: data?.originalPostId ? data?.originalPostId : data?.sharedPostId
-                    })
-                }
+                commit("SET_POST", new_post)
 
-                const payload = {
-                    post: new_post,
-                    module: data?.module || 'feed'
-                }
-                commit("PUSH_POST", payload)
+                return new_post
             } catch (error) {
                 console.error(error);
             }
         },
+        async getPostById({ commit }, postId) {
+            try {
+                const response = await api.get('/posts/' + postId);
+                const { post } = response.data
+
+                commit("SET_POST", post)
+
+                return post
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        async getFeedPosts({ commit }, query) {
+            try {
+                const { module, hasTotal, page: currentPage, limit } = query
+
+                const response = await api.get('/posts/feed', {
+                    params: {
+                        page: currentPage,
+                        total: hasTotal,
+                        limit: limit
+                    }
+                });
+
+                const { posts, page, totalPages, total, hasMore } = response.data
+
+                const payload = {
+                    module,
+                    posts,
+                    pagination: {
+                        page,
+                        total,
+                        hasMore,
+                        totalPages,
+                    }
+                }
+
+                commit("SET_MODULE_POSTS", payload)
+            } catch (error) {
+                console.error(error);
+            }
+        },
+        async toggleUpvotePost({ commit }, { postId, module }) {
+            try {
+                const response = await api.put(`/posts/${postId}/toggle-upvote`);
+
+                const { post } = response.data
+                const { upvotes, upvotes_count, downvotes, comment_count, shares_count, downvotes_count } = post
+
+                const payload = {
+                    post_id: post?._id,
+                    upvotes,
+                    upvotes_count,
+                    downvotes,
+                    comment_count,
+                    shares_count,
+                    downvotes_count
+                }
+
+                commit("UPDATE_REACTIONS_POST", {
+                    payload,
+                    module
+                })
+            } catch (error) {
+                console.error("Erro ao adicionar/remover voto positivo na postagem:", error?.response?.message);
+            }
+        },
+        async toggleDownvotePost({ commit }, { postId, module }) {
+            try {
+                const response = await api.put(`/posts/${postId}/toggle-downvote`);
+
+                const { post } = response.data
+                const { upvotes, upvotes_count, downvotes, comment_count, shares_count, downvotes_count } = post
+
+                const payload = {
+                    post_id: post?._id,
+                    upvotes,
+                    upvotes_count,
+                    downvotes,
+                    comment_count,
+                    shares_count,
+                    downvotes_count
+                }
+
+                commit("UPDATE_REACTIONS_POST", {
+                    payload,
+                    module
+                })
+            } catch (error) {
+                console.error("Erro ao adicionar/remover voto positivo na postagem:", error?.response?.message);
+            }
+        },
     },
     getters: {
+        currentPost: (state) => state.post,
+        modulePosts: (state) => state.posts,
     }
 }

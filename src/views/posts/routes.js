@@ -8,5 +8,15 @@ export default [
             title: 'Compor'
         },
         component: () => import('./views/Composer.vue')
+    },
+    {
+        path: '/post/:id',
+        name: 'Post details',
+        meta: {
+            requiresAuth: true,
+            rootPage: 'posts',
+            title: 'Postagem'
+        },
+        component: () => import('./views/PostDetails.vue')
     }
 ]
