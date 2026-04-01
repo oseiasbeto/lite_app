@@ -1,23 +1,18 @@
 <template>
-    <div class="relative overflow-hidden">
-        <VirtualPostList 
-            :posts="feedPosts?.posts || []" 
-            :has-more="feedPosts?.pagination?.hasMore || false"
-            :loading-fetch="loadingFeedPosts" 
-            :loading-load-more="loadingLoadMore" 
-            module="feed"
-            @on-load-more="handleLoadMore">
-            <template #before-content>
-                <CreatePostTrigger module="feed" />
-            </template>
-        </VirtualPostList>
+    <div @scroll="setScrollTopFromCache" class="relative h-screen overflow-y-scroll"
+    ref="feedView"
+    >
+        <CreatePostTrigger module="feed" />
+        <PostList :posts="feedPosts?.posts || []" :has-more="feedPosts?.pagination?.hasMore || false"
+            :loading-fetch="loadingFeedPosts" :loading-load-more="loadingLoadMore" module="feed"
+            @on-load-more="handleLoadMore" />
     </div>
 </template>
 
 <script setup>
 import CreatePostTrigger from '@/views/posts/components/CreatePostTrigger.vue';
-import VirtualPostList from '@/views/posts/components/VirtualPostList.vue';
-import { ref, onMounted, computed } from 'vue';
+import PostList from '@/views/posts/components/PostList.vue';
+import { ref, onMounted, onActivated, computed } from 'vue';
 import { useStore } from 'vuex';
 
 const store = useStore()
@@ -31,7 +26,9 @@ const query = ref({
     module: 'feed',
     hasTotal: null
 })
+
 const module = ref('feed')
+const feedView = ref(null)
 
 const feedPosts = computed(() => {
     const modules = store.getters.modulePosts
@@ -47,6 +44,14 @@ const resetQuery = () => {
         module: 'feed',
         total: null
     }
+}
+
+const setScrollTopFromCache = (event) => {
+    const scrollTop = event.target.scrollTop
+    store.commit("UPDATE_PAGINATION_POSTS_FROM_CACHE", {
+        module: module.value,
+        scrollTop
+    })
 }
 
 const fetchFeedPosts = async () => {
@@ -83,5 +88,13 @@ onMounted(async () => {
         loadingFeedPosts.value = false
     }
 
+})
+
+onActivated(() => {
+    if (feedPosts.value) {
+        const { pagination } = feedPosts.value
+          
+        feedView.value.scrollTop = pagination?.scrollTop || 0
+    }
 })
 </script>

@@ -33,7 +33,9 @@
                 })" />
             <!--LOAD MORE-->
             <button :disabled="loadingLoadMoreReplies" @click="loadMoreReplies" v-if="queryReplies?.hasMore">
-                <span v-if="!loadingLoadMoreReplies">Ver mais ></span>
+                <span v-if="!loadingLoadMoreReplies">Ver mais >
+                
+                </span>
                 <span v-else>...</span>
             </button>
         </div>
@@ -41,7 +43,7 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue';
+import { ref } from 'vue';
 import CommentAuthorDetails from './CommentAuthorDetails.vue';
 import CommentContent from './CommentContent.vue';
 import CommentReactions from './CommentReactions.vue';
@@ -79,7 +81,7 @@ const queryReplies = ref({
     page: 1,
     limit: 3,
     parentId: props?.data?._id,
-    hasMore: props?.data?.pagination_replies || props?.data?.replies_count > 3,
+    hasMore: props?.data?.pagination_replies?.hasMore !== undefined ? props?.data?.pagination_replies?.hasMore : props?.data?.replies_count > 3,
     hasTotal: props?.data?.replies_count
 })
 
@@ -137,7 +139,4 @@ const onReply = ({ parent, replyTo }) => {
         replyTo
     })
 }
-
-onMounted(() => {
-})
 </script>

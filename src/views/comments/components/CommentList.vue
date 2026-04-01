@@ -3,8 +3,9 @@
         <!-- ITENS -->
         <div v-if="!loadingFetch">
             <div v-if="comments?.length">
-                <CommentCard v-for="item in comments" @on-reply="onReply" :postId="postId" :data="item"
-                    :user-id="user?._id" />
+                <CommentCard v-for="item in comments" @on-reply="onReply" :postId="postId" 
+                    :data="item"
+                    :user-id="user?._id" :key="item?._id" />
 
                 <!-- LOAD MORE -->
                 <div ref="loadTrigger" v-if="pagination?.hasMore || loadingLoadMore"

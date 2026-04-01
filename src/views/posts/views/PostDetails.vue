@@ -13,17 +13,16 @@
                 </div>
 
                 <!--COMMENTS FILTERS-->
-                <div class="flex items-center justify-between py-1 px-2">
+                <div v-if="cacheComments?.comments?.length" class="flex items-center justify-between py-1 px-2">
                     <p class="text-xs">Comentarios</p>
-                    <button v-if="cacheComments?.comments?.length" @click="openSortByFilterDrawer" class="text-xs"> {{
+                    <button @click="openSortByFilterDrawer" class="text-xs"> {{
                         sortByText }} > </button>
                 </div>
 
                 <!--COMMENTS-->
-                <CommentList :comments="cacheComments?.comments || []" :pagination="cacheComments?.pagination"
+                <CommentList :comments="cacheComments?.comments || []" :pagination="cacheComments?.pagination || {}"
                     :loading-fetch="loadingFetchComments" :loading-load-more="loadingLoadMoreComments" :postId="postId"
-                    @on-load-more="handleLoadMoreComments" @on-reply="openNewCommentDrawer"
-                    />
+                    @on-load-more="handleLoadMoreComments" @on-reply="openNewCommentDrawer" />
             </div>
         </div>
         <div v-else>
@@ -291,6 +290,12 @@ onMounted(async () => {
                 loadingFetchPost.value = false
             })
     } else {
+        if (post.value?.showCommentFormDrawer) {
+            setTimeout(() => {
+                openNewCommentDrawer()
+            }, 1000)
+        }
+
         if (!cacheComments.value?.comments?.length) {
             await fetchComments(post?.value?._id)
         }
@@ -299,7 +304,7 @@ onMounted(async () => {
 
 watch(() => route.params.id, async (newId, oldId) => {
     if (!newId || newId === oldId) return; else
-    loadingFetchComments.value = true
+        loadingFetchComments.value = true
 
     postId.value = newId
 
@@ -316,11 +321,24 @@ watch(() => route.params.id, async (newId, oldId) => {
         loadingFetchComments.value = false
 
         postView.value.scrollTop = scrollTop || 0
+
+        if (post.value?.showCommentFormDrawer) {
+            setTimeout(() => {
+                openNewCommentDrawer()
+            }, 1000)
+        }
     } else {
         resetQueryComments()
         queryComments.value.type = 'set'
         await fetchComments(postId.value)
-            .finally(() => loadingFetchComments.value = false)
+            .finally(() => {
+                loadingFetchComments.value = false
+                if (post.value?.showCommentFormDrawer) {
+                    setTimeout(() => {
+                        openNewCommentDrawer()
+                    }, 1000)
+                }
+            })
     }
 
 })

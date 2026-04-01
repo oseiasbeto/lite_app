@@ -51,7 +51,7 @@ export default {
                 upvotes,
                 upvotes_count,
                 downvotes,
-                comment_count,
+                comments_count,
                 shares_count,
                 downvotes_count
             } = payload
@@ -61,13 +61,12 @@ export default {
             if (modulePosts?.posts?.length) {
                 const post = modulePosts.posts.find(p => p?._id === post_id)
 
-                if (!post) return
-                else {
+                if (post) {
                     post.upvotes = upvotes
                     post.upvotes_count = upvotes_count
                     post.downvotes = downvotes
                     post.downvotes_count = downvotes_count
-                    post.comment_count = comment_count
+                    post.comments_count = comments_count
                     post.shares_count = shares_count
                 }
             }
@@ -79,8 +78,28 @@ export default {
                 post.upvotes_count = upvotes_count
                 post.downvotes = downvotes
                 post.downvotes_count = downvotes_count
-                post.comment_count = comment_count
+                post.comments_count = comments_count
                 post.shares_count = shares_count
+            }
+        },
+        UPDATE_PAGINATION_POSTS_FROM_CACHE(state, payload) {
+            const modulePosts = state.posts;
+
+            if (!modulePosts?.length) return;
+
+            const module = payload?.module || null
+
+            const index = modulePosts.findIndex(m => m.module === module)
+
+            if (index !== -1) {
+                const { scrollTop } = payload
+
+                state.posts[index].pagination = {
+                    ...state.posts[index].pagination,
+                    ...(scrollTop && {
+                        scrollTop
+                    })
+                }
             }
         },
         INC_COMMENTS_COUNT_FROM_POST(state, postId) {

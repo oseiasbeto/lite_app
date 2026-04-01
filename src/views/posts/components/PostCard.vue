@@ -9,7 +9,7 @@
         <!--BODY-->
         <div class="px-2">
             <!--CONTENT-->
-            <PostContent :content="data.content" />
+            <PostContent :show-more="showMore" @on-press="goToViewMore" :content="data.content" />
 
             <!--MEDIA-->
         </div>
@@ -61,7 +61,10 @@ const handleDownvote = async () => {
 
 const goToComments = () => {
     if (!props.showMore) {
-        store.commit("SET_POST", props?.data)
+        store.commit("SET_POST", {
+            ...props?.data,
+            showCommentFormDrawer: true
+        })
         router.push({
             path: '/post/' + props?.data?._id,
             query: {
@@ -72,6 +75,18 @@ const goToComments = () => {
         emit('openNewCommentDrawer')
     }
 
+}
+
+const goToViewMore = () => {
+    if (!props.showMore) {
+        store.commit("SET_POST", props?.data)
+        router.push({
+            path: '/post/' + props?.data?._id,
+            query: {
+                module: props.module
+            }
+        })
+    } else return
 }
 
 const goToShare = () => {

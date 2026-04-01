@@ -1,6 +1,6 @@
 <template>
     <div>
-        <p v-html="content"></p>
+        <p @click="$emit('onPress')" v-html="content"></p>
     </div>
 </template>
 
@@ -9,6 +9,12 @@ defineProps({
     content: {
         type: String,
         required: true
+    },
+    showMore: {
+        type: Boolean,
+        default: false
     }
 })
+
+defineEmits(['onPress'])
 </script>
