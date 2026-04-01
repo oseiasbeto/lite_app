@@ -1,5 +1,5 @@
 <template>
-    <div class="border-b flex flex-col border-gray-50">
+    <div v-if="data?._id" class="border-b flex flex-col border-gray-50">
         <!--HEADER-->
         <div class="p-2">
             <!--AUTHOR DETAILS-->
@@ -18,7 +18,7 @@
         <div class="p-2">
             <PostReactions :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
                 :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"
-                :comment-count="data?.comment_count" :shares-count="data?.shares_count" @on-upvote="handleUpvote"
+                :comments-count="data?.comments_count" :shares-count="data?.shares_count" @on-upvote="handleUpvote"
                 @on-downvote="handleDownvote" @on-comment="goToComments" @on-share="goToShare" />
         </div>
     </div>

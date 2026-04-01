@@ -3,8 +3,7 @@
         <div class="flex gap-1 items-center">
             <button @click="$emit('on-upvote')" class="px-0.5 text-xs py-0.5">U ({{ upvotesCount }})</button>
             <button @click="$emit('on-downvote')" class="px-0.5 text-xs py-0.5">D ({{ downvotesCount }})</button>
-            <button @click="$emit('on-comment')" class="px-0.5 text-xs py-0.5">Comment ({{ commentsCount }})</button>
-            <button @click="$emit('on-share')" class="px-0.5 text-xs py-0.5">Shares ({{ sharesCount }})</button>
+            <button @click="$emit('on-reply')" class="px-0.5 text-xs py-0.5">Replies ({{ repliesCount }})</button>
         </div>
 
         <div>
@@ -35,7 +34,7 @@ defineProps({
         type: Number,
         default: 0
     },
-    commentsCount: {
+    repliesCount: {
         type: Number,
         default: 0
     },
@@ -45,5 +44,5 @@ defineProps({
     },
 })
 
-defineEmits(['on-upvote', 'on-downvote', 'on-comment', 'on-share'])
+defineEmits(['on-upvote', 'on-downvote', 'on-reply', 'on-share'])
 </script>

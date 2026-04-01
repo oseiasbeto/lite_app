@@ -472,9 +472,9 @@ onUnmounted(() => {
     <!-- start main app area-->
     <div v-if="!loading">
       <!--start content-->
-      <div class="h-full">
+      <div class="overflow-hidden">
         <router-view v-slot="{ Component }">
-          <keep-alive :include="['ActiveChats', 'Home', 'ArchivedChats', 'NewMessage', 'Messages']">
+          <keep-alive :include="['ActiveChats', 'Home', 'PostDetails', 'ArchivedChats', 'NewMessage', 'Messages']">
             <component :is="Component" />
           </keep-alive>
         </router-view>

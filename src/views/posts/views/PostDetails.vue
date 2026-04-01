@@ -1,6 +1,7 @@
 <template>
-    <div>
-        <div v-if="!loadingGetPost">
+    <div @scroll="setScrollTopFromCache" ref="postView" class="h-screen overflow-y-scroll">
+
+        <div v-if="!loadingFetchPost">
             <!--NODY-->
             <div>
                 <PostCard :module="module" :data="post" :show-more="true" :user-id="user?._id"
@@ -11,53 +12,128 @@
                     <CreateCommentTrigger @on-press="openNewCommentDrawer" :user="user" :type="post?.type" />
                 </div>
 
+                <!--COMMENTS FILTERS-->
+                <div class="flex items-center justify-between py-1 px-2">
+                    <p class="text-xs">Comentarios</p>
+                    <button v-if="cacheComments?.comments?.length" @click="openSortByFilterDrawer" class="text-xs"> {{
+                        sortByText }} > </button>
+                </div>
+
+                <!--COMMENTS-->
+                <CommentList :comments="cacheComments?.comments || []" :pagination="cacheComments?.pagination"
+                    :loading-fetch="loadingFetchComments" :loading-load-more="loadingLoadMoreComments" :postId="postId"
+                    @on-load-more="handleLoadMoreComments" @on-reply="openNewCommentDrawer"
+                    />
             </div>
-
-            <!--DRWER-->
-            <Drawer :is-open="drawer?.show" :title="drawer?.metadata?.title">
-                <template v-if="drawer?.name === 'newComment'">
-                    <div class="flex w-full gap-2 flex-col p-4">
-                        <textarea class="w-full outline-none dark:text-black" v-model="commentContent"
-                            placeholder="Escreva o teu comentario"></textarea>
-                        <button :disabled="!commentContent.trim().length"
-                            class="bg-sky-500 px-1.5 py-1 float-right w-min text-white disabled:opacity-80 rounded-md"
-                            @click="handleComment">Postar</button>
-                    </div>
-
-                </template>
-            </Drawer>
         </div>
         <div v-else>
             <p>Carregando...</p>
         </div>
+
+        <!--DRWER-->
+        <Drawer :is-open="drawer?.show" :title="drawer?.metadata?.title">
+            <template v-if="drawer?.name === 'newComment'">
+                <div class="flex w-full gap-2 flex-col p-4">
+                    <div v-if="drawer?.metadata?.parent">
+                        Respondendo: <span class="text-sky-500">@{{ drawer?.metadata?.replyTo?.username ||
+                            drawer?.metadata?.replyTo }}</span>
+                    </div>
+                    <textarea class="w-full outline-none dark:text-black" v-model="commentContent"
+                        placeholder="Escreva o teu comentario"></textarea>
+                    <button :disabled="!canComment"
+                        class="bg-sky-500 px-1.5 py-1 float-right w-min text-white disabled:opacity-80 rounded-md"
+                        @click="handleComment">Postar</button>
+                </div>
+
+            </template>
+
+            <template v-if="drawer?.name === 'sortByFilter'">
+                <DrawerItem @on-press="sortBySelect(option?.value)" v-for="option in sortByOptions"
+                    :title="option?.label" :is-active="option.value === queryComments?.sortBy" :key="option?.id" />
+            </template>
+        </Drawer>
     </div>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, watch, ref } from 'vue';
 import { useRoute, onBeforeRouteLeave } from 'vue-router';
 import { useStore } from 'vuex';
 import PostCard from '../components/PostCard.vue';
 import Drawer from '@/components/drawer/Drawer.vue';
 import CreateCommentTrigger from '@/views/comments/components/CreateCommentTrigger.vue';
+import CommentList from '@/views/comments/components/CommentList.vue';
+import DrawerItem from '@/components/drawer/DrawerItem.vue';
 
 const store = useStore()
 const route = useRoute()
 
+const postId = ref(route.params.id || null)
+const postView = ref(null)
+const module = route.query.module || 'feed'
+
 const post = computed(() => store.getters.currentPost)
 const user = computed(() => store.getters.currentUser)
 
-const postId = route.params.id
-const module = route.query.module || 'feed'
+const canComment = computed(() => {
+    if (commentContent.value.trim().length && !loadingCreateComment.value) return true
+    else return false
+})
+
+const sortByText = computed(() => {
+    switch (queryComments?.value?.sortBy) {
+        case 'recents':
+            return 'Recentes';
+        case 'relevants':
+            return 'Relevantes'
+    }
+})
+
+const sortByOptions = ref([
+    {
+        label: 'Recentes',
+        value: 'recents'
+    },
+    {
+        label: 'Relevantes',
+        value: 'relevants'
+    }
+])
+
+const cacheComments = computed(() => {
+    const modules = store.getters.comments
+    if (modules.length) {
+        return modules.find(m => m?.postId === postId.value)
+    } else return {
+        comments: [],
+        pagination: {}
+    }
+})
 
 const commentContent = ref('')
 
-const loadingGetPost = ref(false)
+const loadingFetchPost = ref(false)
+const loadingFetchComments = ref(false)
+const loadingCreateComment = ref(false)
+const loadingLoadMoreComments = ref(false)
+const hasError = ref({
+    show: true,
+    message: ''
+})
 const drawer = ref({
     show: false,
     name: "",
     metadata: {}
 })
+
+const queryComments = ref({
+    page: 1,
+    limit: 5,
+    sortBy: 'recents',
+    type: 'push',
+    hasTotal: null
+})
+
 const openDrawer = (data) => {
     const { show, name, metadata = {} } = data
 
@@ -82,15 +158,115 @@ const resetCommentForm = () => {
     commentContent.value = ""
 }
 
-const openNewCommentDrawer = () => {
+const resetQueryComments = () => {
+    queryComments.value = {
+        page: 1,
+        limit: 5,
+        sortBy: 'recents',
+        type: 'push',
+        hasTotal: null
+    }
+}
+
+const resetHasError = () => {
+    hasError.value = {
+        show: false,
+        name: "",
+        metadata: {}
+    }
+}
+
+const openNewCommentDrawer = (metadata) => {
     openDrawer({
         show: true,
-        name: "newComment"
+        name: "newComment",
+        metadata
+    })
+}
+const openSortByFilterDrawer = () => {
+    openDrawer({
+        show: true,
+        name: "sortByFilter"
     })
 }
 
+const sortBySelect = async (sortBy) => {
+    closeDrawer()
+
+    if (queryComments.value?.sortBy === sortBy) return
+    else {
+        queryComments.value.sortBy = sortBy
+        queryComments.value.type = 'set'
+        queryComments.value.page = 1
+
+        loadingFetchComments.value = true
+        store.commit("RESET_COMMENTS_FROM_CACHE", postId.value)
+        store.commit("UPDATE_PAGINATION_COMMENTS_FROM_CACHE", {
+            postId: postId.value,
+            sortBy: sortBy
+        })
+        await fetchComments(postId.value).finally(() => loadingFetchComments.value = false)
+    }
+}
+
+const setScrollTopFromCache = (event) => {
+    const scrollTop = event.target.scrollTop
+    store.commit("UPDATE_PAGINATION_COMMENTS_FROM_CACHE", {
+        postId: postId.value,
+        scrollTop
+    })
+}
+
+const handleLoadMoreComments = async () => {
+    const pagination = cacheComments.value?.pagination
+    const { hasMore, totalComments } = pagination
+
+    if (hasMore) {
+        loadingLoadMoreComments.value = true
+        queryComments.value.page += 1
+        queryComments.value.type = 'push'
+        queryComments.value.hasTotal = totalComments
+
+        await fetchComments(postId.value)
+            .finally(() => {
+                loadingLoadMoreComments.value = false
+            })
+    }
+}
+
 const handleComment = async () => {
-    console.log("fazer a postagem")
+    if (!canComment.value) return
+
+    loadingCreateComment.value = true
+
+    const data = {
+        content: commentContent.value,
+        media: [],
+        postId: postId.value || route.params.id,
+        ...(drawer.value?.metadata?.parent, {
+            parentId: drawer?.value?.metadata?.parent?._id || drawer?.value?.metadata?.parent,
+            replyTo: drawer?.value?.metadata?.replyTo?._id || drawer?.value?.metadata?.replyTo
+        })
+    }
+
+    await store.dispatch("createComment", data)
+        .then(() => {
+            //[TODO] coloque um toast dando a entender que ja se criou
+        })
+        .catch(() => {
+            //[TODO] coloque um toast que exiba o motivo do erro
+        })
+        .finally(() => {
+            loadingCreateComment.value = false
+            closeDrawer()
+        })
+}
+
+const fetchComments = async (postId) => {
+    await store.dispatch("getCommentsByPostId", {
+        query: queryComments.value,
+        postId
+    })
 }
 
 onBeforeRouteLeave((to, from, next) => {
@@ -102,17 +278,50 @@ onBeforeRouteLeave((to, from, next) => {
     }
 });
 
+
 onMounted(async () => {
     if (!post.value?._id) {
-        loadingGetPost.value = true
-        try {
-            await store.dispatch("getPostById", postId)
-        } catch (err) {
-            console.log("Erro ao buscar o post:", err?.response?.data?.message)
-        } finally {
-            loadingGetPost.value = false
-        }
+        loadingFetchPost.value = true
 
+        await store.dispatch("getPostById", postId.value)
+            .then(async () => {
+                await fetchComments(postId.value)
+            })
+            .finally(() => {
+                loadingFetchPost.value = false
+            })
+    } else {
+        if (!cacheComments.value?.comments?.length) {
+            await fetchComments(post?.value?._id)
+        }
     }
+})
+
+watch(() => route.params.id, async (newId, oldId) => {
+    if (!newId || newId === oldId) return; else
+    loadingFetchComments.value = true
+
+    postId.value = newId
+
+    if (cacheComments.value?.comments.length) {
+        const { pagination } = cacheComments.value
+
+        const { hasMore, page, sortBy, scrollTop, limit, totalComments } = pagination
+
+        queryComments.value.page = page
+        queryComments.value.hasMore = hasMore
+        queryComments.value.limit = limit
+        queryComments.value.hasTotal = totalComments
+        queryComments.value.sortBy = sortBy ? sortBy : 'recents'
+        loadingFetchComments.value = false
+
+        postView.value.scrollTop = scrollTop || 0
+    } else {
+        resetQueryComments()
+        queryComments.value.type = 'set'
+        await fetchComments(postId.value)
+            .finally(() => loadingFetchComments.value = false)
+    }
+
 })
 </script>

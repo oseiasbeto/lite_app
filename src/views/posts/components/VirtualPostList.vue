@@ -1,5 +1,5 @@
 <template>
-    <div class="h-screen flex flex-col">
+    <div class="flex flex-col">
         <DynamicScroller :items="posts" :min-item-size="120" :class="!loadingFetch ? 'scroller' : 'overflow-hidden'"
             key-field="_id" @scroll="handleScrollEvent" ref="virtualPostListScroller">
 
@@ -42,7 +42,6 @@ import { useStore } from 'vuex';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import PostCard from './PostCard.vue';
 import { useIntersectionObserver } from "@vueuse/core";
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import PostSkeleton from './PostSkeleton.vue';
 
 const store = useStore()
@@ -65,6 +64,7 @@ const setScrollTop = (position) => {
 const handleScrollEvent = (event) => {
     const scrollElement = event.target;
 
+    console.log(scrollElement)
     if (scrollElement) {
         emit('on-scroll', scrollElement.scrollTop)
     }

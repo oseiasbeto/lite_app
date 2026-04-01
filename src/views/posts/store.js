@@ -1,3 +1,4 @@
+import { logger } from '@/utils/logger';
 import api from '../../api'
 
 export default {
@@ -81,6 +82,13 @@ export default {
                 post.comment_count = comment_count
                 post.shares_count = shares_count
             }
+        },
+        INC_COMMENTS_COUNT_FROM_POST(state, postId) {
+            const post = state.post
+
+            if (post && post?._id === postId) {
+                post.comments_count += 1
+            }
         }
     },
     actions: {
@@ -93,7 +101,7 @@ export default {
 
                 return new_post
             } catch (error) {
-                console.error(error);
+                logger.error(error);
             }
         },
         async getPostById({ commit }, postId) {
@@ -105,7 +113,7 @@ export default {
 
                 return post
             } catch (error) {
-                console.error(error);
+                logger.error(error);
             }
         },
         async getFeedPosts({ commit }, query) {
@@ -135,7 +143,7 @@ export default {
 
                 commit("SET_MODULE_POSTS", payload)
             } catch (error) {
-                console.error(error);
+                logger.error(error);
             }
         },
         async toggleUpvotePost({ commit }, { postId, module }) {
@@ -160,7 +168,7 @@ export default {
                     module
                 })
             } catch (error) {
-                console.error("Erro ao adicionar/remover voto positivo na postagem:", error?.response?.message);
+                logger.error("Erro ao adicionar/remover voto positivo na postagem:", error?.response?.message);
             }
         },
         async toggleDownvotePost({ commit }, { postId, module }) {
@@ -185,7 +193,7 @@ export default {
                     module
                 })
             } catch (error) {
-                console.error("Erro ao adicionar/remover voto positivo na postagem:", error?.response?.message);
+                logger.error("Erro ao adicionar/remover voto positivo na postagem:", error?.response?.message);
             }
         },
     },
