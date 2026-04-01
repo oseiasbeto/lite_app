@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
 import routes from "./routes";
 import Cookies from "js-cookie";
+import store from '@/store';
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
@@ -10,6 +11,8 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   document.title = `${to.meta.title}`
   const token = Cookies.get("session_id")
+  
+  store.commit("SET_IS_LOADING_COMPONENT", true)
 
   // Verifica se a rota que o usuário está tentando acessar requer autenticação
   if (to.matched.some(record => record.meta.requiresAuth)) {
@@ -35,6 +38,10 @@ router.beforeEach((to, from, next) => {
   else {
     next();
   }
+})
+
+router.afterEach(() => {
+  store.commit("SET_IS_LOADING_COMPONENT", false)
 })
 
 

@@ -10,8 +10,10 @@ import './assets/tailwind.css' // Importe o arquivo CSS aqui
 import './assets/styles.css' // Importe o arquivo CSS aqui
 
 const app = createApp(App)
+
 app.use(router)
 app.use(VueLazyload)
 app.use(store)
+
 
 .mount('#app')

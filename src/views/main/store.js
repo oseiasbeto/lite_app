@@ -2,11 +2,15 @@ import api from '../../api'
 
 export default {
     state: {
-        topicList: []
+        topicList: [],
+        isLoadingComponent: false
     },
     mutations: {
-         SET_TOPICLIST(state, payload) {
+        SET_TOPICLIST(state, payload) {
             state.topicList = payload
+        },
+        SET_IS_LOADING_COMPONENT(state, payload) {
+            state.isLoadingComponent = payload
         },
     },
     actions: {
@@ -23,5 +27,6 @@ export default {
     },
     getters: {
         topicList: (state) => state.topicList,
+        isLoadingComponent: (state) => state.isLoadingComponent
     }
 }

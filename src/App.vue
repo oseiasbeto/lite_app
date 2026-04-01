@@ -9,6 +9,7 @@ import { getPlayerId } from "webtonative/OneSignal";
 import { statusBar } from "webtonative"
 import { logger } from "./utils/logger";
 import generateSource from "./utils/generate-source";
+import LoadingComponent from "./components/UI/LoadingComponent.vue";
 
 // Estado de loading do app
 const loading = ref(true)
@@ -31,12 +32,8 @@ const node_env = process.env.NODE_ENV === 'production' ? 'prod' : 'dev'
 let socket;
 
 // Pega dados do usuário
-const user = computed(() => {
-  return store.getters.currentUser
-})
-const isNewSession = computed(() => {
-  return store.getters.isNewSession
-})
+const user = computed(() => store.getters.currentUser)
+const isNewSession = computed(() => store.getters.isNewSession)
 
 // Estado da rede
 const networkStatus = computed(() => {
@@ -478,6 +475,8 @@ onUnmounted(() => {
             <component :is="Component" />
           </keep-alive>
         </router-view>
+
+        <loading-component/>
       </div>
 
       <!--start sidebar-->

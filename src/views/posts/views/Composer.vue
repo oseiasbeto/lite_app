@@ -16,7 +16,7 @@
                         </svg>
                     </button>
                     <button @click="openPostAudienceDrawer">{{ audienceText
-                        }}</button>
+                    }}</button>
                 </div>
 
                 <button
@@ -275,7 +275,7 @@ const route = useRoute();
 const store = useStore();
 
 const textAreaRef = ref(null);
-const isSubmiting = ref(false)
+const isSubmited = ref(false)
 const mediaContainer = ref(null);
 const selectFileLoading = ref(false);
 
@@ -335,6 +335,7 @@ const module = computed(() => route.query.module || null);
 const remainingChars = computed(() => MAX_CHARS - postContent.value.length);
 const hasImages = computed(() => mediaPreviews.value.some(m => m.type === 'image'));
 const hasVideo = computed(() => mediaPreviews.value.some(m => m.type === 'video'));
+const isSubmiting = ref(false)
 
 const isUploading = computed(() => {
     return Object.values(uploadProgress.value).some(progress => progress < 100);
@@ -345,7 +346,7 @@ const hasUploadedVideo = computed(() => {
 });
 
 const canPost = computed(() => {
-    if (postContent.value.trim().length > 0 && postType.value !== 'question' || mediaPreviews.value.length > 0 && postType.value !== 'question' || postType.value === 'question' && postQuestion.value.trim().length > 0 || parentPost?.value?._id) return true
+    if (postContent.value.trim().length > 0 && postType.value !== 'question' || mediaPreviews.value.length > 0 && postType.value !== 'question' || postType.value === 'question' && postQuestion.value.trim().length > 0 || parentPost?.value?._id && !isSubmited.value) return true
     else return false
 });
 
@@ -841,7 +842,6 @@ const handleSubmit = async () => {
         .then(newPost => {
             resetForm()
             const { _id } = newPost
-            isSubmiting.value = false
             router.replace({
                 path: '/post/' + _id,
                 ...(module.value, {
@@ -850,9 +850,9 @@ const handleSubmit = async () => {
                     }
                 })
             });
-
         })
         .catch(() => {
+            isSubmiting.value = false
             console.log("Deu um erro")
         })
 };
@@ -866,7 +866,7 @@ onBeforeRouteLeave((to, from, next) => {
         closeDrawer()
         next(false)
     } else {
-        next();
+        next()
     }
 });
 

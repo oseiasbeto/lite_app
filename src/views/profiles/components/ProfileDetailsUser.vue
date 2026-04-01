@@ -5,7 +5,7 @@
         </div>
          
         <div>
-           <p>{{ user?.name || 'Nome' }}</p> 
+           <p>{{ profile?.name || 'Nome' }}</p> 
            <p>Descricao</p>
         </div>
     </div>
@@ -14,9 +14,13 @@
 <script setup>
 import Avatar from '@/components/Utils/Avatar.vue';
 
-defineProps({
-    user: {
+const props = defineProps({
+    profile: {
         type: Object,
+        required: true
+    },
+    userId: {
+        type: String,
         required: true
     }
 })

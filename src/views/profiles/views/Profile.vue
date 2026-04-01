@@ -5,12 +5,12 @@
                 <div>
                     <!--DETAILS USER-->
                     <div class="border-b p-2 border-gray-50">
-                        <ProfileDetailsUser :user="profile" />
+                        <ProfileDetailsUser :profile="profile" :user-id="user?._id" />
                     </div>
 
                     <!--REACTIOS-->
                     <div class="border-b p-2 border-gray-50">
-                        <ProfileReactions :user="profile" @on-follow="handleFollow" />
+                        <ProfileReactions :profile="profile" :user-id="user?._id" @on-follow="handleFollow" />
                     </div>
                 </div>
 
@@ -59,6 +59,7 @@ import PostList from '@/views/posts/components/PostList.vue';
 const store = useStore()
 const route = useRoute()
 
+const user = computed(() => store.getters?.currentUser || null)
 const profile = computed(() => store.getters?.currentProfile || null)
 const userId = computed(() => route.params.profile_id)
 
