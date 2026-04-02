@@ -2,10 +2,15 @@
     <div @scroll="setScrollTopFromCache" class="relative h-screen overflow-y-scroll"
     ref="feedView"
     >
+    <div class="pb-1 border-b border-b-gray-50">
         <CreatePostTrigger module="feed" />
+    </div>
+    <div>
         <PostList :posts="feedPosts?.posts || []" :has-more="feedPosts?.pagination?.hasMore || false"
             :loading-fetch="loadingFeedPosts" :loading-load-more="loadingLoadMore" module="feed"
             @on-load-more="handleLoadMore" />
+    </div>
+        
     </div>
 </template>
 

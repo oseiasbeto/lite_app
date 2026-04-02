@@ -3,7 +3,7 @@ import chats from '../views/chats/routes'
 import main from '../views/main/routes'
 import posts from '../views/posts/routes'
 import users from '../views/users/routes'
-import wallets from '../views/wallets/routes'
+import profiles from '../views/profiles/routes'
 
 export default [
     ...auth,
@@ -11,5 +11,5 @@ export default [
     ...main,
     ...posts,
     ...users,
-    ...wallets
+    ...profiles
 ]

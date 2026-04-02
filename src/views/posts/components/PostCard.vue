@@ -1,9 +1,11 @@
 <template>
-    <div v-if="data?._id" class="border-b flex flex-col border-gray-50">
+    <div v-if="data?._id" class="flex flex-col border-gray-50"
+    :class="[isParentPost ? 'border-none' : 'border-b']"
+    >
         <!--HEADER-->
         <div class="p-2">
             <!--AUTHOR DETAILS-->
-            <PostAuthorDetails :author="data?.author" :user-id="userId" />
+            <PostAuthorDetails :author="data?.author" :user-id="userId" :is-parent-post="isParentPost" />
         </div>
 
         <!--BODY-->
@@ -12,10 +14,16 @@
             <PostContent :show-more="showMore" @on-press="goToViewMore" :content="data.content" />
 
             <!--MEDIA-->
+
+            <!--PARENT POST-->
+            <div v-if="data?.shared_post?._id">
+                <PostCard :data="data?.shared_post" :is-parent-post="true" :user-id="userId" :module="module"/>
+            </div>
+            
         </div>
 
         <!--FOOTER-->
-        <div class="p-2">
+        <div v-if="!isParentPost" class="p-2">
             <PostReactions :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
                 :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"
                 :comments-count="data?.comments_count" :shares-count="data?.shares_count" @on-upvote="handleUpvote"
@@ -90,7 +98,18 @@ const goToViewMore = () => {
 }
 
 const goToShare = () => {
-    console.log("go to share")
+    
+    const parentPost = props?.data?.shared_post ? props?.data?.shared_post : props?.data
+
+    store.commit("SET_PARENT_POST", parentPost)
+    router.push({
+        path: '/composer',
+        query: {
+            module: props.module,
+            parent_post: parentPost?._id || undefined,
+            post_type: 'post'
+        }
+    })
 }
 
 const emit = defineEmits(['openNewCommentDrawer'])
@@ -99,6 +118,10 @@ const props = defineProps({
     data: {
         type: Object,
         required: true
+    },
+    isParentPost: {
+        type: Boolean,
+        default: false
     },
     module: {
         type: String,
@@ -113,4 +136,5 @@ const props = defineProps({
         required: true
     }
 })
+
 </script>

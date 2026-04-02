@@ -1,19 +1,24 @@
 <template>
     <div class="relative">
         <div v-if="!isSubmiting" class="relative w-screen overflow-y-auto box-border flex flex-col"
-            :style="{ height: `calc(${viewportHeight}px - 52px)` }">
+            :style="{ height: `calc(${viewportHeight}px - ${showFooter ? 52 : 0}px)` }">
 
             <!--start header-->
             <div
                 class="flex fixed top-0 w-full z-[100] h-14 p-2 bg-surface-0 dark:bg-dark-bg items-center justify-between">
-                <button
-                    class="py-1.5 px-2.5 text-sm hover:bg-primary/20 dark:hover:bg-primary/30 text-light-link dark:text-dark-link rounded-full font-semibold flex items-center"
-                    @click="openCancelPostDrawer">
-                    <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="m5.5 5.5 13 13m-13 0 13-13" class="icon_svg-stroke" stroke="#666" stroke-width="1.5"
-                            fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
-                    </svg>
-                </button>
+                <div class="flex items-center gap-2">
+                    <button
+                        class="py-1.5 px-2.5 text-sm hover:bg-primary/20 dark:hover:bg-primary/30 text-light-link dark:text-dark-link rounded-full font-semibold flex items-center"
+                        @click="openCancelPostDrawer">
+                        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="m5.5 5.5 13 13m-13 0 13-13" class="icon_svg-stroke" stroke="#666"
+                                stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
+                        </svg>
+                    </button>
+                    <button @click="openPostAudienceDrawer">{{ audienceText
+                        }}</button>
+                </div>
+
                 <button
                     class="h-9 px-5 text-sm rounded-full text-white disabled:opacity-60 disabled:pointer-events-none font-semibold bg-primary-500"
                     @click="handleSubmit" :disabled="!canPost || isSubmiting || selectFileLoading || isUploading">
@@ -25,7 +30,7 @@
             <!--start body-->
             <div class="flex-1 max-h-full justify-between flex-col mt-14 ">
                 <div>
-                    <div>
+                    <div v-if="!parentPost?._id">
                         <div class="flex borde-b border-gray-100 pb-2 items-center gap-1 justify-center flex-1">
                             <button @click="setPostType('question')"
                                 :class="{ '!text-sky-400': postType === 'question' }" class="flex-1">Fazer
@@ -71,11 +76,6 @@
                                 <p>{{ user?.display_name }}</p>
                             </div>
                         </div>
-
-                        <div>
-                            <button @click="openPostAudienceDrawer" v-if="postType === 'question'">{{ audienceText
-                                }}</button>
-                        </div>
                     </div>
                     <!--end author-->
 
@@ -89,11 +89,6 @@
                     <div v-else>
                         <!--star quill editor -->
                         <label for="quillText">
-                            <!--start reply to
-                    <reply-to-original-post
-                        :original-post="originalPost.is_repost ? originalPost.original_post : originalPost"
-                        v-if="!loadingGetPostById && originalPost?._id" />
-                    end reply to-->
 
                             <div class="flex flex-col">
                                 <div class="flex-1 p-2">
@@ -104,6 +99,11 @@
                                         @input="adjustTextareaHeight">
                             </textarea>
                                 </div>
+
+                                <div v-if="parentPost?._id && !loadingFetchPostParent" class="flex flex-col">
+                                    <ParentPostCard :data="parentPost" :module="module" :user-id="user?._id" />
+                                </div>
+
                             </div>
                         </label>
                         <!--end quill editor-->
@@ -149,8 +149,7 @@
             <!--end body-->
 
             <!--start footer-->
-            <div v-if="postType !== 'question'"
-                class="bg-surface-0 fixed bottom-0 w-full bg-light-bg dark:bg-dark-bg p-2"
+            <div v-if="showFooter" class="bg-surface-0 fixed bottom-0 w-full bg-light-bg dark:bg-dark-bg p-2"
                 :style="{ transform: footerTransform }">
                 <!-- Adicione aqui os controles do footer (emoji, mídia, etc) -->
                 <div class="flex items-center justify-between">
@@ -251,18 +250,19 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref, nextTick } from 'vue';
+import { computed, onMounted, onUnmounted, ref, nextTick, onActivated } from 'vue';
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
 //import { usePost } from "@/app/posts/posts.hook";
 import axios from 'axios';
 import { useStore } from 'vuex';
-//import ReplyToOriginalPost from '../components/ReplyToOriginalPost.vue';
+//import ReplyToparentPost from '../components/ReplyToparentPost.vue';
 import CryptoJS from 'crypto-js';
 import LoadingScreen from "@/components/UI/LoadingScreen.vue"
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import Avatar from '../../users/components/Avatar.vue';
+import ParentPostCard from '../components/ParentPostCard.vue';
 
 // Constantes do Cloudinary
 const CLOUD_NAME = 'daujoblcc';
@@ -283,6 +283,7 @@ const isAnonymous = ref(false);
 const postAudience = ref("everyone");
 const topics = ref([])
 const postContent = ref('');
+const queryPostType = computed(() => route?.query?.post_type || 'question')
 const postType = ref('question')
 const postQuestion = ref('')
 
@@ -304,6 +305,7 @@ const uploadedMediaIds = ref([]); // Rastreia public_ids das mídias carregadas
 
 const imageInput = ref(null);
 const videoInput = ref(null);
+const loadingFetchPostParent = ref(false)
 
 const isKeyboardOpen = ref(false);
 const viewportHeight = ref(window.visualViewport.height);
@@ -313,6 +315,8 @@ const MAX_CHARS = 500;
 const MAX_IMAGES = 4;
 const MAX_VIDEO_SIZE_MB = 50;
 
+
+const showFooter = computed(() => postType.value !== 'question' && !parentPost.value?._id)
 const audienceText = computed(() => {
     switch (postAudience.value) {
         case 'limited':
@@ -341,13 +345,13 @@ const hasUploadedVideo = computed(() => {
 });
 
 const canPost = computed(() => {
-    if (postContent.value.trim().length > 0 && postType.value !== 'question' || mediaPreviews.value.length > 0 && postType.value !== 'question' || postType.value === 'question' && postQuestion.value.trim().length > 0) return true
+    if (postContent.value.trim().length > 0 && postType.value !== 'question' || mediaPreviews.value.length > 0 && postType.value !== 'question' || postType.value === 'question' && postQuestion.value.trim().length > 0 || parentPost?.value?._id) return true
     else return false
 });
 
 const user = computed(() => store.getters.currentUser);
 
-const originalPost = computed(() => store.getters.originalPost);
+const parentPost = computed(() => store.getters.parentPost);
 
 const progressChars = computed(() => {
     const percentage = ((MAX_CHARS - remainingChars.value) / MAX_CHARS) * 100;
@@ -410,11 +414,11 @@ const handleViewportResize = () => {
 
 const resetForm = () => {
     postContent.value = '';
-    postType.value = 'question'
+    //postType.value = 'question'
     postQuestion.value = '';
     topics.value = [];
     postAudience.value = 'everyone';
-    mediaPreviews.value = [];
+    //mediaPreviews.value = [];
     uploadProgress.value = {};
     cancelTokens.value = {};
     uploadedMediaIds.value = [];
@@ -440,7 +444,7 @@ const closeDrawer = () => {
 }
 
 const openCancelPostDrawer = () => {
-    if (postContent.value.trim().length > 0 || mediaPreviews.value.length > 0 || postQuestion.value?.trim().length > 0) {
+    if (canPost.value) {
         openDrawer({
             show: true,
             name: 'cancelPost',
@@ -801,6 +805,7 @@ const confirmCancel = async () => {
     showModal.value = false;
     closeDrawer()
     resetForm()
+    store.commit("SET_PARENT_POST", {})
     router.back();
 };
 
@@ -825,6 +830,7 @@ const handleSubmit = async () => {
             duration: m.duration
         })),
         postType: postType.value,
+        sharedPost: parentPost?.value?._id || null,
         postQuestion: postQuestion.value,
         isAnonymous: isAnonymous.value,
         topics: topics.value || [],
@@ -867,7 +873,22 @@ onBeforeRouteLeave((to, from, next) => {
 onMounted(async () => {
     window.visualViewport.addEventListener('resize', handleViewportResize);
 
-    if (!originalPost.value?._id) {
+    if (queryPostType.value === 'post') {
+        postType.value = 'post'
+    }
+
+    if (queryPostType.value === 'post' && parentPost.value?._id) {
+        loadingFetchPostParent.value = true
+        await store.dispatch("getPostById", {
+            postId: route.query?.parent_post,
+            type: 'parentPost'
+        })
+            .finally(() => {
+                loadingFetchPostParent.value = false
+            })
+    }
+
+    if (!parentPost.value?._id) {
         // await getPostById(119);
     }
     adjustTextareaHeight();

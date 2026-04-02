@@ -4,6 +4,7 @@ import main from '../views/main/store'
 import posts from '../views/posts/store'
 import comments from '../views/comments/store'
 import users from '../views/users/store'
+import profiles from '../views/profiles/store'
 
 export default {
     auth,
@@ -11,5 +12,6 @@ export default {
     main,
     posts,
     comments,
-    users
+    users,
+    profiles
 }

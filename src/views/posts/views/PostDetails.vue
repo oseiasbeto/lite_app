@@ -282,7 +282,7 @@ onMounted(async () => {
     if (!post.value?._id) {
         loadingFetchPost.value = true
 
-        await store.dispatch("getPostById", postId.value)
+        await store.dispatch("getPostById", {postId: postId.value})
             .then(async () => {
                 await fetchComments(postId.value)
             })
@@ -303,10 +303,20 @@ onMounted(async () => {
 })
 
 watch(() => route.params.id, async (newId, oldId) => {
-    if (!newId || newId === oldId) return; else
-        loadingFetchComments.value = true
+    if (!newId || newId === oldId) return
+    
+    loadingFetchComments.value = true
 
     postId.value = newId
+
+    if (post.value?._id !== postId.value) {
+        loadingFetchPost.value = true
+
+        await store.dispatch("getPostById", {postId: postId.value})
+            .finally(() => {
+                loadingFetchPost.value = false
+            })
+    }
 
     if (cacheComments.value?.comments.length) {
         const { pagination } = cacheComments.value

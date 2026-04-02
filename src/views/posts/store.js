@@ -8,7 +8,7 @@ export default {
         parentPost: {}
     },
     mutations: {
-        SET_MODULE_POSTS(state, payload) {
+        PUSH_MODULE_FROM_POSTS(state, payload) {
             const posts = state.posts;
 
             if (!posts) return;
@@ -40,8 +40,35 @@ export default {
                 cachedModule.pagination.hasMore = hasMore
             }
         },
+        SET_POSTS_FROM_MODULE(state, payload) {
+            const posts = state.posts;
+
+            if (!posts) return;
+
+            const byModule = payload?.module || null
+
+            const index = posts.findIndex(p => p.module === byModule)
+
+            if (index !== -1) {
+                const cachedModule = state.posts[index];
+                const posts = payload?.posts || []
+                const { page, totalPages, hasMore } = payload?.pagination || {}
+
+                if (!posts.length) return
+
+                cachedModule.posts = posts;
+                cachedModule.pagination.page = page;
+                cachedModule.pagination.totalPages = totalPages;
+                cachedModule.pagination.hasMore = hasMore
+            } else {
+                posts.push(payload);
+            }
+        },
         SET_POST(state, payload) {
             state.post = payload
+        },
+        SET_PARENT_POST(state, payload) {
+            state.parentPost = payload
         },
         UPDATE_REACTIONS_POST(state, { module, payload }) {
             if (!module || !payload) return
@@ -68,6 +95,38 @@ export default {
                     post.downvotes_count = downvotes_count
                     post.comments_count = comments_count
                     post.shares_count = shares_count
+                }
+
+                if (module !== 'feed') {
+                    const moduleFeedPosts = state.posts.find(m => m.module === 'feed')
+
+                    if (moduleFeedPosts?.posts?.length) {
+                        const post = moduleFeedPosts.posts.find(p => p?._id === post_id)
+
+                        if (post) {
+                            post.upvotes = upvotes
+                            post.upvotes_count = upvotes_count
+                            post.downvotes = downvotes
+                            post.downvotes_count = downvotes_count
+                            post.comments_count = comments_count
+                            post.shares_count = shares_count
+                        }
+                    }
+                } else if (module !== 'profile') {
+                    const moduleProfilePosts = state.posts.find(m => m.module === 'profile')
+
+                    if (moduleProfilePosts?.posts?.length) {
+                        const post = moduleProfilePosts.posts.find(p => p?._id === post_id)
+
+                        if (post) {
+                            post.upvotes = upvotes
+                            post.upvotes_count = upvotes_count
+                            post.downvotes = downvotes
+                            post.downvotes_count = downvotes_count
+                            post.comments_count = comments_count
+                            post.shares_count = shares_count
+                        }
+                    }
                 }
             }
 
@@ -123,16 +182,22 @@ export default {
                 logger.error(error);
             }
         },
-        async getPostById({ commit }, postId) {
+        async getPostById({ commit }, { postId, type = 'post' }) {
             try {
                 const response = await api.get('/posts/' + postId);
                 const { post } = response.data
 
-                commit("SET_POST", post)
+                if (type == 'post') {
+                    commit("SET_POST", post)
+                } else if (type == 'parentPost') {
+                    commit("SET_PARENT_POST", post)
+                }
+
 
                 return post
-            } catch (error) {
-                logger.error(error);
+            } catch (err) {
+                logger.error(err);
+                throw err
             }
         },
         async getFeedPosts({ commit }, query) {
@@ -160,9 +225,46 @@ export default {
                     }
                 }
 
-                commit("SET_MODULE_POSTS", payload)
+                commit("PUSH_MODULE_FROM_POSTS", payload)
             } catch (error) {
                 logger.error(error);
+            }
+        },
+        async getProfilePosts({ commit }, query) {
+            try {
+                const { module, userId, isPush = true, type = 'post', hasTotal, page: currentPage, limit } = query
+
+                const response = await api.get('/posts/user/' + userId, {
+                    params: {
+                        page: currentPage,
+                        type,
+                        total: hasTotal,
+                        limit: limit
+                    }
+                });
+
+                const { posts, page, totalPages, total, hasMore } = response.data
+
+                const payload = {
+                    module,
+                    posts,
+                    pagination: {
+                        page,
+                        total,
+                        hasMore,
+                        totalPages,
+                    }
+                }
+
+                if (isPush) {
+                    commit("PUSH_MODULE_FROM_POSTS", payload)
+                } else {
+                    commit("SET_POSTS_FROM_MODULE", payload)
+                }
+
+            } catch (err) {
+                logger.error("Erro ao carregar mais postagens:", err?.response?.data?.message || err);
+                throw err
             }
         },
         async toggleUpvotePost({ commit }, { postId, module }) {
@@ -218,6 +320,7 @@ export default {
     },
     getters: {
         currentPost: (state) => state.post,
+        parentPost: (state) => state.parentPost,
         modulePosts: (state) => state.posts,
     }
 }

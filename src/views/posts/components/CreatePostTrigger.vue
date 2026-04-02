@@ -1,7 +1,16 @@
 <template>
-    <button @click="goToComposer(module)">
-        Oque estas pensando?
-    </button>
+    <div class="flex flex-col">
+        <div @click="goToComposer(module)">
+            Oque estas pensando?
+        </div>
+
+        <div class="flex items-center gap-1">
+            <button class="p-2" @click="goToComposer(module)">Perguntar</button>
+            <button class="p-2">Responder</button>
+            <button class="p-2" @click="goToComposer(module, 'post')">Postar</button>
+        </div>
+    </div>
+
 </template>
 
 <script setup>
@@ -16,11 +25,14 @@ const props = defineProps({
 
 const router = useRouter()
 
-const goToComposer = (module) => {
+const goToComposer = (module, postType) => {
     router.push({
         path: '/composer',
         query: {
-            module: module
+            module: module,
+            ...(postType && {
+                post_type: postType
+            })
         }
     })
 }
