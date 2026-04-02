@@ -8,11 +8,17 @@ const router = createRouter({
   routes
 })
 
+let isProgressing = false
+
 router.beforeEach((to, from, next) => {
+  if (isProgressing) {
+    store.commit("SET_IS_LOADING_COMPONENT", false)
+    isProgressing = false
+    return next(false)
+  }
+
   document.title = `${to.meta.title}`
   const token = Cookies.get("session_id")
-  
-  store.commit("SET_IS_LOADING_COMPONENT", true)
 
   // Verifica se a rota que o usuário está tentando acessar requer autenticação
   if (to.matched.some(record => record.meta.requiresAuth)) {
@@ -20,6 +26,9 @@ router.beforeEach((to, from, next) => {
     if (!token) {
       next({ path: "/" });
     } else {
+      store.commit("SET_IS_LOADING_COMPONENT", true)
+      isProgressing = true
+      
       // Caso tenha um token válido, permite o acesso à rota
       next();
     }
@@ -42,6 +51,7 @@ router.beforeEach((to, from, next) => {
 
 router.afterEach(() => {
   store.commit("SET_IS_LOADING_COMPONENT", false)
+  isProgressing = false
 })
 
 

@@ -34,6 +34,7 @@ let socket;
 // Pega dados do usuário
 const user = computed(() => store.getters.currentUser)
 const isNewSession = computed(() => store.getters.isNewSession)
+const isLoadingComponent = computed(() => store.getters.isLoadingComponent)
 
 // Estado da rede
 const networkStatus = computed(() => {
@@ -476,7 +477,7 @@ onUnmounted(() => {
           </keep-alive>
         </router-view>
 
-        <loading-component/>
+        <loading-component v-if="isLoadingComponent"/>
       </div>
 
       <!--start sidebar-->

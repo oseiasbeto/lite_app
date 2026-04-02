@@ -1,11 +1,15 @@
 <template>
-    <div v-if="data?._id" class="flex flex-col border-gray-50"
-    :class="[isParentPost ? 'border-none' : 'border-b']"
-    >
+    <div v-if="data?._id" class="flex flex-col border-gray-50" :class="[isParentPost ? 'border-none' : 'border-b']">
         <!--HEADER-->
         <div class="p-2">
             <!--AUTHOR DETAILS-->
-            <PostAuthorDetails :author="data?.author" :user-id="userId" :is-parent-post="isParentPost" />
+            <PostAuthorDetails 
+            @on-follow="handleFollowUser(data?.author?._id)"
+            :is-following-user="isFollowingUser"
+            :show-btn-follow="canFollowUser" 
+            :author="data?.author" 
+            :user-id="user?._id"
+                :is-parent-post="isParentPost" />
         </div>
 
         <!--BODY-->
@@ -17,9 +21,9 @@
 
             <!--PARENT POST-->
             <div v-if="data?.shared_post?._id">
-                <PostCard :data="data?.shared_post" :is-parent-post="true" :user-id="userId" :module="module"/>
+                <PostCard :data="data?.shared_post" :is-parent-post="true" :user-id="user?._id" :module="module" />
             </div>
-            
+
         </div>
 
         <!--FOOTER-->
@@ -33,17 +37,58 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import PostAuthorDetails from './PostAuthorDetails.vue';
 import PostContent from './PostContent.vue';
 import PostReactions from './PostReactions.vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
+const emit = defineEmits(['openNewCommentDrawer'])
+
+const props = defineProps({
+    data: {
+        type: Object,
+        required: true
+    },
+    isParentPost: {
+        type: Boolean,
+        default: false
+    },
+    module: {
+        type: String,
+        default: 'feed'
+    },
+    showMore: {
+        type: Boolean,
+        default: false
+    },
+    showBtnFollow: {
+        type: Boolean,
+        default: false
+    },
+    user: {
+        type: Object,
+        default: null
+    }
+})
+
 const store = useStore()
 const router = useRouter()
 
 const isReactingPost = ref(false)
+const isFollowingUser = ref(false)
+
+const canFollowUser = computed(() => {
+    if (!props?.showBtnFollow) return false
+    else {
+        if (props?.data?.author?._id == props?.user?._id) return false
+        else {
+            if (props?.user?.following.includes(props?.data?.author?._id)) return false
+            else return true
+        }
+    }
+})
 
 const handleUpvote = async () => {
     isReactingPost.value = true
@@ -65,6 +110,14 @@ const handleDownvote = async () => {
         .finally(() => {
             isReactingPost.value = false
         })
+}
+
+const handleFollowUser = async (userId) => {
+    isFollowingUser.value = true
+    await store.dispatch("followUser", userId)
+    .finally(() => {
+        isFollowingUser.value = false
+    })
 }
 
 const goToComments = () => {
@@ -98,7 +151,7 @@ const goToViewMore = () => {
 }
 
 const goToShare = () => {
-    
+
     const parentPost = props?.data?.shared_post ? props?.data?.shared_post : props?.data
 
     store.commit("SET_PARENT_POST", parentPost)
@@ -112,29 +165,6 @@ const goToShare = () => {
     })
 }
 
-const emit = defineEmits(['openNewCommentDrawer'])
 
-const props = defineProps({
-    data: {
-        type: Object,
-        required: true
-    },
-    isParentPost: {
-        type: Boolean,
-        default: false
-    },
-    module: {
-        type: String,
-        default: 'feed'
-    },
-    showMore: {
-        type: Boolean,
-        default: false
-    },
-    userId: {
-        type: String,
-        required: true
-    }
-})
 
 </script>

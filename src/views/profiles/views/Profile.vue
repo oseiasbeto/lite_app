@@ -10,7 +10,7 @@
 
                     <!--REACTIOS-->
                     <div class="border-b p-2 border-gray-50">
-                        <ProfileReactions :profile="profile" :user-id="user?._id" @on-follow="handleFollow" />
+                        <ProfileReactions :profile="profile" :user-id="user?._id" @on-follow="handleFollow(profile?._id)" />
                     </div>
                 </div>
 
@@ -19,7 +19,8 @@
 
                 <!--TAB VIEWS-->
                 <template v-if="currentTab === 'posts'">
-                    <PostList :posts="profilePosts?.posts || []" :has-more="profilePosts?.pagination?.hasMore || false"
+                    <PostList 
+                        :posts="profilePosts?.posts || []" :has-more="profilePosts?.pagination?.hasMore || false"
                         :loading-fetch="loadingFetchProfilePosts" :loading-load-more="loadingLoadMorePosts"
                         :module="module" @on-load-more="handleLoadMore" />
                 </template>
@@ -141,8 +142,8 @@ const handleLoadMore = async () => {
     }
 }
 
-const handleFollow = async () => {
-
+const handleFollow = async (userId) => {
+    await store.dispatch("followUser", userId)
 }
 
 onMounted(async () => {

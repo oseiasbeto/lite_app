@@ -6,8 +6,13 @@
         <CreatePostTrigger module="feed" />
     </div>
     <div>
-        <PostList :posts="feedPosts?.posts || []" :has-more="feedPosts?.pagination?.hasMore || false"
-            :loading-fetch="loadingFeedPosts" :loading-load-more="loadingLoadMore" module="feed"
+        <PostList  
+            :posts="feedPosts?.posts || []" 
+            :has-more="feedPosts?.pagination?.hasMore || false"
+            :loading-fetch="loadingFeedPosts" 
+            :loading-load-more="loadingLoadMore" 
+            :show-btn-follow="true"
+            module="feed"
             @on-load-more="handleLoadMore" />
     </div>
         

@@ -39,6 +39,14 @@ export default {
         },
         UPDATE_USER(state, payload) {
             state.user = payload
+        },
+        UPDATE_USER_STATUS_FOLLOW(state, payload) {
+            const { following, following_count, followers, followers_count } = payload
+
+            state.user.following = following
+            state.user.following_count = following_count
+            state.user.followers = followers
+            state.user.followers_count = followers_count
         }
     },
     actions: {
