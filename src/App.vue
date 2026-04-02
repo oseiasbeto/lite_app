@@ -10,6 +10,7 @@ import { statusBar } from "webtonative"
 import { logger } from "./utils/logger";
 import generateSource from "./utils/generate-source";
 import LoadingComponent from "./components/UI/LoadingComponent.vue";
+import Footer from "./components/UI/Footer.vue";
 
 // Estado de loading do app
 const loading = ref(true)
@@ -35,6 +36,8 @@ let socket;
 const user = computed(() => store.getters.currentUser)
 const isNewSession = computed(() => store.getters.isNewSession)
 const isLoadingComponent = computed(() => store.getters.isLoadingComponent)
+const unreadNotificationsCount = computed(() => store.getters?.unreadNotificationsCount || 0);
+const unreadMessagesCount = computed(() => store.getters?.unreadMessagesCount || 0);
 
 // Estado da rede
 const networkStatus = computed(() => {
@@ -158,6 +161,7 @@ const initializeSocket = () => {
           source
         });
 
+
         // Tocar som de notificação
         await playNotificationSound();
 
@@ -171,6 +175,14 @@ const initializeSocket = () => {
             convId: msg?.conversation?._id,
             source
           });
+        }
+
+        const unreadCount = unreadMessagesCount.value
+
+        if (route.meta.rootPage == 'chats') {
+          await store.dispatch("updateUnreadMessagesCount", 0)
+        } else {
+          await store.dispatch("updateUnreadMessagesCount", unreadCount + 1)
         }
       }
     })
@@ -282,6 +294,7 @@ const initializeSocket = () => {
     socket.on("conversation_as_read", (data) => {
       if (user.value?._id === data.user?._id) return
       else {
+
         setTimeout(() => {
           const { user: reciver, read_at, conv } = data
 
@@ -295,6 +308,7 @@ const initializeSocket = () => {
             source,
             convId: conv?._id
           })
+
         }, 300);
       }
     })
@@ -337,7 +351,8 @@ const handleRefreshToken = async () => {
 }
 
 const reloadApp = () => {
-  window.location.href = '/home'
+  window.location.replace('/home')
+  window.history.go(-window.history.length + 1)
 }
 
 // Função para tocar o som (com fallback silencioso)
@@ -415,9 +430,9 @@ onMounted(async () => {
   // Se tiver sessão salva, tentar restaurar
   if (sessionId && !isAuthenticated.value) {
     await handleRefreshToken()
-    .then(async () => {
-      await store.dispatch("getTopicList")
-    })
+      .then(async () => {
+        await store.dispatch("getTopicList")
+      })
   } else {
     loading.value = false
   }
@@ -427,10 +442,10 @@ onMounted(async () => {
 })
 
 watch(() => isNewSession.value, () => {
-  
+
   initializeSocket()
 
-  
+
   // Configurar listeners de conexão
   setupConnectionListeners();
 
@@ -477,15 +492,12 @@ onUnmounted(() => {
           </keep-alive>
         </router-view>
 
-        <loading-component v-if="isLoadingComponent"/>
+        <loading-component v-if="isLoadingComponent" />
       </div>
 
       <!--start sidebar-->
-      <!--<sidebar v-show="isAuthenticated && route.meta.rootPage == 'main'" />-->
-      <!--end sidebar-->
+      <Footer v-show="isAuthenticated && route.meta.rootPage == 'main'" />
 
-      <!--start modals-->
-      <!--end modals-->
     </div>
     <div v-else>
       <loading-screen />

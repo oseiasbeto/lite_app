@@ -260,7 +260,7 @@ export default {
 
             if (currentConversation?._id) {
 
-                currentConversation?.read_by.push({
+                currentConversation?.read_by?.push({
                     user,
                     read_at
                 })

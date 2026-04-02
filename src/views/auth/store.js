@@ -47,6 +47,9 @@ export default {
             state.user.following_count = following_count
             state.user.followers = followers
             state.user.followers_count = followers_count
+        },
+        UPDATE_USER_UNREAD_MESSAGES_COUNT(state, count) {
+            state.user.unread_messages_count = count
         }
     },
     actions: {
@@ -145,12 +148,23 @@ export default {
                 logger.error('Erro ao redefinir a senha:', err.message);
                 throw err  // Propaga o erro para que o componente possa lidarhar adequadamente (exibir mensagem de erro, etc).
             }
+        },
+        async updateUnreadMessagesCount({ commit }, count) {
+            try {
+                const res = await api.put("/users/unread-messages-count", { count });
+                commit("UPDATE_USER_UNREAD_MESSAGES_COUNT", count)
+                return res
+            } catch (err) {
+                logger.error('Erro ao actualizar o contador de mensagens:', err.message);
+                throw err  // Propaga o erro para que o componente possa lidarhar adequadamente (exibir mensagem de erro, etc).
+            }
         }
     },
     getters: {
         accessToken: (state) => state.token,
         isNewSession: (state) => state.newSession,
         isNewUser: (state) => state.newUser,
-        currentUser: (state) => state.user
+        currentUser: (state) => state.user,
+        unreadMessagesCount: (state) => state.user.unread_messages_count
     }
 }

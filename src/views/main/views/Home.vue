@@ -1,5 +1,5 @@
 <template>
-    <div @scroll="setScrollTopFromCache" class="relative h-screen overflow-y-scroll"
+    <div @scroll="setScrollTopFromCache" class="relative h-[calc(100vh-56px)] overflow-y-scroll"
     ref="feedView"
     >
     <div class="pb-1 border-b border-b-gray-50">
@@ -13,7 +13,8 @@
             :loading-load-more="loadingLoadMore" 
             :show-btn-follow="true"
             module="feed"
-            @on-load-more="handleLoadMore" />
+            @on-load-more="handleLoadMore" 
+            />
     </div>
         
     </div>

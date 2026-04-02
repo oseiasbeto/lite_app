@@ -66,6 +66,7 @@ const router = useRouter()
 const route = useRoute()
 
 const user = computed(() => store.getters.currentUser)
+const unreadMessagesCount = computed(() => store.getters?.unreadMessagesCount || 0);
 const socket = getSocket()
 
 const modules = computed(() => {
@@ -176,13 +177,26 @@ const setScrollPosition = async (position) => {
     }
 }
 
-onActivated(() => {
+onActivated(async () => {
     const position = conversations.value?.scrollTop
     setScrollPosition(position)
+
+    const unreadCount = unreadMessagesCount.value
+
+    if (unreadCount) {
+        await store.dispatch("updateUnreadMessagesCount", 0)
+    }
 })
 
 // Carrega as conversas ao montar o componente
 onMounted(async () => {
+    const unreadCount = unreadMessagesCount.value
+    
+    if (unreadCount) {
+        await store.dispatch("updateUnreadMessagesCount", 0)
+    }
+    
+
     await store.dispatch("loadConversations", ({
         page: 1,
         limit: 10

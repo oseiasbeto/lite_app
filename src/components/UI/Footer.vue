@@ -1,9 +1,10 @@
 <template>
     <ul class="flex items-center gap-2 w-full border-t border-border-primary h-14 text-text-primary fixed bottom-0 overflow-hidden"
         :class="{ 'pointer-events-none': isDisabled, '!border-border-primary': route.name === 'Post details' }">
+        {{ unreadMessagesCount }}
         <li class="flex-1 h-full">
-            <router-link class="flex items-center h-full" to="/feed">
-                <svg v-if="route.name === 'Feed'" fill="none" class="mx-auto" width="27" viewBox="0 0 24 24" height="27"
+            <button @click="router.replace('/home')" class="flex relative items-center w-full h-full" to="/feed">
+                <svg v-if="route.name === 'Home'" fill="none" class="mx-auto" width="27" viewBox="0 0 24 24" height="27"
                     aria-hidden="true">
                     <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
                         d="M12.63 1.724a1 1 0 0 0-1.26 0l-8 6.5A1 1 0 0 0 3 9v11a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-6h4v6a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V9a1 1 0 0 0-.37-.776l-8-6.5Z">
@@ -15,7 +16,7 @@
                     </path>
                 </svg>
 
-            </router-link>
+            </button>
         </li>
         <li class="flex-1 h-full">
             <button @click="goToNotification" class="flex relative items-center w-full h-full">
@@ -98,6 +99,7 @@ const store = useStore()
 
 const user = computed(() => store.getters.currentUser)
 const unreadNotificationsCount = computed(() => store.getters?.unreadNotificationsCount || 0);
+const unreadMessagesCount = computed(() => store.getters?.unreadMessagesCount || 0);
 
 defineProps({
     isDisabled: {
