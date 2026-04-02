@@ -10,7 +10,11 @@
 
                     <!--REACTIOS-->
                     <div class="border-b p-2 border-gray-50">
-                        <ProfileReactions :profile="profile" :user-id="user?._id" @on-follow="handleFollow(profile?._id)" />
+                        <ProfileReactions :profile="profile" :user-id="user?._id" :is-same-user="isSameUser"
+                            :has-followed="hasFollowed" :has-subscribed="hasSubscribed"
+                            :status-follow-txt="statusFollowTxt" @on-follow="handleFollow(profile?._id)"
+                            @on-subscribe="handleSubscribe(profile?._id)" @more-options="openMoreOptionsDrawer"
+                            :is-disabled="isFollowing || isSubscribing" />
                     </div>
                 </div>
 
@@ -19,8 +23,7 @@
 
                 <!--TAB VIEWS-->
                 <template v-if="currentTab === 'posts'">
-                    <PostList 
-                        :posts="profilePosts?.posts || []" :has-more="profilePosts?.pagination?.hasMore || false"
+                    <PostList :posts="profilePosts?.posts || []" :has-more="profilePosts?.pagination?.hasMore || false"
                         :loading-fetch="loadingFetchProfilePosts" :loading-load-more="loadingLoadMorePosts"
                         :module="module" @on-load-more="handleLoadMore" />
                 </template>
@@ -36,6 +39,13 @@
                 <template v-if="currentTab === 'following'">
                     <p>Seguindo</p>
                 </template>
+
+                <!--DRAWER-->
+                <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
+                    <template v-if="drawer?.name == 'moreOptions'">
+                        <DrawerItem v-if="canSendMessage" @on-press="openConv(profile)" title="Enviar mensagem" />
+                    </template>
+                </Drawer>
             </div>
             <div v-else>
                 <p>Carregando...</p>
@@ -50,23 +60,62 @@
 
 <script setup>
 import { computed, onMounted, watch, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import ProfileDetailsUser from '../components/ProfileDetailsUser.vue';
 import ProfileReactions from '../components/ProfileReactions.vue';
 import Tabs from '@/components/UI/Tabs.vue';
 import PostList from '@/views/posts/components/PostList.vue';
+import Drawer from '@/components/drawer/Drawer.vue';
+import DrawerItem from '@/components/drawer/DrawerItem.vue';
 
 const store = useStore()
 const route = useRoute()
+const router = useRouter()
 
 const user = computed(() => store.getters?.currentUser || null)
 const profile = computed(() => store.getters?.currentProfile || null)
 const userId = computed(() => route.params.profile_id)
+const isSameUser = computed(() => profile.value?._id?.toString() == user.value?._id?.toString())
+const hasFollowed = computed(() => profile.value?.followers?.includes(user.value?._id.toString()))
+const hasSubscribed = computed(() => profile.value?.subscriptions?.includes(user.value?._id.toString()))
+const statusFollowTxt = computed(() => {
+    if (hasFollowed.value) {
+        return 'Seguindo'
+    } else {
+        const isFollowBack = profile.value?.following?.includes(user.value?._id.toString());
+        if (isFollowBack) return 'Seguir de Volta'
+        else return '+Seguir'
+    }
+})
+
+const canSendMessage = computed(() => {
+    if (isSameUser.value) return false
+    else {
+        const settings = profile.value?.settings
+        const messagePrivacy = settings?.privacy?.message
+
+        if (messagePrivacy === 'everybody') return true
+        else if (messagePrivacy === 'followers') {
+            if (hasFollowed.value) return true
+            else return false
+        } else if (messagePrivacy === 'nobody') return false
+    }
+})
+
+// Computed para acessar as conversas do store Vuex
+const conversations = computed(() => {
+    // Acessa as conversas do store Vuex
+    return store.getters.conversations;
+})
+
 
 const loadingFetchProfile = ref(false)
 const loadingLoadMorePosts = ref(false)
 const loadingFetchProfilePosts = ref(false)
+const isFollowing = ref(false)
+const isSubscribing = ref(false)
+const loadingOpenConv = ref(false)
 
 const hasError = ref({
     show: false,
@@ -85,6 +134,30 @@ const queryPosts = ref({
     module: module.value,
     hasTotal: null
 })
+
+const drawer = ref({
+    show: false,
+    name: "",
+    metadata: {}
+})
+
+const openDrawer = (data) => {
+    const { show, name, metadata = {} } = data
+
+    drawer.value = {
+        show,
+        name,
+        metadata
+    }
+}
+
+const closeDrawer = () => {
+    drawer.value = {
+        show: false,
+        name: '',
+        metadata: {}
+    }
+}
 
 const tabs = ref([
     { label: 'Postagens', value: 'posts' },
@@ -112,6 +185,20 @@ const resetQueryPosts = () => {
     }
 }
 
+const setScrollTopFromCache = (event) => {
+    const scrollTop = event.target.scrollTop
+    store.commit("UPDATE_PROFILE", {
+        scrollTop
+    })
+}
+
+const openMoreOptionsDrawer = () => {
+    openDrawer({
+        show: true,
+        name: 'moreOptions'
+    })
+}
+
 const fetchProfilePosts = async (userId) => {
     await store.dispatch("getProfilePosts", {
         ...queryPosts.value,
@@ -119,11 +206,32 @@ const fetchProfilePosts = async (userId) => {
     })
 }
 
-const setScrollTopFromCache = (event) => {
-    const scrollTop = event.target.scrollTop
-    store.commit("UPDATE_PROFILE", {
-        scrollTop
-    })
+const openConv = async (user) => {
+    if (loadingOpenConv.value) return
+    loadingOpenConv.value = true
+
+    const convModules = conversations.value
+    
+    const convIndex = convModules.findIndex(m => m.source === 'active') || 0
+
+    if (convIndex === -1) {
+        await store.dispatch('openDirectMessage', user._id)
+            .then((conv) => {
+                closeDrawer()
+                router.push('/messages/' + conv?._id)
+            }).finally(() => {
+                loadingOpenConv.value = false
+            })
+    } else {
+        const conv = items[index]
+        store.commit("SET_CONVERSATION", {
+            ...conv,
+            source: 'active'
+        })
+        loadingOpenConv.value = false
+        closeDrawer()
+        router.push('/messages/' + conv?._id)
+    }
 }
 
 const handleLoadMore = async () => {
@@ -143,8 +251,29 @@ const handleLoadMore = async () => {
 }
 
 const handleFollow = async (userId) => {
+    isFollowing.value = true
     await store.dispatch("followUser", userId)
+        .finally(() => {
+            isFollowing.value = false
+        })
 }
+
+const handleSubscribe = async (userId) => {
+    isSubscribing.value = true
+    await store.dispatch("subscribeUser", userId)
+        .finally(() => {
+            isSubscribing.value = false
+        })
+}
+
+onBeforeRouteLeave((to, from, next) => {
+    if (drawer.value?.show) {
+        closeDrawer()
+        next(false)
+    } else {
+        next();
+    }
+});
 
 onMounted(async () => {
     if (profile.value?._id !== userId.value) {
