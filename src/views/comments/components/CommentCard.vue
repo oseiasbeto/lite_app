@@ -8,11 +8,8 @@
             </div>
             <div class="flex-1">
                 <!--AUTHOR DETAILS-->
-                <CommentAuthorDetails 
-                :author="data?.author || data?.user || {}" 
-                :user-id="userId" 
-                :created-at="data?.created_at"
-                />
+                <CommentAuthorDetails :author="data?.author || data?.user || {}" :user-id="userId"
+                    :created-at="data?.created_at" />
                 <!--BODY-->
                 <div>
                     <!--CONTENT-->
@@ -23,17 +20,10 @@
 
                 <!--FOOTER-->
                 <div class="mb-1">
-                    <CommentReactions 
-                        :loading="isReactingComment" 
-                        :upvotes="data?.upvotes"
-                        :upvotes-count="data?.upvotes_count" 
-                        :downvotes="data?.downvotes"
-                        :user-id="userId"
-                        :downvotes-count="data?.downvotes_count" 
-                        :replies-count="data?.replies_count"
-                        :shares-count="data?.shares_count" 
-                        @on-upvote="handleUpvote" 
-                        @on-downvote="handleDownvote"
+                    <CommentReactions :loading="isReactingComment" :upvotes="data?.upvotes"
+                        :upvotes-count="data?.upvotes_count" :downvotes="data?.downvotes" :user-id="userId"
+                        :downvotes-count="data?.downvotes_count" :replies-count="data?.replies_count"
+                        :shares-count="data?.shares_count" @on-upvote="handleUpvote" @on-downvote="handleDownvote"
                         @on-reply="onReply({
                             parent: data,
                             replyTo: data?.author
@@ -46,16 +36,25 @@
                             parent: reply?.parent,
                             replyTo: reply?.author
                         })" />
+
+                    <!--LOAD MORE-->
+                    <button class="text-[#4894fd] py-2 text-xs"
+                        @click="loadMoreReplies" v-if="queryReplies?.hasMore && !loadingLoadMoreReplies">
+                        <span class="flex items-center gap-1">
+                            <p class="font-semibold">Ver mais respostas</p>
+                            <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="m5 8.5 7 7 7.005-7" class="icon_svg-stroke" stroke="currentColor"
+                                    stroke-width="2" fill="none" stroke-linecap="round"></path>
+                            </svg>
+                        </span>
+                    </button>
+                    <div v-if="loadingLoadMoreReplies" class="py-[13px] w-full flex justify-center">
+                        <Spinner />
+                    </div>
                 </div>
             </div>
         </div>
-        <!--LOAD MORE-->
-        <button :disabled="loadingLoadMoreReplies" @click="loadMoreReplies" v-if="queryReplies?.hasMore">
-            <span v-if="!loadingLoadMoreReplies">Ver mais >
 
-            </span>
-            <span v-else>...</span>
-        </button>
     </div>
 </template>
 
@@ -67,6 +66,7 @@ import CommentReactions from './CommentReactions.vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import Avatar from '@/components/Utils/Avatar.vue';
+import Spinner from '@/components/UI/Spinner.vue';
 
 const store = useStore()
 const router = useRouter()

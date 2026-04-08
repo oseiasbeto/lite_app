@@ -1,5 +1,5 @@
 <template>
-    <div :class="['px-3 py-3.5 cursor-pointer active:bg-background-tertiary transition-colors', costumClass]"
+    <div :class="['px-3 py-3.5 cursor-pointer dark:active:bg-[rgba(255,255,255,0.04)] border-b dark:border-[#393839] transition-colors', costumClass]"
         @click="onPress">
         <div class="flex items-center">
             <!--icon-->
@@ -8,7 +8,7 @@
             </span>
 
             <div>
-                <p class="text-sm font-medium text-text-primary">{{ title }}  <span v-if="isActive">(v)</span></p>
+                <p class="text-sm font-medium text-text-primary">{{ title }}  <span v-if="isActive">✓</span></p>
                 <p v-show="description" class="text-xs text-text-secondary">
                     {{ description }}
                 </p>

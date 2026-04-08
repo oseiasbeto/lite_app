@@ -61,7 +61,7 @@ defineProps({
         default: false
     },
     createdAt: {
-        type: Date
+        type: String
     },
     userId: {
         type: String,

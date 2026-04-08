@@ -2,7 +2,7 @@
     <ul class="flex items-center gap-2 w-full h-14 text-text-primary fixed bottom-0 overflow-hidden"
         :class="{ 'pointer-events-none': isDisabled, '!border-border-primary': route.name === 'Post details' }">
         <li class="flex-1 h-full">
-            <button @click="router.replace('/home')" class="flex relative items-center w-full h-full" to="/feed">
+            <button @click="router.replace('/home')" :class="{'text-primary': route.name == 'Home'}" class="flex relative items-center w-full h-full" to="/feed">
                 <svg v-if="route.name === 'Home'" fill="none" class="mx-auto" width="27" viewBox="0 0 24 24" height="27"
                     aria-hidden="true">
                     <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
@@ -14,7 +14,6 @@
                         d="M11.37 1.724a1 1 0 0 1 1.26 0l8 6.5A1 1 0 0 1 21 9v11a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-5h-2v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 .37-.776l8-6.5ZM5 9.476V19h4v-5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v5h4V9.476l-7-5.688-7 5.688Z">
                     </path>
                 </svg>
-
             </button>
         </li>
         <li class="flex-1 h-full">

@@ -34,7 +34,7 @@ const sizeClasses = computed(() => {
         sm: 'w-[32px] h-[32px]',
         md: 'w-[36px] h-[36px]',
         lg: 'w-[42px] h-[42px]',
-        big: 'w-[90px] h-[90px]'
+        big: 'w-[80px] h-[80px]'
     }[props.size] || 'w-11 h-11';
 });
 

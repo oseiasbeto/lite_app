@@ -2,14 +2,14 @@
     <div @scroll="setScrollTopFromCache" ref="profileView" class="h-screen overflow-y-scroll">
         <div v-if="!hasError?.show">
             <div v-if="!loadingFetchProfile">
-                <div>
+                <div class="border-b-[6px] border-[rgb(24,24,24)]">
                     <!--DETAILS USER-->
-                    <div class="border-b p-2 border-gray-50">
+                    <div class="px-[10px] py-4 pb-2">
                         <ProfileDetailsUser :profile="profile" :user-id="user?._id" />
                     </div>
 
                     <!--REACTIOS-->
-                    <div class="border-b p-2 border-gray-50">
+                    <div class="px-[10px] pb-3">
                         <ProfileReactions :profile="profile" :user-id="user?._id" :is-same-user="isSameUser"
                             :has-followed="hasFollowed" :has-subscribed="hasSubscribed"
                             :status-follow-txt="statusFollowTxt" @on-follow="handleFollow(profile?._id)"

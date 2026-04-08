@@ -1,5 +1,5 @@
 <template>
-    <div v-if="data?._id" class="flex flex-col" :class="{' border-b-[6px] border-[rgb(24,24,24)]': showBorderBottom}">
+    <div v-if="data?._id" class="flex flex-col" :class="{'border-b-[6px] border-[rgb(24,24,24)]': showBorderBottom}">
         <!--HEADER-->
         <div class="p-[10px]">
             <!--AUTHOR DETAILS-->

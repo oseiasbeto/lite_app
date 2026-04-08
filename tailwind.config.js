@@ -9,31 +9,13 @@ module.exports = {
     extend: {
       colors: {
         // Usando variáveis CSS
-        primary: 'rgb(var(--color-primary) / <alpha-value>)',
+        primary: '#f52936',
         secondary: 'rgb(var(--color-secondary) / <alpha-value>)',
         tertiary: 'rgb(var(--color-tertiary) / <alpha-value>)',
-        link: 'rgb(var(--color-link) / <alpha-value>)',
-
-        background: {
-          primary: 'rgb(var(--color-bg-primary) / <alpha-value>)',
-          secondary: 'rgb(var(--color-bg-secondary) / <alpha-value>)',
-          tertiary: 'rgb(var(--color-bg-tertiary) / <alpha-value>)',
-        },
-
-        text: {
-          primary: 'rgb(var(--color-text-primary) / <alpha-value>)',
-          secondary: 'rgb(var(--color-text-secondary) / <alpha-value>)',
-          tertiary: 'rgb(var(--color-text-tertiary) / <alpha-value>)',
-        },
-
-        border: {
-          primary: 'rgb(var(--color-border-primary) / <alpha-value>)',
-        },
-
-        // Cores de estado
-        success: 'rgb(var(--color-success) / <alpha-value>)',
-        warning: 'rgb(var(--color-warning) / <alpha-value>)',
-        danger: 'rgb(var(--color-danger) / <alpha-value>)',
+        blue: '#4894fd',
+        success: '#328f5a',
+        warning: '#e95111',
+        danger: '#f52936',
         info: 'rgb(var(--color-info) / <alpha-value>)',
       },
       fontFamily: {
@@ -45,11 +27,20 @@ module.exports = {
         'spin-slow': 'spin 2s linear infinite',
       },
       keyframes: {
-        fadeIn: {
-          '0%': { opacity: '0', transform: 'scale(0.8)' },
-          '100%': { opacity: '1', transform: 'scale(1)' },
-        }
-      }
+        dotPulse: {
+          '0%, 80%, 100%': {
+            transform: 'scale(0.3)',
+            opacity: '0',
+          },
+          '40%': {
+            transform: 'scale(1)',
+            opacity: '0.5',
+          },
+        },
+      },
+      animation: {
+        dotPulse: 'dotPulse 1.4s infinite ease-in-out',
+      },
     },
   },
   plugins: [],

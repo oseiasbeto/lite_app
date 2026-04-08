@@ -1,19 +1,24 @@
 <template>
   <div :class="[
-    'fixed inset-0 z-50',
+    'fixed inset-0 z-[9999]',
     isOpen ? 'block bg-opacity-50' : 'hidden bg-opacity-0',
     overlayClass,
   ]" @click.self="close">
     <div ref="DrawerRef" :class="[
-      'absolute bottom-0 left-0 right-0 bg-background-secondary rounded-tr-2xl rounded-tl-2xl',
+      'absolute bottom-0 left-0 right-0 dark:bg-[#181818]',
       costumClass,
       isOpen ? 'animate-slide-up' : 'animate-slide-down',
-    ]" :style="{
-        transform: `translateY(${translateY}px)`,
-        transition: isDragging ? 'none' : 'transform 0.3s ease-in-out',
-      }" @touchstart="handleTouchStart" @touchmove="handleTouchMove" @touchend="handleTouchEnd">
-      <div class="flex justify-center pt-3 py-2">
-        <div class="w-12 h-1.5 bg-background-tertiary rounded-full"></div>
+    ]">
+      <div v-show="title" class="flex px-[16px] justify-center border-b dark:border-[#393839] shadow-[0_1px_1px_rgba(0,0,0,.15)] w-full h-12">
+        <div class="h-full w-full flex items-center">
+          <button @click="close" class="shrink-0 text-[#f52936]">
+            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="m5.5 5.5 13 13m-13 0 13-13" class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5" fill="none"
+                fill-rule="evenodd" stroke-linecap="round"></path>
+            </svg>
+          </button>
+          <span class="flex-1 font-semibold text-center"> {{ title }} </span>
+        </div>
       </div>
       <div class="relative">
         <slot />
@@ -23,50 +28,23 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-
 const props = defineProps({
   isOpen: Boolean,
   overlayClass: {
     type: String,
-    default: "bg-black transition-bg-opacity duration-300"
+    default: "dark:bg-[rgba(36,36,36,.9)] transition-bg-opacity duration-300"
+  },
+  title: {
+    type: String,
+    default: null
   },
   costumClass: String,
 })
 
 const emit = defineEmits(['close'])
 
-const DrawerRef = ref(null)
-const isDragging = ref(false)
-const startY = ref(0)
-const translateY = ref(0)
-const maxTranslateY = ref(0)
-
-const handleTouchStart = (e) => {
-  isDragging.value = true
-  startY.value = e.touches[0].clientY
-  maxTranslateY.value = DrawerRef.value.offsetHeight
-}
-
-const handleTouchMove = (e) => {
-  if (isDragging.value) {
-    const deltaY = e.touches[0].clientY - startY.value
-    translateY.value = Math.max(0, Math.min(deltaY, maxTranslateY.value))
-  }
-}
-
-const handleTouchEnd = (e) => {
-  isDragging.value = false
-  if (translateY.value > maxTranslateY.value / 2) {
-    close()
-  } else {
-    translateY.value = 0
-  }
-}
-
 const close = () => {
   emit('close')
-  translateY.value = 0
 }
 </script>
 

@@ -5,9 +5,8 @@
                 <PostCard v-for="item in posts" :show-border-bottom="showBorderBottom" :show-btn-follow="showBtnFollow" :key="item?._id" :module="module" :data="item" :user="user || {}" />
 
                 <div ref="loadTrigger" v-if="hasMore || loadingLoadMore"
-                    class="load-more-container py-2 flex justify-center">
-
-                    <p>Carregando...</p>
+                    class="load-more-container py-3.5 flex justify-center">
+                    <Spinner/>
                 </div>
             </div>
         </div>
@@ -25,6 +24,7 @@ import { useStore } from 'vuex';
 import PostCard from './PostCard.vue';
 import { useIntersectionObserver } from "@vueuse/core";
 import PostSkeleton from './PostSkeleton.vue';
+import Spinner from '@/components/UI/Spinner.vue';
 
 const store = useStore()
 

@@ -4,13 +4,8 @@
         <div v-if="!loadingFetchPost">
             <!--NODY-->
             <div>
-                <PostCard 
-                    :module="module" 
-                    :data="post" 
-                    :show-more="true"
-                    :user="user"
-                    @open-new-comment-drawer="openNewCommentDrawer"
-                     />
+                <PostCard :module="module" :data="post" :show-more="true" :user="user"
+                    @open-new-comment-drawer="openNewCommentDrawer" />
                 <div>
                     <!--CREATE COMMENT TRIGGER-->
                     <CreateCommentTrigger @on-press="openNewCommentDrawer" :user="user" :type="post?.type" />
@@ -18,8 +13,8 @@
 
                 <!--COMMENTS FILTERS-->
                 <div v-if="cacheComments?.comments?.length"
-                    class="flex items-center justify-between border-b dark:border-[rgb(57,56,57)] py-3 px-3">
-                    <p class="text-sm dark:text-white text-black font-semibold">Comentários</p>
+                    class="flex items-center dark:text-white text-black justify-between border-b dark:border-[rgb(57,56,57)] py-3 px-3">
+                    <p class="text-sm font-semibold">Comentários</p>
                     <button @click="openSortByFilterDrawer" class="flex items-center gap-1">
                         <span class="font-semibold text-[13px]"> {{ sortByText }}</span>
                         <span>
@@ -43,18 +38,21 @@
         </div>
 
         <!--DRWER-->
-        <Drawer :is-open="drawer?.show" :title="drawer?.metadata?.title">
+        <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
             <template v-if="drawer?.name === 'newComment'">
                 <div class="flex w-full gap-2 flex-col p-4">
                     <div v-if="drawer?.metadata?.parent">
-                        Respondendo: <span class="text-sky-500">@{{ drawer?.metadata?.replyTo?.username ||
+                        Respondendo: <span class="text-[#4894fd]">@{{ drawer?.metadata?.replyTo?.username ||
                             drawer?.metadata?.replyTo }}</span>
                     </div>
-                    <textarea class="w-full outline-none dark:text-black" v-model="commentContent"
-                        placeholder="Escreva o teu comentario"></textarea>
-                    <button :disabled="!canComment"
-                        class="bg-sky-500 px-1.5 py-1 float-right w-min text-white disabled:opacity-80 rounded-md"
-                        @click="handleComment">Postar</button>
+                    <textarea class="w-full placeholder:dark:text-[rgb(177,179,182)] bg-transparent resize-none outline-none dark:text-white"
+                        v-model="commentContent" placeholder="Escreva o teu comentario"></textarea>
+                    <div class="flex justify-end">
+                        <button :disabled="!canComment"
+                            class="px-1.5 py-1 float-right w-min text-[#4894fd] font-semibold disabled:opacity-70 rounded-md"
+                            @click="handleComment">Postar</button>
+                    </div>
+
                 </div>
 
             </template>
@@ -192,13 +190,19 @@ const openNewCommentDrawer = (metadata) => {
     openDrawer({
         show: true,
         name: "newComment",
-        metadata
+        metadata: {
+            ...metadata,
+            title: metadata?.parent ? 'Responder' : "Comentar"
+        }
     })
 }
 const openSortByFilterDrawer = () => {
     openDrawer({
         show: true,
-        name: "sortByFilter"
+        name: "sortByFilter",
+        metadata: {
+            title: "Ordenar comentários"
+        }
     })
 }
 

@@ -1,5 +1,5 @@
 <template>
-    <div class="flex pb-1 pt-1.5 border-b-[6px] border-[rgb(24,24,24)] flex-col">
+    <div class="flex pb-1 pt-1.5 border-b-[6px] dark:border-[rgb(24,24,24)] flex-col">
         <div class="px-[10px] flex items-center gap-1.5 pb-1 pt-[10px]">
             <div class=" shrink-0">
                 <Avatar size="sm" :url="'https://qph.cf2.quoracdn.net/main-thumb-2924251670-50-qpxhcqvjpdovzaietybdmdbshaxaerfg.jpeg'" />

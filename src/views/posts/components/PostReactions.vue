@@ -2,9 +2,9 @@
     <div class="flex items-center justify-between" :class="{ 'pointer-events-none': loading }">
         <div class="flex gap-1 items-center">
             <div
-                class="flex rounded-[30px] border dark:border-[#393839] bg-[rgba(255,255,255,0.05)] items-center gap-0.5 mr-[8px]">
+                class="flex rounded-[30px] overflow-hidden border dark:border-[#393839] bg-[rgba(255,255,255,0.05)] items-center gap-0.5 mr-[8px]">
                 <button @click="$emit('on-upvote')"
-                    :class="['p-[0px_10px] h-[28px] text-center flex items-center', upvotes?.includes(userId) ? 'text-[#4894fd]' : 'text-inherit']">
+                    :class="['p-[0px_10px] h-[28px] text-center dark:active:bg-[rgba(255,255,255,0.04)] flex items-center', upvotes?.includes(userId) ? 'text-[#4894fd]' : 'text-inherit']">
                     <span>
 
                         <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24"
@@ -19,7 +19,7 @@
                 </button>
                 <span class="h-[28px] w-[1px] dark:bg-[#393839]"></span>
                 <button @click="$emit('on-downvote')"
-                    class="p-[0px_10px_0px_8px] h-[28px] text-center flex items-center">
+                    class="p-[0px_10px_0px_8px] dark:active:bg-[rgba(255,255,255,0.04)] h-[28px] text-center flex items-center">
                     <span :class="downvotes?.includes(userId) ? 'text-[#e95111]' : 'text-inherit'">
                         <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg">
@@ -30,7 +30,7 @@
                     </span>
                 </button>
             </div>
-            <button @click="$emit('on-comment')" class="flex gap-1 mr-2 items-center h-[28px] px-0.5">
+            <button @click="$emit('on-comment')" class="flex  gap-1 mr-2 items-center h-[28px] px-0.5">
                 <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M12.071 18.86c4.103 0 7.429-3.102 7.429-6.93C19.5 8.103 16.174 5 12.071 5s-7.429 3.103-7.429 6.93c0 1.291.379 2.5 1.037 3.534.32.501-1.551 3.058-1.112 3.467.46.429 3.236-1.295 3.803-.99 1.09.585 2.354.92 3.701.92Z"
