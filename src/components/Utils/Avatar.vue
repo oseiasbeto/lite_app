@@ -30,7 +30,7 @@ const props = defineProps({
 // Classes dinâmicas para tamanhos
 const sizeClasses = computed(() => {
     return {
-        xs: 'w-6 h-6',
+        xs: 'w-[20px] h-[20px]',
         sm: 'w-[32px] h-[32px]',
         md: 'w-[36px] h-[36px]',
         lg: 'w-[42px] h-[42px]',

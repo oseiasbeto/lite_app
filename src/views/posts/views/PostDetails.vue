@@ -4,19 +4,32 @@
         <div v-if="!loadingFetchPost">
             <!--NODY-->
             <div>
-                <PostCard :module="module" :data="post" :show-more="true" :user-id="user?._id"
-                    @open-new-comment-drawer="openNewCommentDrawer" />
-
-                <div class="p-2">
+                <PostCard 
+                    :module="module" 
+                    :data="post" 
+                    :show-more="true"
+                    :user="user"
+                    @open-new-comment-drawer="openNewCommentDrawer"
+                     />
+                <div>
                     <!--CREATE COMMENT TRIGGER-->
                     <CreateCommentTrigger @on-press="openNewCommentDrawer" :user="user" :type="post?.type" />
                 </div>
 
                 <!--COMMENTS FILTERS-->
-                <div v-if="cacheComments?.comments?.length" class="flex items-center justify-between py-1 px-2">
-                    <p class="text-xs">Comentarios</p>
-                    <button @click="openSortByFilterDrawer" class="text-xs"> {{
-                        sortByText }} > </button>
+                <div v-if="cacheComments?.comments?.length"
+                    class="flex items-center justify-between border-b dark:border-[rgb(57,56,57)] py-3 px-3">
+                    <p class="text-sm dark:text-white text-black font-semibold">Comentários</p>
+                    <button @click="openSortByFilterDrawer" class="flex items-center gap-1">
+                        <span class="font-semibold text-[13px]"> {{ sortByText }}</span>
+                        <span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="m5 8.5 7 7 7.005-7" class="icon_svg-stroke" stroke="currentColor"
+                                    stroke-width="2" fill="none" stroke-linecap="round"></path>
+                            </svg>
+                        </span>
+
+                    </button>
                 </div>
 
                 <!--COMMENTS-->
@@ -82,7 +95,7 @@ const canComment = computed(() => {
 const sortByText = computed(() => {
     switch (queryComments?.value?.sortBy) {
         case 'recents':
-            return 'Recentes';
+            return 'Recomendado';
         case 'relevants':
             return 'Relevantes'
     }
@@ -90,7 +103,7 @@ const sortByText = computed(() => {
 
 const sortByOptions = ref([
     {
-        label: 'Recentes',
+        label: 'Recomendado',
         value: 'recents'
     },
     {
@@ -282,7 +295,7 @@ onMounted(async () => {
     if (!post.value?._id) {
         loadingFetchPost.value = true
 
-        await store.dispatch("getPostById", {postId: postId.value})
+        await store.dispatch("getPostById", { postId: postId.value })
             .then(async () => {
                 await fetchComments(postId.value)
             })
@@ -304,7 +317,7 @@ onMounted(async () => {
 
 watch(() => route.params.id, async (newId, oldId) => {
     if (!newId || newId === oldId) return
-    
+
     loadingFetchComments.value = true
 
     postId.value = newId
@@ -312,7 +325,7 @@ watch(() => route.params.id, async (newId, oldId) => {
     if (post.value?._id !== postId.value) {
         loadingFetchPost.value = true
 
-        await store.dispatch("getPostById", {postId: postId.value})
+        await store.dispatch("getPostById", { postId: postId.value })
             .finally(() => {
                 loadingFetchPost.value = false
             })

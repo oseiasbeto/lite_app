@@ -1,19 +1,19 @@
 <template>
     <div>
         <div v-if="author?._id" class="flex gap-1 flex-row items-center">
-            <div class="shrink-0">
-                <Avatar size="xs" url=""/>
-            </div>
-            <div class="flex-1">
-                <span class="text-sm">{{ author?.name }}</span>
-                <span></span>
+            <div class="flex-1 text-[13px]">
+                <div>
+                    <span class="dark:text-white text-black font-bold">{{ author?.name }}</span>
+                    <span> · </span>
+                    <span>{{ formattedDate(createdAt) }}</span>
+                </div>
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import Avatar from '@/components/Utils/Avatar.vue';
+import formattedDate from '@/utils/formatted-date';
 
 defineProps({
     author: {

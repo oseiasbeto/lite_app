@@ -1,7 +1,7 @@
 <template>
     <div v-if="data?._id" class="flex flex-col" :class="{' border-b-[6px] border-[rgb(24,24,24)]': showBorderBottom}">
         <!--HEADER-->
-        <div class="p-2">
+        <div class="p-[10px]">
             <!--AUTHOR DETAILS-->
             <PostAuthorDetails 
             @on-follow="handleFollowUser(data?.author?._id)"
@@ -12,9 +12,9 @@
             :user-id="user?._id"
             :is-parent-post="isParentPost" />
         </div>
-
+        
         <!--BODY-->
-        <div class="px-2">
+        <div class="px-[10px]">
             <!--CONTENT-->
             <PostContent :show-more="showMore" @on-press="goToViewMore" :content="data.content" />
 
@@ -28,12 +28,21 @@
         </div>
 
         <!--FOOTER-->
-        <div v-if="!isParentPost" class="p-2 pb-1">
-            <PostReactions :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
-                :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"
-                :comments-count="data?.comments_count" :shares-count="data?.shares_count" @on-upvote="handleUpvote"
+        <div v-if="!isParentPost" class="p-[10px] pb-1">
+            <PostReactions 
+                :loading="isReactingPost" 
+                :upvotes="data?.upvotes" 
+                :upvotes-count="data?.upvotes_count"
+                :downvotes="data?.downvotes" 
+                :downvotes-count="data?.downvotes_count"
+                :comments-count="data?.comments_count" 
+                :shares-count="data?.shares_count" 
+                @on-upvote="handleUpvote"
                 :user-id="user?._id"
-                @on-downvote="handleDownvote" @on-comment="goToComments" @on-share="goToShare" />
+                @on-downvote="handleDownvote" 
+                @on-comment="goToComments" 
+                @on-share="goToShare" 
+            />
         </div>
     </div>
 </template>

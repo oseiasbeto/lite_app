@@ -1,44 +1,61 @@
 <template>
-    <div class="border-b flex flex-col border-gray-50">
-        <!--HEADER-->
-        <div class="p-2">
-            <!--AUTHOR DETAILS-->
-            <CommentAuthorDetails :author="data?.author || data?.user || {}" :user-id="userId" />
-        </div>
+    <div class=""
+        :class="['gap-2 flex pt-1.5 pb-0.5 flex-col dark:border-[rgb(57,56,57)]', isReply ? 'border-none px-0' : 'border-b px-[10px]']">
+        <div class="flex flex-row gap-2">
+            <div class="shrink-0">
+                <Avatar :size="isReply ? 'xs' : 'md'"
+                    url="https://qph.cf2.quoracdn.net/main-thumb-1542242401-200-zgcrofpkjukharfjyuwoiltdlabbkjkh.jpeg" />
+            </div>
+            <div class="flex-1">
+                <!--AUTHOR DETAILS-->
+                <CommentAuthorDetails 
+                :author="data?.author || data?.user || {}" 
+                :user-id="userId" 
+                :created-at="data?.created_at"
+                />
+                <!--BODY-->
+                <div>
+                    <!--CONTENT-->
+                    <CommentContent :content="data?.content || ''" />
 
-        <!--BODY-->
-        <div class="px-2">
-            <!--CONTENT-->
-            <CommentContent :content="data?.content || ''" />
+                    <!--MEDIA-->
+                </div>
 
-            <!--MEDIA-->
-        </div>
+                <!--FOOTER-->
+                <div class="mb-1">
+                    <CommentReactions 
+                        :loading="isReactingComment" 
+                        :upvotes="data?.upvotes"
+                        :upvotes-count="data?.upvotes_count" 
+                        :downvotes="data?.downvotes"
+                        :user-id="userId"
+                        :downvotes-count="data?.downvotes_count" 
+                        :replies-count="data?.replies_count"
+                        :shares-count="data?.shares_count" 
+                        @on-upvote="handleUpvote" 
+                        @on-downvote="handleDownvote"
+                        @on-reply="onReply({
+                            parent: data,
+                            replyTo: data?.author
+                        })" />
+                </div>
 
-        <!--FOOTER-->
-        <div class="p-2">
-            <CommentReactions :loading="isReactingComment" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
-                :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"
-                :replies-count="data?.replies_count" :shares-count="data?.shares_count" @on-upvote="handleUpvote"
-                @on-downvote="handleDownvote" @on-reply="onReply({
-                    parent: data,
-                    replyTo: data?.author
-                })" />
+                <div v-if="data?.replies?.length">
+                    <CommentCard v-for="reply in data?.replies" :post-id="postId" :key="reply?._id" :user-id="userId"
+                        :data="reply" :is-reply="true" @on-reply="onReply({
+                            parent: reply?.parent,
+                            replyTo: reply?.author
+                        })" />
+                </div>
+            </div>
         </div>
+        <!--LOAD MORE-->
+        <button :disabled="loadingLoadMoreReplies" @click="loadMoreReplies" v-if="queryReplies?.hasMore">
+            <span v-if="!loadingLoadMoreReplies">Ver mais >
 
-        <div v-if="data?.replies?.length">
-            <CommentCard v-for="reply in data?.replies" :post-id="postId" :key="reply?._id" :user-id="userId"
-                :data="reply" @on-reply="onReply({
-                    parent: reply?.parent,
-                    replyTo: reply?.author
-                })" />
-            <!--LOAD MORE-->
-            <button :disabled="loadingLoadMoreReplies" @click="loadMoreReplies" v-if="queryReplies?.hasMore">
-                <span v-if="!loadingLoadMoreReplies">Ver mais >
-                
-                </span>
-                <span v-else>...</span>
-            </button>
-        </div>
+            </span>
+            <span v-else>...</span>
+        </button>
     </div>
 </template>
 
@@ -49,6 +66,7 @@ import CommentContent from './CommentContent.vue';
 import CommentReactions from './CommentReactions.vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import Avatar from '@/components/Utils/Avatar.vue';
 
 const store = useStore()
 const router = useRouter()
@@ -61,6 +79,10 @@ const props = defineProps({
     postId: {
         type: String,
         required: true
+    },
+    isReply: {
+        type: Boolean,
+        default: false
     },
     showMore: {
         type: Boolean,
@@ -120,11 +142,11 @@ const loadMoreReplies = async () => {
             postId: props?.data?.post,
             commentId: props?.data?._id
         })
-        .then(pagination => {
-            const {totalComments, hasMore } = pagination
-            queryReplies.value.hasMore = hasMore
-            queryReplies.value.hasTotal = totalComments
-        })
+            .then(pagination => {
+                const { totalComments, hasMore } = pagination
+                queryReplies.value.hasMore = hasMore
+                queryReplies.value.hasTotal = totalComments
+            })
             .finally(() => {
                 loadingLoadMoreReplies.value = false
             })

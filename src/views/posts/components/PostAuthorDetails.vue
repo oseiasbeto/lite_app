@@ -8,7 +8,7 @@
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-1">
                         <div @click="goToProfile(author?._id)">
-                            <span class="text-[13px] dark:text-white font-bold">{{ author?.name }}</span>
+                            <span class="text-[13px] dark:text-white text-black font-bold">{{ author?.name }}</span>
                         </div>
                         <span class="dark:text-[#e6e7e8] text-[13px]" v-if="showBtnFollow"> · </span>
                         <div>
