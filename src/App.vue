@@ -395,23 +395,27 @@ const setThemeColor = (theme) => {
   if (savedTheme.value === 'dark') {
     // Aplicar tema escuro  
     document.documentElement.classList.add('dark');
+    window?.WTN?.setNavigationBarColor({ color: "#262626" });
   } else if (savedTheme.value === 'system') {
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
     if (isDark) {
       document.documentElement.classList.add('dark');
+      window?.WTN?.setNavigationBarColor({ color: "#262626" });
     } else {
       document.documentElement.classList.remove('dark');
+      window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
     }
   } else {
     // Aplicar tema claro
     document.documentElement.classList.remove('dark');
+    window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
   }
 
   // Ajustar status bar
   statusBar({
-    style: 'light',
-    color: theme == 'dark' ? '000' : "fff",
+    style: theme == 'dark' ? 'dark' : 'light',
+    color: theme == 'dark' ? '262626' : "fff",
     overlay: false //Only for android
   });
 }
@@ -481,7 +485,7 @@ onUnmounted(() => {
 <template>
 
   <div
-    :class="['font-primary bg-background-primary text-text-primary relative w-screen text-sm h-screen text-light-text-primary overflow-auto']">
+    class="font-secondary text-[13px] dark:bg-[#262626] dark:text-[#e6e7e8] text-text-primary relative w-screen text-sm h-screen text-light-text-primary overflow-auto">
     <!-- start main app area-->
     <div v-if="!loading">
       <!--start content-->

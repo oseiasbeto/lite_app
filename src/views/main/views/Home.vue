@@ -1,22 +1,14 @@
 <template>
-    <div @scroll="setScrollTopFromCache" class="relative h-[calc(100vh-56px)] overflow-y-scroll"
-    ref="feedView"
-    >
-    <div class="pb-1 border-b border-b-gray-50">
-        <CreatePostTrigger module="feed" />
-    </div>
-    <div>
-        <PostList  
-            :posts="feedPosts?.posts || []" 
-            :has-more="feedPosts?.pagination?.hasMore || false"
-            :loading-fetch="loadingFeedPosts" 
-            :loading-load-more="loadingLoadMore" 
-            :show-btn-follow="true"
-            module="feed"
-            @on-load-more="handleLoadMore" 
-            />
-    </div>
-        
+    <div @scroll="setScrollTopFromCache" class="relative h-[calc(100vh-56px)] overflow-y-scroll" ref="feedView">
+        <div class="relative">
+            <CreatePostTrigger module="feed" />
+        </div>
+        <div>
+            <PostList :posts="feedPosts?.posts || []" :has-more="feedPosts?.pagination?.hasMore || false"
+                :loading-fetch="loadingFeedPosts" :loading-load-more="loadingLoadMore" :show-btn-follow="true"
+                module="feed" @on-load-more="handleLoadMore" />
+        </div>
+
     </div>
 </template>
 
@@ -25,6 +17,9 @@ import CreatePostTrigger from '@/views/posts/components/CreatePostTrigger.vue';
 import PostList from '@/views/posts/components/PostList.vue';
 import { ref, onMounted, onActivated, computed } from 'vue';
 import { useStore } from 'vuex';
+import {
+  bannerAd
+} from "webtonative/AdMob";
 
 const store = useStore()
 
@@ -93,6 +88,9 @@ onMounted(async () => {
     try {
         loadingFeedPosts.value = true
         await fetchFeedPosts()
+        bannerAd({
+            adId: "ca-app-pub-3940256099942544/6300978111"
+        })
     } catch (err) {
         console.error("Erro ao buscar posts do feed:", err?.response?.data?.message)
     } finally {
@@ -104,7 +102,7 @@ onMounted(async () => {
 onActivated(() => {
     if (feedPosts.value) {
         const { pagination } = feedPosts.value
-          
+
         feedView.value.scrollTop = pagination?.scrollTop || 0
     }
 })

@@ -2,7 +2,7 @@
     <div class="relative">
         <div v-if="!loadingFetch">
             <div v-if="posts?.length">
-                <PostCard v-for="item in posts" :show-btn-follow="showBtnFollow" :key="item?._id" :module="module" :data="item" :user="user || {}" />
+                <PostCard v-for="item in posts" :show-border-bottom="showBorderBottom" :show-btn-follow="showBtnFollow" :key="item?._id" :module="module" :data="item" :user="user || {}" />
 
                 <div ref="loadTrigger" v-if="hasMore || loadingLoadMore"
                     class="load-more-container py-2 flex justify-center">
@@ -46,6 +46,10 @@ defineProps({
     loadingFetch: {
         type: Boolean,
         default: false
+    },
+    showBorderBottom: {
+        type: Boolean,
+        default: true
     },
     loadingLoadMore: {
         type: Boolean,

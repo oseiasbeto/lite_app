@@ -1,5 +1,5 @@
 <template>
-    <div v-if="data?._id" class="flex flex-col border-gray-50" :class="[isParentPost ? 'border-none' : 'border-b']">
+    <div v-if="data?._id" class="flex flex-col" :class="{' border-b-[6px] border-[rgb(24,24,24)]': showBorderBottom}">
         <!--HEADER-->
         <div class="p-2">
             <!--AUTHOR DETAILS-->
@@ -8,8 +8,9 @@
             :is-following-user="isFollowingUser"
             :show-btn-follow="canFollowUser" 
             :author="data?.author" 
+            :created-at="data?.created_at"
             :user-id="user?._id"
-                :is-parent-post="isParentPost" />
+            :is-parent-post="isParentPost" />
         </div>
 
         <!--BODY-->
@@ -27,10 +28,11 @@
         </div>
 
         <!--FOOTER-->
-        <div v-if="!isParentPost" class="p-2">
+        <div v-if="!isParentPost" class="p-2 pb-1">
             <PostReactions :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
                 :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"
                 :comments-count="data?.comments_count" :shares-count="data?.shares_count" @on-upvote="handleUpvote"
+                :user-id="user?._id"
                 @on-downvote="handleDownvote" @on-comment="goToComments" @on-share="goToShare" />
         </div>
     </div>
@@ -60,6 +62,10 @@ const props = defineProps({
         default: 'feed'
     },
     showMore: {
+        type: Boolean,
+        default: false
+    },
+    showBorderBottom: {
         type: Boolean,
         default: false
     },
