@@ -10,10 +10,18 @@ export default {
             state.profile = payload
         },
         UPDATE_PROFILE(state, payload) {
-            const { scrollTop, activeTab } = payload
+            const { scrollTop, name, location, bio, credentials, activeTab } = payload
 
             if (scrollTop) {
                 state.profile.scrollTop = scrollTop
+            } else if (name) {
+                state.profile.name = name
+            } else if (location) {
+                state.profile.location = location
+            } else if (bio) {
+                state.profile.bio = bio
+            } else if (credentials) {
+                state.profile.credentials = credentials
             } else if (activeTab) {
                 state.profile.activeTab = activeTab
             }
@@ -45,31 +53,53 @@ export default {
                 throw err
             }
         },
-        async followUser({ commit }, userId) {
+        async updateProfile({ commit }, payload) {
             try {
-                const response = await api.put(`/users/${userId}/follow`);
-                const { userStatusFollow, profileStatusFollow } = response.data
+                const { name, picture, location, bio, credentials } = payload
+                console.log(bio)
+                const response = await api.put('/users', { name, picture, location, bio, credentials });
+                const { user } = response.data
 
-                commit("UPDATE_PROFILE_STATUS_FOLLOW", profileStatusFollow)
-                commit("UPDATE_USER_STATUS_FOLLOW", userStatusFollow)
+                commit("SET_PROFILE", user)
             } catch (err) {
-                logger.error("Erro ao seguir/dexiar de seguir o usuario:", err?.response?.data?.message || err);
+                logger.error("Erro ao atualizar o perfil:", err?.response?.data?.message || err);
                 throw err
             }
         },
-        async subscribeUser({ commit }, userId) {
+        async deleteProfileImage({ commit }, publicId) {
             try {
-                const response = await api.put(`/users/${userId}/subscribe`);
-                const { profileStatusSubscriptions } = response.data
-                
-                commit("UPDATE_PROFILE_STATUS_SUBSCRIPTIONS", profileStatusSubscriptions)
+                await api.put('/users/destroy-profile-image', { public_id: publicId });
+                //commit("UPDATE_PROFILE", { profile_image: null })
             } catch (err) {
-                logger.error("Erro ao subscrever um usuario:", err?.response?.data?.message || err);
+                logger.error("Erro ao deletar a imagem de perfil:", err?.response?.data?.message || err);
                 throw err
             }
+        },
+        async followUser({ commit }, userId) {
+                try {
+                    const response = await api.put(`/users/${userId}/follow`);
+                    const { userStatusFollow, profileStatusFollow } = response.data
+
+                    commit("UPDATE_PROFILE_STATUS_FOLLOW", profileStatusFollow)
+                    commit("UPDATE_USER_STATUS_FOLLOW", userStatusFollow)
+                } catch (err) {
+                    logger.error("Erro ao seguir/dexiar de seguir o usuario:", err?.response?.data?.message || err);
+                    throw err
+                }
+            },
+        async subscribeUser({ commit }, userId) {
+                try {
+                    const response = await api.put(`/users/${userId}/subscribe`);
+                    const { profileStatusSubscriptions } = response.data
+
+                    commit("UPDATE_PROFILE_STATUS_SUBSCRIPTIONS", profileStatusSubscriptions)
+                } catch (err) {
+                    logger.error("Erro ao subscrever um usuario:", err?.response?.data?.message || err);
+                    throw err
+                }
+            }
+        },
+        getters: {
+            currentProfile: (state) => state.profile
         }
-    },
-    getters: {
-        currentProfile: (state) => state.profile
     }
-}

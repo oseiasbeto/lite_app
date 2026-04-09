@@ -1,7 +1,7 @@
 <template>
     <div class="flex p-2 dark:bg-[rgb(32,32,32)] items-center gap-2">
         <div class="shrink-0">
-            <Avatar size="md" :url="'https://qph.cf2.quoracdn.net/main-thumb-2924251670-100-qpxhcqvjpdovzaietybdmdbshaxaerfg.jpeg'"/>
+            <Avatar size="md" :url="user?.profile_image?.thumbnails?.md || user?.profile_image?.url"/>
         </div>
         
         <div class="flex-1">

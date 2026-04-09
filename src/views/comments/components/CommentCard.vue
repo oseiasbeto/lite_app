@@ -4,7 +4,8 @@
         <div class="flex flex-row gap-2">
             <div class="shrink-0">
                 <Avatar :size="isReply ? 'xs' : 'md'"
-                    url="https://qph.cf2.quoracdn.net/main-thumb-1542242401-200-zgcrofpkjukharfjyuwoiltdlabbkjkh.jpeg" />
+                    :url="isReply ? data?.author?.profile_image?.thumbnails?.xs || data?.author?.profile_image?.url : 
+                    data?.author?.profile_image?.thumbnails?.md || data?.author?.profile_image?.url" />
             </div>
             <div class="flex-1">
                 <!--AUTHOR DETAILS-->

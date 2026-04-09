@@ -2,7 +2,7 @@
     <div class="relative">
         <div class="flex mb-2 items-center gap-1">
             <div class="shrink-0 mr-[16px]">
-                <Avatar size="big" url="https://qph.cf2.quoracdn.net/main-thumb-1537728686-200-coazxvvqyfnxyobjcizaenssonnrjoar.jpeg" />
+                <Avatar size="big" :url="profile?.profile_image?.thumbnails?.lg || profile?.profile_image?.url" />
             </div>
 
             <div class="flex flex-col">
@@ -15,8 +15,8 @@
             </div>
         </div>
 
-        <div class="py-2">
-            <p class="text-[15px] line-clamp-3 font-normal">Descricao</p>
+        <div v-show="profile?.bio?.length" class="py-2">
+            <p class="text-[15px] line-clamp-3 font-normal" v-html="profile?.bio"></p>
         </div>
     </div>
 

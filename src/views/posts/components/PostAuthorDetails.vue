@@ -1,26 +1,32 @@
 <template>
     <div>
-        <div v-if="author?._id" class="flex gap-2.5 flex-row items-center">
+        <div v-if="author?._id" class="flex items-center flex-row" :class="isParentPost ? 'gap-1' : 'gap-2.5'">
             <div @click="goToProfile(author?._id)" class="shrink-0">
-                <Avatar size="md" url="https://qph.cf2.quoracdn.net/main-thumb-1537728686-50-coazxvvqyfnxyobjcizaenssonnrjoar.jpeg" />
+                <Avatar :size="isParentPost ? 's' : 'md'"
+                    :url=" isParentPost ? author?.profile_image?.thumbnails?.xs || author?.profile_image?.url : author?.profile_image?.thumbnails?.sm || author?.profile_image?.url" />
             </div>
             <div class="flex-1">
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-1">
                         <div @click="goToProfile(author?._id)">
-                            <span class="text-[13px] dark:text-white text-black font-bold">{{ author?.name }}</span>
+                            <span :class="isParentPost ? 'font-normal' : 'font-bold'"
+                                class="text-[13px] dark:text-white text-black">{{ author?.name }}</span>
                         </div>
-                        <span class="dark:text-[#e6e7e8] text-[13px]" v-if="showBtnFollow"> · </span>
-                        <div>
-                            <button :disabled="isFollowingUser" @click="$emit('onFollow')" class="text-[13px] text-[#4894fd] disabled:text-gray-400 font-semibold"
+                        <span v-show="!isParentPost && showBtnFollow" class="dark:text-[#e6e7e8] text-[13px]"> · </span>
+                        <div v-show="!isParentPost && showBtnFollow">
+                            <button :disabled="isFollowingUser" @click="$emit('onFollow')"
+                                class="text-[13px] text-[#4894fd] disabled:text-gray-400 font-semibold"
                                 v-if="showBtnFollow">Seguir</button>
                         </div>
                     </div>
 
                 </div>
 
-                <div class="flex text-[13px] gap-1.5 items-center dark:text-[#e6e7e8]">
-                    <span>Coach Executivo e Consultor</span>
+                <div v-show="!isParentPost" class="flex text-[13px] leading-4 items-center">
+                    <span class="trunc" v-show="author?.credentials">
+                        <span class="break-all break-words">{{ author?.credentials }}</span>
+                    </span>
+                    <span v-show="author?.credentials">&nbsp;·&nbsp;</span>
                     <span>{{ formattedDate(createdAt) }}</span>
                 </div>
             </div>
@@ -69,3 +75,13 @@ defineProps({
     }
 })
 </script>
+
+<style scoped>
+.trunc {
+    text-overflow: ellipsis;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    display: -webkit-box;
+    overflow: hidden;
+}
+</style>

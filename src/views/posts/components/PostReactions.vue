@@ -4,7 +4,7 @@
             <div
                 class="flex rounded-[30px] overflow-hidden border dark:border-[#393839] bg-[rgba(255,255,255,0.05)] items-center gap-0.5 mr-[8px]">
                 <button @click="$emit('on-upvote')"
-                    :class="['p-[0px_10px] h-[28px] text-center dark:active:bg-[rgba(255,255,255,0.04)] flex items-center', upvotes?.includes(userId) ? 'text-[#4894fd]' : 'text-inherit']">
+                    class="p-[0px_10px] h-[28px] text-center dark:active:bg-[rgba(255,255,255,0.04)] flex items-center text-blue">
                     <span>
 
                         <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24"

@@ -312,6 +312,10 @@ const initializeSocket = () => {
         }, 300);
       }
     })
+
+    socket.on("new_notification", (newNotification) => {
+      console.log("nova notificacao:", newNotification)
+    }) 
   } else {
     logger.log('Nenhum socket encontrado');
     return false;
@@ -352,7 +356,6 @@ const handleRefreshToken = async () => {
 
 const reloadApp = () => {
   window.location.replace('/home')
-  window.history.go(-window.history.length + 1)
 }
 
 // Função para tocar o som (com fallback silencioso)
@@ -491,7 +494,7 @@ onUnmounted(() => {
       <!--start content-->
       <div class="overflow-hidden">
         <router-view v-slot="{ Component }">
-          <keep-alive :include="['ActiveChats', 'Home', 'PostDetails', 'ArchivedChats', 'NewMessage', 'Messages']">
+          <keep-alive :include="['ActiveChats', 'Home', 'Notifications', 'PostDetails', 'ArchivedChats', 'NewMessage', 'Messages']">
             <component :is="Component" />
           </keep-alive>
         </router-view>

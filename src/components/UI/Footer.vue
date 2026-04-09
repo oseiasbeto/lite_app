@@ -17,7 +17,7 @@
             </button>
         </li>
         <li class="flex-1 h-full">
-            <button @click="goToNotification" class="flex relative items-center w-full h-full">
+            <button @click="goToNotification" class="flex relative items-center w-full h-full" :class="{'text-primary': route.name == 'Notifications'}">
                 <svg v-if="route.name === 'Notifications'" fill="none" width="26" viewBox="0 0 24 24" height="26"
                     aria-hidden="true" class="mx-auto">
                     <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"

@@ -1,8 +1,8 @@
 <template>
   <div class="flex items-center gap-1">
-    <span class="dot dark:bg-[rgba(255,255,255,0.5)]" style="animation-delay: 0s"></span>
-    <span class="dot dark:bg-[rgba(255,255,255,0.5)]" style="animation-delay: 0.2s"></span>
-    <span class="dot dark:bg-[rgba(255,255,255,0.5)]" style="animation-delay: 0.4s"></span>
+    <span class="dot dark:bg-[rgb(230,231,232)]" style="animation-delay: 0s"></span>
+    <span class="dot dark:bg-[rgb(230,231,232)]" style="animation-delay: 0.2s"></span>
+    <span class="dot dark:bg-[rgb(230,231,232)]" style="animation-delay: 0.4s"></span>
   </div>
 </template>
 

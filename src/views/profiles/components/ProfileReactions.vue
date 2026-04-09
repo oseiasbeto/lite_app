@@ -42,7 +42,7 @@
             <p>Notificar-me</p>
 
         </button>
-        <button v-if="isSameUser" @click="$emit('onFollow')" class="text-[13px] flex items-center gap-1 flex-1">
+        <button v-if="isSameUser" @click="$emit('onEdit')" class="text-[13px] flex items-center gap-1 flex-1">
             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fill-rule="evenodd">
                     <path
@@ -81,7 +81,6 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
 
 const props = defineProps({
     profile: {
@@ -116,7 +115,7 @@ const props = defineProps({
 
 
 
-defineEmits(['onFollow', 'onSubscribe', 'onAsk', 'moreOptions'])
+defineEmits(['onFollow', 'onSubscribe', 'onEdit', 'onAsk', 'moreOptions'])
 
 
 </script>

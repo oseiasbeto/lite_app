@@ -6,6 +6,10 @@ const props = defineProps({
     type: String,
     required: true
   },
+  isParentPost: {
+    type: Boolean,
+    default: false
+  },
   custom: {
     type: String,
     default: "text-base leading-[21px] select-none"
@@ -53,7 +57,7 @@ onMounted(() => {
       ref="contentRef"
       :class="[
         custom,
-        'font-light dark:text-white text-black text-sm overflow-hidden break-words whitespace-pre-wrap',
+        'font-light pb-1.5 dark:text-white text-black text-sm overflow-hidden break-words whitespace-pre-wrap',
         !isExpanded && needsTruncate ? 'line-clamp-[var(--max-lines)]' : ''
       ]"
       :style="{ '--max-lines': maxLines }"
@@ -64,7 +68,7 @@ onMounted(() => {
     <button
       v-if="needsTruncate"
       @click="toggleExpand"
-      class="mt-1 dark:text-[#b1b3b6] font-medium text-sm focus:outline-none transition-colors"
+      class="my-1 dark:text-[#b1b3b6] font-medium text-sm focus:outline-none transition-colors"
     >
       {{ isExpanded ? 'Ler menos' : 'Ler mais' }}
     </button>

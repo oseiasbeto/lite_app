@@ -40,12 +40,21 @@
         <!--DRWER-->
         <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
             <template v-if="drawer?.name === 'newComment'">
-                <div class="flex w-full gap-2 flex-col p-4">
-                    <div v-if="drawer?.metadata?.parent">
-                        Respondendo: <span class="text-[#4894fd]">@{{ drawer?.metadata?.replyTo?.username ||
-                            drawer?.metadata?.replyTo }}</span>
+                <div class="flex w-full gap-2.5 flex-col p-4">
+                    <div class="flex items-center gap-2" v-if="drawer?.metadata?.parent">
+                        <span>Respondendo:</span>
+                        <div class="flex items-center flex-row gap-1.5">
+                            <Avatar
+                                :url="drawer?.metadata?.replyTo?.profile_image?.thumbnails?.xs || drawer?.metadata?.replyTo?.profile_image?.url"
+                                :alt="drawer?.metadata?.replyTo?.name" size="xs" />
+                            <span class="text-[13px] dark:text-white text-black font-semibold">
+                                {{ drawer?.metadata?.replyTo?.name ||
+                                    drawer?.metadata?.replyTo }}
+                            </span>
+                        </div>
                     </div>
-                    <textarea class="w-full placeholder:dark:text-[rgb(177,179,182)] bg-transparent resize-none outline-none dark:text-white"
+                    <textarea
+                        class="w-full placeholder:dark:text-[rgb(177,179,182)] bg-transparent resize-none outline-none dark:text-white"
                         v-model="commentContent" placeholder="Escreva o teu comentario"></textarea>
                     <div class="flex justify-end">
                         <button :disabled="!canComment"
@@ -74,6 +83,7 @@ import Drawer from '@/components/drawer/Drawer.vue';
 import CreateCommentTrigger from '@/views/comments/components/CreateCommentTrigger.vue';
 import CommentList from '@/views/comments/components/CommentList.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
+import Avatar from '@/components/Utils/Avatar.vue';
 
 const store = useStore()
 const route = useRoute()

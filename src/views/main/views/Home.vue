@@ -1,7 +1,7 @@
 <template>
     <div @scroll="setScrollTopFromCache" class="relative h-[calc(100vh-56px)] overflow-y-scroll" ref="feedView">
         <div class="relative">
-            <CreatePostTrigger module="feed" />
+            <CreatePostTrigger module="feed" :user="user" />
         </div>
         <div>
             <PostList :posts="feedPosts?.posts || []" :has-more="feedPosts?.pagination?.hasMore || false"
@@ -42,6 +42,8 @@ const feedPosts = computed(() => {
         return modules.find(m => m.module === module.value)
     } else return []
 })
+
+const user = computed(() => store.getters.currentUser)
 
 const resetQuery = () => {
     query.value = {

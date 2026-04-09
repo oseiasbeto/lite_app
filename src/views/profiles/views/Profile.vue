@@ -10,13 +10,19 @@
 
                     <!--REACTIOS-->
                     <div class="px-[10px] pb-3">
-                        <ProfileReactions :profile="profile" :user-id="user?._id" :is-same-user="isSameUser"
+                        <ProfileReactions 
+                            :profile="profile" :user-id="user?._id" :is-same-user="isSameUser"
                             :has-followed="hasFollowed" :has-subscribed="hasSubscribed"
                             :status-follow-txt="statusFollowTxt" @on-follow="handleFollow(profile?._id)"
+                            @on-edit="router.push('/profile/' + profile?._id + '/edit')"
                             @on-subscribe="handleSubscribe(profile?._id)" @more-options="openMoreOptionsDrawer"
                             :is-disabled="isFollowing || isSubscribing" />
                     </div>
                 </div>
+
+
+                <!--J-->
+                <CredentialsHighlights />
 
                 <!--TABS-->
                 <Tabs :tabs="tabs" v-model="currentTab" />
@@ -68,6 +74,7 @@ import Tabs from '@/components/UI/Tabs.vue';
 import PostList from '@/views/posts/components/PostList.vue';
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
+import CredentialsHighlights from '../components/CredentialsHighlights.vue';
 
 const store = useStore()
 const route = useRoute()
@@ -211,7 +218,7 @@ const openConv = async (user) => {
     loadingOpenConv.value = true
 
     const convModules = conversations.value
-    
+
     const convIndex = convModules.findIndex(m => m.source === 'active') || 0
 
     if (convIndex === -1) {

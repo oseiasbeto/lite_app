@@ -45,8 +45,8 @@ function validateName() {
     nameError.value = { show: true, message: 'O nome deve ter pelo menos 2 caracteres.' }
     return false
   }
-  if (value.length > 50) {
-    nameError.value = { show: true, message: 'O nome deve ter no máximo 50 caracteres.' }
+  if (value.length > 20) {
+    nameError.value = { show: true, message: 'O nome deve ter no máximo 20 caracteres.' }
     return false
   }
   nameError.value = { show: false, message: '' }

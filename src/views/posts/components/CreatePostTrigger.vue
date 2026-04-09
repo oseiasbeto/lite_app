@@ -2,7 +2,7 @@
     <div class="flex pb-1 pt-1.5 border-b-[6px] dark:border-[rgb(24,24,24)] flex-col">
         <div class="px-[10px] flex items-center gap-1.5 pb-1 pt-[10px]">
             <div class=" shrink-0">
-                <Avatar size="sm" :url="'https://qph.cf2.quoracdn.net/main-thumb-2924251670-50-qpxhcqvjpdovzaietybdmdbshaxaerfg.jpeg'" />
+                <Avatar size="sm" :url="user?.profile_image?.thumbnails?.sm || user?.profile_image?.url" />
             </div>
             <div class="border flex-1 dark:bg-[#202020] rounded-[30px] flex items-center dark:border-[rgb(57,56,57)] h-[32px] text-[13px] dark:text-[rgb(177,179,182)]"
                 @click="goToComposer(module)">
@@ -75,6 +75,10 @@ const props = defineProps({
     module: {
         type: String,
         required: true
+    },
+    user: {
+        type: Object,
+        default: null
     }
 })
 

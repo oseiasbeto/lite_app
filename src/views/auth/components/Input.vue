@@ -6,9 +6,9 @@
         :autocomplete="props.type === 'password' ? 'new-password' : 'off'"
         :type="showPassword ? 'text' : props.type"
         :id="props.label"
-        class="peer w-full h-full pt-3 px-3 text-sm border border-border-primary rounded-[4px] focus:border-primary focus:border-2 outline-none transition-all text-gray-700 placeholder-transparent peer-valid:pt-4 pr-10"
+        class="peer w-full h-full pt-3 px-3 text-sm border border-border-secondary rounded-[4px] focus:border-secondary focus:border-2 outline-none transition-all text-gray-700 placeholder-transparent peer-valid:pt-4 pr-10"
         :placeholder="props.title"
-        :class="{ 'border-red-500 focus:border-red-500': props.error.show }"
+        :class="{ '!border-red-500 !focus:border-red-500': props.error.show }"
         v-model="inputValue"
         required
       />
@@ -18,9 +18,9 @@
         :for="props.label"
         class="absolute pointer-events-none left-3 top-4 text-gray-500 text-base transition-all 
           peer-placeholder-shown:top-[14px] peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 
-          peer-focus:top-2 peer-focus:text-xs peer-focus:text-primary 
+          peer-focus:top-2 peer-focus:text-xs peer-focus:text-secondary 
           peer-valid:top-2 peer-valid:text-xs peer-valid:text-gray-500"
-        :class="{ 'peer-valid:text-red-500 peer-focus:text-red-500': props.error.show }"
+        :class="{ 'peer-valid:!text-red-500 peer-focus:!text-red-500': props.error.show }"
       >
         {{ props.title }}
       </label>
@@ -87,6 +87,10 @@ const props = defineProps({
   title: {
     type: String,
     required: true
+  },
+  placeholder: {
+    type: String,
+    default: ''
   },
   error: {
     show: {

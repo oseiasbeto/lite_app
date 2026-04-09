@@ -272,14 +272,14 @@ export default {
                 const response = await api.put(`/posts/${postId}/toggle-upvote`);
 
                 const { post } = response.data
-                const { upvotes, upvotes_count, downvotes, comment_count, shares_count, downvotes_count } = post
+                const { upvotes, upvotes_count, downvotes, comments_count, shares_count, downvotes_count } = post
 
                 const payload = {
                     post_id: post?._id,
                     upvotes,
                     upvotes_count,
                     downvotes,
-                    comment_count,
+                    comments_count,
                     shares_count,
                     downvotes_count
                 }
@@ -297,14 +297,14 @@ export default {
                 const response = await api.put(`/posts/${postId}/toggle-downvote`);
 
                 const { post } = response.data
-                const { upvotes, upvotes_count, downvotes, comment_count, shares_count, downvotes_count } = post
+                const { upvotes, upvotes_count, downvotes, comments_count, shares_count, downvotes_count } = post
 
                 const payload = {
                     post_id: post?._id,
                     upvotes,
                     upvotes_count,
                     downvotes,
-                    comment_count,
+                    comments_count,
                     shares_count,
                     downvotes_count
                 }
