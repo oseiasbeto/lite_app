@@ -56,22 +56,13 @@ export default {
         async updateProfile({ commit }, payload) {
             try {
                 const { name, picture, location, bio, credentials } = payload
-                console.log(bio)
+                
                 const response = await api.put('/users', { name, picture, location, bio, credentials });
                 const { user } = response.data
 
                 commit("SET_PROFILE", user)
             } catch (err) {
                 logger.error("Erro ao atualizar o perfil:", err?.response?.data?.message || err);
-                throw err
-            }
-        },
-        async deleteProfileImage({ commit }, publicId) {
-            try {
-                await api.put('/users/destroy-profile-image', { public_id: publicId });
-                //commit("UPDATE_PROFILE", { profile_image: null })
-            } catch (err) {
-                logger.error("Erro ao deletar a imagem de perfil:", err?.response?.data?.message || err);
                 throw err
             }
         },

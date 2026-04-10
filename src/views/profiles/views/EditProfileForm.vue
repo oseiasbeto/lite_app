@@ -10,7 +10,7 @@
 
                 <!-- Preview da imagem -->
                 <div class="flex flex-col items-center gap-4">
-                    <div class="relative">
+                    <div :class="{ 'pointer-events-none': loadingRemovePicture }" class="relative">
                         <img :src="imagePreview" alt="Preview"
                             class="w-32 h-32 rounded-full object-cover border-2 dark:border-[rgb(57,56,57)]" />
                         <label for="picture-upload"
@@ -30,7 +30,8 @@
                     </div>
 
                     <!-- Botão remover foto -->
-                    <button v-if="hasExistingPicture || selectedFile" @click="removePicture"
+                    <button v-if="!loadingRemovePicture && !uploading && (originalPicturePublicId || selectedFile)"
+                        @click="removePicture"
                         class="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
                         :disabled="uploading">
                         Remover foto atual
@@ -82,6 +83,7 @@ import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
+import { logger } from '@/utils/logger';
 
 const route = useRoute()
 const router = useRouter()
@@ -112,7 +114,7 @@ const selectedFile = ref(null)
 const imagePreview = ref(profile.value?.profile_image?.url || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png')
 const originalPicturePublicId = ref(profile?.value?.profile_image?.public_id || null)
 const hasExistingPicture = ref(!!profile.value?.profile_image?.url)
-const pictureToRemove = ref(false)
+const loadingRemovePicture = ref(false)
 const pictureError = ref({ show: false, message: '' })
 
 // Extrair public_id da URL do Cloudinary
@@ -199,6 +201,7 @@ const validateImageFile = (file) => {
 const deleteFromCloudinary = async (publicId) => {
     if (!publicId) return true
 
+    logger.log('Iniciando deleção da imagem do Cloudinary com public_id:', publicId)
     const timestamp = Math.round(new Date().getTime() / 1000);
     const signatureString = `public_id=${publicId}&timestamp=${timestamp}${API_SECRET}`;
     const signature = CryptoJS.SHA1(signatureString).toString(); // Usar crypto-js para SHA-1
@@ -211,7 +214,15 @@ const deleteFromCloudinary = async (publicId) => {
             timestamp: timestamp,
             signature: signature,
         }
-    );
+    ).then(async response => {
+        if (response.data.result === 'ok') {
+            logger.log('Imagem deletada com sucesso do Cloudinary:', response.data)
+        } else {
+            console.warn('Falha ao deletar imagem do Cloudinary:', response.data)
+        }
+    }).catch(error => {
+        console.error('Erro ao deletar imagem do Cloudinary:', error)
+    })
 }
 
 // Upload para Cloudinary
@@ -279,21 +290,31 @@ const handleFileSelect = async (event) => {
     reader.readAsDataURL(file)
 
     selectedFile.value = file
-    pictureToRemove.value = false
+    loadingRemovePicture.value = false
 }
 
 // Remover foto
 const removePicture = async () => {
+    loadingRemovePicture.value = true
     if (hasExistingPicture.value && originalPicturePublicId.value) {
-        pictureToRemove.value = true
         selectedFile.value = null
         imagePreview.value = 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png'
         pictureError.value = { show: false, message: '' }
+
         await deleteFromCloudinary(originalPicturePublicId.value)
+            .then(async () => {
+                await handlePictureSubmit()
+                    .finally(() => {
+                        loadingRemovePicture.value = false
+                        originalPicturePublicId.value = null
+                    })
+                // Continuar com a submissão do perfil após deletar a imagem
+            })
     } else if (selectedFile.value) {
         selectedFile.value = null
         imagePreview.value = profile.value?.picture || 'https://abs.twimg.com/sticky/default_profile_images/default_profile_400x400.png'
         pictureError.value = { show: false, message: '' }
+        loadingRemovePicture.value = false
     }
 }
 
@@ -307,7 +328,7 @@ const canSubmit = computed(() => {
         // Para edição de foto, pode submeter se:
         // - Não está fazendo upload
         // - E (selecionou um arquivo OU marcou para remover)
-        return !uploading.value && (selectedFile.value !== null || pictureToRemove.value)
+        return !uploading.value && (selectedFile.value !== null || !loadingRemovePicture.value)
     }
 
     const isSameName = form.value?.name === profile.value.name
@@ -406,6 +427,8 @@ const handlePictureSubmit = async () => {
 
             // Se já existe uma foto, deletar primeiro
             if (originalPicturePublicId.value) {
+
+                logger.log('Deletando foto antiga do Cloudinary com public_id:', originalPicturePublicId.value)
                 await deleteFromCloudinary(originalPicturePublicId.value)
             }
 
@@ -420,9 +443,12 @@ const handlePictureSubmit = async () => {
             picture: newPictureUrl
         })
 
-        router.back()
+        if (newPictureUrl) {
+            router.back()
+        }
+
     } catch (error) {
-        console.error('Erro ao atualizar foto:', error)
+        logger.error('Erro ao atualizar foto:', error)
         pictureError.value = {
             show: true,
             message: error.message || 'Erro ao processar a imagem. Tente novamente.'
@@ -440,7 +466,7 @@ const handleProfileSubmit = async () => {
         await store.dispatch('updateProfile', form.value)
         router.back()
     } catch (error) {
-        console.error('Erro ao atualizar perfil:', error)
+        logger.error('Erro ao atualizar perfil:', error)
     } finally {
         loading.value = false
     }
