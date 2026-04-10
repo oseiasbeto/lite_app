@@ -305,14 +305,17 @@ export default {
         },
         async getCommentsByPostId({ commit }, { query, postId }) {
             try {
-                const { hasTotal, type = 'push', sortBy = 'recents', page: currentPage, limit } = query
-
+                const { hasTotal, sortCommentId, type = 'push', sortBy = 'recents', page: currentPage, limit } = query
+                
                 const response = await api.get('/comments/' + postId, {
                     params: {
                         page: currentPage,
                         sortBy,
                         total: hasTotal,
-                        limit
+                        limit,
+                        ...(sortCommentId && {
+                            sortCommentId: sortCommentId
+                        })
                     }
                 });
 

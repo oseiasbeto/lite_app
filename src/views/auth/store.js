@@ -50,6 +50,9 @@ export default {
         },
         UPDATE_USER_UNREAD_MESSAGES_COUNT(state, count) {
             state.user.unread_messages_count = count
+        },
+        UPDATE_USER_UNREAD_NOTIFICATIONS_COUNT(state, count) {
+            state.user.unread_notifications_count = count
         }
     },
     actions: {
@@ -158,6 +161,16 @@ export default {
                 logger.error('Erro ao actualizar o contador de mensagens:', err.message);
                 throw err  // Propaga o erro para que o componente possa lidarhar adequadamente (exibir mensagem de erro, etc).
             }
+        },
+        async updateUnreadNotificationsCount({ commit }, count) {
+            try {
+                const res = await api.put("/users/unread-notifications-count", { count });
+                commit("UPDATE_USER_UNREAD_NOTIFICATIONS_COUNT", count)
+                return res
+            } catch (err) {
+                logger.error('Erro ao actualizar o contador de notificacoes:', err.message);
+                throw err  // Propaga o erro para que o componente possa lidarhar adequadamente (exibir mensagem de erro, etc).
+            }
         }
     },
     getters: {
@@ -165,6 +178,7 @@ export default {
         isNewSession: (state) => state.newSession,
         isNewUser: (state) => state.newUser,
         currentUser: (state) => state.user,
-        unreadMessagesCount: (state) => state.user.unread_messages_count
+        unreadMessagesCount: (state) => state.user.unread_messages_count,
+        unreadNotificationsCount: (state) => state.user.unread_notifications_count
     }
 }

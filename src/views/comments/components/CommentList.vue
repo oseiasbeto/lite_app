@@ -5,7 +5,9 @@
             <div v-if="comments?.length">
                 <CommentCard v-for="item in comments" @on-reply="onReply" :postId="postId" 
                     :data="item"
-                    :user-id="user?._id" :key="item?._id" />
+                    :user-id="user?._id" :key="item?._id" 
+                    :active="activeComment === item?._id"
+                    />
 
                 <!-- LOAD MORE -->
                 <div ref="loadTrigger" v-if="pagination?.hasMore || loadingLoadMore"
@@ -72,6 +74,10 @@ defineProps({
     postId: {
         type: String,
         required: true
+    },
+    activeComment: {
+        type: String,
+        default: null
     },
     loadingFetch: {
         type: Boolean,

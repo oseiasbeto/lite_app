@@ -1,6 +1,5 @@
 <template>
-    <div class=""
-        :class="['gap-2 flex pt-1.5 pb-0.5 flex-col dark:border-[rgb(57,56,57)]', isReply ? 'border-none px-0' : 'border-b px-[10px]']">
+    <div  :class="['gap-2 flex pt-1.5 pb-0.5 flex-col dark:border-[rgb(57,56,57)]', isReply ? 'border-none px-0' : 'border-b px-[10px]', active ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : '']">
         <div class="flex flex-row gap-2">
             <div class="shrink-0">
                 <Avatar :size="isReply ? 'xs' : 'md'"
@@ -80,6 +79,10 @@ const props = defineProps({
     postId: {
         type: String,
         required: true
+    },
+    active: {
+        type: Boolean,
+        default: false
     },
     isReply: {
         type: Boolean,

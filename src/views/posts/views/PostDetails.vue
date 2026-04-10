@@ -27,9 +27,15 @@
                     </button>
                 </div>
 
+                
                 <!--COMMENTS-->
-                <CommentList :comments="cacheComments?.comments || []" :pagination="cacheComments?.pagination || {}"
-                    :loading-fetch="loadingFetchComments" :loading-load-more="loadingLoadMoreComments" :postId="postId"
+                <CommentList 
+                    :comments="cacheComments?.comments || []" 
+                    :pagination="cacheComments?.pagination || {}"
+                    :loading-fetch="loadingFetchComments" 
+                    :loading-load-more="loadingLoadMoreComments" 
+                    :active-comment="post?.sortCommentId"
+                    :postId="postId"
                     @on-load-more="handleLoadMoreComments" @on-reply="openNewCommentDrawer" />
             </div>
         </div>
@@ -150,6 +156,7 @@ const queryComments = ref({
     page: 1,
     limit: 5,
     sortBy: 'recents',
+    sortCommentId: null,
     type: 'push',
     hasTotal: null
 })
@@ -323,9 +330,26 @@ onMounted(async () => {
             }, 1000)
         }
 
-        if (!cacheComments.value?.comments?.length) {
+        const sortCommentId = post.value?.sortCommentId
+
+        if (sortCommentId) {
+            queryComments.value.sortCommentId = sortCommentId
+            queryComments.value.page = 1
+
+            loadingFetchComments.value = true
+            store.commit("RESET_COMMENTS_FROM_CACHE", postId.value)
+
             await fetchComments(post?.value?._id)
+                .finally(() => {
+                    loadingFetchComments.value = false
+                    queryComments.value.sortCommentId = null
+                })
+        } else {
+            if (!cacheComments.value?.comments?.length) {
+                await fetchComments(post?.value?._id)
+            }
         }
+
     }
 })
 
@@ -345,38 +369,53 @@ watch(() => route.params.id, async (newId, oldId) => {
             })
     }
 
-    if (cacheComments.value?.comments.length) {
-        const { pagination } = cacheComments.value
+    const sortCommentId = post.value?.sortCommentId
 
-        const { hasMore, page, sortBy, scrollTop, limit, totalComments } = pagination
+    if (sortCommentId) {
+        queryComments.value.sortCommentId = sortCommentId
+        queryComments.value.page = 1
 
-        queryComments.value.page = page
-        queryComments.value.hasMore = hasMore
-        queryComments.value.limit = limit
-        queryComments.value.hasTotal = totalComments
-        queryComments.value.sortBy = sortBy ? sortBy : 'recents'
-        loadingFetchComments.value = false
+        loadingFetchComments.value = true
+        store.commit("RESET_COMMENTS_FROM_CACHE", postId.value)
 
-        postView.value.scrollTop = scrollTop || 0
-
-        if (post.value?.showCommentFormDrawer) {
-            setTimeout(() => {
-                openNewCommentDrawer()
-            }, 1000)
-        }
-    } else {
-        resetQueryComments()
-        queryComments.value.type = 'set'
-        await fetchComments(postId.value)
+        await fetchComments(post?.value?._id)
             .finally(() => {
                 loadingFetchComments.value = false
-                if (post.value?.showCommentFormDrawer) {
-                    setTimeout(() => {
-                        openNewCommentDrawer()
-                    }, 1000)
-                }
+                queryComments.value.sortCommentId = null
             })
-    }
+    } else {
+        if (cacheComments.value?.comments.length) {
+            const { pagination } = cacheComments.value
 
+            const { hasMore, page, sortBy, scrollTop, limit, totalComments } = pagination
+
+            queryComments.value.page = page
+            queryComments.value.hasMore = hasMore
+            queryComments.value.limit = limit
+            queryComments.value.hasTotal = totalComments
+            queryComments.value.sortBy = sortBy ? sortBy : 'recents'
+            loadingFetchComments.value = false
+
+            postView.value.scrollTop = scrollTop || 0
+
+            if (post.value?.showCommentFormDrawer) {
+                setTimeout(() => {
+                    openNewCommentDrawer()
+                }, 1000)
+            }
+        } else {
+            resetQueryComments()
+            queryComments.value.type = 'set'
+            await fetchComments(postId.value)
+                .finally(() => {
+                    loadingFetchComments.value = false
+                    if (post.value?.showCommentFormDrawer) {
+                        setTimeout(() => {
+                            openNewCommentDrawer()
+                        }, 1000)
+                    }
+                })
+        }
+    }
 })
 </script>

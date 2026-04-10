@@ -313,9 +313,17 @@ const initializeSocket = () => {
       }
     })
 
-    socket.on("new_notification", (newNotification) => {
-      console.log("nova notificacao:", newNotification)
-    }) 
+    socket.on("new_notification", async (newNotification) => {
+      logger.log("nova notificacao:", newNotification)
+      store.commit("PUSH_NOTIFICATION_FROM_NOTIFICATIONS", newNotification)
+
+      const unreadCount = unreadNotificationsCount.value
+      if (route.name == 'Notifications') {
+        await store.dispatch("updateUnreadNotificationsCount", 0)
+      } else {
+        await store.dispatch("updateUnreadNotificationsCount", unreadCount + 1)
+      }
+    })
   } else {
     logger.log('Nenhum socket encontrado');
     return false;
@@ -494,7 +502,8 @@ onUnmounted(() => {
       <!--start content-->
       <div class="overflow-hidden">
         <router-view v-slot="{ Component }">
-          <keep-alive :include="['ActiveChats', 'Home', 'Notifications', 'PostDetails', 'ArchivedChats', 'NewMessage', 'Messages']">
+          <keep-alive
+            :include="['ActiveChats', 'Home', 'Notifications', 'PostDetails', 'ArchivedChats', 'NewMessage', 'Messages']">
             <component :is="Component" />
           </keep-alive>
         </router-view>

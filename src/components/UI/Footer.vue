@@ -2,7 +2,8 @@
     <ul class="flex items-center gap-2 w-full h-14 text-text-primary fixed bottom-0 overflow-hidden"
         :class="{ 'pointer-events-none': isDisabled, '!border-border-primary': route.name === 'Post details' }">
         <li class="flex-1 h-full">
-            <button @click="router.replace('/home')" :class="{'text-primary': route.name == 'Home'}" class="flex relative items-center w-full h-full" to="/feed">
+            <button @click="router.replace('/home')" :class="{ 'text-primary': route.name == 'Home' }"
+                class="flex relative items-center w-full h-full" to="/feed">
                 <svg v-if="route.name === 'Home'" fill="none" class="mx-auto" width="27" viewBox="0 0 24 24" height="27"
                     aria-hidden="true">
                     <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
@@ -17,7 +18,8 @@
             </button>
         </li>
         <li class="flex-1 h-full">
-            <button @click="goToNotification" class="flex relative items-center w-full h-full" :class="{'text-primary': route.name == 'Notifications'}">
+            <button @click="goToNotification" class="flex relative items-center w-full h-full"
+                :class="{ 'text-primary': route.name == 'Notifications' }">
                 <svg v-if="route.name === 'Notifications'" fill="none" width="26" viewBox="0 0 24 24" height="26"
                     aria-hidden="true" class="mx-auto">
                     <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
@@ -30,12 +32,14 @@
                     </path>
                 </svg>
                 <span v-show="unreadNotificationsCount > 0"
-                    class="min-w-4 h-4 text-[10px] p-0.5 flex items-center justify-center rounded-3xl font-bold absolute top-[10px] right-[16px] bg-primary text-[#fff]">
-                    {{ unreadNotificationsCount }}
+                    class="min-w-4 h-4 dark:shadow-[rgb(32,32,32),0px_0px_0px_2px] text-[10px] p-0.5 flex items-center justify-center rounded-3xl font-semibold absolute top-[10px] right-[12px] bg-[#f52936] text-[#fff]">
+
+                    <span>{{ unreadNotificationsCount }}</span>
+
                 </span>
             </button>
         </li>
-        
+
         <li class="flex-1 h-full">
             <router-link class="flex items-center h-full" to="/composer">
                 <svg fill="none" v-if="route.name === 'Composer'" width="28" viewBox="0 0 24 24" height="28"
@@ -54,7 +58,7 @@
         </li>
 
         <li class="flex-1 h-full">
-            <router-link class="flex items-center h-full" to="/chats">
+            <router-link class="flex relative items-center h-full" to="/chats">
                 <svg v-if="route.name === 'Chats'" xmlns="http://www.w3.org/2000/svg" class="mx-auto"
                     fill="currentColor" width="28px" height="28px" viewBox="0 0 24 24">
                     <path
@@ -65,6 +69,12 @@
                     <path
                         d="M12,2a10,10,0,1,0,4.924,18.7l3.76,1.253A1.014,1.014,0,0,0,21,22a1,1,0,0,0,.948-1.316L20.7,16.924A9.988,9.988,0,0,0,12,2Zm6.653,15.121.766,2.3-2.3-.766a.994.994,0,0,0-.851.1,8.02,8.02,0,1,1,2.488-2.488A1,1,0,0,0,18.653,17.121ZM17,9.5a1,1,0,0,1-1,1H8a1,1,0,0,1,0-2h8A1,1,0,0,1,17,9.5Zm-4,5a1,1,0,0,1-1,1H8a1,1,0,0,1,0-2h4A1,1,0,0,1,13,14.5Z" />
                 </svg>
+                <span v-show="unreadMessagesCount > 0"
+                    class="min-w-4 h-4 dark:shadow-[rgb(32,32,32),0px_0px_0px_2px] text-[10px] p-0.5 flex items-center justify-center rounded-3xl font-semibold absolute top-[10px] right-[12px] bg-[#f52936] text-[#fff]">
+
+                    <span>{{ unreadMessagesCount }}</span>
+
+                </span>
             </router-link>
         </li>
 
@@ -118,7 +128,7 @@ const goToNotification = () => {
     if (route.name === 'Notification') return
     else {
         if (unreadNotificationsCount.value) {
-           // resetUnreadNotificationsCount()
+            // resetUnreadNotificationsCount()
         }
         router.push('/notifications')
     }
