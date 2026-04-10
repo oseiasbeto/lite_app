@@ -55,9 +55,9 @@ export default {
         },
         async updateProfile({ commit }, payload) {
             try {
-                const { name, picture, location, bio, credentials } = payload
-                
-                const response = await api.put('/users', { name, picture, location, bio, credentials });
+                const { name, picture, location, theme, bio, credentials } = payload
+
+                const response = await api.put('/users', { name, picture, location, theme, bio, credentials });
                 const { user } = response.data
 
                 commit("SET_PROFILE", user)

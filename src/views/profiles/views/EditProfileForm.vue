@@ -69,6 +69,167 @@
             <Textarea @update:model-value="validateBio" v-model="form.bio" title="Biografia" label="bio"
                 :error="bioError" />
         </template>
+        <template v-else-if="editForm == 'theme'">
+            <div class="flex px-4 items-center">
+                <label :class="form.theme == 'light' ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-transparent'" class="grow mr-2 p-2 rounded-[3px]" for="themeLight">
+                    <div :class="form.theme == 'light' ? 'text-secondary' : 'text-inherit'" class="flex items-center gap-2 mb-1.5">
+                        <input class="hidden" type="radio" id="themeLight" value="light" v-model="form.theme" />
+                        <span
+                            :class="['w-4 h-4 rounded-[3px] border flex items-center justify-center', form.theme === 'light' ? 'bg-secondary text-white border-secondary' : 'bg-white dark:bg-transparent border-[#b1b3b6] dark:border-[#48484a]']">
+                            <svg v-if="form.theme == 'light'" width="16" height="16" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="m4 12.258 5.818 5.818L20 5" class="icon_svg-stroke" stroke="currentColor"
+                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                </path>
+                            </svg>
+                        </span>
+                        <span class="font-bold">Claro</span>
+                    </div>
+                    <div class="rounded-[3px] overflow-hidden"
+                        style="box-sizing: border-box; padding: 8px 3px 4px; background-color: rgb(206, 206, 206);"><svg
+                            width="100%" viewBox="0 0 154 286" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            style="display: inline-block; vertical-align: middle; border-radius: 2px;">
+                            <rect width="154" height="286" fill="#e6e7e8"></rect>
+                            <rect width="154" height="26" fill="#fff"></rect>
+                            <rect y="26" width="154" height="1" fill="#dee0e1"></rect>
+                            <rect y="32" width="154" height="30" fill="#fff"></rect>
+                            <rect x="19" y="44" width="23" height="6" rx="3" fill="#636466"></rect>
+                            <rect x="8" y="43" width="8" height="8" rx="4" fill="#636466"></rect>
+                            <rect y="68" width="154" height="68" fill="#fff"></rect>
+                            <rect x="8" y="103" width="75" height="8" rx="4" fill="#939598"></rect>
+                            <rect x="8" y="115" width="137" height="8" rx="4" fill="#939598"></rect>
+                            <rect x="19" y="80" width="23" height="6" rx="3" fill="#636466"></rect>
+                            <rect x="8" y="79" width="8" height="8" rx="4" fill="#636466"></rect>
+                            <rect y="142" width="154" height="68" fill="#fff"></rect>
+                            <rect x="8" y="177" width="75" height="8" rx="4" fill="#939598"></rect>
+                            <rect x="8" y="189" width="137" height="8" rx="4" fill="#939598"></rect>
+                            <rect x="19" y="154" width="23" height="6" rx="3" fill="#636466"></rect>
+                            <rect x="8" y="153" width="8" height="8" rx="4" fill="#636466"></rect>
+                            <rect y="216" width="154" height="68" fill="#fff"></rect>
+                            <rect x="8" y="251" width="75" height="8" rx="4" fill="#939598"></rect>
+                            <rect x="8" y="263" width="137" height="8" rx="4" fill="#939598"></rect>
+                            <rect x="19" y="228" width="23" height="6" rx="3" fill="#636466"></rect>
+                            <rect x="8" y="227" width="8" height="8" rx="4" fill="#636466"></rect>
+                            <rect y="260" width="154" height="26" fill="#fff"></rect>
+                            <rect y="260" width="154" height="1" fill="#dee0e1"></rect>
+                            <circle cx="18.5" cy="272.5" r="6.5" fill="#b92b27"></circle>
+                            <circle cx="47.5" cy="272.5" r="6.5" fill="#636466"></circle>
+                            <circle cx="76.5" cy="272.5" r="6.5" fill="#636466"></circle>
+                            <circle cx="105.5" cy="272.5" r="6.5" fill="#636466"></circle>
+                            <circle cx="134.5" cy="272.5" r="6.5" fill="#636466"></circle>
+                            <circle cx="14.5" cy="12.5" r="6.5" fill="#282829"></circle>
+                            <rect x="27" y="10" width="23" height="6" rx="3" fill="#282829"></rect>
+                            <circle cx="127" cy="233" r="18" fill="#b92b27"></circle>
+                        </svg>
+                    </div>
+                </label>
+                <label :class="form.theme == 'dark' ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-transparent'" class="grow mr-2 p-2 rounded-[3px]" for="themeDark">
+                    <div :class="form.theme == 'dark' ? 'text-secondary' : 'text-inherit'" class="flex items-center gap-2 mb-1.5">
+                        <input class="hidden" type="radio" id="themeDark" value="dark" v-model="form.theme" />
+                        <span
+                            :class="['w-4 h-4 rounded-[3px] border flex items-center justify-center', form.theme === 'dark' ? 'bg-secondary text-white border-secondary' : 'bg-white dark:bg-transparent border-[#b1b3b6] dark:border-[#48484a]']">
+                            <svg v-if="form.theme == 'dark'" width="16" height="16" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="m4 12.258 5.818 5.818L20 5" class="icon_svg-stroke" stroke="currentColor"
+                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                </path>
+                            </svg>
+                        </span>
+                        <span class="font-bold text-inherit">Escuro</span>
+                    </div>
+
+                    <div class="rounded-[3px] overflow-hidden"
+                        style="box-sizing: border-box; padding: 8px 3px 4px; background-color: rgb(23, 23, 23);"><svg
+                            width="100%" viewBox="0 0 154 286" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            style="display: inline-block; vertical-align: middle; border-radius: 2px;">
+                            <rect width="154" height="286" fill="#181818"></rect>
+                            <rect width="154" height="26" fill="#262626"></rect>
+                            <rect y="26" width="154" height="1" fill="#393839"></rect>
+                            <rect y="32" width="154" height="30" fill="#262626"></rect>
+                            <rect x="19" y="44" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
+                            <rect x="8" y="43" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
+                            <rect y="68" width="154" height="68" fill="#262626"></rect>
+                            <rect x="8" y="103" width="75" height="8" rx="4" fill="#b1b3b6"></rect>
+                            <rect x="8" y="115" width="137" height="8" rx="4" fill="#b1b3b6"></rect>
+                            <rect x="19" y="80" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
+                            <rect x="8" y="79" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
+                            <rect y="142" width="154" height="68" fill="#262626"></rect>
+                            <rect x="8" y="177" width="75" height="8" rx="4" fill="#b1b3b6"></rect>
+                            <rect x="8" y="189" width="137" height="8" rx="4" fill="#b1b3b6"></rect>
+                            <rect x="19" y="154" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
+                            <rect x="8" y="153" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
+                            <rect y="216" width="154" height="68" fill="#262626"></rect>
+                            <rect x="8" y="251" width="75" height="8" rx="4" fill="#b1b3b6"></rect>
+                            <rect x="8" y="263" width="137" height="8" rx="4" fill="#b1b3b6"></rect>
+                            <rect x="19" y="228" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
+                            <rect x="8" y="227" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
+                            <rect y="260" width="154" height="26" fill="#262626"></rect>
+                            <rect y="260" width="154" height="1" fill="#393839"></rect>
+                            <circle cx="18.5" cy="272.5" r="6.5" fill="#f52936"></circle>
+                            <circle cx="47.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
+                            <circle cx="76.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
+                            <circle cx="105.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
+                            <circle cx="134.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
+                            <circle cx="14.5" cy="12.5" r="6.5" fill="#fff"></circle>
+                            <rect x="27" y="10" width="23" height="6" rx="3" fill="#fff"></rect>
+                            <circle cx="127" cy="233" r="18" fill="#f52936"></circle>
+                        </svg>
+                    </div>
+                </label>
+                <label :class="form.theme == 'system' ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-transparent'" class="grow mr-2 p-2 rounded-[3px]" for="themeSystem">
+                    <div :class="form.theme == 'system' ? 'text-secondary' : 'text-inherit'" class="flex items-center gap-2 mb-1.5">
+                        <input class="hidden" type="radio" id="themeSystem" value="system" v-model="form.theme" />
+                        <span
+                            :class="['w-4 h-4 rounded-[3px] border flex items-center justify-center', form.theme === 'system' ? 'bg-secondary text-white border-secondary' : 'bg-white dark:bg-transparent border-[#b1b3b6] dark:border-[#48484a]']">
+                            <svg v-if="form.theme == 'system'" width="16" height="16" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="m4 12.258 5.818 5.818L20 5" class="icon_svg-stroke" stroke="currentColor"
+                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                </path>
+                            </svg>
+                        </span>
+                        <span class="font-bold text-inherit">Sistema</span>
+                    </div>
+                    <div class="rounded-[3px] overflow-hidden"
+                        style="box-sizing: border-box; padding: 8px 3px 4px; background-color: rgb(23, 23, 23);"><svg
+                            width="100%" viewBox="0 0 154 286" fill="none" xmlns="http://www.w3.org/2000/svg"
+                            style="display: inline-block; vertical-align: middle; border-radius: 2px;">
+                            <rect width="154" height="286" fill="#181818"></rect>
+                            <rect width="154" height="26" fill="#262626"></rect>
+                            <rect y="26" width="154" height="1" fill="#393839"></rect>
+                            <rect y="32" width="154" height="30" fill="#262626"></rect>
+                            <rect x="19" y="44" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
+                            <rect x="8" y="43" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
+                            <rect y="68" width="154" height="68" fill="#262626"></rect>
+                            <rect x="8" y="103" width="75" height="8" rx="4" fill="#b1b3b6"></rect>
+                            <rect x="8" y="115" width="137" height="8" rx="4" fill="#b1b3b6"></rect>
+                            <rect x="19" y="80" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
+                            <rect x="8" y="79" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
+                            <rect y="142" width="154" height="68" fill="#262626"></rect>
+                            <rect x="8" y="177" width="75" height="8" rx="4" fill="#b1b3b6"></rect>
+                            <rect x="8" y="189" width="137" height="8" rx="4" fill="#b1b3b6"></rect>
+                            <rect x="19" y="154" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
+                            <rect x="8" y="153" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
+                            <rect y="216" width="154" height="68" fill="#262626"></rect>
+                            <rect x="8" y="251" width="75" height="8" rx="4" fill="#b1b3b6"></rect>
+                            <rect x="8" y="263" width="137" height="8" rx="4" fill="#b1b3b6"></rect>
+                            <rect x="19" y="228" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
+                            <rect x="8" y="227" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
+                            <rect y="260" width="154" height="26" fill="#262626"></rect>
+                            <rect y="260" width="154" height="1" fill="#393839"></rect>
+                            <circle cx="18.5" cy="272.5" r="6.5" fill="#f52936"></circle>
+                            <circle cx="47.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
+                            <circle cx="76.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
+                            <circle cx="105.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
+                            <circle cx="134.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
+                            <circle cx="14.5" cy="12.5" r="6.5" fill="#fff"></circle>
+                            <rect x="27" y="10" width="23" height="6" rx="3" fill="#fff"></rect>
+                            <circle cx="127" cy="233" r="18" fill="#f52936"></circle>
+                        </svg>
+                    </div>
+                </label>
+            </div>
+        </template>
         <template v-else>
             <p>Formulário não encontrado.</p>
         </template>
@@ -84,6 +245,8 @@ import { useStore } from 'vuex';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import { logger } from '@/utils/logger';
+import Cookies from "js-cookie";
+import { statusBar } from "webtonative"
 
 const route = useRoute()
 const router = useRouter()
@@ -100,7 +263,8 @@ const form = ref({
     name: profile.value?.name || '',
     credentials: profile.value?.credentials || '',
     location: profile.value?.location || '',
-    bio: profile.value?.bio || ''
+    bio: profile.value?.bio || '',
+    theme: profile.value?.settings?.theme || 'system'
 })
 
 // Configurações Cloudinary
@@ -116,7 +280,35 @@ const originalPicturePublicId = ref(profile?.value?.profile_image?.public_id || 
 const hasExistingPicture = ref(!!profile.value?.profile_image?.url)
 const loadingRemovePicture = ref(false)
 const pictureError = ref({ show: false, message: '' })
+const nameError = ref({ show: false, message: '' })
+const credentialsError = ref({ show: false, message: '' })
+const locationError = ref({ show: false, message: '' })
+const bioError = ref({ show: false, message: '' })
 
+const canSubmit = computed(() => {
+    if (editForm.value === 'picture') {
+        // Para edição de foto, pode submeter se:
+        // - Não está fazendo upload
+        // - E (selecionou um arquivo OU marcou para remover)
+        return !uploading.value && (selectedFile.value !== null || !loadingRemovePicture.value)
+    }
+
+    const isSameName = form.value?.name === profile.value.name
+    const isSameCredentials = form.value?.credentials === profile.value.credentials
+    const isSameLocation = form.value?.location === profile.value.location
+    const isSameBio = form.value?.bio === profile.value.bio
+    const isSameTheme = form.value?.theme === profile.value?.settings?.theme
+
+    if (nameError.value.show || credentialsError.value.show || locationError.value.show || bioError.value.show ||
+        (isSameName && editForm.value === 'name') ||
+        (isSameCredentials && editForm.value === 'credentials') ||
+        (isSameLocation && editForm.value === 'location') ||
+        (isSameTheme && editForm.value === 'theme') ||
+        (isSameBio && editForm.value === 'bio')) {
+        return false
+    }
+    return true
+})
 // Extrair public_id da URL do Cloudinary
 const extractPublicIdFromUrl = (url) => {
     if (!url) return null
@@ -318,34 +510,6 @@ const removePicture = async () => {
     }
 }
 
-const nameError = ref({ show: false, message: '' })
-const credentialsError = ref({ show: false, message: '' })
-const locationError = ref({ show: false, message: '' })
-const bioError = ref({ show: false, message: '' })
-
-const canSubmit = computed(() => {
-    if (editForm.value === 'picture') {
-        // Para edição de foto, pode submeter se:
-        // - Não está fazendo upload
-        // - E (selecionou um arquivo OU marcou para remover)
-        return !uploading.value && (selectedFile.value !== null || !loadingRemovePicture.value)
-    }
-
-    const isSameName = form.value?.name === profile.value.name
-    const isSameCredentials = form.value?.credentials === profile.value.credentials
-    const isSameLocation = form.value?.location === profile.value.location
-    const isSameBio = form.value?.bio === profile.value.bio
-
-    if (nameError.value.show || credentialsError.value.show || locationError.value.show || bioError.value.show ||
-        (isSameName && editForm.value === 'name') ||
-        (isSameCredentials && editForm.value === 'credentials') ||
-        (isSameLocation && editForm.value === 'location') ||
-        (isSameBio && editForm.value === 'bio')) {
-        return false
-    }
-    return true
-})
-
 function validateName() {
     const value = form.value.name.trim()
     if (!value) {
@@ -464,12 +628,53 @@ const handleProfileSubmit = async () => {
     loading.value = true
     try {
         await store.dispatch('updateProfile', form.value)
+            .then(() => {
+                if (editForm.value === 'theme') {
+                    setThemeColor(form.value.theme)
+                }
+            })
         router.back()
     } catch (error) {
         logger.error('Erro ao atualizar perfil:', error)
     } finally {
         loading.value = false
     }
+}
+
+const setThemeColor = (theme) => {
+    // Salvar preferência
+    if (form.value.theme !== theme) {
+        Cookies.set('theme', theme)
+        form.value.theme = theme
+    }
+
+    // Aplicar classe no HTML
+    if (form.value.theme === 'dark') {
+        // Aplicar tema escuro  
+        document.documentElement.classList.add('dark');
+        window?.WTN?.setNavigationBarColor({ color: "#262626" });
+    } else if (form.value.theme === 'system') {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+        if (isDark) {
+            document.documentElement.classList.add('dark');
+            window?.WTN?.setNavigationBarColor({ color: "#262626" });
+        } else {
+            document.documentElement.classList.remove('dark');
+            window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+        }
+    } else {
+        // Aplicar tema claro
+        document.documentElement.classList.remove('dark');
+        window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+    }
+
+    // Ajustar status bar
+    statusBar({
+        style: theme == 'dark' ? 'dark' : 'light',
+        color: theme == 'dark' ? '262626' : "fff",
+        overlay: false //Only for android
+    });
 }
 </script>
 

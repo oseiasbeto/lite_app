@@ -1,5 +1,5 @@
 <template>
-  <div class="w-screen bg-background-primary h-screen flex justify-center items-center">
+  <div class="w-screen dark:bg-background-primary h-screen flex justify-center items-center">
     <!-- Spinner com entrada e saída -->
     <Spinner/>
      <!-- Loader com entrada e saída -->
