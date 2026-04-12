@@ -179,6 +179,13 @@ const closeDrawer = () => {
     }
 
     resetCommentForm()
+
+    if (post.value?.showCommentFormDrawer) {
+        store.commit("SET_POST", {
+            ...post.value,
+            showCommentFormDrawer: undefined
+        })
+    }
 }
 
 const resetCommentForm = () => {

@@ -38,9 +38,13 @@ const handleMarkRead = async (data) => {
         await store.dispatch("markNotificationAsRead", data?._id)
     }
 
-    const { type, post, comment } = data
+    const { type, post, sender, comment } = data
 
     if (type == 'new_comment') {
+        if (!comment || !post) {
+            return
+        }
+
         store.commit("SET_POST", {
             ...post,
             sortCommentId: comment?._id
@@ -52,6 +56,10 @@ const handleMarkRead = async (data) => {
             }
         })
     } else if (type == 'reply_to_comment') {
+        if (!comment?.parent || !post) {
+            return
+        }
+
         store.commit("SET_POST", {
             ...post,
             sortCommentId: comment?.parent
@@ -62,7 +70,36 @@ const handleMarkRead = async (data) => {
                 module: 'feed'
             }
         })
+    } else if (type == 'upvote_on_post') {
+        if (!post) {
+            return
+        }
+
+        store.commit("SET_POST", post)
+        router.push({
+            path: '/post/' + post?._id,
+            query: {
+                module: 'feed'
+            }
+        })
+    } else if (type == 'new_follower') {
+        router.push('/profile/' + sender?._id)
+    } else if (type == 'upvote_on_comment') {
+        if (!comment || !post) {
+            return
+        }
+        store.commit("SET_POST", {
+            ...post,
+            sortCommentId: comment?.parent ? comment?.parent : comment?._id
+        })
+        router.push({
+            path: '/post/' + post?._id,
+            query: {
+                module: 'feed'
+            }
+        })
     }
+
 }
 
 const handleLoadMore = async () => {

@@ -51,6 +51,9 @@ instance.interceptors.response.use(
 
 
 // Interceptor de resposta 
+
+*/
+
 instance.interceptors.response.use(
     response => response,
     async error => {
@@ -70,7 +73,6 @@ instance.interceptors.response.use(
         return Promise.reject(error);
     }
 );
-*/
 
 instance.interceptors.request.use((config) => {
     const token = store.getters.accessToken

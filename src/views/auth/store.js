@@ -178,7 +178,7 @@ export default {
         isNewSession: (state) => state.newSession,
         isNewUser: (state) => state.newUser,
         currentUser: (state) => state.user,
-        unreadMessagesCount: (state) => state.user.unread_messages_count,
-        unreadNotificationsCount: (state) => state.user.unread_notifications_count
+        unreadMessagesCount: (state) => state.user?.unread_messages_count,
+        unreadNotificationsCount: (state) => state.user?.unread_notifications_count
     }
 }
