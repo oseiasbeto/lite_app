@@ -15,6 +15,8 @@ module.exports = {
         blue: '#4894fd',
         success: '#328f5a',
         warning: '#e95111',
+        greyDark: '#b1b3b6',
+        grey: '#939598',
         danger: '#f52936',
         info: 'rgb(var(--color-info) / <alpha-value>)',
       },

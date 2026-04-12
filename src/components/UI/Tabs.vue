@@ -1,5 +1,5 @@
 <template>
-  <div class="sticky top-0 bg-light-bg dark:bg-[rgb(24,24,24)] z-[100]">
+  <div class="relative">
     <div ref="tabsContainer"
       class="flex px-[10px] border-b gap-4 dark:border-[rgb(57,56,57)] overflow-x-auto scrollbar-hide whitespace-nowrap">
       <div v-for="(tab, index) in tabs" :key="index" class="relative flex-1">

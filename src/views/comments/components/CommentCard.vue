@@ -1,5 +1,5 @@
 <template>
-    <div  :class="['gap-2 flex pt-1.5 pb-0.5 flex-col dark:border-[rgb(57,56,57)]', isReply ? 'border-none px-0' : 'border-b px-[10px]', active ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : '']">
+    <div  :class="['gap-2 flex pt-1.5 pb-0.5 flex-col dark:border-[rgb(57,56,57)]', isReply ? 'border-none px-0 !bg-transparent' : 'border-b px-[10px]', active ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-[#262626] bg-white']">
         <div class="flex flex-row gap-2">
             <div @click="goToProfile(data?.author?._id || data?.user?._id)" class="shrink-0">
                 <Avatar :size="isReply ? 'xs' : 'md'"

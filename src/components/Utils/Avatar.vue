@@ -23,7 +23,7 @@ const props = defineProps({
     size: {
         type: String,
         default: 'md',
-        validator: (value) => ['s', 'xs', 'big', 'sm', 'md', 'lg'].includes(value),
+        validator: (value) => ['s', 'xs', 'xl', 'big', 'sm', 'md', 'lg'].includes(value),
     },
 });
 
@@ -32,9 +32,10 @@ const sizeClasses = computed(() => {
     return {
         s: 'w-[18px] h-[18px]',
         xs: 'w-[20px] h-[20px]',
+        xl: 'w-[24px] h-[24px]',
         sm: 'w-[32px] h-[32px]',
         md: 'w-[36px] h-[36px]',
-        lg: 'w-[42px] h-[42px]',
+        lg: 'w-[40px] h-[40px]',
         big: 'w-[80px] h-[80px]'
     }[props.size] || 'w-11 h-11';
 });

@@ -1,51 +1,45 @@
 <template>
-    <div class="shrink-0 sticky flex flex-col top-0 w-full z-[10] px-5 bg-background-primary">
-        <div class="flex my-auto h-[52px] items-center justify-between">
-            <div>
-                <h2 class="text-primary dark:text-white text-3xl font-secondary font-bold">
-                    mekieapp
-                </h2>
-            </div>
-
-            <div>
-            </div>
+    <div class="h-[calc(100vh-56px)] relative overflow-y-scroll">
+        <div class="shrink-0 sticky flex flex-col top-0 w-full z-[10] px-5 bg-background-primary">
         </div>
+        <div>
+            <ChatList ref="virtualChatListComponent" :conversations="conversations?.items || []"
+                :loading="loadingConversations" :loading-more="loadingMoreConversations" :user-id="user?._id"
+                :has-more="conversations?.pagination?.hasMore" @select="select" source="active"
+                @load-more="loadMoreConversations" @on-scroll="handleScroll" @more-options="handleMoreOptions" />
 
-        <NetworkStatusBar :status="networkStatus" />
-    </div>
-    <div>
-        <VirtualChatList ref="virtualChatListComponent" :conversations="conversations?.items || []"
-            :loading="loadingConversations" :loading-more="loadingMoreConversations" :user-id="user?._id"
-            :has-more="conversations?.pagination?.hasMore" @select="select" @new-chat="router.push('/new-message')"
-            source="active" @load-more="loadMoreConversations" @on-scroll="handleScroll"
-            @more-options="handleMoreOptions">
-            <template #before-content>
-                <div class="px-4 mb-2 py-2">
-                    <SearchWrapper @on-press="router.push('/chats/archived')" placeholder="Pesquisar no MekieApp" />
+            <Drawer :is-open="drawer.show" @close="onCloseDrawer">
+                <div v-if="drawer.name === 'MORE_OPTIONS'">
+                    <DrawerItem title="Arquivar" @on-press="handleArchiveChat(chatSelected._id, source)" />
                 </div>
-            </template>
-        </VirtualChatList>
+            </Drawer>
 
-        <Drawer :is-open="drawer.show" @close="onCloseDrawer">
-            <div v-if="drawer.name === 'MORE_OPTIONS'">
-                <DrawerItem title="Arquivar" @on-press="handleArchiveChat(chatSelected._id, source)" />
-            </div>
-        </Drawer>
+            <!-- BOTÃO FLUTUANTE DO TELEGRAM -->
+            <FloatingActionButton v-show="!loadingConversations" @new-chat="router.push('/new-message')">
+                <template #icon>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path class="icon_svg-fill_as_stroke"
+                            d="M4.5 6.5v-.75a.75.75 0 0 0-.75.75h.75Zm15 0h.75a.75.75 0 0 0-.75-.75v.75Zm0 12v.75a.75.75 0 0 0 .75-.75h-.75ZM3.75 13a.75.75 0 0 0 1.5 0h-1.5ZM10 17.75a.75.75 0 0 0 0 1.5v-1.5ZM4.5 7.25h15v-1.5h-15v1.5Zm14.25-.75v12h1.5v-12h-1.5ZM5.25 13V6.5h-1.5V13h1.5Zm14.25 4.75H10v1.5h9.5v-1.5Z"
+                            fill="#fff"></path>
+                        <path class="icon_svg-stroke" d="M4.5 7.5 12 14l7.5-6.5M7 18.5H2M4.5 16v5" stroke="#fff"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </template>
+            </FloatingActionButton>
+        </div>
     </div>
-
 </template>
 
 <script setup>
 import { computed, onMounted, nextTick, onActivated, watch, ref } from 'vue';
 import { useStore } from 'vuex';
-import VirtualChatList from '../components/VirtualChatList.vue';
+import ChatList from '../components/ChatList.vue';
 import { useRoute, useRouter } from 'vue-router';
-import SearchWrapper from '@/views/search/components/SearchWrapper.vue';
 import { logger } from '@/utils/logger';
 import { getSocket } from '@/services/socket';
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
-import NetworkStatusBar from '@/components/Utils/NetworkStatusBar.vue';
+import FloatingActionButton from '@/components/buttons/FloatingActionButton.vue';
 
 // Estado de carregamento para mais conversas
 const loadingMoreConversations = ref(false);
@@ -191,11 +185,11 @@ onActivated(async () => {
 // Carrega as conversas ao montar o componente
 onMounted(async () => {
     const unreadCount = unreadMessagesCount.value
-    
+
     if (unreadCount) {
         await store.dispatch("updateUnreadMessagesCount", 0)
     }
-    
+
 
     await store.dispatch("loadConversations", ({
         page: 1,

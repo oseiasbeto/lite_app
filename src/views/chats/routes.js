@@ -4,10 +4,10 @@ export default [
         name: 'Chats',
         meta: {
             requiresAuth: true,
-            rootPage: 'chats',
+            rootPage: 'main',
             title: 'Conversas'
         },
-        component: () => import('./views/ActiveChats.vue')
+        component: () => import('./views/Chats.vue')
     },
     {
         path: '/chats/archived',

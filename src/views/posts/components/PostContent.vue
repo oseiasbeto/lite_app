@@ -57,7 +57,7 @@ onMounted(() => {
       ref="contentRef"
       :class="[
         custom,
-        'font-light pb-1.5 dark:text-white text-black text-sm overflow-hidden break-words whitespace-pre-wrap',
+        'font-light pb-1.5 dark:text-white text-[rgb(40,40,41)] text-sm overflow-hidden break-words whitespace-pre-wrap',
         !isExpanded && needsTruncate ? 'line-clamp-[var(--max-lines)]' : ''
       ]"
       :style="{ '--max-lines': maxLines }"
@@ -68,7 +68,7 @@ onMounted(() => {
     <button
       v-if="needsTruncate"
       @click="toggleExpand"
-      class="my-1 dark:text-[#b1b3b6] font-medium text-sm focus:outline-none transition-colors"
+      class="my-1 dark:text-[#b1b3b6] text-[rgb(40,40,41)] font-medium text-sm focus:outline-none transition-colors"
     >
       {{ isExpanded ? 'Ler menos' : 'Ler mais' }}
     </button>

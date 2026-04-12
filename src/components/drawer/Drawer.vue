@@ -5,7 +5,7 @@
     overlayClass,
   ]" @click.self="close">
     <div ref="DrawerRef" :class="[
-      'absolute bottom-0 left-0 right-0 dark:bg-[#181818]',
+      'absolute bottom-0 left-0 right-0 bg-white dark:bg-[#181818]',
       costumClass,
       isOpen ? 'animate-slide-up' : 'animate-slide-down',
     ]">
@@ -32,7 +32,7 @@ const props = defineProps({
   isOpen: Boolean,
   overlayClass: {
     type: String,
-    default: "dark:bg-[rgba(36,36,36,.9)] transition-bg-opacity duration-300"
+    default: "dark:bg-[rgba(36,36,36,.9)] bg-[rgba(36,36,36,0.9)] transition-bg-opacity duration-300"
   },
   title: {
     type: String,

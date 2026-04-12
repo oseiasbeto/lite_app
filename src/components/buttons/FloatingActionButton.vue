@@ -7,12 +7,12 @@
     leave-to-class="transform translate-y-16 opacity-0 scale-75">
     <button v-if="showFab" 
       @click="$emit('new-chat')" 
-      class="fixed bottom-6 right-6 z-50 flex items-center justify-center
-             w-16 h-16 
+      class="fixed bottom-20 right-6 z-50 flex items-center justify-center
+             w-14 h-14 
+             bg-primary
              text-white rounded-full 
              focus:outline-none"
-             style="background-image: linear-gradient(135deg, rgb(90, 113, 250), rgb(0, 133, 255));
-"
+             
              >
       <!-- Ícone de lápis (exato do Telegram) -->
       <slot name="icon"></slot>

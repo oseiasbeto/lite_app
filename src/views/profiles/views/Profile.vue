@@ -2,7 +2,7 @@
     <div @scroll="setScrollTopFromCache" ref="profileView" class="h-screen overflow-y-scroll">
         <div v-if="!hasError?.show">
             <div v-if="!loadingFetchProfile">
-                <div class="border-b-[6px] border-[rgb(24,24,24)]">
+                <div class="border-b-[6px] dark:bg-[#262626] bg-white border-[rgb(24,24,24)]">
                     <!--DETAILS USER-->
                     <div class="px-[10px] py-4 pb-2">
                         <ProfileDetailsUser :profile="profile" :user-id="user?._id" />
@@ -19,7 +19,6 @@
                             :is-disabled="isFollowing || isSubscribing" />
                     </div>
                 </div>
-
 
                 <!--J-->
                 <CredentialsHighlights />

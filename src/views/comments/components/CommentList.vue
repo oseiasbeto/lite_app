@@ -10,8 +10,8 @@
                     />
 
                 <!-- LOAD MORE -->
-                <div ref="loadTrigger" v-if="pagination?.hasMore || loadingLoadMore"
-                    class="load-more-container py-3.5 flex justify-center">
+                <div ref="loadTrigger" v-if="!loadingFetch && (pagination?.hasMore || loadingLoadMore)"
+                    class="load-more-container py-3.5 dark:bg-[#262626] bg-white flex justify-center">
                     <Spinner/>
                 </div>
             </div>

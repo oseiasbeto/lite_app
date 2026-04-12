@@ -2,7 +2,7 @@
 import LoadingScreen from "./components/UI/LoadingScreen.vue"
 import { useStore } from "vuex"
 import { computed, onMounted, ref, watch, onUnmounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Cookies from "js-cookie";
 import { getSocket, disconnectSocket } from '@/services/socket';
 import { getPlayerId } from "webtonative/OneSignal";
@@ -20,6 +20,10 @@ const store = useStore()
 
 // Rota atual
 const route = useRoute()
+
+// Router para navegação programática
+const router = useRouter();
+
 
 // Pega sessão salva em cookie
 const sessionId = Cookies.get("session_id")
@@ -66,7 +70,7 @@ notificationSound.preload = 'auto'
 
 // Configuração de background
 let backgroundStartTime = null;
-const BACKGROUND_RELOAD_TIME = 2 * 60 * 1000; // 2 minutos
+const BACKGROUND_RELOAD_TIME = 1 * 60 * 1000; // 2 minutos
 
 
 const handleVisibilityChange = () => {
@@ -237,39 +241,6 @@ const initializeSocket = () => {
       }
     })
 
-    // Listeners de digitação
-    socket.on("user_typing_start", ({ conv, userId }) => {
-
-      if (userId !== user.value?._id) {
-
-        const myId = user.value?._id
-        const source = generateSource(conv, myId)
-
-        // Atualiza estado de digitação na conversa
-        store.commit("UPDATE_TYPING_ON_CONVERSATION", {
-          convId: conv?._id,
-          source,
-          payload: true,
-          source
-        })
-      }
-    })
-
-    // Listener para quando o outro usuário parar de digitar
-    socket.on("user_typing_stop", ({ conv, userId }) => {
-      if (userId !== user.value?._id) {
-
-        const myId = user.value?._id
-        const source = generateSource(conv, myId)
-
-        store.commit("UPDATE_TYPING_ON_CONVERSATION", {
-          convId: conv?._id,
-          payload: false,
-          source
-        })
-      }
-    })
-
     socket.on("user_online", (userId) => {
       const isFromMe = user?._id === userId;
       if (isFromMe) return
@@ -362,8 +333,12 @@ const handleRefreshToken = async () => {
     })
 }
 
-const reloadApp = () => {
-  window.location.replace('/home')
+const reloadApp = async () => {
+  // Limpa o histórico do navegador
+  window.history.pushState(null, '', '/home');
+
+  // Recarrega a página para resetar completamente o estado (stores, componentes, etc)
+  window.location.reload();
 }
 
 // Função para tocar o som (com fallback silencioso)
@@ -478,7 +453,9 @@ watch(() => isNewSession.value, () => {
 onUnmounted(() => {
   const socket = getSocket();
   if (socket) {
-    socket.off('newMessage');
+    socket.off('new_message');
+    socket.off('new_notification');
+    socket.off('conversation_as_read');
     disconnectSocket()
   }
 
@@ -496,14 +473,14 @@ onUnmounted(() => {
 <template>
 
   <div
-    class="font-secondary text-[13px] dark:bg-[#262626] dark:text-[#e6e7e8] text-text-primary relative w-screen text-sm h-screen text-light-text-primary overflow-auto">
+    class="font-secondary text-[13px] bg-[rgb(230,231,232)] dark:bg-[#181818] text-[#636466] dark:text-[#e6e7e8] text-text-primary relative w-screen text-sm h-screen overflow-x-hidden text-light-text-primary overflow-auto">
     <!-- start main app area-->
     <div v-if="!loading">
       <!--start content-->
       <div class="overflow-hidden">
         <router-view v-slot="{ Component }">
           <keep-alive
-            :include="['ActiveChats', 'Home', 'Notifications', 'PostDetails', 'ArchivedChats', 'NewMessage', 'Messages']">
+            :include="['Home', 'Chats', 'Notifications', 'PostDetails', 'ArchivedChats', 'NewMessage', 'Messages']">
             <component :is="Component" />
           </keep-alive>
         </router-view>

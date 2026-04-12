@@ -1,23 +1,18 @@
 <template>
-  <div @contextmenu.prevent="$emit('more-options', conversation)" @click="$emit('click')" class="
-      flex items-center px-4 py-3 gap-3.5 cursor-pointer transition-all duration-200 relative
-      hover:bg-background-secondary
+  <div @contextmenu.prevent="" @click="$emit('click')" class="
+      flex items-center px-4 py-3 gap-3.5 cursor-pointer bg-white dark:bg-transparent transition-all duration-200 relative
+      border-b dark:border-[rgb(57,56,57)]
     ">
     <!-- Avatar com status online -->
     <div class="relative flex-shrink-0">
-      <Avatar :url="conversation?.avatar || '/default-avatar.png'" size="lg" alt="" />
-
-      <!-- Bolinha verde de online (só em conversas diretas) -->
-      <div v-if="props?.conversation.type === 'direct' && props?.conversation.is_online"
-        class="absolute bottom-0 right-0 w-4 h-4 bg-[#31a24c] rounded-full border-2 border-background-primary">
-      </div>
+      <Avatar :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="lg" alt="" />
     </div>
 
     <!-- Conteúdo principal -->
     <div class="flex-1 min-w-0">
       <div class="flex items-center justify-between gap-2">
         <!-- Nome do contato -->
-        <h3 class="text-base font-medium text-text-primary truncate max-w-[180px]">
+        <h3 class="text-[15px] font-semibold dark:text-white truncate max-w-[180px]">
           {{ props?.conversation.name }}
         </h3>
 
@@ -33,20 +28,26 @@
 
 
         <!-- Horário da última mensagem -->
-        <span v-show="!conversation?.is_typing" :class="['text-xs flex-shrink-0',
-          props?.conversation.unread_count ? 'text-text-primary' : 'text-text-secondary']">
-          {{ formatMessageTime(props?.conversation?.last_message?.created_at, new Date(currentTime)) }}
-        </span>
+        <div :class="['flex items-center', props?.conversation.unread_count ? 'dark:text-white' : 'dark:text-greyDark text-grey']"
+          v-show="!conversation?.is_typing">
+          <span class="text-[13px] flex-shrink-0">
+            {{ formatMessageTime(props?.conversation?.last_message?.created_at, new Date(currentTime)) }}.
+          </span>
+          <span class="ml-1">
+            <svg width="12" height="12" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="m9 5 7 7-7 7.005" class="icon_svg-stroke" stroke="currentColor" stroke-width="2" fill="none"
+                stroke-linecap="round"></path>
+            </svg>
+          </span>
+
+        </div>
       </div>
 
       <div class="flex items-center text-sm justify-between gap-3">
+       
         <!-- Última mensagem + ícone de check se for enviada por você -->
-        <p v-if="conversation?.is_typing" class="mt-[2.5px] text-green-400 truncate max-w-[220px]">
-          Escrevendo...
-        </p>
-        <!-- Última mensagem + ícone de check se for enviada por você -->
-        <p v-else-if="props.conversation?.last_message?.content" class="mt-[2.5px] truncate max-w-[220px]"
-          :class="[props?.conversation.unread_count ? 'text-text-primary' : 'text-text-secondary']">
+        <p v-if="props.conversation?.last_message?.content" class="mt-[2.5px] text-xs truncate max-w-[220px]"
+          :class="[props?.conversation.unread_count ? 'dark:text-white' : 'dark:text-greyDark text-grey']">
 
           {{ previewText }}
         </p>
@@ -58,10 +59,7 @@
             {{ props?.conversation.unread_count > 99 ? '99+' : props?.conversation.unread_count }}
           </span>
         </div>
-        <div v-else-if="readBy.length > 0 && conversation.type == 'direct'">
-          {{ readBy.length }}
-        </div>
-
+        
         <!-- Mute icon (opcional, se tiver silenciado) -->
         <svg v-if="props?.conversation?.muted"
           class="w-4 h-4 text-light-text-secondary dark:text-dark-text-secondary flex-shrink-0" fill="none"
@@ -104,7 +102,7 @@ const previewText = computed(() => {
 
   switch (messageType) {
     case 'text':
-      return `${itsMe ? 'Tu: ' : ''} ${props?.conversation?.last_message?.content}` 
+      return `${itsMe ? 'Tu: ' : ''} ${props?.conversation?.last_message?.content}`
     case 'reaction_message':
       return `${itsMe ? 'Reagiste' : 'Reagiu'} com ${emoji} a uma mensagem`
     default:

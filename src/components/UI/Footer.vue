@@ -1,5 +1,5 @@
 <template>
-    <ul class="flex items-center gap-2 w-full h-14 text-text-primary fixed bottom-0 overflow-hidden"
+    <ul class="flex dark:bg-[#262626] bg-white items-center gap-2 w-full h-14 text-text-primary fixed bottom-0 overflow-hidden"
         :class="{ 'pointer-events-none': isDisabled, '!border-border-primary': route.name === 'Post details' }">
         <li class="flex-1 h-full">
             <button @click="router.replace('/home')" :class="{ 'text-primary': route.name == 'Home' }"

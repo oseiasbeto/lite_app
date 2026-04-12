@@ -11,21 +11,25 @@
       <!-- Textarea compacto e lindo -->
       <div class="flex-1">
         <textarea ref="textareaRef" v-model="inputMessage" @input="autoResize"
-          @keydown.enter.exact.prevent="handleEnter" @keydown.enter.shift.exact="allowNewLine" @focus="handleFocus"
-          rows="1" placeholder="Mensagem" class="w-full caret-primary resize-none overflow-hidden scroll-pt-4
-                 px-4 py-2.5 bg-background-secondary 
+           @keydown.enter.shift.exact="allowNewLine" @focus="handleFocus"
+          rows="1" placeholder="Mensagem..." class="w-full caret-white 
+                resize-none overflow-hidden scroll-pt-4
+                 px-4 py-2.5 dark:bg-[#202020] 
                 text-lg leading-snug
-                 placeholder-text-secondary rounded-[23px] dark:placeholder-dark-text-secondary/70
-                focus:outline-none font-primary
+                 dark:placeholder-[#949494] 
+                 rounded-[25px] placeholder-dark-text-secondary/70
+                 focus:outline-none dark:text-white
                  whitespace-pre-wrap break-words
-                 min-h-[30px]" style="line-height: 20px;" />
+                 min-h-[30px]" style="line-height: 20px;" 
+                />
       </div>
 
       <!-- Botão enviar -->
       <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 scale-90"
         enter-to-class="opacity-100 scale-100" leave-active-class="transition ease-in duration-150"
         leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-90">
-        <button v-if="hasContent" type="submit" :disabled="props.disabled" class="p-1.5 bg-primary disabled:opacity-50
+        <button :disabled="!canSend" type="submit" 
+          class="p-1.5 bg-[#287dff] disabled:opacity-50
                  text-white rounded-full flex-shrink-0
                  transition-all duration-200 mb-1 active:scale-95">
           <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" id="send"
@@ -55,11 +59,8 @@ const emit = defineEmits(['message-sent', 'typing-start', 'typing-stop', 'close-
 
 const inputMessage = ref('')
 const textareaRef = ref(null)
-const isTyping = ref(false)
-let typingTimer = null
-let startTypingDebounce = null // ← Novo timer para o debounce do start
 
-const hasContent = computed(() => inputMessage.value.trim().length > 0)
+const canSend = computed(() => inputMessage.value.trim() && !props.disabled)
 
 // ALTURA MÁXIMA = 4 LINHAS (≈ 98px com line-height 1.4 + padding)
 const MAX_HEIGHT = 98
@@ -81,48 +82,6 @@ const autoResize = () => {
     el.style.overflowY = 'auto'
   }
 
-  // DEBOUNCE para iniciar digitação - espera 300ms antes de emitir
-  clearTimeout(startTypingDebounce)
-  startTypingDebounce = setTimeout(() => {
-    // Se tem conteúdo E não está atualmente digitando → inicia digitação
-    if (inputMessage.value.trim() && !isTyping.value) {
-      isTyping.value = true
-      emit('typing-start')
-      logger.log('Iniciando digitação...')
-    }
-  }, 300) // ⏰ Espera 300ms de inatividade antes de emitir typing-start
-
-  // SEMPRE reseta o timer quando digita (isso evita parar após 1 minuto)
-  clearTimeout(typingTimer)
-  typingTimer = setTimeout(() => {
-    // Só para de digitar se estiver atualmente no estado de digitação
-    if (isTyping.value) {
-      isTyping.value = false
-      emit('typing-stop')
-      logger.log('Parando digitação (timeout)')
-    }
-    typingTimer = null
-  }, 1000) // 1 segundo sem digitar
-}
-
-const stopTyping = () => {
-  // Só emite stop se estiver digitando
-  if (isTyping.value) {
-    isTyping.value = false
-    emit('typing-stop')
-  }
-
-  if (typingTimer) {
-    clearTimeout(typingTimer)
-    typingTimer = null
-  }
-}
-
-const handleEnter = (e) => {
-  if (!e.shiftKey) {
-    e.preventDefault()
-    send()
-  }
 }
 
 const allowNewLine = () => {
@@ -132,7 +91,6 @@ const allowNewLine = () => {
 const clearInput = () => {
   inputMessage.value = ''
   nextTick(autoResize)
-  stopTyping()
 }
 
 const closeReplyTo = () => {
@@ -140,15 +98,16 @@ const closeReplyTo = () => {
 }
 
 const send = async () => {
+  if (!canSend.value) return
+
+
   const content = inputMessage.value.trim()
-  if (!content || props.disabled) return
 
   emit('message-sent', content)
   inputMessage.value = ''
   await nextTick()
   autoResize()
   textareaRef.value?.focus()
-  stopTyping() // Para de digitar ao enviar
 }
 const handleFocus = () => {
   emit('focus')
@@ -163,9 +122,4 @@ defineExpose({
 
 watch(inputMessage, () => nextTick(autoResize))
 onMounted(() => nextTick(autoResize))
-onUnmounted(() => {
-  if (typingTimer) {
-    clearTimeout(typingTimer)
-  }
-})
 </script>

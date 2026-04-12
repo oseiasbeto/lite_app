@@ -13,8 +13,8 @@
 
                 <!--COMMENTS FILTERS-->
                 <div v-if="cacheComments?.comments?.length"
-                    class="flex items-center dark:text-white text-black justify-between border-b dark:border-[rgb(57,56,57)] py-3 px-3">
-                    <p class="text-sm font-semibold">Comentários</p>
+                    class="flex items-center justify-between border-b dark:border-[rgb(57,56,57)] dark:bg-[#262626] bg-white py-3 px-3">
+                    <p class="text-sm font-semibold dark:text-white text-[rgb(40,40,41)]">Comentários</p>
                     <button @click="openSortByFilterDrawer" class="flex items-center gap-1">
                         <span class="font-semibold text-[13px]"> {{ sortByText }}</span>
                         <span>
@@ -240,6 +240,14 @@ const sortBySelect = async (sortBy) => {
         queryComments.value.page = 1
 
         loadingFetchComments.value = true
+
+        if (post.value?.sortCommentId) {
+            store.commit("SET_POST", {
+                ...post.value,
+                sortCommentId: null
+            })
+        }
+
         store.commit("RESET_COMMENTS_FROM_CACHE", postId.value)
         store.commit("UPDATE_PAGINATION_COMMENTS_FROM_CACHE", {
             postId: postId.value,

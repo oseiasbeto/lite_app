@@ -1,43 +1,24 @@
 <template>
     <div class="flex flex-col h-screen overflow-hidden">
         <!-- Fundo fixo com cor + pattern oficial -->
-        <div class="sticky py-1 z-50 top-0 w-full">
-            <ChatHeader @go-back="router.back()" :loading="loading" :conversation="conversation" />
-            <NetworkStatusBar :status="networkStatus" />
+        <div class="sticky z-50 top-0 w-full">
+            <ChatHeader @go-back="router.back()" :user-id="user?._id" :loading="loading" :conversation="conversation" />
         </div>
 
         <div ref="messagesContainer" @scroll="handleScroll" :style="{ paddingBottom: inputHeight + 'px' }"
-            class="flex-1 pt-4 !overflow-y-scroll bg-chat-bg bg-cover">
+            class="flex-1 pt-4 px-4 !overflow-y-scroll bg-chat-bg bg-cover">
 
             <div v-if="!loadingMessages">
                 <div class="flex justify-center" ref="loadTrigger" v-if="cachedMessages?.pagination?.hasMore">
                     <SpinnerSmall />
                 </div>
-                <MessageBox @more-option="openDrawerMessage" v-for="(message, index) in cachedMessages?.items || []"
+                <MessageBox @more-option="" v-for="(message, index) in cachedMessages?.items || []"
                     :key="message._id" :message="message" :user-id="user?._id"
                     :previousMessage="cachedMessages?.items[index - 1]" />
-
-                <!--start read by-->
-                <div v-if="readBy.length > 0" class="flex justify-end">
-                    <p>Visto:</p> {{ readBy.length }}
-                </div>
-                <!--end read by-->
             </div>
             <div class="h-full flex justify-center items-center w-full" v-else>
                 <SpinnerSmall />
             </div>
-
-            <!-- Botão flutuante "scroll to bottom" – estilo Messenger -->
-            <button v-if="showScrollToBottom" @click="scrollToBottom(true)"
-                class="fixed bottom-20 left-1/2 -translate-x-1/2 z-40 w-10 h-10 rounded-full bg-white dark:bg-background-secondary text-primary shadow-lg flex items-center justify-center transition-opacity duration-200"
-                aria-label="Voltar para o final da conversa">
-                <svg viewBox="6 6 24 24" fill="currentColor" width="20" height="20" class="x14rh7hd x1lliihq x1tzjh5l"
-                    overflow="visible">
-                    <path
-                        d="M24.616 18.366a1.25 1.25 0 0 1 1.768 1.768l-7.5 7.5a1.25 1.25 0 0 1-1.768 0l-7.5-7.5a1.25 1.25 0 0 1 1.768-1.768l4.94 4.94a.25.25 0 0 0 .426-.177V9.25a1.25 1.25 0 1 1 2.5 0v13.879c0 .222.27.334.427.176l4.94-4.939z">
-                    </path>
-                </svg>
-            </button>
         </div>
 
 
@@ -171,7 +152,6 @@ const loadTrigger = ref(null)
 const messageFormRef = ref(false)
 const previousScrollHeight = ref(0)
 const previousScrollTop = ref(0)
-const showScrollToBottom = ref(false)
 
 const convId = route.params.convId;
 
@@ -307,15 +287,6 @@ const closeModalConfirm = () => {
 
 // Funções para controlar a digitação
 const handleTypingStart = () => {
-
-    if (conversation.value?.type !== 'direct' || !isOnline.value) return
-    const reciverId = conversation.value?.xyz_id || null
-
-    socket.emit('typing_start', {
-        conv: conversation.value,
-        reciverId,
-        source: conversation?.value?.source
-    })
 }
 
 const handleScroll = () => {
@@ -325,25 +296,10 @@ const handleScroll = () => {
 const checkScrollPosition = () => {
     const container = messagesContainer.value
     if (!container) return
-
-    const scrollTop = container.scrollTop
-    const scrollHeight = container.scrollHeight
-    const clientHeight = container.clientHeight
-
-    // Mostra botão se estiver pelo menos 200px acima do bottom
-    const nearBottom = scrollHeight - scrollTop - clientHeight < 200
-    showScrollToBottom.value = !nearBottom
 }
 
 const handleTypingStop = () => {
-    if (conversation.value?.type !== 'direct' || !isOnline.value) return
-    const reciverId = conversation.value?.xyz_id || null
-
-    socket.emit('typing_stop', {
-        conv: conversation.value,
-        reciverId,
-        source: conversation?.value?.source
-    })
+  
 }
 
 const handleDeleteMessageForMe = (convId, source, msgId, userId) => {
@@ -623,8 +579,6 @@ onMounted(async () => {
 
 onUnmounted(() => {
     // SEMPRE remove o listener ao sair do componente
-    socket.off('typing_start')
-    socket.off('typing_stop')
     socket.off('newMessage');
     window.visualViewport?.removeEventListener('resize', viewportHandler);
     //window.visualViewport?.removeEventListener('scroll', viewportHandler);

@@ -10,7 +10,7 @@
                     <div class="flex items-center gap-1">
                         <div @click="goToProfile(author?._id)">
                             <span :class="isParentPost ? 'font-normal' : 'font-bold'"
-                                class="text-[13px] dark:text-white text-black">{{ author?.name }}</span>
+                                class="text-[13px] dark:text-white text-[rgb(40,40,41)]">{{ author?.name }}</span>
                         </div>
                         <span v-show="!isParentPost && showBtnFollow" class="dark:text-[#e6e7e8] text-[13px]"> · </span>
                         <div v-show="!isParentPost && showBtnFollow">

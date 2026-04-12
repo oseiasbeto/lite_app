@@ -1,5 +1,5 @@
 <template>
-    <div v-if="data?._id" class="flex flex-col" :class="{ 'border-b-[6px] border-[rgb(24,24,24)]': showBorderBottom }">
+    <div v-if="data?._id" class="flex flex-col" :class="[ showBorderBottom ? 'border-b-[6px] border-[rgb(230,231,232)] dark:border-[rgb(24,24,24)]' : 'border-none', !showMore && !isParentPost ? 'dark:bg-[#262626] bg-white' : 'dark:bg-transparent bg-white']">
         <!--HEADER-->
         <div :class="isParentPost ? 'p-0' : 'p-[10px]'">
             <!--AUTHOR DETAILS-->

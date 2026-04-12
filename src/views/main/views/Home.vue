@@ -8,7 +8,6 @@
                 :loading-fetch="loadingFeedPosts" :loading-load-more="loadingLoadMore" :show-btn-follow="true"
                 module="feed" @on-load-more="handleLoadMore" />
         </div>
-
     </div>
 </template>
 

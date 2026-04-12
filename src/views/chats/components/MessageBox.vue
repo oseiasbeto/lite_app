@@ -1,82 +1,79 @@
 <template>
-  <div v-if="!isDeletedForMe" class="relative">
-    <!-- Separador de data -->
-    <div v-if="showDateSeparator" class="flex py-4 justify-center">
-      <div class="bg-separator/50 px-3 py-1 rounded-full">
-        <span class="text-[13px] text-text-secondary font-medium">
-          {{ formatDateSeparator(message.created_at) }}
-        </span>
+  <div v-if="!isDeletedForMe" class="relative mb-2">
+    <div class="flex">
+      <div class="flex flex-col justify-end" v-if="!isSent">
+        <Avatar size="s" style="top: -2px;"
+          :url="message?.sender?.profile_image?.thumbnails?.xs || message?.sender?.profile_image?.url" />
       </div>
-    </div>
-
-    <div :class="[
-      'flex px-4 mb-2',
-      isSent ? 'justify-end' : 'justify-start'
-    ]">
-      <div @contextmenu.prevent="handleMoreOption(message)" :class="[
-        'rounded-2xl relative px-[14px] py-2 shadow-sm',
-        // Removido overflow-hidden fixo → controlado condicionalmente
-        isSent
-          ? 'bg-primary text-white'
-          : 'bg-background-secondary text-text-primary',
-        isEmojiOnly
-          ? 'bg-transparent shadow-none p-0 rounded-none'
-          : 'max-w-[75%]',
-        message.status === 'sending'
-          ? 'opacity-20 pointer-events-none'
-          : 'opacity-100',
-        // Aqui está a correção principal:
-        message.reactions?.length > 0 && !isEmojiOnly
-          ? 'overflow-visible mb-3'
-          : 'overflow-hidden mb-0'
+      <div :class="[
+        'flex relative flex-1',
+        isSent ? 'justify-end ml-0' : 'justify-start ml-2'
       ]">
-        <!-- Quote / Mensagem respondida -->
-        <div v-if="message.reply_to && !isEmojiOnly"
-          class="mb-1.5 -mx-[14px] px-[14px] pt-1 pb-1.5 border-l-4 text-[13px] leading-tight" :class="[
-            isSent
-              ? 'border-l-blue-300/80 bg-white/10'
-              : 'border-primary/80 bg-background-primary/20'
-          ]">
-          <div class="font-semibold mb-1 truncate opacity-95">
-            {{ replySenderName }}
-          </div>
-          <div class="opacity-80 line-clamp-2">
-            {{ replyPreviewText }}
-          </div>
-        </div>
-
-        <!-- Conteúdo principal da mensagem -->
-        <p :class="[
-          'break-words leading-snug',
-          isEmojiOnly ? 'text-5xl' : 'text-base'
+        <div @contextmenu.prevent="handleMoreOption(message)" :class="[
+          'relative p-[5px_12px] shadow-sm',
+          // Removido overflow-hidden fixo → controlado condicionalmente
+          isSent
+            ? 'bg-[#287dff] text-white rounded-[15.5px_15.5px_0px]'
+            : 'dark:bg-[#3c3c3c] dark:text-white rounded-[16.5px_15.5px_15.5px_0px]',
+          isEmojiOnly
+            ? 'bg-transparent m-0 shadow-none p-0 rounded-none'
+            : 'max-w-[75%]',
+          message.status === 'sending'
+            ? 'opacity-20 pointer-events-none'
+            : 'opacity-100'
         ]">
-          {{ message.content }}
-        </p>
-
-        <!-- Reações – estilo Messenger -->
-        <div v-if="message.reactions?.length > 0 && !isEmojiOnly"
-          class="absolute -bottom-4 flex items-center gap-1 z-10 pointer-events-none"
-          :class="isSent ? 'right-3' : 'left-3'">
-          <div
-            :class="['rounded-full border-[0.1px] border-background-primary bg-background-secondary flex items-center justify-center text-sm relative', message.reactions.length > 1 ? 'w-auto px-1 min-w-[24px]' : 'w-6 h-6']"
-            >
-            
-            <span v-for="(reaction, index) in groupedReactions" :key="index">{{ reaction.emoji }}</span>
-
-            <div v-if="message.reactions.length > 1"
-              class="text-text-secondary text-[13px] px-1">
-              {{ message.reactions.length }}
+          <!-- Quote / Mensagem respondida -->
+          <div v-if="message.reply_to && !isEmojiOnly"
+            class="mb-1.5 -mx-[14px] px-[14px] pt-1 pb-1.5 border-l-4 text-[13px] leading-tight" :class="[
+              isSent
+                ? 'border-l-blue-300/80 bg-white/10'
+                : 'border-primary/80 bg-background-primary/20'
+            ]">
+            <div class="font-semibold mb-1 truncate opacity-95">
+              {{ replySenderName }}
+            </div>
+            <div class="opacity-80 line-clamp-2">
+              {{ replyPreviewText }}
             </div>
           </div>
 
+          <!-- Conteúdo principal da mensagem -->
+          <p :class="[
+            'break-words whitespace-pre-wrap leading-snug',
+            isEmojiOnly ? 'text-5xl' : 'text-[15px]'
+          ]">
+            {{ message.content }}
+          </p>
+        </div>
 
+        <div v-if="!isSent" class="absolute bottom-0 left-[-6px]">
+          <svg width="6" height="11" viewBox="0 0 6 11" fill="none" xmlns="http://www.w3.org/2000/svg"
+            class="Message___StyledSvg-sc-512a4315-1 fYSXik">
+            <path
+              d="M-3.05176e-05 10.5019C-3.05176e-05 10.777 0.222986 11 0.49809 11H5.99997V0C5.99997 4.06498 4.64357 7.63316 0.640783 9.52185C0.25977 9.70162 -3.05176e-05 10.0768 -3.05176e-05 10.4981V10.4981L-2.69413e-05 10.5L-3.05176e-05 10.5019V10.5019Z"
+              fill="#3C3C3C"></path>
+          </svg>
+        </div>
+        <div v-else class="absolute bottom-0 right-[-6px]" style="transform: scaleX(-1)">
+          <svg width="6" height="11" viewBox="0 0 6 11" fill="none" xmlns="http://www.w3.org/2000/svg"
+            class="Message___StyledSvg-sc-512a4315-1 fmwFbZ">
+            <path
+              d="M-3.05176e-05 10.5019C-3.05176e-05 10.777 0.222986 11 0.49809 11H5.99997V0C5.99997 4.06498 4.64357 7.63316 0.640783 9.52185C0.25977 9.70162 -3.05176e-05 10.0768 -3.05176e-05 10.4981V10.4981L-2.69413e-05 10.5L-3.05176e-05 10.5019V10.5019Z"
+              fill="#287dff"></path>
+          </svg>
         </div>
       </div>
+    </div>
+    <div class="flex mt-1" :class="isSent ? 'justify-end' : 'justify-start'">
+      <span class="text-xs dark:text-greyDark font-medium">
+        {{ formatarData(message.created_at) }}
+      </span>
     </div>
   </div>
 </template>
 
 <script setup>
+import Avatar from '@/components/Utils/Avatar.vue'
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -115,30 +112,16 @@ const showDateSeparator = computed(() => {
   )
 })
 
-const formatDateSeparator = (dateString) => {
-  const date = new Date(dateString)
-  const today = new Date()
-  const yesterday = new Date(today)
-  yesterday.setDate(yesterday.getDate() - 1)
+const formatarData = (data) => {
+  const date = new Date(data);
+  const dia = date.getDate();
+  const meses = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun',
+    'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+  const mes = meses[date.getMonth()];
+  const horas = date.getHours().toString().padStart(2, '0');
+  const minutos = date.getMinutes().toString().padStart(2, '0');
 
-  const todayReset = new Date(today.getFullYear(), today.getMonth(), today.getDate())
-  const yesterdayReset = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate())
-  const dateReset = new Date(date.getFullYear(), date.getMonth(), date.getDate())
-
-  if (dateReset.getTime() === todayReset.getTime()) return 'Hoje'
-  if (dateReset.getTime() === yesterdayReset.getTime()) return 'Ontem'
-
-  const weekdays = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado']
-  const months = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro']
-
-  const weekday = weekdays[date.getDay()]
-  const day = date.getDate()
-  const month = months[date.getMonth()]
-
-  if (date.getFullYear() === today.getFullYear()) {
-    return `${weekday}, ${day} de ${month}`
-  }
-  return `${weekday}, ${day} de ${month} de ${date.getFullYear()}`
+  return `${dia} de ${mes}, ${horas}:${minutos}`;
 }
 
 const handleMoreOption = (msg) => {

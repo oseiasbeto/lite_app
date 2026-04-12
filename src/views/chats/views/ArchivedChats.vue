@@ -24,7 +24,7 @@
 <script setup>
 import { computed, onMounted, nextTick, onActivated, watch, ref } from 'vue';
 import { useStore } from 'vuex';
-import VirtualChatList from '../components/VirtualChatList.vue';
+import VirtualChatList from '../components/ChatList.vue';
 import { useRoute, useRouter } from 'vue-router';;
 import { logger } from '@/utils/logger';
 import { getSocket } from '@/services/socket';

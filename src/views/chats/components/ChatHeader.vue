@@ -1,23 +1,23 @@
 <template>
-  <header class="flex h-[52px] items-center px-4 bg-background-primary">
+  <header
+    class="flex h-[44px] items-center px-2 backdrop-blur-sm dark:bg-[rgba(32,32,32,0.8)] bg-[rgba(255,255,255,0.8)] border-b dark:border-[rgb(57,56,57)] z-50">
     <button @click="$emit('goBack')"
-      class="p-1 text-primary hover:bg-background-secondary mr-1 rounded-full transition-colors">
-      <svg fill="none" width="24" viewBox="0 0 24 24" height="24">
-        <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
-          d="M3 12a1 1 0 0 1 .293-.707l6-6a1 1 0 0 1 1.414 1.414L6.414 11H20a1 1 0 1 1 0 2H6.414l4.293 4.293a1 1 0 0 1-1.414 1.414l-6-6A1 1 0 0 1 3 12Z">
-        </path>
+      class="p-1 dark:text-white hover:bg-background-secondary mr-1 rounded-full transition-colors">
+      <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="m15 5-7 7 7 7.005" class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5" fill="none"
+          stroke-linecap="round"></path>
       </svg>
     </button>
 
     <!-- Avatar -->
-    <Avatar @click="goToConversationDetails(conversation?._id)" :url="loading ? '' : conversation?.avatar || ''"
-      size="md" class="flex-shrink-0" />
+    <Avatar @click="goToProfile(conversation)"
+      :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="xl" class="flex-shrink-0" />
 
     <!-- Informações do contato -->
     <div class="ml-3 flex-1 min-w-0">
       <!-- Nome -->
-      <div class="w-full flex">
-        <h2 class="text-base mb-0.5 font-semibold text-text-primary truncate leading-tight">
+      <div @click="goToProfile(conversation)" class="w-full flex">
+        <h2 class="text-[15px] mb-0.5 font-semibold dark:text-white truncate leading-tight">
           {{ loading ? 'Carregando...' : conversation?.name || 'Chat' }}
         </h2>
 
@@ -31,43 +31,15 @@
           </svg>
         </div>
       </div>
-
-
-      <!-- Status (online / digitando / visto por último) -->
-      <p class="text-sm mt-0.5 text-text-secondary flex items-center gap-1.5 leading-none">
-        <!-- Carregando -->
-        <span v-if="loading">conectando...</span>
-
-        <!-- Online com bolinha verde piscando (igual Telegram) -->
-        <span v-else-if="conversation?.is_online && !conversation?.is_typing" class="flex items-center gap-1.5">
-          online
-        </span>
-
-        <!-- Digitando com animação de 3 pontinhos -->
-        <span v-else-if="conversation?.is_typing" class="flex items-center gap-0.5">
-          escrevendo
-          <span class="flex ml-1 space-x-0.5">
-            <span class="w-1 h-1 bg-current rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-            <span class="w-1 h-1 bg-current rounded-full animate-bounce [animation-delay:-0.15s]"></span>
-            <span class="w-1 h-1 bg-current rounded-full animate-bounce"></span>
-          </span>
-        </span>
-
-        <!-- Visto por último -->
-        <span v-else>
-          {{ conversation?.last_seen ? formatLastSeen(conversation.last_seen) : 'visto por último recentemente' }}
-        </span>
-      </p>
     </div>
 
     <!-- Botões da direita (busca e menu) -->
     <div class="flex items-center gap-3">
       <!-- Mais opções (3 pontinhos verticais) -->
-      <button @click="goToConversationDetails(conversation?._id)" class="p-2 rounded-full text-primary hover:bg-background-secondary transition-colors">
-        <svg fill="none" width="18" viewBox="0 0 24 24" height="18">
-          <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
-            d="M2 12a2 2 0 1 1 4 0 2 2 0 0 1-4 0Zm16 0a2 2 0 1 1 4 0 2 2 0 0 1-4 0Zm-6-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z">
-          </path>
+      <button @click="goToProfile(conversation)" class="p-2 rounded-full dark:text-white">
+        <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4Zm7 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4Zm7 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"
+            class="icon_svg-stroke" stroke-width="1.5" stroke="currentColor" fill="none"></path>
         </svg>
       </button>
     </div>
@@ -78,27 +50,23 @@
 import Avatar from '@/components/Utils/Avatar.vue'
 import { useRouter } from 'vue-router'
 
-defineProps({
+const props = defineProps({
+  userId: { type: String, required: true },
   conversation: { type: Object, default: () => ({}) },
   loading: { type: Boolean, default: false }
 })
 
 const router = useRouter()
 
+const goToProfile = (conv) => {
+  const { participants } = conv
+  const participant = participants.find(p => p?.user?._id !== props?.userId)
 
-const goToConversationDetails = (id) => {
-  router.push('/chat/' + id)
+  const profile = participant?.user
+
+  if (!profile?._id) return
+  router.push('/profile/' + profile?._id)
 }
 
 defineEmits(['goBack'])
-
-// Formata "visto por último" como no Telegram
-const formatLastSeen = (date) => {
-  if (!date) return 'visto por último recentemente'
-  const diff = Math.floor((Date.now() - new Date(date)) / 60000)
-  if (diff < 1) return 'visto agora há pouco'
-  if (diff < 60) return `visto há ${diff} min`
-  if (diff < 1440) return `visto há ${Math.floor(diff / 60)} h`
-  return 'visto por último há muito tempo'
-}
 </script>
