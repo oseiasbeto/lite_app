@@ -10,13 +10,13 @@
         isSent ? 'justify-end ml-0' : 'justify-start ml-2'
       ]">
         <div @contextmenu.prevent="handleMoreOption(message)" :class="[
-          'relative p-[5px_12px] shadow-sm',
+          'relative p-[5px_12px]',
           // Removido overflow-hidden fixo → controlado condicionalmente
           isSent
             ? 'bg-[#287dff] text-white rounded-[15.5px_15.5px_0px]'
-            : 'dark:bg-[#3c3c3c] dark:text-white rounded-[16.5px_15.5px_15.5px_0px]',
+            : 'dark:bg-[#3c3c3c] dark:text-white text-[rgb(40,40,41)] bg-[#f1f2f2] rounded-[16.5px_15.5px_15.5px_0px]',
           isEmojiOnly
-            ? 'bg-transparent m-0 shadow-none p-0 rounded-none'
+            ? 'bg-transparent m-0 p-0 rounded-none'
             : 'max-w-[75%]',
           message.status === 'sending'
             ? 'opacity-20 pointer-events-none'
@@ -46,12 +46,12 @@
           </p>
         </div>
 
-        <div v-if="!isSent" class="absolute bottom-0 left-[-6px]">
+        <div v-if="!isSent" class="absolute text-[#f1f2f2] dark:text-[#3C3C3C] bottom-0 left-[-6px]">
           <svg width="6" height="11" viewBox="0 0 6 11" fill="none" xmlns="http://www.w3.org/2000/svg"
             class="Message___StyledSvg-sc-512a4315-1 fYSXik">
             <path
               d="M-3.05176e-05 10.5019C-3.05176e-05 10.777 0.222986 11 0.49809 11H5.99997V0C5.99997 4.06498 4.64357 7.63316 0.640783 9.52185C0.25977 9.70162 -3.05176e-05 10.0768 -3.05176e-05 10.4981V10.4981L-2.69413e-05 10.5L-3.05176e-05 10.5019V10.5019Z"
-              fill="#3C3C3C"></path>
+              fill="currentColor"></path>
           </svg>
         </div>
         <div v-else class="absolute bottom-0 right-[-6px]" style="transform: scaleX(-1)">
@@ -65,7 +65,7 @@
       </div>
     </div>
     <div class="flex mt-1" :class="isSent ? 'justify-end' : 'justify-start'">
-      <span class="text-xs dark:text-greyDark font-medium">
+      <span class="text-xs dark:text-greyDark text-grey font-medium">
         {{ formatarData(message.created_at) }}
       </span>
     </div>

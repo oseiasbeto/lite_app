@@ -2,7 +2,7 @@
     <ul class="flex dark:bg-[#262626] bg-white items-center gap-2 w-full h-14 text-text-primary fixed bottom-0 overflow-hidden"
         :class="{ 'pointer-events-none': isDisabled, '!border-border-primary': route.name === 'Post details' }">
         <li class="flex-1 h-full">
-            <button @click="router.replace('/home')" :class="{ 'text-primary': route.name == 'Home' }"
+            <button @click="router.replace('/home')" :class="{'text-primary': route.name == 'Home' }"
                 class="flex relative items-center w-full h-full" to="/feed">
                 <svg v-if="route.name === 'Home'" fill="none" class="mx-auto" width="27" viewBox="0 0 24 24" height="27"
                     aria-hidden="true">
@@ -19,7 +19,7 @@
         </li>
         <li class="flex-1 h-full">
             <button @click="goToNotification" class="flex relative items-center w-full h-full"
-                :class="{ 'text-primary': route.name == 'Notifications' }">
+                :class="{'text-primary': route.name == 'Notifications' }">
                 <svg v-if="route.name === 'Notifications'" fill="none" width="26" viewBox="0 0 24 24" height="26"
                     aria-hidden="true" class="mx-auto">
                     <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
@@ -41,7 +41,7 @@
         </li>
 
         <li class="flex-1 h-full">
-            <router-link class="flex items-center h-full" to="/composer">
+            <router-link class="flex items-center h-full" :class="{'text-primary': route.name == 'Composer' }" to="/composer">
                 <svg fill="none" v-if="route.name === 'Composer'" width="28" viewBox="0 0 24 24" height="28"
                     aria-hidden="true" class="mx-auto">
                     <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
@@ -58,7 +58,7 @@
         </li>
 
         <li class="flex-1 h-full">
-            <router-link class="flex relative items-center h-full" to="/chats">
+            <router-link class="flex relative items-center h-full" :class="{'text-primary': route.name == 'Chats' }" to="/chats">
                 <svg v-if="route.name === 'Chats'" xmlns="http://www.w3.org/2000/svg" class="mx-auto"
                     fill="currentColor" width="28px" height="28px" viewBox="0 0 24 24">
                     <path
@@ -79,7 +79,7 @@
         </li>
 
         <li class="flex-1 h-full">
-            <button class="flex items-center w-full h-full" @click="goToProfile(user)">
+            <button class="flex items-center w-full h-full" :class="{'text-primary': route.name == 'Profile' }" @click="goToProfile(user)">
                 <svg v-if="route.name === 'Profile'" fill="none" width="26" viewBox="0 0 24 24" height="26"
                     aria-hidden="true" class="mx-auto">
                     <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
@@ -116,11 +116,12 @@ defineProps({
     }
 })
 
-const goToProfile = (user) => {
-    store.dispatch("addNewProfileFromProfiles", user)
-
-    if (route?.params?.user_id !== user?._id) {
-        router.push(`/profile/${user?._id}`)
+const goToProfile = (u) => {
+    if (route?.params?.user_id !== u?._id) {
+        router.push(`/profile/${u?._id}`)
+    } else {
+        console.log("aki")
+        router.push(`/profile/${user.value?._id}`)
     }
 }
 

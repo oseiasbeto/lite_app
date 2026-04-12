@@ -2,14 +2,14 @@
     <div class="flex items-center justify-between" :class="{ 'pointer-events-none': loading }">
         <div class="flex gap-0.5 items-center">
             <div
-                class="flex rounded-[30px] border dark:border-[#393839] bg-[rgba(255,255,255,0.05)] items-center gap-0.5 mr-[8px]">
+                class="flex rounded-[30px] border bg-[rgba(0,0,1,0.03)] border-[rgb(222,224,225)] dark:border-[#393839] dark:bg-[rgba(255,255,255,0.05)] items-center gap-0.5 mr-[8px]">
                 <button @click="$emit('on-upvote')"
                     class="p-[0px_10px] h-[28px] text-blue text-center flex items-center">
                     <span>
 
                         <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg">
-                            <path d="M12 4 3 15h6v5h6v-5h6z" class="icon_svg-stroke icon_svg-fill" stroke-width="1.5"
+                            <path d="M12 4 3 15h6v5h6v-5h6z" class="icon_svg-stroke icon_svg-fill" stroke-width="2"
                                 stroke="currentColor" :fill="upvotes?.includes(userId) ? 'currentColor' : 'none'"
                                 stroke-linejoin="round"></path>
                         </svg>
@@ -25,7 +25,7 @@
                             xmlns="http://www.w3.org/2000/svg">
                             <path d="m12 20 9-11h-6V4H9v5H3z" class="icon_svg-stroke icon_svg-fill"
                                 stroke="currentColor" :fill="downvotes?.includes(userId) ? 'currentColor' : 'none'"
-                                stroke-width="1.5" stroke-linejoin="round"></path>
+                                stroke-width="2" stroke-linejoin="round"></path>
                         </svg>
                     </span>
                 </button>

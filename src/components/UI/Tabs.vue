@@ -1,7 +1,7 @@
 <template>
   <div class="relative">
     <div ref="tabsContainer"
-      class="flex px-[10px] border-b gap-4 dark:border-[rgb(57,56,57)] overflow-x-auto scrollbar-hide whitespace-nowrap">
+      class="flex px-[10px] border-b gap-4 dark:bg-transparent bg-white dark:border-[rgb(57,56,57)] overflow-x-auto scrollbar-hide whitespace-nowrap">
       <div v-for="(tab, index) in tabs" :key="index" class="relative flex-1">
         <button @click="selectTab(index, tab.value)"
           class="py-4 w-full font-semibold text-light-text-secondary dark:text-[#B1B3B7] text-[13px]"

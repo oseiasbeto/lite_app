@@ -68,7 +68,7 @@ onMounted(() => {
     <button
       v-if="needsTruncate"
       @click="toggleExpand"
-      class="my-1 dark:text-[#b1b3b6] text-[rgb(40,40,41)] font-medium text-sm focus:outline-none transition-colors"
+      class="my-1 dark:text-[#b1b3b6] text-[rgb(147,149,152)] font-medium text-sm focus:outline-none transition-colors"
     >
       {{ isExpanded ? 'Ler menos' : 'Ler mais' }}
     </button>

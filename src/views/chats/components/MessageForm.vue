@@ -1,5 +1,7 @@
 <template>
-  <div class="w-full bg-background-primary">
+  <div class="w-full bg-white dark:bg-transparent"
+  :class="{'shadow-[0px_0px_10px_rgba(0,0,0,.10)]': showShadow}"
+  >
     <reply-to-message-card 
     v-if="replyTo?.show" 
     :user-id="userId" 
@@ -12,13 +14,15 @@
       <div class="flex-1">
         <textarea ref="textareaRef" v-model="inputMessage" @input="autoResize"
            @keydown.enter.shift.exact="allowNewLine" @focus="handleFocus"
-          rows="1" placeholder="Mensagem..." class="w-full caret-white 
+          rows="1" placeholder="Mensagem..." 
+                class="w-full dark:caret-white 
                 resize-none overflow-hidden scroll-pt-4
-                 px-4 py-2.5 dark:bg-[#202020] 
+                 px-4 py-2.5 dark:bg-[#202020] bg-[#f7f7f8]
                 text-lg leading-snug
                  dark:placeholder-[#949494] 
+                 placeholder-[#949494]
                  rounded-[25px] placeholder-dark-text-secondary/70
-                 focus:outline-none dark:text-white
+                 focus:outline-none dark:text-white text-[rgb(40,40,41)]
                  whitespace-pre-wrap break-words
                  min-h-[30px]" style="line-height: 20px;" 
                 />
@@ -52,7 +56,11 @@ import ReplyToMessageCard from './ReplyToMessageCard.vue'
 const props = defineProps({
   disabled: { type: Boolean, default: false },
   replyTo: Object,
-  userId: String
+  userId: String,
+  showShadow: {
+    type: Boolean,
+    default: false
+  }
 })
 
 const emit = defineEmits(['message-sent', 'typing-start', 'typing-stop', 'close-reply-to', 'auto-resize', 'focus'])

@@ -6,15 +6,14 @@
         </div>
 
         <div ref="messagesContainer" @scroll="handleScroll" :style="{ paddingBottom: inputHeight + 'px' }"
-            class="flex-1 pt-4 px-4 !overflow-y-scroll bg-chat-bg bg-cover">
+            class="flex-1 pt-4 px-4 !overflow-y-scroll bg-white dark:bg-transparent">
 
             <div v-if="!loadingMessages">
                 <div class="flex justify-center" ref="loadTrigger" v-if="cachedMessages?.pagination?.hasMore">
                     <SpinnerSmall />
                 </div>
-                <MessageBox @more-option="" v-for="(message, index) in cachedMessages?.items || []"
-                    :key="message._id" :message="message" :user-id="user?._id"
-                    :previousMessage="cachedMessages?.items[index - 1]" />
+                <MessageBox @more-option="" v-for="(message, index) in cachedMessages?.items || []" :key="message._id"
+                    :message="message" :user-id="user?._id" :previousMessage="cachedMessages?.items[index - 1]" />
             </div>
             <div class="h-full flex justify-center items-center w-full" v-else>
                 <SpinnerSmall />
@@ -23,9 +22,10 @@
 
 
         <div class="z-10 dark:bg-dark-bg w-full">
-            <MessageForm @typing-start="handleTypingStart" @typing-stop="handleTypingStop"
-                @message-sent="handleSendMessage" ref="messageFormRef" :user-id="user._id"
-                :disabled="isLoadingSendMessage" :reply-to="replyTo" @close-reply-to="resetReplyTo" />
+            <MessageForm :show-shadow="showShadowMessageForm" @typing-start="handleTypingStart"
+                @typing-stop="handleTypingStop" @message-sent="handleSendMessage" ref="messageFormRef"
+                :user-id="user._id" :disabled="isLoadingSendMessage" :reply-to="replyTo"
+                @close-reply-to="resetReplyTo" />
         </div>
 
         <!--drawer-->
@@ -152,6 +152,7 @@ const loadTrigger = ref(null)
 const messageFormRef = ref(false)
 const previousScrollHeight = ref(0)
 const previousScrollTop = ref(0)
+const showShadowMessageForm = ref(false)
 
 const convId = route.params.convId;
 
@@ -161,10 +162,6 @@ const conversation = computed(() => store.getters.currentConversation)
 const messages = computed(() => store.getters.messages)
 const cachedMessages = computed(() => {
     return messages.value.find(module => module.byId === conversation.value?._id) || null
-})
-const readBy = computed(() => {
-    if (!conversation.value?._id) return []
-    else return conversation.value?.read_by?.filter(i => i.user?._id !== user.value._id) || []
 })
 
 // Estado da rede
@@ -296,10 +293,17 @@ const handleScroll = () => {
 const checkScrollPosition = () => {
     const container = messagesContainer.value
     if (!container) return
+
+    const tolerance = 5
+    const isBottom = container.scrollHeight - container.scrollTop <= container.offsetHeight + tolerance
+
+    if (isBottom) {
+        showShadowMessageForm.value = false
+    } else showShadowMessageForm.value = true
 }
 
 const handleTypingStop = () => {
-  
+
 }
 
 const handleDeleteMessageForMe = (convId, source, msgId, userId) => {
@@ -367,16 +371,16 @@ const handleSendMessage = async (message) => {
     })
 
     if (!conversation.value.last_message?.content?.length) {
-        
+
         const messageType = 'text'
 
         store.commit("ADD_OR_UPDATE_CONVERSATION", {
             conversation: {
                 ...conversation.value,
                 last_message: {
-                   created_at: Date.now(),
-                   content: newMessage?.content || '',
-                   message_type: messageType || 'text'
+                    created_at: Date.now(),
+                    content: newMessage?.content || '',
+                    message_type: messageType || 'text'
                 }
             }, // pode estar incompleto  
             userId: user.value?._id, // meu ID

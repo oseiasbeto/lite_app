@@ -6,11 +6,11 @@
             </div>
 
             <div class="flex flex-col">
-                <p class="font-bold text-[21px] dark:text-white text-black">{{ profile?.name || 'Nome' }}</p>
+                <p class="font-bold text-[21px] dark:text-white text-[rgb(40,40,41)]">{{ profile?.name || 'Nome' }}</p>
                 <div class="flex mt-4 text-[13px] items-center gap-2">
-                    <span> {{ profile?.followers_count }} Seguidores</span>
+                    <span> <span class="dark:text-white text-[rgb(40,40,41)]">{{ formattedCount(profile?.followers_count) }}</span>  Seguidores</span>
                     <span style="box-sizing: border-box;"> · </span>
-                    <span> {{ profile?.following_count }} Seguindo</span>
+                    <span> <span class="dark:text-white text-[rgb(40,40,41)]">{{ formattedCount(profile?.following_count) }}</span>  Seguindo</span>
                 </div>
             </div>
         </div>
@@ -24,6 +24,7 @@
 
 <script setup>
 import Avatar from '@/components/Utils/Avatar.vue';
+import formattedCount from '@/utils/formatted-count';
 
 const props = defineProps({
     profile: {

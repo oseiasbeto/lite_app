@@ -12,7 +12,7 @@
     <div class="flex-1 min-w-0">
       <div class="flex items-center justify-between gap-2">
         <!-- Nome do contato -->
-        <h3 class="text-[15px] font-semibold dark:text-white truncate max-w-[180px]">
+        <h3 class="text-[15px] font-semibold dark:text-white text-[rgb(40,40,41)] truncate max-w-[180px]">
           {{ props?.conversation.name }}
         </h3>
 

@@ -3,7 +3,8 @@
         <div v-if="author?._id" class="flex gap-1 flex-row items-center">
             <div class="flex-1 text-[13px]">
                 <div>
-                    <span @click="goToProfile(author?._id)" class="dark:text-white text-black font-bold">{{ author?.name }}</span>
+                    <span @click="goToProfile(author?._id)" class="dark:text-white text-[rgb(40,40,41)] font-bold">{{ author?.name }}</span>
+
                     <span> · </span>
                     <span>{{ formattedDate(createdAt) }}</span>
                 </div>

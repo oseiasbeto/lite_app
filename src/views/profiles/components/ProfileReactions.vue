@@ -42,7 +42,7 @@
             <p>Notificar-me</p>
 
         </button>
-        <button v-if="isSameUser" @click="$emit('onEdit')" class="text-[13px] flex items-center gap-1 flex-1">
+        <button v-if="isSameUser" @click="$emit('onEdit')" class="text-[13px] justify-center rounded-full border-2 py-1 dark:border-[rgb(57,56,57)] flex items-center gap-1 flex-1">
             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fill-rule="evenodd">
                     <path
