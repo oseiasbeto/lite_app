@@ -1,45 +1,54 @@
 <template>
     <div class="relative">
-        <div v-if="!isSubmiting" class="relative w-screen overflow-y-auto box-border flex flex-col"
-            :style="{ height: `calc(${viewportHeight}px - ${showFooter ? 52 : 0}px)` }">
+        <div v-if="!isSubmiting"
+            class="relative dark:[#000] bg-white h-screen w-screen overflow-y-hidden box-border flex flex-col">
 
             <!--start header-->
-            <div
-                class="flex fixed top-0 w-full z-[100] h-14 p-2 bg-surface-0 dark:bg-dark-bg items-center justify-between">
-                <div class="flex items-center gap-2">
+            <div class="flex flex-col sticky top-0 w-full z-[100] bg-white dark:bg-dark-bg ">
+                <div class="flex w-full py-2 items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <button
+                            class="py-1.5 px-2.5 text-sm text-light-link dark:text-dark-link rounded-full font-semibold flex items-center"
+                            @click="openCancelPostDrawer">
+                            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="m5.5 5.5 13 13m-13 0 13-13" class="icon_svg-stroke" stroke="#666"
+                                    stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
+                            </svg>
+                        </button>
+                        <button @click="openPostAudienceDrawer">{{ audienceText
+                            }}</button>
+                    </div>
+
                     <button
-                        class="py-1.5 px-2.5 text-sm hover:bg-primary/20 dark:hover:bg-primary/30 text-light-link dark:text-dark-link rounded-full font-semibold flex items-center"
-                        @click="openCancelPostDrawer">
-                        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="m5.5 5.5 13 13m-13 0 13-13" class="icon_svg-stroke" stroke="#666"
-                                stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
-                        </svg>
+                        class="h-9 px-5 text-sm rounded-full text-white disabled:opacity-60 disabled:pointer-events-none font-semibold bg-primary-500"
+                        @click="handleSubmit" :disabled="!canPost || isSubmiting || selectFileLoading || isUploading">
+                        {{ btnSubmitText }}
                     </button>
-                    <button @click="openPostAudienceDrawer">{{ audienceText
-                    }}</button>
                 </div>
 
-                <button
-                    class="h-9 px-5 text-sm rounded-full text-white disabled:opacity-60 disabled:pointer-events-none font-semibold bg-primary-500"
-                    @click="handleSubmit" :disabled="!canPost || isSubmiting || selectFileLoading || isUploading">
-                    {{ btnSubmitText }}
-                </button>
+                <div>
+                    <div v-if="!parentPost?._id">
+                        <div class="flex border-b px-2 items-center gap-1 justify-center flex-1">
+                            <button @click="setPostType('question')" class="flex-1 py-2 relative active:opacity-50">
+                                <span class="font-semibold whitespace-nowrap dark:text-white text-[rgb(40,40,41)]">Fazer
+                                    uma pergunta</span>
+                                <span v-show="postType === 'question'"
+                                    class="box-border absolute bottom-0 bg-[#2e69ff] left-0 right-0 h-[3px] rounded-tl-sm rounded-tr-sm"></span>
+                            </button>
+                            <button @click="setPostType('post')" class="flex-1 py-2 relative active:opacity-50">
+                                <span class="font-semibold whitespace-nowrap dark:text-white text-[rgb(40,40,41)]">Criar
+                                    post</span>
+                                <span v-show="postType === 'post'"
+                                    class="box-border absolute bottom-0 bg-[#2e69ff] left-0 right-0 h-[3px] rounded-tl-sm rounded-tr-sm"></span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
             <!--end header-->
 
             <!--start body-->
-            <div class="flex-1 max-h-full justify-between flex-col mt-14 ">
-                <div>
-                    <div v-if="!parentPost?._id">
-                        <div class="flex borde-b border-gray-100 pb-2 items-center gap-1 justify-center flex-1">
-                            <button @click="setPostType('question')"
-                                :class="{ '!text-sky-400': postType === 'question' }" class="flex-1">Fazer
-                                pergunta</button>
-                            <button @click="setPostType('post')" :class="{ '!text-sky-400': postType === 'post' }"
-                                class="flex-1">Criar post</button>
-                        </div>
-                    </div>
-                </div>
+            <div class="flex-1 px-4 pt-4 max-h-full overflow-y-auto justify-between flex-col">
                 <div>
                     <!--start error alert-->
                     <div v-if="error" class="px-4 mb-5">
@@ -67,53 +76,42 @@
                     <!--end error alert-->
 
                     <!--start author-->
-                    <div class="px-2 flex flex-col">
+                    <div class="flex flex-col">
                         <div class="flex items-center gap-1">
                             <div class="shrink-0">
-                                <Avatar :url="user?.profile_image?.url" />
+                                <Avatar size="xl" :url="user?.profile_image?.url" />
                             </div>
-                            <div class="flex">
-                                <p>{{ user?.display_name }}</p>
+                            <div class="flex ml-1">
+                                <p class="font-semibold dark:text-white text-[rgb(40,40,41)]">{{ user?.display_name }}
+                                </p>
                             </div>
                         </div>
                     </div>
                     <!--end author-->
 
                     <!--start question input-->
-                    <div class="px-2 flex flex-col gap-1 py-2" v-if="postType === 'question'">
-                        <input class="dark:text-black" v-model="postQuestion" type="text"
-                            placeholder="Faca uma pergunta?">
+                    <div class="flex flex-col gap-1 py-2 border-b" v-if="postType === 'question'">
+                        <textarea v-model="postQuestion"
+                            class=" placeholder:text-[#949494] dark:text-white text-[rgb(40,40,41)]" width="100%"
+                            height="3px" rows="2"
+                            placeholder="Comece sua pergunta com &quot;O que&quot;, &quot;Como&quot;, &quot;Por que&quot;, etc"
+                            autocomplete="off" role="combobox" aria-controls="selector:24" aria-haspopup="listbox"
+                            aria-autocomplete="list" aria-expanded="true"
+                            style="box-sizing: border-box; font-size: 18px; width: 100%; box-shadow: none; background-color: transparent; padding: 0px; outline: none; font-weight: 500; border: none; flex: 1 1 0%; min-height: 26px; overflow: hidden; overflow-wrap: break-word; height: 50px;"></textarea>
                     </div>
                     <!--end question input-->
 
                     <div v-else>
                         <!--star quill editor -->
-                        <label for="quillText">
-
-                            <div class="flex flex-col">
-                                <div class="flex-1 p-2">
-                                    <textarea :class="{ 'pointer-events-none': isSubmiting }" id="quillText"
-                                        maxlength="280" v-model="postContent" ref="textAreaRef"
-                                        placeholder="Escrever a resposta..."
-                                        class="w-full placeholder:text-text-light placeholder:dark:text-dark-text-light text-base bg-light-bg dark:bg-dark-bg leading-5 text-text-secondary dark:text-dark-text-primary resize-none outline-none placeholder-gray-500 mb-3"
-                                        @input="adjustTextareaHeight">
-                            </textarea>
-                                </div>
-
-                                <div v-if="parentPost?._id && !loadingFetchPostParent" class="flex flex-col">
-                                    <ParentPostCard :data="parentPost" :module="module" :user-id="user?._id" />
-                                </div>
-
-                            </div>
-                        </label>
+                        <RichTextEditor :no-min-height="mediaPreviews.length" @upload-image="imageInput?.click()" />
                         <!--end quill editor-->
 
                         <!-- start media previews -->
-                        <div class="px-4 py-2 pt-0 flex-1 flex flex-row gap-3"
+                        <div class="py-2 pt-0 flex-1 flex flex-row gap-3"
                             :class="{ 'overflow-x-auto': mediaPreviews.length > 1, 'justify-center': mediaPreviews.length === 1 }"
                             v-if="mediaPreviews.length" ref="mediaContainer">
                             <div v-for="(media, index) in mediaPreviews" :key="media.id"
-                                class="relative rounded-lg bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border overflow-hidden shadow-sm flex-shrink-0"
+                                class="relative bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border overflow-hidden shadow-sm flex-shrink-0"
                                 :class="{
                                     'w-48 h-48': mediaPreviews.length > 1, // Quadrado para múltiplas mídias
                                     'w-full h-60': mediaPreviews.length === 1 && media.type === 'image', // 100% da largura do pai para uma única imagem
@@ -143,83 +141,16 @@
                             </div>
                         </div>
                         <!-- end media previews -->
+
+                        <!--input files-->
+                        <input type="file" ref="imageInput" accept="image/*" multiple @change="handleImageUpload"
+                            class="hidden" />
+                        <!--input files-->
                     </div>
                 </div>
             </div>
             <!--end body-->
 
-            <!--start footer-->
-            <div v-if="showFooter" class="bg-surface-0 fixed bottom-0 w-full bg-light-bg dark:bg-dark-bg p-2"
-                :style="{ transform: footerTransform }">
-                <!-- Adicione aqui os controles do footer (emoji, mídia, etc) -->
-                <div class="flex items-center justify-between">
-                    <!-- Exemplo de controles -->
-                    <div class="flex-1">
-                        <div v-if="!isUploading" class="flex items-center">
-                            <button
-                                class="flex hover:bg-primary/20 dark:hover:bg-primary/25 items-center justify-center w-[39px] h-[39px] rounded-full text-primary-500 disabled:pointer-events-none disabled:text-[#8c9eb2] disabled:dark:text-[#5b7795]"
-                                @click="imageInput?.click()" :disabled="hasVideo || selectFileLoading || isSubmiting">
-                                <input type="file" ref="imageInput" accept="image/*" multiple
-                                    @change="handleImageUpload" class="hidden" />
-                                <svg fill="none" viewBox="0 0 24 24" width="24" height="24">
-                                    <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M3 4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4Zm2 1v7.213l1.246-.932.044-.03a3 3 0 0 1 3.863.454c1.468 1.58 2.941 2.749 4.847 2.749 1.703 0 2.855-.555 4-1.618V5H5Zm14 10.357c-1.112.697-2.386 1.097-4 1.097-2.81 0-4.796-1.755-6.313-3.388a1 1 0 0 0-1.269-.164L5 14.712V19h14v-3.643ZM15 8a1 1 0 1 0 0 2 1 1 0 0 0 0-2Zm-3 1a3 3 0 1 1 6 0 3 3 0 0 1-6 0Z">
-                                    </path>
-                                </svg>
-                            </button>
-
-                            <button @click="videoInput?.click()"
-                                :disabled="hasImages || selectFileLoading || hasUploadedVideo || isSubmiting"
-                                class="flex hover:bg-primary/20 dark:hover:bg-primary/25 items-center justify-center w-[39px] h-[39px] rounded-full text-primary-500 disabled:pointer-events-none disabled:text-[#8c9eb2] disabled:dark:text-[#5b7795]">
-                                <input type="file" ref="videoInput" accept="video/*" @change="handleVideoUpload"
-                                    class="hidden" />
-                                <svg fill="none" viewBox="0 0 24 24" width="24" height="24">
-                                    <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M3 4a1 1 0 011-1h16a1 1 0 011 1v16a1 1 0 01-1 1H4a1 1 0 01-1-1V4Zm2 1v2h2V5H5Zm4 0v6h6V5H9Zm8 0v2h2V5h-2Zm2 4h-2v2h2V9Zm0 4h-2v2h2V13Zm0 4h-2V19h2ZM15 19v-6H9v6h6Zm-8 0v-2H5v2h2Zm-2-4h2v-2H5v2Zm0-4h2V9H5v2Z">
-                                    </path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div v-else class="flex w-full gap-3 overflow-hidden items-center">
-                            <svg width="30" height="30" fill="none">
-                                <!-- Círculo de fundo -->
-                                <path d="M15 0.5
-           a14.5 14.5 0 0 1 0 29
-           a14.5 14.5 0 0 1 0 -29" stroke-linecap="butt" stroke-width="1"
-                                    class="text-[hsl(211,20%,85.89999999999999%)] dark:text-[hsl(211,28%,25.2%)]"
-                                    stroke="currentColor" />
-                                <!-- Círculo de progresso -->
-                                <path class="text-primary-500" :stroke-dasharray="dashArrayUploadProgress" d="M15 2.5
-           a12.5 12.5 0 0 1 0 25
-           a12.5 12.5 0 0 1 0 -25" stroke-linecap="butt" stroke-width="3" stroke="currentColor" />
-                            </svg>
-                            <p
-                                class="text-sm truncate flex-1 text-ellipsis text-text-secondary dark:text-dark-text-primary font-medium">
-                                {{ hasVideo ? 'Enviando o vídeo...' : 'Enviando imagens...' }}</p>
-                        </div>
-                    </div>
-
-                    <div class="flex shrink-0 items-center gap-3">
-                        <p class="text-sm font-normal text-text-secondary dark:text-dark-text-primary">
-                            {{ remainingChars }}
-                        </p>
-
-                        <svg width="30" height="30" fill="none">
-                            <!-- Círculo de fundo -->
-                            <path d="M15 0.5
-           a14.5 14.5 0 0 1 0 29
-           a14.5 14.5 0 0 1 0 -29" stroke-linecap="butt" stroke-width="1"
-                                class="text-[hsl(211,20%,85.89999999999999%)] dark:text-[hsl(211,28%,25.2%)]"
-                                stroke="currentColor" />
-                            <!-- Círculo de progresso -->
-                            <path class="text-primary-500" :stroke-dasharray="dashArray" d="M15 2.5
-           a12.5 12.5 0 0 1 0 25
-           a12.5 12.5 0 0 1 0 -25" stroke-linecap="butt" stroke-width="3" stroke="currentColor" />
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <!--end footer-->
 
             <!-- Modal de Confirmação -->
             <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
@@ -261,8 +192,9 @@ import CryptoJS from 'crypto-js';
 import LoadingScreen from "@/components/UI/LoadingScreen.vue"
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
-import Avatar from '../../users/components/Avatar.vue';
 import ParentPostCard from '../components/ParentPostCard.vue';
+import RichTextEditor from '@/components/UI/RichTextEditor.vue';
+import Avatar from '@/components/Utils/Avatar.vue';
 
 // Constantes do Cloudinary
 const CLOUD_NAME = 'daujoblcc';
@@ -274,7 +206,6 @@ const router = useRouter();
 const route = useRoute();
 const store = useStore();
 
-const textAreaRef = ref(null);
 const isSubmited = ref(false)
 const mediaContainer = ref(null);
 const selectFileLoading = ref(false);
@@ -307,16 +238,12 @@ const imageInput = ref(null);
 const videoInput = ref(null);
 const loadingFetchPostParent = ref(false)
 
-const isKeyboardOpen = ref(false);
-const viewportHeight = ref(window.visualViewport.height);
-
 // Constants
-const MAX_CHARS = 500;
-const MAX_IMAGES = 4;
+const MAX_CHARS = 4000;
+const MAX_IMAGES = 1;
 const MAX_VIDEO_SIZE_MB = 50;
 
 
-const showFooter = computed(() => postType.value !== 'question' && !parentPost.value?._id)
 const audienceText = computed(() => {
     switch (postAudience.value) {
         case 'limited':
@@ -354,40 +281,6 @@ const user = computed(() => store.getters.currentUser);
 
 const parentPost = computed(() => store.getters.parentPost);
 
-const progressChars = computed(() => {
-    const percentage = ((MAX_CHARS - remainingChars.value) / MAX_CHARS) * 100;
-    return Math.min(Math.max(percentage, 0), 100);
-});
-
-const dashArray = computed(() => {
-    const circumference = 2 * Math.PI * 12.5;
-    const dash = (progressChars.value / 100) * circumference;
-    return `${dash} ${circumference - dash}`;
-});
-
-const uploadProgressPercentage = computed(() => {
-    const progresses = Object.values(uploadProgress.value);
-    if (progresses.length === 0) return 0;
-    const totalProgress = progresses.reduce((sum, progress) => sum + progress, 0);
-    return Math.round(totalProgress / progresses.length);
-});
-
-const dashArrayUploadProgress = computed(() => {
-    const circumference = 2 * Math.PI * 12.5;
-    if (isUploading.value) {
-        const dash = (uploadProgressPercentage.value / 100) * circumference;
-        return `${dash} ${circumference - dash}`;
-    } else {
-        const percentage = ((MAX_CHARS - remainingChars.value) / MAX_CHARS) * 100;
-        const dash = (Math.min(Math.max(percentage, 0), 100) / 100) * circumference;
-        return `${dash} ${circumference - dash}`;
-    }
-});
-
-const footerTransform = computed(() =>
-    isKeyboardOpen.value ? `translateY(-${window.innerHeight - window.visualViewport.height}px)` : ''
-);
-
 const setPostType = (type) => {
     postType.value = type
 
@@ -395,6 +288,12 @@ const setPostType = (type) => {
         postQuestion.value = ''
     } else {
         postContent.value = ''
+
+        if (mediaPreviews.value.length) {
+            for (let i = 0; i < mediaPreviews.value.length; i++) {
+                removeMedia(i)
+            }
+        }
     }
 }
 
@@ -402,16 +301,6 @@ const setPostAudience = (status) => {
     postAudience.value = status
     closeDrawer()
 }
-
-const handleViewportResize = () => {
-    viewportHeight.value = window.visualViewport.height;
-    isKeyboardOpen.value = (window.visualViewport.height < window.innerHeight * 0.8);
-    if (isKeyboardOpen.value && textAreaRef.value) {
-        setTimeout(() => {
-            textAreaRef?.value?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
-    }
-};
 
 const resetForm = () => {
     postContent.value = '';
@@ -573,72 +462,6 @@ const handleImageUpload = (e) => {
     e.target.value = '';
 };
 
-const handleVideoUpload = async (e) => {
-    const file = e.target.files?.[0];
-    const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/mov', 'video/avi'];
-
-    if (!file || !(file instanceof File) || !file.type.startsWith('video/')) {
-        error.value = 'Arquivo inválido ou não é um vídeo.';
-        return;
-    }
-
-    if (file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
-        error.value = `O vídeo deve ter no máximo ${MAX_VIDEO_SIZE_MB}MB.`;
-        return;
-    }
-    if (!allowedVideoTypes.includes(file.type)) {
-        error.value = 'Formato de vídeo não suportado. Use MP4 ou WebM.';
-        return;
-    }
-
-    error.value = null;
-    selectFileLoading.value = true;
-
-    try {
-        await validateVideoIntegrity(file);
-        const reader = new FileReader();
-        reader.onload = async (e) => {
-            const id = uuidv4();
-            const media = {
-                id,
-                url: e.target.result,
-                type: 'video',
-                format: file.type.split('/')[1],
-                file
-            };
-
-            mediaPreviews.value = [media];
-            uploadProgress.value[id] = 0;
-
-            try {
-                const uploadedMedia = await uploadMedia(media);
-                if (uploadedMedia) {
-                    mediaPreviews.value[0] = {
-                        ...mediaPreviews.value[0],
-                        ...uploadedMedia
-                    };
-                }
-            } catch (err) {
-                error.value = err.message || 'Erro ao fazer upload do vídeo. Tente novamente.';
-                mediaPreviews.value = [];
-                console.error('Erro no upload do vídeo:', err);
-            }
-
-            selectFileLoading.value = false;
-        };
-        reader.onerror = () => {
-            error.value = 'Erro ao carregar o vídeo. Tente novamente.';
-            selectFileLoading.value = false;
-        };
-        reader.readAsDataURL(file);
-
-        e.target.value = '';
-    } catch (err) {
-        error.value = err.message || 'Vídeo corrompido ou inválido.';
-        selectFileLoading.value = false;
-    }
-};
-
 const removeMedia = async (index) => {
     const media = mediaPreviews.value[index];
 
@@ -652,11 +475,6 @@ const removeMedia = async (index) => {
     const newProgress = { ...uploadProgress.value };
     delete newProgress[media.id];
     uploadProgress.value = newProgress;
-
-    await nextTick();
-    if (mediaContainer.value) {
-        mediaContainer.value.scrollTo({ left: 0, behavior: 'smooth' });
-    }
 
     // Excluir do Cloudinary se já foi carregado
     if (media.public_id) {
@@ -708,13 +526,6 @@ const uploadMedia = async (media) => {
             return null;
         }
 
-        const hlsUrl = media.type === 'video' ?
-            `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/sp_hd/${response.data.public_id}.m3u8` :
-            null;
-
-        const thumbnailUrl = media.type === 'video' ?
-            `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/w_${response.data.width},h_${response.data.height},c_fill,q_auto,f_jpg,so_2/${response.data.public_id}.jpg` :
-            null;
 
         // Armazenar o public_id para possível exclusão
         media.public_id = response.data.public_id;
@@ -727,7 +538,6 @@ const uploadMedia = async (media) => {
         return {
             public_id: response.data.public_id,
             url: media.type === 'video' ? hlsUrl : `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_80,w_1200/${response.data.public_id}`,
-            thumbnail: thumbnailUrl,
             type: media.type,
             format: media.type === 'video' ? 'm3u8' : response.data.format,
             width: response.data.width,
@@ -762,23 +572,6 @@ const getVideoDuration = (url) => {
             resolve(null);
         };
     });
-};
-
-const adjustTextareaHeight = async () => {
-    await nextTick();
-
-    if (postType.value === 'post') {
-        textAreaRef.value.style.height = 'auto';
-
-        const newHeight = textAreaRef.value.scrollHeight;
-        const minHeight = 50;
-        const maxHeight = 200;
-
-        textAreaRef.value.style.height = `${Math.min(Math.max(newHeight, minHeight), maxHeight)}px`;
-        if (isKeyboardOpen.value) {
-            textAreaRef.value.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-    }
 };
 
 const confirmCancel = async () => {
@@ -871,7 +664,6 @@ onBeforeRouteLeave((to, from, next) => {
 });
 
 onMounted(async () => {
-    window.visualViewport.addEventListener('resize', handleViewportResize);
 
     if (queryPostType.value === 'post') {
         postType.value = 'post'
@@ -891,10 +683,5 @@ onMounted(async () => {
     if (!parentPost.value?._id) {
         // await getPostById(119);
     }
-    adjustTextareaHeight();
-});
-
-onUnmounted(() => {
-    window.visualViewport.removeEventListener('resize', handleViewportResize);
 });
 </script>

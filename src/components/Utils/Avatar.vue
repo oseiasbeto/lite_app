@@ -1,5 +1,5 @@
 <template>
-    <div class="bg-background-secondary shrink-0 relative overflow-hidden rounded-full"
+    <div class="border-[.5px] dark:border-[rgb(57,56,57)] hrink-0 relative overflow-hidden rounded-full"
         :class="[sizeClasses]" role="img" :aria-label="`Avatar de ${altText || 'nome'}`">
         <img v-lazy="props?.url && props.url" :alt="`Avatar de ${altText || 'nome'}`" class=" w-full h-full object-cover"
             :class="[sizeClasses]" />

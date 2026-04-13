@@ -8,7 +8,7 @@
             </span>
 
             <div>
-                <p class="text-sm font-medium text-text-primary">{{ title }}  <span v-if="isActive">✓</span></p>
+                <p class="text-sm font-medium dark:text-white text-[rgb(40,40,41)]">{{ title }}  <span v-if="isActive">✓</span></p>
                 <p v-show="description" class="text-xs text-text-secondary">
                     {{ description }}
                 </p>

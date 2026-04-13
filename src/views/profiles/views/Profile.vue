@@ -2,7 +2,8 @@
     <div @scroll="setScrollTopFromCache" ref="profileView" class="h-[calc(100vh-56px)] overflow-y-scroll">
         <div v-if="!hasError?.show">
             <div v-if="!loadingFetchProfile">
-                <div class="border-b-[6px] dark:bg-[#262626] dark:border-[rgb(24,24,24)] bg-white border-[rgb(230,231,232)]">
+                <div
+                    class="border-b-[6px] dark:bg-[#262626] dark:border-[rgb(24,24,24)] bg-white border-[rgb(230,231,232)]">
                     <!--DETAILS USER-->
                     <div class="px-[10px] py-4 pb-2">
                         <ProfileDetailsUser :profile="profile" :user-id="user?._id" />
@@ -10,8 +11,7 @@
 
                     <!--REACTIOS-->
                     <div class="px-[10px] pb-3">
-                        <ProfileReactions 
-                            :profile="profile" :user-id="user?._id" :is-same-user="isSameUser"
+                        <ProfileReactions :profile="profile" :user-id="user?._id" :is-same-user="isSameUser"
                             :has-followed="hasFollowed" :has-subscribed="hasSubscribed"
                             :status-follow-txt="statusFollowTxt" @on-follow="handleFollow(profile?._id)"
                             @on-edit="router.push('/profile/' + profile?._id + '/edit')"
@@ -218,9 +218,9 @@ const openConv = async (user) => {
 
     const convModules = conversations.value
 
-    const convIndex = convModules.findIndex(m => m.source === 'active') || 0
+    const moduleIndex = convModules.findIndex(m => m.source === 'active') || 0
 
-    if (convIndex === -1) {
+    if (moduleIndex === -1) {
         await store.dispatch('openDirectMessage', user._id)
             .then((conv) => {
                 closeDrawer()
@@ -229,14 +229,29 @@ const openConv = async (user) => {
                 loadingOpenConv.value = false
             })
     } else {
-        const conv = items[index]
-        store.commit("SET_CONVERSATION", {
-            ...conv,
-            source: 'active'
-        })
-        loadingOpenConv.value = false
-        closeDrawer()
-        router.push('/messages/' + conv?._id)
+        const module = convModules[moduleIndex]
+        const convIndex = module?.items?.findIndex(c => c.participants?.map(p => p.user?._id).includes(user._id))
+
+        if (convIndex !== -1) {
+            const conv = module.items[convIndex]
+            console.log(conv)
+            store.commit("SET_CONVERSATION", {
+                ...conv,
+                source: 'active'
+            })
+            loadingOpenConv.value = false
+            closeDrawer()
+            router.push('/messages/' + conv?._id)
+        } else {
+            await store.dispatch('openDirectMessage', user._id)
+                .then((conv) => {
+                    closeDrawer()
+                    router.push('/messages/' + conv?._id)
+                }).finally(() => {
+                    loadingOpenConv.value = false
+                })
+        }
+
     }
 }
 

@@ -17,7 +17,7 @@
                 fill-rule="evenodd" stroke-linecap="round"></path>
             </svg>
           </button>
-          <span class="flex-1 font-semibold text-center"> {{ title }} </span>
+          <span class="flex-1 dark:text-white text-[rgb(40,40,41)] font-semibold text-center"> {{ title }} </span>
         </div>
       </div>
       <div class="relative">

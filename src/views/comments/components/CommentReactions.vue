@@ -17,7 +17,7 @@
                     <span v-show="upvotesCount" class="ml-1 min-w-[20px] font-semibold">{{ formattedCount(upvotesCount)
                     }}</span>
                 </button>
-                <span class="h-[28px] w-[1px] dark:bg-[#393839]"></span>
+                <span class="h-[28px] w-[1px] dark:bg-[#393839] bg-[rgb(222,224,225)] "></span>
                 <button @click="$emit('on-downvote')"
                     class="p-[0px_10px_0px_8px] h-[28px] text-center flex items-center">
                     <span :class="downvotes?.includes(userId) ? 'text-[#e95111]' : 'text-inherit'">
