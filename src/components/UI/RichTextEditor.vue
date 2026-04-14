@@ -1,29 +1,28 @@
 <template>
   <div class="overflow-hidden">
     <!-- Barra de ferramentas com toggle -->
-    <div class="flex flex-row items-center overflow-hidden border-b border-gray-200">
-      <button @click="toggleToolbar"
-        class="bg-transparent border-none mr-2"
+    <div class="flex py-2 flex-row items-center overflow-hidden border-b dark:border-[rgb(57,56,57)] border-gray-200">
+      <button @click="toggleToolbar" class="bg-transparent dark:text-[#e6e7e8] border-none mr-2"
         :title="showToolbar ? 'Ocultar formatação' : 'Mostrar formatação'">
         <svg v-if="showToolbar" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="m5 8.5 7 7 7.005-7" class="icon_svg-stroke" stroke="#666" stroke-width="1.5" fill="none"
+          <path d="m5 8.5 7 7 7.005-7" class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5" fill="none"
             stroke-linecap="round"></path>
         </svg>
         <svg v-else xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
           <path class="icon_svg-fill_as_stroke"
             d="m10.526 17.352-1.002-3.031H5.162l-1.018 3.031H2L6.205 5.5h2.382l4.214 11.852h-2.275zM7.281 7.759l-1.626 4.887h3.376l-1.61-4.887h-.14zm10.415 8.14c1.232 0 2.152-.797 2.152-1.84v-.715l-2.029.131c-1.142.074-1.676.485-1.676 1.216 0 .756.649 1.207 1.552 1.207zm-.6 1.602c-1.733 0-2.973-1.051-2.973-2.694 0-1.626 1.224-2.563 3.409-2.694l2.316-.14v-.756c0-.879-.591-1.372-1.692-1.372-.936 0-1.577.329-1.766.936h-1.922c.164-1.585 1.651-2.595 3.786-2.595 2.308 0 3.606 1.125 3.606 3.031v6.136h-1.963V16.12h-.14c-.501.871-1.487 1.38-2.661 1.38z"
-            fill="#666" fill-rule="evenodd"></path>
+            fill="currentColor" fill-rule="evenodd"></path>
         </svg>
       </button>
-      <button v-if="!showToolbar" @click="$emit('upload-image')"
-        class="bg-transparent border-none ml-1 mr-2 py-2"
-        title="Subir imagem">
+
+      <button :disabled="disableUploadImage" v-if="!showToolbar" @click="$emit('upload-image')"
+        class="bg-transparent dark:text-[#e6e7e8] disabled:opacity-60 border-none ml-1 mr-2" title="Subir imagem">
         <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24"
           viewBox="0 0 24 24">
           <defs>
             <path d="M5 4.5v14H2V.5h16.5v4H5z" id="a"></path>
           </defs>
-          <g fill="#666" fill-rule="evenodd" class="icon_svg-fill_as_stroke">
+          <g fill="currentColor" fill-rule="evenodd" class="icon_svg-fill_as_stroke">
             <g fill-rule="nonzero">
               <path
                 d="M8 7a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5v-12A.5.5 0 0 0 20 7H8zm0-1.25h12a1.75 1.75 0 0 1 1.75 1.75v12A1.75 1.75 0 0 1 20 21.25H8a1.75 1.75 0 0 1-1.75-1.75v-12A1.75 1.75 0 0 1 8 5.75zM17.5 9a1 1 0 1 0 0 2 1 1 0 1 0 0-2zm0-1.25a2.25 2.25 0 1 1 0 4.5 2.25 2.25 0 1 1 0-4.5z">
@@ -43,9 +42,9 @@
       </button>
 
       <!-- Toolbar expansível -->
-      <div v-show="showToolbar && editor" class="flex flex-nowrap overflow-x-auto gap-1 px-2 pt-0">
+      <div v-show="showToolbar && editor" class="flex scrollbar-hide  flex-nowrap overflow-x-auto gap-1 px-2 pt-0">
         <button @click="editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="[
-          'bg-transparent border-none text-sm font-medium mr-2 py-2 rounded-md cursor-pointer',
+          'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
           editor && editor.isActive('heading', { level: 1 }) ? 'dark:text-white text-[rgb(40,40,41)]' : ''
         ]" title="Título H1">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -56,7 +55,7 @@
         </button>
 
         <button @click="editor.chain().focus().toggleBold().run()" :class="[
-          'bg-transparent border-none text-sm font-medium mr-2 py-2 rounded-md cursor-pointer',
+          'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
           editor && editor.isActive('bold') ? 'dark:text-white text-[rgb(40,40,41)]' : ''
         ]" title="Negrito (Ctrl+B)">
           <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -67,7 +66,7 @@
         </button>
 
         <button @click="editor.chain().focus().toggleItalic().run()" :class="[
-          'bg-transparent border-none text-sm font-medium mr-2 py-2 rounded-md cursor-pointer',
+          'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
           editor && editor.isActive('italic') ? 'dark:text-white text-[rgb(40,40,41)]' : ''
         ]" title="Itálico (Ctrl+I)">
           <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -78,7 +77,7 @@
         </button>
 
         <button @click="editor.chain().focus().toggleOrderedList().run()" :class="[
-          'bg-transparent border-none text-sm font-medium mr-2 py-2 rounded-md cursor-pointer',
+          'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
           editor && editor.isActive('orderedList') ? 'dark:text-white text-[rgb(40,40,41)]' : ''
         ]" title="Lista numerada">
           <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -89,7 +88,7 @@
         </button>
 
         <button @click="editor.chain().focus().toggleBulletList().run()" :class="[
-          'bg-transparent border-none text-sm font-medium mr-2 py-2 rounded-md cursor-pointer',
+          'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
           editor && editor.isActive('bulletList') ? 'dark:text-white text-[rgb(40,40,41)]' : ''
         ]" title="Lista com marcadores">
           <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -100,7 +99,7 @@
         </button>
 
         <button @click="editor.chain().focus().toggleBlockquote().run()" :class="[
-          'bg-transparent border-none text-sm font-medium mr-2 py-2 rounded-md cursor-pointer',
+          'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
           editor && editor.isActive('blockquote') ? 'dark:text-white text-[rgb(40,40,41)]' : ''
         ]" title="Citação">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
@@ -108,12 +107,6 @@
               d="m10.287 9.586.005-.191a3.896 3.896 0 1 0-7.792.001 3.896 3.896 0 0 0 3.896 3.896 3.88 3.88 0 0 0 1.376-.25c-.089.875-.302 1.643-.765 2.26-1.042 1.386-2.377 2.014-3.413 2.244-.277.062-.455.254-.44.534.015.268.251.415.515.42l.036-.001C4.993 18.431 6.5 17.5 8 16c1.472-1.472 2.313-3.784 2.287-6.414zm-1.403 7.297c-1.746 1.746-3.49 2.777-5.097 2.863l-.14.003c-.885-.015-1.688-.621-1.742-1.604-.048-.913.562-1.63 1.418-1.821.991-.22 1.954-.803 2.685-1.775a5.18 5.18 0 0 1-4.757-5.155 5.146 5.146 0 0 1 10.292 0l-.004.213c.021 2.918-.926 5.548-2.653 7.275zm12.653-7.297.005-.191a3.896 3.896 0 1 0-7.792.001 3.896 3.896 0 0 0 3.896 3.896 3.88 3.88 0 0 0 1.376-.25c-.089.875-.302 1.643-.765 2.26-1.042 1.386-2.377 2.014-3.413 2.244-.277.062-.455.254-.44.534.015.268.251.415.515.42l.036-.001C16.243 18.43 17.75 17.5 19.25 16c1.472-1.472 2.313-3.784 2.287-6.414zm-1.403 7.297c-1.746 1.746-3.49 2.777-5.097 2.863l-.14.003c-.885-.015-1.688-.621-1.742-1.604-.048-.913.562-1.63 1.418-1.821.991-.22 1.954-.803 2.685-1.775a5.18 5.18 0 0 1-4.757-5.155 5.146 5.146 0 0 1 10.292 0l-.004.213c.021 2.918-.926 5.548-2.653 7.275z">
             </path>
           </svg>
-        </button>
-
-        <button @click="editor.chain().focus().setHorizontalRule().run()"
-          class="bg-transparent border-none text-sm font-medium mr-2 py-2 rounded-md cursor-pointer"
-          title="Linha horizontal">
-          —
         </button>
       </div>
     </div>
@@ -138,9 +131,13 @@ const props = defineProps({
     type: String,
     default: '',
   },
-  noMinHeight : {
+  noMinHeight: {
     type: Boolean,
     default: false,
+  },
+  disableUploadImage: {
+    type: Boolean,
+    default: false
   },
   placeholder: {
     type: String,
@@ -163,7 +160,11 @@ const editor = useEditor({
       heading: {
         levels: [1, 2, 3],
       },
+      document: {
+        content: 'block+',
+      },
     }),
+
     Placeholder.configure({
       placeholder: props.placeholder,
       emptyEditorClass: 'is-editor-empty',
@@ -176,7 +177,12 @@ const editor = useEditor({
     },
   },
   onUpdate: ({ editor }) => {
-    emit('update:modelValue', editor.getHTML())
+      // Sanitiza o conteúdo antes de emitir
+    let content = editor.getHTML();
+    if (isContentEmpty(content)) {
+      content = '';
+    }
+    emit('update:modelValue', content);
   },
   immediatelyRender: false,
 })
@@ -206,6 +212,22 @@ watch(
     }
   }
 )
+const isContentEmpty = (htmlContent) => {
+  if (!htmlContent || htmlContent.trim() === '') return true;
+  
+  // Remove tags HTML e verifica se sobrou algum texto
+  const tempDiv = document.createElement('div');
+  tempDiv.innerHTML = htmlContent;
+  const textContent = tempDiv.textContent || tempDiv.innerText || '';
+  
+  // Verifica se existe texto significativo (não apenas espaços, quebras, etc)
+  const hasText = textContent.trim().length > 0;
+  
+  // Verifica se existem elementos não vazios (como imagens, etc)
+  const hasNonTextContent = tempDiv.querySelectorAll('img, video, iframe, hr').length > 0;
+  
+  return !hasText && !hasNonTextContent;
+};
 
 // Limpeza ao desmontar o componente
 onBeforeUnmount(() => {
@@ -251,7 +273,7 @@ onBeforeUnmount(() => {
 
 /* Estilos visuais para os elementos dentro do editor */
 .quora-editor-content :deep(p) {
-  margin-bottom: 1.2em;
+  margin-bottom: 15px;
 }
 
 .quora-editor-content :deep(p:first-child) {
@@ -263,6 +285,7 @@ onBeforeUnmount(() => {
   padding-left: 2em;
   margin-bottom: 1.2em;
 }
+
 .quora-editor-content :deep(ul) {
   list-style: disc;
 }
@@ -274,8 +297,7 @@ onBeforeUnmount(() => {
 .quora-editor-content :deep(blockquote) {
   border-left: 2px solid #e2e2e2;
   padding-left: 15px;
-  color: #4a5568;
-  font-style: italic;
+  color: #636466;
 }
 
 .quora-editor-content :deep(blockquote p) {
@@ -283,26 +305,8 @@ onBeforeUnmount(() => {
 }
 
 .quora-editor-content :deep(h1) {
-  font-size: 2em;
-  font-weight: 700;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-  border-bottom: 2px solid #e2e8f0;
-  padding-bottom: 0.3em;
-}
-
-.quora-editor-content :deep(h2) {
-  font-size: 1.5em;
+  font-size: 20px;
   font-weight: 600;
-  margin-top: 1.5em;
-  margin-bottom: 0.5em;
-}
-
-.quora-editor-content :deep(h3) {
-  font-size: 1.25em;
-  font-weight: 600;
-  margin-top: 1.2em;
-  margin-bottom: 0.5em;
 }
 
 .quora-editor-content :deep(hr) {
@@ -332,5 +336,9 @@ onBeforeUnmount(() => {
   background: none;
   padding: 0;
   color: inherit;
+}
+
+.dark .quora-editor-content :deep(.quora-editor) {
+  color: inherit !important;
 }
 </style>

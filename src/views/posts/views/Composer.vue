@@ -1,34 +1,49 @@
 <template>
     <div class="relative">
-        <div v-if="!isSubmiting"
-            class="relative dark:[#000] bg-white h-screen w-screen overflow-y-hidden box-border flex flex-col">
+        <div class="relative dark:bg-transparent bg-white h-screen w-screen overflow-y-hidden box-border flex flex-col">
 
             <!--start header-->
-            <div class="flex flex-col sticky top-0 w-full z-[100] bg-white dark:bg-dark-bg ">
+            <div class="flex flex-col sticky top-0 w-full z-[100] bg-white dark:bg-transparent">
                 <div class="flex w-full py-2 items-center justify-between">
-                    <div class="flex items-center gap-2">
+                    <div class="flex flex-1 pr-2 items-center gap-2">
                         <button
-                            class="py-1.5 px-2.5 text-sm text-light-link dark:text-dark-link rounded-full font-semibold flex items-center"
+                            class="py-1.5 px-2.5 text-sm text-light-link dark:text-dark-link rounded-full font-semibold flex text-inherit items-center"
                             @click="openCancelPostDrawer">
                             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="m5.5 5.5 13 13m-13 0 13-13" class="icon_svg-stroke" stroke="#666"
+                                <path d="m5.5 5.5 13 13m-13 0 13-13" class="icon_svg-stroke" stroke="currentColor"
                                     stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
                             </svg>
                         </button>
-                        <button @click="openPostAudienceDrawer">{{ audienceText
-                            }}</button>
+                        <button class="flex items-center gap-1" @click="openPostAudienceDrawer">
+                            <svg v-if="postAudience === 'everyone'" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <g class="icon_svg-stroke" transform="translate(4 4)" stroke="currentColor"
+                                    stroke-width="1.5" fill="none" fill-rule="evenodd">
+                                    <path d="M10 15.5a5 5 0 0 0-10 0m17 0a5 5 0 0 0-7.032-4.57"></path>
+                                    <circle cx="5" cy="4" r="4"></circle>
+                                    <path d="M9.678 7.258A4 4 0 1 0 9.791.665"></path>
+                                </g>
+                            </svg>
+                            <svg v-else width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <g class="icon_svg-stroke" transform="translate(6 3)" stroke="currentColor" stroke-width="1.5"
+                                    fill="none" fill-rule="evenodd">
+                                    <path d="M13 18c0-3.314-2.91-6-6.5-6S0 14.686 0 18"></path>
+                                    <circle cx="6.5" cy="5" r="4.5"></circle>
+                                </g>
+                            </svg>
+                            <span class="font-semibold">{{ audienceText }}</span>
+                        </button>
+                    </div>
+                    <div class=" shrink-0 pr-2">
+                        <SecondaryButton @on-press="handleSubmit" :loading="isSubmiting"
+                            :disabled="!canPost || selectFileLoading || isUploading" :text="btnSubmitText" />
                     </div>
 
-                    <button
-                        class="h-9 px-5 text-sm rounded-full text-white disabled:opacity-60 disabled:pointer-events-none font-semibold bg-primary-500"
-                        @click="handleSubmit" :disabled="!canPost || isSubmiting || selectFileLoading || isUploading">
-                        {{ btnSubmitText }}
-                    </button>
                 </div>
 
                 <div>
                     <div v-if="!parentPost?._id">
-                        <div class="flex border-b px-2 items-center gap-1 justify-center flex-1">
+                        <div
+                            class="flex border-b dark:border-[rgb(57,56,57)] px-2 items-center gap-1 justify-center flex-1">
                             <button @click="setPostType('question')" class="flex-1 py-2 relative active:opacity-50">
                                 <span class="font-semibold whitespace-nowrap dark:text-white text-[rgb(40,40,41)]">Fazer
                                     uma pergunta</span>
@@ -90,10 +105,11 @@
                     <!--end author-->
 
                     <!--start question input-->
-                    <div class="flex flex-col gap-1 py-2 border-b" v-if="postType === 'question'">
+                    <div class="flex flex-col gap-1 py-2 border-b dark:border-[rgb(57,56,57)]"
+                        v-if="postType === 'question'">
                         <textarea v-model="postQuestion"
-                            class=" placeholder:text-[#949494] dark:text-white text-[rgb(40,40,41)]" width="100%"
-                            height="3px" rows="2"
+                            class="placeholder:dark:text-[rgb(177,179,182)] placeholder:text-[#949494] resize-none dark:text-white text-[rgb(40,40,41)]"
+                            width="100%" height="3px" rows="2"
                             placeholder="Comece sua pergunta com &quot;O que&quot;, &quot;Como&quot;, &quot;Por que&quot;, etc"
                             autocomplete="off" role="combobox" aria-controls="selector:24" aria-haspopup="listbox"
                             aria-autocomplete="list" aria-expanded="true"
@@ -103,7 +119,8 @@
 
                     <div v-else>
                         <!--star quill editor -->
-                        <RichTextEditor :no-min-height="mediaPreviews.length" @upload-image="imageInput?.click()" />
+                        <RichTextEditor v-model="postContent" :disable-upload-image="mediaPreviews.length"
+                            :no-min-height="mediaPreviews.length" @upload-image="imageInput?.click()" />
                         <!--end quill editor-->
 
                         <!-- start media previews -->
@@ -111,7 +128,7 @@
                             :class="{ 'overflow-x-auto': mediaPreviews.length > 1, 'justify-center': mediaPreviews.length === 1 }"
                             v-if="mediaPreviews.length" ref="mediaContainer">
                             <div v-for="(media, index) in mediaPreviews" :key="media.id"
-                                class="relative bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border overflow-hidden shadow-sm flex-shrink-0"
+                                class="relative bg-light-card dark:border-[rgb(57,56,57)] border overflow-hidden shadow-sm flex-shrink-0"
                                 :class="{
                                     'w-48 h-48': mediaPreviews.length > 1, // Quadrado para múltiplas mídias
                                     'w-full h-60': mediaPreviews.length === 1 && media.type === 'image', // 100% da largura do pai para uma única imagem
@@ -173,9 +190,6 @@
                 </template>
             </Drawer>
         </div>
-        <div v-else>
-            <LoadingScreen />
-        </div>
     </div>
 
 </template>
@@ -184,17 +198,16 @@
 import { computed, onMounted, onUnmounted, ref, nextTick, onActivated } from 'vue';
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
-//import { usePost } from "@/app/posts/posts.hook";
 import axios from 'axios';
 import { useStore } from 'vuex';
 //import ReplyToparentPost from '../components/ReplyToparentPost.vue';
 import CryptoJS from 'crypto-js';
-import LoadingScreen from "@/components/UI/LoadingScreen.vue"
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import ParentPostCard from '../components/ParentPostCard.vue';
 import RichTextEditor from '@/components/UI/RichTextEditor.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
+import SecondaryButton from '@/components/buttons/SecondaryButton.vue';
 
 // Constantes do Cloudinary
 const CLOUD_NAME = 'daujoblcc';
@@ -207,7 +220,6 @@ const route = useRoute();
 const store = useStore();
 
 const isSubmited = ref(false)
-const mediaContainer = ref(null);
 const selectFileLoading = ref(false);
 
 const isAnonymous = ref(false);
@@ -235,13 +247,10 @@ const drawer = ref({
 const uploadedMediaIds = ref([]); // Rastreia public_ids das mídias carregadas
 
 const imageInput = ref(null);
-const videoInput = ref(null);
 const loadingFetchPostParent = ref(false)
 
 // Constants
-const MAX_CHARS = 4000;
 const MAX_IMAGES = 1;
-const MAX_VIDEO_SIZE_MB = 50;
 
 
 const audienceText = computed(() => {
@@ -259,21 +268,15 @@ const btnSubmitText = computed(() => {
 })
 
 const module = computed(() => route.query.module || null);
-const remainingChars = computed(() => MAX_CHARS - postContent.value.length);
-const hasImages = computed(() => mediaPreviews.value.some(m => m.type === 'image'));
-const hasVideo = computed(() => mediaPreviews.value.some(m => m.type === 'video'));
 const isSubmiting = ref(false)
 
 const isUploading = computed(() => {
     return Object.values(uploadProgress.value).some(progress => progress < 100);
 });
 
-const hasUploadedVideo = computed(() => {
-    return mediaPreviews.value.some(media => media.type === 'video' && media.public_id);
-});
 
 const canPost = computed(() => {
-    if (postContent.value.trim().length > 0 && postType.value !== 'question' || mediaPreviews.value.length > 0 && postType.value !== 'question' || postType.value === 'question' && postQuestion.value.trim().length > 0 || parentPost?.value?._id && !isSubmited.value) return true
+    if (postContent.value.trim().length > 0 && postContent.value.trim() !== '<p></p>' && postType.value !== 'question' || mediaPreviews.value.length > 0 && postType.value !== 'question' || postType.value === 'question' && postQuestion.value.trim().length > 0 || parentPost?.value?._id && !isSubmited.value) return true
     else return false
 });
 
@@ -308,7 +311,6 @@ const resetForm = () => {
     postQuestion.value = '';
     topics.value = [];
     postAudience.value = 'everyone';
-    //mediaPreviews.value = [];
     uploadProgress.value = {};
     cancelTokens.value = {};
     uploadedMediaIds.value = [];
@@ -356,27 +358,6 @@ const openPostAudienceDrawer = () => {
         }
     })
 }
-
-const validateVideoIntegrity = (file) => {
-    return new Promise((resolve, reject) => {
-        const video = document.createElement('video');
-        video.preload = 'metadata';
-        video.src = URL.createObjectURL(file);
-        video.onloadedmetadata = () => {
-            if (video.duration === Infinity || isNaN(video.duration) || video.videoWidth === 0) {
-                URL.revokeObjectURL(video.src);
-                reject(new Error('Vídeo corrompido ou inválido.'));
-            } else {
-                URL.revokeObjectURL(video.src);
-                resolve(true);
-            }
-        };
-        video.onerror = () => {
-            URL.revokeObjectURL(video.src);
-            reject(new Error('Vídeo corrompido ou não pôde ser lido.'));
-        };
-    });
-};
 
 const deleteMediaFromCloudinary = async (publicId, resourceType = 'image') => {
     try {

@@ -4,8 +4,14 @@
         <div v-if="!loadingFetchPost">
             <!--NODY-->
             <div>
-                <PostCard :module="module" :data="post" :show-more="true" :user="user"
-                    @open-new-comment-drawer="openNewCommentDrawer" />
+                <PostCard 
+                    :module="module" 
+                    :data="post" 
+                    :show-more="true" 
+                    :user="user"
+                    :enable-truncate="false"
+                    @open-new-comment-drawer="openNewCommentDrawer" 
+                />
                 <div>
                     <!--CREATE COMMENT TRIGGER-->
                     <CreateCommentTrigger @on-press="openNewCommentDrawer" :user="user" :type="post?.type" />

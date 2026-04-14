@@ -1,12 +1,22 @@
 <template>
   <div class="flex items-center gap-1">
-    <span class="dot dark:bg-[rgb(230,231,232)] bg-[rgb(99,100,102)]" style="animation-delay: 0s"></span>
-    <span class="dot dark:bg-[rgb(230,231,232)] bg-[rgb(99,100,102)]" style="animation-delay: 0.2s"></span>
-    <span class="dot dark:bg-[rgb(230,231,232)] bg-[rgb(99,100,102)]" style="animation-delay: 0.4s"></span>
+    <span :class="color" class="dot" style="animation-delay: 0s"></span>
+    <span :class="color" class="dot" style="animation-delay: 0.2s"></span>
+    <span :class="color" class="dot" style="animation-delay: 0.4s"></span>
   </div>
 </template>
 
+<script setup>
+defineProps({
+  color: {
+    type: String,
+    default: 'dark:bg-[rgb(230,231,232)] bg-[rgb(99,100,102)]'
+  }
+})
+</script>
+
 <style scoped>
+
 .dot {
   width: 6px;
   height: 6px;

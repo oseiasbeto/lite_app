@@ -7,7 +7,7 @@
             <div class="border flex-1 dark:bg-[#202020] bg-[#f7f7f8] rounded-[30px] flex items-center dark:border-[rgb(57,56,57)] h-[32px] text-[13px] dark:text-[rgb(177,179,182)]"
                 @click="goToComposer(module)">
 
-                <p class="px-[10px] text-[#939598]">O que você quer perguntar ou compartilhar?</p>
+                <p class="px-[10px] dark:text-[#b1b3b6] text-[#939598]">O que você quer perguntar ou compartilhar?</p>
             </div>
         </div>
 

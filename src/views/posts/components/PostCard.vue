@@ -12,7 +12,7 @@
         <div>
             <!--CONTENT-->
             <div :class="isParentPost ? 'p-0' : 'px-[10px]'">
-                <PostContent :is-parent-post="isParentPost" :show-more="showMore" @on-press="goToViewMore" :content="data.content" />
+                <PostContent :enable-truncate="enableTruncate" :is-parent-post="isParentPost" :show-more="showMore" @on-press="goToViewMore" :content="data.content" />
             </div>
 
 
@@ -66,6 +66,10 @@ const props = defineProps({
     module: {
         type: String,
         default: 'feed'
+    },
+    enableTruncate: {
+        type: Boolean,
+        default: true
     },
     showMore: {
         type: Boolean,
