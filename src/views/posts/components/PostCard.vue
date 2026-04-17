@@ -1,5 +1,6 @@
 <template>
-    <div v-if="data?._id" class="flex flex-col" :class="[ showBorderBottom ? 'border-b-[6px] border-[rgb(230,231,232)] dark:border-[rgb(24,24,24)]' : 'border-none', !showMore && !isParentPost ? 'dark:bg-[#262626] bg-white' : 'dark:bg-transparent bg-white']">
+    <div v-if="data?._id" class="flex flex-col"
+        :class="[showBorderBottom ? 'border-b-[6px] border-[rgb(230,231,232)] dark:border-[rgb(24,24,24)]' : 'border-none', !showMore && !isParentPost ? 'dark:bg-[#262626] bg-white' : 'dark:bg-transparent bg-white']">
         <!--HEADER-->
         <div :class="isParentPost ? 'p-0' : 'p-[10px]'">
             <!--AUTHOR DETAILS-->
@@ -12,17 +13,26 @@
         <div>
             <!--CONTENT-->
             <div :class="isParentPost ? 'p-0' : 'px-[10px]'">
-                <PostContent :enable-truncate="enableTruncate" :is-parent-post="isParentPost" :show-more="showMore" @on-press="goToViewMore" :content="data.content" />
+                <PostContent 
+                    :enable-truncate="enableTruncate" 
+                    :is-parent-post="isParentPost" 
+                    :show-more="showMore"
+                    @on-press="goToViewMore" 
+                    :content="data.content" 
+                />
             </div>
 
 
             <!--MEDIA-->
-            <div v-if="false" :class="isParentPost ? 'box-border -ml-[21px] -mr-[10px] mb-0' : 'w-full'">
-                <div class="box-border relative h-[369.256px] bg-[#151013] 
-            bg-center bg-contain bg-no-repeat 
-            transition-[background-image] duration-[180ms] ease-in-out
-            shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]"
-                    style="background-image: url('https://qph.cf2.quoracdn.net/main-qimg-0fdea9306730338017993e8d3358496c');">
+            <div v-if="data?.media?.length" :class="isParentPost ? 'box-border -ml-[21px] -mr-[10px] mb-0' : 'w-full'">
+                <div v-for="media in data?.media">
+                    <div v-if="media.type == 'image'" class="box-border relative bg-[#151013] 
+                        bg-center bg-contain bg-no-repeat 
+                        transition-[background-image] duration-[180ms] ease-in-out
+                        shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
+
+                        <img class="h-full w-full object-cover" :src="media?.url">
+                    </div>
                 </div>
             </div>
             <!--PARENT POST-->

@@ -6,7 +6,7 @@
             <div class="flex flex-col sticky top-0 w-full z-[100] bg-white dark:bg-transparent">
                 <div class="flex w-full py-2 items-center justify-between">
                     <div class="flex flex-1 pr-2 items-center gap-2">
-                        <button
+                        <button :disable="isSubmiting"
                             class="py-1.5 px-2.5 text-sm text-light-link dark:text-dark-link rounded-full font-semibold flex text-inherit items-center"
                             @click="openCancelPostDrawer">
                             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -15,7 +15,8 @@
                             </svg>
                         </button>
                         <button class="flex items-center gap-1" @click="openPostAudienceDrawer">
-                            <svg v-if="postAudience === 'everyone'" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <svg v-if="postAudience === 'everyone'" width="24" height="24" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
                                 <g class="icon_svg-stroke" transform="translate(4 4)" stroke="currentColor"
                                     stroke-width="1.5" fill="none" fill-rule="evenodd">
                                     <path d="M10 15.5a5 5 0 0 0-10 0m17 0a5 5 0 0 0-7.032-4.57"></path>
@@ -24,8 +25,8 @@
                                 </g>
                             </svg>
                             <svg v-else width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <g class="icon_svg-stroke" transform="translate(6 3)" stroke="currentColor" stroke-width="1.5"
-                                    fill="none" fill-rule="evenodd">
+                                <g class="icon_svg-stroke" transform="translate(6 3)" stroke="currentColor"
+                                    stroke-width="1.5" fill="none" fill-rule="evenodd">
                                     <path d="M13 18c0-3.314-2.91-6-6.5-6S0 14.686 0 18"></path>
                                     <circle cx="6.5" cy="5" r="4.5"></circle>
                                 </g>
@@ -35,29 +36,9 @@
                     </div>
                     <div class=" shrink-0 pr-2">
                         <SecondaryButton @on-press="handleSubmit" :loading="isSubmiting"
-                            :disabled="!canPost || selectFileLoading || isUploading" :text="btnSubmitText" />
+                            :disabled="!canPost || selectFileLoading || isUploading" text="Postar" />
                     </div>
 
-                </div>
-
-                <div>
-                    <div v-if="!parentPost?._id">
-                        <div
-                            class="flex border-b dark:border-[rgb(57,56,57)] px-2 items-center gap-1 justify-center flex-1">
-                            <button @click="setPostType('question')" class="flex-1 py-2 relative active:opacity-50">
-                                <span class="font-semibold whitespace-nowrap dark:text-white text-[rgb(40,40,41)]">Fazer
-                                    uma pergunta</span>
-                                <span v-show="postType === 'question'"
-                                    class="box-border absolute bottom-0 bg-[#2e69ff] left-0 right-0 h-[3px] rounded-tl-sm rounded-tr-sm"></span>
-                            </button>
-                            <button @click="setPostType('post')" class="flex-1 py-2 relative active:opacity-50">
-                                <span class="font-semibold whitespace-nowrap dark:text-white text-[rgb(40,40,41)]">Criar
-                                    post</span>
-                                <span v-show="postType === 'post'"
-                                    class="box-border absolute bottom-0 bg-[#2e69ff] left-0 right-0 h-[3px] rounded-tl-sm rounded-tr-sm"></span>
-                            </button>
-                        </div>
-                    </div>
                 </div>
             </div>
             <!--end header-->
@@ -104,66 +85,51 @@
                     </div>
                     <!--end author-->
 
-                    <!--start question input-->
-                    <div class="flex flex-col gap-1 py-2 border-b dark:border-[rgb(57,56,57)]"
-                        v-if="postType === 'question'">
-                        <textarea v-model="postQuestion"
-                            class="placeholder:dark:text-[rgb(177,179,182)] placeholder:text-[#949494] resize-none dark:text-white text-[rgb(40,40,41)]"
-                            width="100%" height="3px" rows="2"
-                            placeholder="Comece sua pergunta com &quot;O que&quot;, &quot;Como&quot;, &quot;Por que&quot;, etc"
-                            autocomplete="off" role="combobox" aria-controls="selector:24" aria-haspopup="listbox"
-                            aria-autocomplete="list" aria-expanded="true"
-                            style="box-sizing: border-box; font-size: 18px; width: 100%; box-shadow: none; background-color: transparent; padding: 0px; outline: none; font-weight: 500; border: none; flex: 1 1 0%; min-height: 26px; overflow: hidden; overflow-wrap: break-word; height: 50px;"></textarea>
-                    </div>
-                    <!--end question input-->
+                    <!--star quill editor -->
+                    <RichTextEditor v-model="postContent" :disable-upload-image="mediaPreviews.length > 0"
+                        :no-min-height="mediaPreviews.length > 0" @upload-image="imageInput?.click()" />
+                    <!--end quill editor-->
 
-                    <div v-else>
-                        <!--star quill editor -->
-                        <RichTextEditor v-model="postContent" :disable-upload-image="mediaPreviews.length"
-                            :no-min-height="mediaPreviews.length" @upload-image="imageInput?.click()" />
-                        <!--end quill editor-->
+                    <!-- start media previews -->
+                    <div class="py-2 pt-0 flex-1 flex flex-row gap-3"
+                        :class="{ 'overflow-x-auto': mediaPreviews.length > 1, 'justify-center': mediaPreviews.length === 1 }"
+                        v-if="mediaPreviews.length" ref="mediaContainer">
+                        <div v-for="(media, index) in mediaPreviews" :key="media.id"
+                            class="relative bg-light-card dark:border-[rgb(57,56,57)] border overflow-hidden shadow-sm flex-shrink-0"
+                            :class="{
+                                'w-48 h-48': mediaPreviews.length > 1, // Quadrado para múltiplas mídias
+                                'w-full h-60': mediaPreviews.length === 1 && media.type === 'image', // 100% da largura do pai para uma única imagem
+                                'max-w-full min-w-full h-60': mediaPreviews.length === 1 && media.type === 'video', // Máximo de 320px para um único vídeo
+                                'opacity-75': uploadProgress[media.id] !== undefined,
+                                'transition-opacity duration-300': uploadProgress[media.id] !== undefined
+                            }">
+                            <!-- Imagem -->
+                            <img v-if="media.type === 'image'" :src="media.url" class="w-full h-full object-cover"
+                                alt="Prévia da imagem" />
 
-                        <!-- start media previews -->
-                        <div class="py-2 pt-0 flex-1 flex flex-row gap-3"
-                            :class="{ 'overflow-x-auto': mediaPreviews.length > 1, 'justify-center': mediaPreviews.length === 1 }"
-                            v-if="mediaPreviews.length" ref="mediaContainer">
-                            <div v-for="(media, index) in mediaPreviews" :key="media.id"
-                                class="relative bg-light-card dark:border-[rgb(57,56,57)] border overflow-hidden shadow-sm flex-shrink-0"
-                                :class="{
-                                    'w-48 h-48': mediaPreviews.length > 1, // Quadrado para múltiplas mídias
-                                    'w-full h-60': mediaPreviews.length === 1 && media.type === 'image', // 100% da largura do pai para uma única imagem
-                                    'max-w-full min-w-full h-60': mediaPreviews.length === 1 && media.type === 'video', // Máximo de 320px para um único vídeo
-                                    'opacity-75': uploadProgress[media.id] !== undefined,
-                                    'transition-opacity duration-300': uploadProgress[media.id] !== undefined
-                                }">
-                                <!-- Imagem -->
-                                <img v-if="media.type === 'image'" :src="media.url" class="w-full h-full object-cover"
-                                    alt="Prévia da imagem" />
+                            <!-- Vídeo -->
+                            <video v-if="media.type === 'video'" controls class="w-full h-full object-cover" autoplay
+                                loop muted playsinline disablePictureInPicture>
+                                <source :src="media.url" :type="'video/' + media.format" />
+                            </video>
 
-                                <!-- Vídeo -->
-                                <video v-if="media.type === 'video'" controls class="w-full h-full object-cover"
-                                    autoplay loop muted playsinline disablePictureInPicture>
-                                    <source :src="media.url" :type="'video/' + media.format" />
-                                </video>
-
-                                <!-- Botão de remoção (apenas durante o upload) -->
-                                <button :disabled="uploadProgress[media.id] === 100" @click.stop="removeMedia(index)"
-                                    class="absolute top-2 right-2 bg-[#000]/60 text-white rounded-full p-1.5 hover:bg-black/80 transition-colors duration-200">
-                                    <svg viewBox="0 0 24 24" class="w-5 h-5">
-                                        <path fill="currentColor"
-                                            d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z">
-                                        </path>
-                                    </svg>
-                                </button>
-                            </div>
+                            <!-- Botão de remoção (apenas durante o upload) -->
+                            <button :disabled="uploadProgress[media.id] === 100" @click.stop="removeMedia(index)"
+                                class="absolute top-2 right-2 bg-[#000]/60 text-white rounded-full p-1.5 hover:bg-black/80 transition-colors duration-200">
+                                <svg viewBox="0 0 24 24" class="w-5 h-5">
+                                    <path fill="currentColor"
+                                        d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z">
+                                    </path>
+                                </svg>
+                            </button>
                         </div>
-                        <!-- end media previews -->
-
-                        <!--input files-->
-                        <input type="file" ref="imageInput" accept="image/*" multiple @change="handleImageUpload"
-                            class="hidden" />
-                        <!--input files-->
                     </div>
+                    <!-- end media previews -->
+
+                    <!--input files-->
+                    <input type="file" ref="imageInput" accept="image/*" multiple @change="handleImageUpload"
+                        class="hidden" />
+                    <!--input files-->
                 </div>
             </div>
             <!--end body-->
@@ -195,175 +161,171 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref, nextTick, onActivated } from 'vue';
+import { computed, onMounted, ref, onUnmounted } from 'vue';
 import { useRoute, useRouter, onBeforeRouteLeave } from 'vue-router';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
 import { useStore } from 'vuex';
-//import ReplyToparentPost from '../components/ReplyToparentPost.vue';
 import CryptoJS from 'crypto-js';
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
-import ParentPostCard from '../components/ParentPostCard.vue';
 import RichTextEditor from '@/components/UI/RichTextEditor.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue';
+import { logger } from '@/utils/logger';
 
 // Constantes do Cloudinary
 const CLOUD_NAME = 'daujoblcc';
 const UPLOAD_PRESET = 'social_media_upload';
-const API_KEY = '686559434489718'; // Substitua pelo sua API Key do Cloudinary
-const API_SECRET = 'oAYl12OIZf2HkieFNDQQk2romHM'; // Substitua pelo seu API Secret do Cloudinary
+const API_KEY = '686559434489718';
+const API_SECRET = 'oAYl12OIZf2HkieFNDQQk2romHM';
 
 const router = useRouter();
 const route = useRoute();
 const store = useStore();
 
-const isSubmited = ref(false)
+// Refs
+const isSubmited = ref(false);
 const selectFileLoading = ref(false);
-
 const isAnonymous = ref(false);
 const postAudience = ref("everyone");
-const topics = ref([])
+const topics = ref([]);
 const postContent = ref('');
-const queryPostType = computed(() => route?.query?.post_type || 'question')
-const postType = ref('question')
-const postQuestion = ref('')
-
 const mediaPreviews = ref([]);
 const uploadProgress = ref({});
-
 const cancelTokens = ref({});
 const error = ref(null);
-
-const showModal = ref(false);
-
 const drawer = ref({
     show: false,
     name: "",
     metadata: {}
-})
-
-const uploadedMediaIds = ref([]); // Rastreia public_ids das mídias carregadas
-
+});
+const uploadedMediaIds = ref([]);
 const imageInput = ref(null);
-const loadingFetchPostParent = ref(false)
+const loadingFetchPostParent = ref(false);
+const isSubmiting = ref(false);
+const isNavigatingAway = ref(false);
+const isSubmittingSuccess = ref(false);
+const isCancellingUploads = ref(false); // Flag para evitar cancelamentos duplicados
 
 // Constants
 const MAX_IMAGES = 1;
 
-
+// Computed
 const audienceText = computed(() => {
     switch (postAudience.value) {
         case 'limited':
-            return 'Limitado'
+            return 'Limitado';
         default:
-            return 'Público'
+            return 'Público';
     }
-})
-
-const btnSubmitText = computed(() => {
-    if (postType.value === 'question') return 'Adicionar'
-    else return 'Postar'
-})
+});
 
 const module = computed(() => route.query.module || null);
-const isSubmiting = ref(false)
 
 const isUploading = computed(() => {
     return Object.values(uploadProgress.value).some(progress => progress < 100);
 });
 
-
 const canPost = computed(() => {
-    if (postContent.value.trim().length > 0 && postContent.value.trim() !== '<p></p>' && postType.value !== 'question' || mediaPreviews.value.length > 0 && postType.value !== 'question' || postType.value === 'question' && postQuestion.value.trim().length > 0 || parentPost?.value?._id && !isSubmited.value) return true
-    else return false
+    const hasContent = postContent.value.trim().length > 0 && postContent.value.trim() !== '<p></p>';
+    const hasMedia = mediaPreviews.value.length > 0;
+    const hasParentPost = !!parentPost?.value?._id;
+
+    return (hasContent || hasMedia || hasParentPost) && !isSubmited.value && !isSubmiting.value;
 });
 
 const user = computed(() => store.getters.currentUser);
-
 const parentPost = computed(() => store.getters.parentPost);
 
-const setPostType = (type) => {
-    postType.value = type
-
-    if (type !== 'question') {
-        postQuestion.value = ''
-    } else {
-        postContent.value = ''
-
-        if (mediaPreviews.value.length) {
-            for (let i = 0; i < mediaPreviews.value.length; i++) {
-                removeMedia(i)
-            }
-        }
-    }
-}
-
+// Methods
 const setPostAudience = (status) => {
-    postAudience.value = status
-    closeDrawer()
-}
+    postAudience.value = status;
+    closeDrawer();
+};
 
 const resetForm = () => {
+    if (isSubmiting.value) return; // Não resetar durante envio
+    
     postContent.value = '';
-    //postType.value = 'question'
-    postQuestion.value = '';
     topics.value = [];
     postAudience.value = 'everyone';
     uploadProgress.value = {};
-    cancelTokens.value = {};
     uploadedMediaIds.value = [];
     error.value = null;
+    isSubmited.value = false;
+    isCancellingUploads.value = false;
+};
+
+const clearCancelTokens = () => {
+    Object.keys(cancelTokens.value).forEach(key => {
+        if (cancelTokens.value[key] && typeof cancelTokens.value[key].cancel === 'function') {
+            cancelTokens.value[key].cancel('Upload cancelado');
+        }
+    });
+    cancelTokens.value = {};
 };
 
 const openDrawer = (data) => {
-    const { show, name, metadata = {} } = data
-
+    const { show, name, metadata = {} } = data;
     drawer.value = {
         show,
         name,
         metadata
-    }
-}
+    };
+};
 
 const closeDrawer = () => {
     drawer.value = {
         show: false,
         name: '',
         metadata: {}
-    }
-}
+    };
+};
 
 const openCancelPostDrawer = () => {
-    if (canPost.value) {
+    // Não permitir abrir drawer se estiver enviando
+    if (isSubmiting.value || isCancellingUploads.value) {
+        return;
+    }
+
+    if (canPost.value && !isSubmiting.value && !isSubmittingSuccess.value) {
         openDrawer({
             show: true,
             name: 'cancelPost',
             metadata: {
                 title: 'Descartar post?'
             }
-        })
+        });
     } else {
         confirmCancel();
     }
 };
 
 const openPostAudienceDrawer = () => {
+    // Não permitir abrir drawer se estiver enviando
+    if (isSubmiting.value || isCancellingUploads.value) {
+        return;
+    }
     openDrawer({
         show: true,
         name: 'postAudience',
         metadata: {
             title: 'Audiencia'
         }
-    })
-}
+    });
+};
 
 const deleteMediaFromCloudinary = async (publicId, resourceType = 'image') => {
+    // Não excluir mídias durante o envio do post
+    if (isSubmiting.value && !isCancellingUploads.value) {
+        return;
+    }
+    
     try {
         const timestamp = Math.round(new Date().getTime() / 1000);
         const signatureString = `public_id=${publicId}&timestamp=${timestamp}${API_SECRET}`;
-        const signature = CryptoJS.SHA1(signatureString).toString(); // Usar crypto-js para SHA-1
+        const signature = CryptoJS.SHA1(signatureString).toString();
 
         await axios.post(
             `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/${resourceType}/destroy`,
@@ -381,6 +343,12 @@ const deleteMediaFromCloudinary = async (publicId, resourceType = 'image') => {
 };
 
 const handleImageUpload = (e) => {
+    // Não permitir upload de imagens durante o envio
+    if (isSubmiting.value || isCancellingUploads.value) {
+        error.value = 'Aguarde o post atual ser enviado';
+        return;
+    }
+
     const files = Array.from(e.target.files || []);
     const availableSlots = MAX_IMAGES - mediaPreviews.value.length;
 
@@ -420,13 +388,13 @@ const handleImageUpload = (e) => {
                             ...mediaPreviews.value[mediaIndex],
                             ...uploadedMedia
                         };
-                        console.log('Mídia atualizada em mediaPreviews:', mediaPreviews.value[mediaIndex]);
+                        logger.log('Mídia atualizada em mediaPreviews:', mediaPreviews.value[mediaIndex]);
                     }
                 }
             } catch (err) {
                 error.value = err.message || 'Erro ao fazer upload da imagem. Tente novamente.';
                 mediaPreviews.value = mediaPreviews.value.filter(m => m.id !== id);
-                console.error('Erro no upload da imagem:', err);
+                logger.error('Erro no upload da imagem:', err);
             }
 
             if (mediaPreviews.value.length === files.length + (mediaPreviews.value.length - files.length)) {
@@ -444,6 +412,12 @@ const handleImageUpload = (e) => {
 };
 
 const removeMedia = async (index) => {
+    // Não permitir remover mídia durante o envio
+    if (isSubmiting.value || isCancellingUploads.value) {
+        error.value = 'Aguarde o post atual ser enviado';
+        return;
+    }
+
     const media = mediaPreviews.value[index];
 
     if (uploadProgress.value[media.id] !== undefined && cancelTokens.value[media.id]) {
@@ -457,7 +431,6 @@ const removeMedia = async (index) => {
     delete newProgress[media.id];
     uploadProgress.value = newProgress;
 
-    // Excluir do Cloudinary se já foi carregado
     if (media.public_id) {
         await deleteMediaFromCloudinary(media.public_id, media.type);
     }
@@ -503,12 +476,10 @@ const uploadMedia = async (media) => {
             const newProgress = { ...uploadProgress.value };
             delete newProgress[media.id];
             uploadProgress.value = newProgress;
-            error.value = 'Erro ao carregar mídia'
+            error.value = 'Erro ao carregar mídia';
             return null;
         }
 
-
-        // Armazenar o public_id para possível exclusão
         media.public_id = response.data.public_id;
         uploadedMediaIds.value.push(response.data.public_id);
 
@@ -518,9 +489,9 @@ const uploadMedia = async (media) => {
 
         return {
             public_id: response.data.public_id,
-            url: media.type === 'video' ? hlsUrl : `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_80,w_1200/${response.data.public_id}`,
+            url: media.type === 'video' ? response.data.secure_url : `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_80,w_1200/${response.data.public_id}`,
             type: media.type,
-            format: media.type === 'video' ? 'm3u8' : response.data.format,
+            format: media.type === 'video' ? response.data.format : response.data.format,
             width: response.data.width,
             height: response.data.height,
             duration: media.type === 'video' ? await getVideoDuration(response.data.secure_url) : null
@@ -535,10 +506,9 @@ const uploadMedia = async (media) => {
             const newProgress = { ...uploadProgress.value };
             delete newProgress[media.id];
             uploadProgress.value = newProgress;
-            error.value = 'Erro ao carregar mídia'
+            error.value = 'Erro ao carregar mídia';
             throw err;
         }
-
     }
 };
 
@@ -556,40 +526,49 @@ const getVideoDuration = (url) => {
 };
 
 const confirmCancel = async () => {
-    // Cancelar todos os uploads em andamento
-    Object.values(cancelTokens.value).forEach(token => token.cancel('Upload cancelado pelo usuário'));
-    cancelTokens.value = {};
+    // Não permitir cancelar durante o envio
+    if (isSubmiting.value || isCancellingUploads.value) {
+        return;
+    }
 
-    // Iniciar exclusão de mídias em background
-    const mediaIdsToDelete = [...uploadedMediaIds.value]; // Copiar IDs para evitar alterações concorrentes
+    isCancellingUploads.value = true;
+    isNavigatingAway.value = true;
+
+    // Cancelar todos os uploads em andamento
+    clearCancelTokens();
+
+    // Excluir mídias do Cloudinary em background
+    const mediaIdsToDelete = [...uploadedMediaIds.value];
     if (mediaIdsToDelete.length > 0) {
-        Promise.all(
+        await Promise.all(
             mediaIdsToDelete.map(id =>
                 deleteMediaFromCloudinary(id, id.includes('video_') ? 'video' : 'image')
                     .catch(err => {
-                        console.error(`Erro ao excluir mídia ${id} do Cloudinary:`, err.message, err.response?.data);
-                        // Não definimos error.value para evitar impacto na UI
+                        console.error(`Erro ao excluir mídia ${id}:`, err);
                     })
             )
-        ).catch(err => {
-            console.error('Erro geral na exclusão em background:', err);
-        });
+        );
     }
 
-    // Resetar formulário e navegar imediatamente
-    showModal.value = false;
-    closeDrawer()
-    resetForm()
-    store.commit("SET_PARENT_POST", {})
+    // Resetar formulário e estado
+    resetForm();
+    mediaPreviews.value = [];
+    uploadedMediaIds.value = [];
+    closeDrawer();
+    store.commit("SET_PARENT_POST", {});
+    
+    isCancellingUploads.value = false;
+    
+    // Navegar de volta
     router.back();
 };
 
 const handleSubmit = async () => {
+    if (!canPost.value || isUploading.value || isSubmiting.value) return;
 
-    if (!canPost.value || isUploading.value) return;
-    isSubmiting.value = true
+    isSubmiting.value = true;
+    isSubmittingSuccess.value = false;
 
-    // Usar diretamente as mídias válidas em mediaPreviews (já carregadas)
     const validMedia = mediaPreviews.value.filter(media => media.public_id);
 
     const postData = {
@@ -604,65 +583,139 @@ const handleSubmit = async () => {
             height: m.height,
             duration: m.duration
         })),
-        postType: postType.value,
         sharedPost: parentPost?.value?._id || null,
-        postQuestion: postQuestion.value,
         isAnonymous: isAnonymous.value,
         topics: topics.value || [],
         audience: postAudience.value,
         module: module.value,
     };
-    await store.dispatch('createPost', postData)
-        .then(newPost => {
-            resetForm()
-            const { _id } = newPost
-            router.replace({
-                path: '/post/' + _id,
-                ...(module.value, {
-                    query: {
-                        module: module.value
-                    }
-                })
-            });
-        })
-        .catch(() => {
-            isSubmiting.value = false
-            console.log("Deu um erro")
-        })
+
+    try {
+        const newPost = await store.dispatch('createPost', postData);
+
+        isSubmittingSuccess.value = true;
+        isSubmited.value = true;
+
+        const { _id } = newPost;
+
+        // Limpar tokens de cancelamento (não cancelar uploads, apenas limpar referências)
+        clearCancelTokens();
+
+        // Navegar imediatamente
+        await router.replace({
+            path: '/post/' + _id,
+            query: module.value ? { module: module.value } : {}
+        });
+
+        // Resetar após navegação
+        resetForm();
+        mediaPreviews.value = [];
+        uploadedMediaIds.value = [];
+        store.commit("SET_PARENT_POST", {});
+        
+        isSubmiting.value = false;
+
+    } catch (err) {
+        console.error("Erro ao criar post:", err);
+        error.value = err.message || "Erro ao criar post. Tente novamente.";
+        isSubmiting.value = false;
+        isSubmittingSuccess.value = false;
+    }
 };
 
-
+// CORREÇÃO: onBeforeRouteLeave bloqueia navegação durante envio
 onBeforeRouteLeave((to, from, next) => {
-    if (canPost.value && !drawer.value?.show) {
-        openCancelPostDrawer()
-        next(false); // Impede a navegação até o usuário confirmar
-    } else if (drawer.value?.show) {
-        closeDrawer()
-        next(false)
+    // BLOQUEAR NAVEGAÇÃO DURANTE O ENVIO
+    if (isSubmiting.value && !isSubmittingSuccess.value) {
+        // Mostrar mensagem de aviso
+        error.value = 'Aguarde o envio do post para sair';
+
+        setTimeout(() => {
+            if (error.value === 'Aguarde o envio do post para sair') {
+                error.value = null;
+            }
+        }, 3000);
+
+        next(false); // Impedir navegação
+        return;
+    }
+    
+    // Se está cancelando uploads, permitir navegação
+    if (isCancellingUploads.value) {
+        next();
+        return;
+    }
+
+    // Se a submissão foi bem-sucedida, permitir navegação sem confirmação
+    if (isSubmittingSuccess.value) {
+        next();
+        return;
+    }
+
+    // Se já está navegando ou drawer está aberto, fecha o drawer
+    if (drawer.value?.show) {
+        closeDrawer();
+        next(false);
+        return;
+    }
+
+    // Verifica se há conteúdo não salvo
+    const hasUnsavedContent = (canPost.value || mediaPreviews.value.length > 0 || postContent.value.trim().length > 0) 
+        && !isSubmited.value 
+        && !isNavigatingAway.value
+        && !isSubmiting.value;
+
+    if (hasUnsavedContent) {
+        openCancelPostDrawer();
+        next(false);
     } else {
-        next()
+        // Limpa tudo antes de sair
+        if (!isNavigatingAway.value && !isSubmittingSuccess.value && !isSubmiting.value) {
+            resetForm();
+            mediaPreviews.value = [];
+            store.commit("SET_PARENT_POST", {});
+        }
+        next();
     }
 });
 
-onMounted(async () => {
-
-    if (queryPostType.value === 'post') {
-        postType.value = 'post'
+// Prevenir navegação pelo navegador (botão voltar) durante envio
+const handlePopState = () => {
+    if (isSubmiting.value && !isSubmittingSuccess.value) {
+        // Adicionar estado ao histórico para impedir volta
+        history.pushState(null, '', location.href);
+        error.value = 'Aguarde o envio do post para sair';
+        setTimeout(() => {
+            if (error.value === 'Aguarde o envio do post para sair') {
+                error.value = null;
+            }
+        }, 3000);
     }
+};
 
-    if (queryPostType.value === 'post' && parentPost.value?._id) {
-        loadingFetchPostParent.value = true
+onMounted(async () => {
+    if (parentPost.value?._id) {
+        loadingFetchPostParent.value = true;
         await store.dispatch("getPostById", {
             postId: route.query?.parent_post,
             type: 'parentPost'
-        })
-            .finally(() => {
-                loadingFetchPostParent.value = false
-            })
+        }).finally(() => {
+            loadingFetchPostParent.value = false;
+        });
     }
 
-    if (!parentPost.value?._id) {
-        // await getPostById(119);
+    // Adicionar listener para o botão voltar do navegador
+    window.addEventListener('popstate', handlePopState);
+});
+
+// Cleanup ao desmontar
+onUnmounted(() => {
+    // Cancelar todos os uploads pendentes apenas se não estiver enviando
+    if (!isSubmiting.value) {
+        clearCancelTokens();
     }
+
+    // Remover listener do popstate
+    window.removeEventListener('popstate', handlePopState);
 });
 </script>

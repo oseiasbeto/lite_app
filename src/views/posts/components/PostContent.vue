@@ -162,8 +162,8 @@ onBeforeUnmount(() => {
     <div ref="contentRef" :class="[
       custom,
       'font-light pb-1.5 content dark:text-[inherit] text-[rgb(40,40,41)] text-sm overflow-hidden break-words whitespace-pre-wrap',
-      !isExpanded && needsTruncate ? 'line-clamp' : ''
-    ]" :style="!isExpanded && needsTruncate ? {
+      enableTruncate ? 'line-clamp' : ''
+    ]" :style="enableTruncate ? {
         'display': '-webkit-box',
         '-webkit-line-clamp': maxLines,
         '-webkit-box-orient': 'vertical',
