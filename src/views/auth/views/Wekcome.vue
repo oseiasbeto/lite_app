@@ -8,7 +8,7 @@
     <div class="flex-1 flex flex-col justify-center px-6 py-8">
       <!-- Hero -->
       <div class="mb-10">
-        <div class="text-5xl mb-4">👋</div>
+        <div class="text-5xl mb-4">👊</div>
         <h1 class="text-3xl font-bold text-[rgb(40,40,41)] dark:text-inherit mb-2">
           Acontecendo agora
         </h1>
