@@ -11,7 +11,7 @@
             </div>
         </div>
 
-
+        <!-- 
         <div class="flex dark:text-[#e6e7e8] justify-between items-center gap-1">
             <button class="flex font-semibold flex-1 text-[13px] gap-1 justify-center items-center h-[30px] px-2 text-inherit"
                 @click="goToComposer(module)">
@@ -63,6 +63,7 @@
                 <p>Postar</p>
             </button>
         </div>
+        -->
     </div>
 
 </template>

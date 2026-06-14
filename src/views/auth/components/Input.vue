@@ -38,7 +38,7 @@
     </div>
 
     <!-- Mensagem de erro -->
-    <div v-if="props.error.show" class="text-warning flex items-center gap-1 text-[13px] mt-1">
+    <div v-if="props.error.show" class="text-red-500 flex items-center gap-1 text-[13px] mt-1">
       <svg width="20" height="20" viewBox="0 0 24 24">
         <g id="error" stroke="none" fill="none" fill-rule="evenodd" transform="translate(3.000000, 3.000000)">
           <path

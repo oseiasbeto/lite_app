@@ -1,7 +1,7 @@
 <template>
     <div class="flex items-center justify-between">
         <button :disabled="isDisabled" v-if="!isSameUser" @click="$emit('onFollow')"
-            class="text-[13px] line-clamp-2 leading-[15px] flex-1">
+            class="text-[13px] line-clamp-2 leading-[15px] flex-1 disabled:opacity-50 disabled:pointer-events-none">
             <svg v-if="hasFollowed" class="mx-auto" width="24" height="24" viewBox="0 0 24 24"
                 xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fill-rule="evenodd">
@@ -22,7 +22,7 @@
             <p>{{ statusFollowTxt }}</p>
         </button>
         <button :disabled="isDisabled" v-if="!isSameUser" @click="$emit('onSubscribe')"
-            class="text-[13px] line-clamp-2 leading-[15px] flex-1">
+            class="text-[13px] line-clamp-2 leading-[15px] flex-1 disabled:opacity-50 disabled:pointer-events-none">
 
             <svg class="mx-auto" width="24px" height="24px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
                 xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -42,7 +42,7 @@
             <p>Notificar-me</p>
 
         </button>
-        <button v-if="isSameUser" @click="$emit('onEdit')" class="text-[13px] justify-center rounded-full border-2 py-1 dark:border-[rgb(57,56,57)] flex items-center gap-1 flex-1">
+        <button v-if="isSameUser" @click="$emit('onEdit')" class="text-[13px] justify-center rounded-full border-2 py-1 dark:border-[rgb(57,56,57)] flex items-center gap-1 flex-1 ">
             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fill-rule="evenodd">
                     <path
@@ -54,7 +54,7 @@
             </svg>
             <p>Editar perfil</p>
         </button>
-        <button v-if="!isSameUser" @click="$emit('onAsk')" class="text-[13px] line-clamp-2 leading-[15px] flex-1">
+        <button :disabled="isDisabled || sendMessageBtnOff" v-if="!isSameUser" @click="$emit('onSendMessage')" class="text-[13px] line-clamp-2 leading-[15px] flex-1 disabled:opacity-50 disabled:pointer-events-none">
             <svg class="mx-auto" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5" fill="none" fill-rule="evenodd">
                     <g transform="translate(9 7)">
@@ -66,10 +66,10 @@
                         stroke-linejoin="round"></path>
                 </g>
             </svg>
-            <p>Perguntar</p>
+            <p>Mensagem</p>
         </button>
 
-        <button v-if="!isSameUser" @click="$emit('moreOptions')" class="text-[13px] line-clamp-2 leading-[15px] flex-1">
+        <button :disabled="isDisabled" v-if="!isSameUser" @click="$emit('moreOptions')" class="text-[13px] line-clamp-2 leading-[15px] flex-1 disabled:opacity-50 disabled:pointer-events-none">
             <svg width="24" height="24" class="mx-auto" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path
                     d="M5 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4Zm7 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4Zm7 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"
@@ -107,6 +107,10 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
+    sendMessageBtnOff: {
+        type: Boolean,
+        default: false
+    },
     userId: {
         type: String,
         required: true
@@ -115,7 +119,7 @@ const props = defineProps({
 
 
 
-defineEmits(['onFollow', 'onSubscribe', 'onEdit', 'onAsk', 'moreOptions'])
+defineEmits(['onFollow', 'onSubscribe', 'onEdit', 'onSendMessage', 'moreOptions'])
 
 
 </script>

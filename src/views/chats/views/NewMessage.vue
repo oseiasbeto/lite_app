@@ -1,5 +1,5 @@
 <template>
-    <div class="relative">
+    <div class="relative bg-white dark:bg-transparent">
         <div class="sticky w-full flex flex-col bg-background-primary z-10 top-0">
             <Navbar @go-back="router.back" title="Nova mensagem" :is-fixed="false" />
             <div v-show="!loadingLoadUsers" class="mb-3"></div>

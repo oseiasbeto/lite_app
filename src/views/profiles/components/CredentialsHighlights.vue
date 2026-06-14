@@ -18,7 +18,7 @@
                         </g>
                     </svg>
                 </span>
-                <span class="truncate">Entrou em junho de 2021</span>
+                <span class="truncate">Entrou em junho de 2026</span>
             </li>
         </ul>
     </div>

@@ -10,7 +10,7 @@ import { statusBar } from "webtonative"
 import { logger } from "./utils/logger";
 import generateSource from "./utils/generate-source";
 import LoadingComponent from "./components/UI/LoadingComponent.vue";
-import Footer from "./components/UI/Footer.vue";
+import Navegator from "./components/UI/Navgator.vue";
 
 // Estado de loading do app
 const loading = ref(true)
@@ -401,7 +401,7 @@ const setThemeColor = (theme) => {
   // Ajustar status bar
   statusBar({
     style: theme == 'dark' ? 'dark' : 'light',
-    color: theme == 'dark' ? '262626' : "fff",
+    color: theme == 'dark' ? '262626' : "ffffffcc",
     overlay: false //Only for android
   });
 }
@@ -476,6 +476,9 @@ onUnmounted(() => {
     class="font-secondary text-[13px] bg-[rgb(230,231,232)] dark:bg-[#181818] text-[#636466] dark:text-[#e6e7e8] text-text-primary relative w-screen text-sm h-screen overflow-x-hidden text-light-text-primary overflow-auto">
     <!-- start main app area-->
     <div v-if="!loading">
+      <!--start sidebar-->
+      <Navegator v-show="isAuthenticated && route.meta.rootPage == 'main'" />
+
       <!--start content-->
       <div class="overflow-hidden">
         <router-view v-slot="{ Component }">
@@ -487,9 +490,6 @@ onUnmounted(() => {
 
         <loading-component v-if="isLoadingComponent" />
       </div>
-
-      <!--start sidebar-->
-      <Footer v-show="isAuthenticated && route.meta.rootPage == 'main'" />
 
     </div>
     <div v-else>

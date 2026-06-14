@@ -15,6 +15,9 @@
                     <Spinner/>
                 </div>
             </div>
+            <div v-else>
+                <NotificationEmpty />
+            </div>
         </div>
         <div v-else>
              <NotificationSkeleton v-for="n in 8" :key="n" />
@@ -30,6 +33,7 @@ import { useIntersectionObserver } from "@vueuse/core";
 import Spinner from '@/components/UI/Spinner.vue';
 import NotificationCard from './NotificationCard.vue';
 import NotificationSkeleton from './NotificationSkeleton.vue';
+import NotificationEmpty from './NotificationEmpty.vue';
 
 const store = useStore()
 

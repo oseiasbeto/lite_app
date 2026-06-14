@@ -2,7 +2,7 @@
     <div
         class="fixed top-0 left-0 overflow-hidden z-[9999] bg-[rgba(255,255,255,0.5)] dark:bg-[rgba(36,36,36,.9)] w-screen h-screen">
         <span class="absolute w-full h-0.5 dark:bg-[rgba(0,0,0,0.5)] top-0">
-            <div class="h-full transition-all duration-[0.5s] ease-in-out bg-primary" :style="{ width: `${progress}%` }"> </div>
+            <div class="h-full transition-all duration-[0.5s] ease-in-out bg-secondary" :style="{ width: `${progress}%` }"> </div>
         </span>
         
     </div>

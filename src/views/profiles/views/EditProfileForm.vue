@@ -1,12 +1,29 @@
 <template>
-    <div>
-        <div class="flex justify-between">
-            <span @click="router.back()">X</span>
-            <button :disabled="!canSubmit" @click="handleSubmit">Editar</button>
+    <div class="h-screen bg-white dark:bg-transparent">
+        <!--start header-->
+        <div class="flex flex-col sticky top-0 w-full z-[100] bg-white dark:bg-transparent">
+            <div class="flex w-full py-2 items-center justify-between">
+                <div class="flex flex-1 pr-2 items-center gap-2">
+                    <button :disable="loading || uploading"
+                        class="py-1.5 px-2.5 text-sm text-light-link dark:text-dark-link rounded-full font-semibold flex text-inherit items-center"
+                        @click="router.back()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="m5.5 5.5 13 13m-13 0 13-13" class="icon_svg-stroke" stroke="currentColor"
+                                stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class=" shrink-0 pr-2">
+                    <SecondaryButton @on-press="handleSubmit" :loading="loading || uploading" :disabled="!canSubmit"
+                        text="Editar" />
+                </div>
+
+            </div>
         </div>
+        <!--end header-->
         <template v-if="editForm == 'picture'">
             <div class="picture-editor">
-                <p class="mb-4 text-center text-lg font-medium">Editar foto de perfil</p>
+                <p class="mb-4 text-center text-[#282829] dark:text-inherit text-lg font-medium">Editar foto de perfil</p>
 
                 <!-- Preview da imagem -->
                 <div class="flex flex-col items-center gap-4">
@@ -14,7 +31,7 @@
                         <img :src="imagePreview" alt="Preview"
                             class="w-32 h-32 rounded-full object-cover border-2 dark:border-[rgb(57,56,57)]" />
                         <label for="picture-upload"
-                            class="absolute dark:bg-[#202020] bottom-0 right-0 bg-blue-500 text-white p-2 rounded-full cursor-pointer hover:bg-blue-600 transition-colors"
+                            class="absolute dark:bg-[#202020] text-[#282829] bottom-0 right-0 bg-white dark:text-white shadow-md p-2 rounded-full cursor-pointer hover:bg-blue-600 transition-colors"
                             title="Alterar foto">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
                                 stroke="currentColor">
@@ -54,25 +71,56 @@
             </div>
         </template>
         <template v-else-if="editForm == 'name'">
-            <Input @update:model-value="validateName" v-model="form.name" title="Nome" label="name"
-                :error="nameError" />
+            <div class="px-4">
+                <div class="mb-5">
+                    <h4 class="text-lg font-bold text-[#282829] dark:text-inherit">Editar nome</h4>
+                    <p class="text-sm text-[#636466] dark:text-[#e6e7e8]">Altere seu nome quantas vezes quiser.</p>
+                </div>
+                <Input @update:model-value="validateName" v-model="form.name" title="Nome" label="name"
+                    :error="nameError" />
+            </div>
+
         </template>
         <template v-else-if="editForm == 'credentials'">
-            <Input @update:model-value="validateCredentials" v-model="form.credentials" title="Credencial"
-                label="credentials" :error="credentialsError" />
+            <div class="px-4">
+                <div class="mb-5">
+                    <h4 class="text-lg font-bold text-[#282829] dark:text-inherit">Adicionar credencial de perfil</h4>
+                </div>
+                <Input @update:model-value="validateCredentials" v-model="form.credentials" title="Credencial"
+                    label="credentials" :error="credentialsError" />
+            </div>
+
         </template>
         <template v-else-if="editForm == 'location'">
-            <Input @update:model-value="validateLocation" v-model="form.location" title="Localização" label="location"
-                :error="locationError" />
+            <div class="px-4">
+                <div class="mb-5">
+                    <h4 class="text-lg font-bold text-[#282829] dark:text-inherit">Adicionar localização</h4>
+                </div>
+                <Input @update:model-value="validateLocation" v-model="form.location" title="Localização"
+                    label="location" :error="locationError" />
+            </div>
+
         </template>
         <template v-else-if="editForm == 'bio'">
-            <Textarea @update:model-value="validateBio" v-model="form.bio" title="Biografia" label="bio"
-                :error="bioError" />
+            <div class="px-4">
+                <div class="mb-5">
+                    <h4 class="text-lg font-bold text-[#282829] dark:text-inherit">Editar descrição</h4>
+                </div>
+                <Textarea @update:model-value="validateBio" v-model="form.bio" title="Biografia" label="bio"
+                    :error="bioError" />
+            </div>
+
         </template>
         <template v-else-if="editForm == 'theme'">
+            <div class="mb-5 px-4">
+                <h4 class="text-lg mb-4 font-bold text-[#282829] dark:text-inherit">Configuração do tema</h4>
+                <p class="text-sm text-[#636466] dark:text-[#e6e7e8]">Ajuste a maneira em que você gostaria que o tema apareça no seu App.</p>
+            </div>
             <div class="flex px-4 items-center">
-                <label :class="form.theme == 'light' ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-transparent'" class="grow mr-2 p-2 rounded-[3px]" for="themeLight">
-                    <div :class="form.theme == 'light' ? 'text-secondary' : 'text-inherit'" class="flex items-center gap-2 mb-1.5">
+                <label :class="form.theme == 'light' ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-transparent'"
+                    class="grow mr-2 p-2 rounded-[3px]" for="themeLight">
+                    <div :class="form.theme == 'light' ? 'text-secondary' : 'text-inherit'"
+                        class="flex items-center gap-2 mb-1.5">
                         <input class="hidden" type="radio" id="themeLight" value="light" v-model="form.theme" />
                         <span
                             :class="['w-4 h-4 rounded-[3px] border flex items-center justify-center', form.theme === 'light' ? 'bg-secondary text-white border-secondary' : 'bg-white dark:bg-transparent border-[#b1b3b6] dark:border-[#48484a]']">
@@ -123,8 +171,10 @@
                         </svg>
                     </div>
                 </label>
-                <label :class="form.theme == 'dark' ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-transparent'" class="grow mr-2 p-2 rounded-[3px]" for="themeDark">
-                    <div :class="form.theme == 'dark' ? 'text-secondary' : 'text-inherit'" class="flex items-center gap-2 mb-1.5">
+                <label :class="form.theme == 'dark' ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-transparent'"
+                    class="grow mr-2 p-2 rounded-[3px]" for="themeDark">
+                    <div :class="form.theme == 'dark' ? 'text-secondary' : 'text-inherit'"
+                        class="flex items-center gap-2 mb-1.5">
                         <input class="hidden" type="radio" id="themeDark" value="dark" v-model="form.theme" />
                         <span
                             :class="['w-4 h-4 rounded-[3px] border flex items-center justify-center', form.theme === 'dark' ? 'bg-secondary text-white border-secondary' : 'bg-white dark:bg-transparent border-[#b1b3b6] dark:border-[#48484a]']">
@@ -176,8 +226,10 @@
                         </svg>
                     </div>
                 </label>
-                <label :class="form.theme == 'system' ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-transparent'" class="grow mr-2 p-2 rounded-[3px]" for="themeSystem">
-                    <div :class="form.theme == 'system' ? 'text-secondary' : 'text-inherit'" class="flex items-center gap-2 mb-1.5">
+                <label :class="form.theme == 'system' ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-transparent'"
+                    class="grow mr-2 p-2 rounded-[3px]" for="themeSystem">
+                    <div :class="form.theme == 'system' ? 'text-secondary' : 'text-inherit'"
+                        class="flex items-center gap-2 mb-1.5">
                         <input class="hidden" type="radio" id="themeSystem" value="system" v-model="form.theme" />
                         <span
                             :class="['w-4 h-4 rounded-[3px] border flex items-center justify-center', form.theme === 'system' ? 'bg-secondary text-white border-secondary' : 'bg-white dark:bg-transparent border-[#b1b3b6] dark:border-[#48484a]']">
@@ -247,6 +299,7 @@ import CryptoJS from 'crypto-js';
 import { logger } from '@/utils/logger';
 import Cookies from "js-cookie";
 import { statusBar } from "webtonative"
+import SecondaryButton from '@/components/buttons/SecondaryButton.vue';
 
 const route = useRoute()
 const router = useRouter()
@@ -287,28 +340,32 @@ const bioError = ref({ show: false, message: '' })
 
 const canSubmit = computed(() => {
     if (editForm.value === 'picture') {
-        // Para edição de foto, pode submeter se:
-        // - Não está fazendo upload
-        // - E (selecionou um arquivo OU marcou para remover)
-        return !uploading.value && (selectedFile.value !== null || !loadingRemovePicture.value)
+        // Habilita apenas se uma nova imagem foi selecionada e não está fazendo upload
+        return !uploading.value && selectedFile.value !== null;
     }
 
-    const isSameName = form.value?.name === profile.value.name
-    const isSameCredentials = form.value?.credentials === profile.value.credentials
-    const isSameLocation = form.value?.location === profile.value.location
-    const isSameBio = form.value?.bio === profile.value.bio
-    const isSameTheme = form.value?.theme === profile.value?.settings?.theme
+    const isSameName = form.value?.name === profile.value.name;
+    const isSameCredentials = form.value?.credentials === profile.value.credentials;
+    const isSameLocation = form.value?.location === profile.value.location;
+    const isSameBio = form.value?.bio === profile.value.bio;
+    const isSameTheme = form.value?.theme === profile.value?.settings?.theme;
 
-    if (nameError.value.show || credentialsError.value.show || locationError.value.show || bioError.value.show ||
+    if (
+        nameError.value.show ||
+        credentialsError.value.show ||
+        locationError.value.show ||
+        bioError.value.show ||
         (isSameName && editForm.value === 'name') ||
         (isSameCredentials && editForm.value === 'credentials') ||
         (isSameLocation && editForm.value === 'location') ||
         (isSameTheme && editForm.value === 'theme') ||
-        (isSameBio && editForm.value === 'bio')) {
-        return false
+        (isSameBio && editForm.value === 'bio')
+    ) {
+        return false;
     }
-    return true
-})
+    return true;
+});
+
 // Extrair public_id da URL do Cloudinary
 const extractPublicIdFromUrl = (url) => {
     if (!url) return null
@@ -633,7 +690,7 @@ const handleProfileSubmit = async () => {
                     setThemeColor(form.value.theme)
                 }
             })
-        router.back()
+    // router.back()
     } catch (error) {
         logger.error('Erro ao atualizar perfil:', error)
     } finally {
@@ -672,7 +729,7 @@ const setThemeColor = (theme) => {
     // Ajustar status bar
     statusBar({
         style: theme == 'dark' ? 'dark' : 'light',
-        color: theme == 'dark' ? '262626' : "fff",
+        color: theme == 'dark' ? '262626' : "ffffffcc",
         overlay: false //Only for android
     });
 }

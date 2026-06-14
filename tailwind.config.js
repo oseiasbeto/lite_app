@@ -9,7 +9,7 @@ module.exports = {
     extend: {
       colors: {
         // Usando variáveis CSS
-        primary: '#b92b27',
+        primary: '#1471ff',
         secondary: '#1471ff',
         tertiary: 'rgb(var(--color-tertiary) / <alpha-value>)',
         blue: '#4894fd',

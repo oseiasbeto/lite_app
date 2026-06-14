@@ -52,7 +52,7 @@
         </div>
 
         <div>
-            <button class="h-[30px] min-w-[30px] flex items-center justify-center">
+            <button @click="$emit('on-more')" class="h-[30px] min-w-[30px] flex items-center justify-center">
                 <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M11.25 11.25a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Zm-7 0a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Zm14 0a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Z"
@@ -102,5 +102,5 @@ defineProps({
     },
 })
 
-defineEmits(['on-upvote', 'on-downvote', 'on-comment', 'on-share'])
+defineEmits(['on-upvote', 'on-downvote', 'on-comment', 'on-share', 'on-more'])
 </script>

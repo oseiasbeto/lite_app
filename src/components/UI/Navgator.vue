@@ -41,8 +41,8 @@
         </li>
 
         <li class="flex-1 h-full">
-            <router-link class="flex items-center h-full" :class="{'text-primary': route.name == 'Composer' }" to="/composer">
-                <svg fill="none" v-if="route.name === 'Composer'" width="28" viewBox="0 0 24 24" height="28"
+            <router-link class="flex outline-none items-center h-full" :class="{'text-primary': route.name == 'Search' }" to="/search">
+                <svg fill="none" v-if="route.name === 'Search'" width="28" viewBox="0 0 24 24" height="28"
                     aria-hidden="true" class="mx-auto">
                     <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
                         d="M5 11a6 6 0 1 1 12 0 6 6 0 0 1-12 0Zm6-8a8 8 0 1 0 4.906 14.32l3.387 3.387a1 1 0 0 0 1.414-1.414l-3.387-3.387A8 8 0 0 0 11 3Zm4 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z">
@@ -58,7 +58,7 @@
         </li>
 
         <li class="flex-1 h-full">
-            <router-link class="flex relative items-center h-full" :class="{'text-primary': route.name == 'Chats' }" to="/chats">
+            <router-link class="flex outline-none relative items-center h-full" :class="{'text-primary': route.name == 'Chats' }" to="/chats">
                 <svg v-if="route.name === 'Chats'" xmlns="http://www.w3.org/2000/svg" class="mx-auto"
                     fill="currentColor" width="28px" height="28px" viewBox="0 0 24 24">
                     <path

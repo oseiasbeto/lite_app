@@ -1,89 +1,82 @@
 <template>
-    <div @scroll="setScrollTopFromCache" ref="postView" class="h-screen overflow-y-scroll">
-
-        <div v-if="!loadingFetchPost">
-            <!--NODY-->
-            <div>
-                <PostCard 
-                    :module="module" 
-                    :data="post" 
-                    :show-more="true" 
-                    :user="user"
-                    :enable-truncate="false"
-                    @open-new-comment-drawer="openNewCommentDrawer" 
-                />
+    <div class="relative">
+        <Navbar title="Postagem" />
+        <div @scroll="setScrollTopFromCache" ref="postView" class="h-[calc(100vh-44px)] overflow-y-scroll mt-[44px]">
+            <div v-if="!loadingFetchPost">
+                <!--NODY-->
                 <div>
-                    <!--CREATE COMMENT TRIGGER-->
-                    <CreateCommentTrigger @on-press="openNewCommentDrawer" :user="user" :type="post?.type" />
-                </div>
+                    <PostCard :module="module" :data="post" :show-more="true" :user="user" :enable-truncate="false"
+                        @open-new-comment-drawer="openNewCommentDrawer" />
+                    <div>
+                        <!--CREATE COMMENT TRIGGER-->
+                        <CreateCommentTrigger @on-press="openNewCommentDrawer" :user="user" :type="post?.type" />
+                    </div>
 
-                <!--COMMENTS FILTERS-->
-                <div v-if="cacheComments?.comments?.length"
-                    class="flex items-center justify-between border-b dark:border-[rgb(57,56,57)] dark:bg-[#262626] bg-white py-3 px-3">
-                    <p class="text-sm font-semibold dark:text-white text-[rgb(40,40,41)]">Comentários</p>
-                    <button @click="openSortByFilterDrawer" class="flex items-center gap-1">
-                        <span class="font-semibold text-[13px]"> {{ sortByText }}</span>
-                        <span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="m5 8.5 7 7 7.005-7" class="icon_svg-stroke" stroke="currentColor"
-                                    stroke-width="2" fill="none" stroke-linecap="round"></path>
-                            </svg>
-                        </span>
-
-                    </button>
-                </div>
-
-                
-                <!--COMMENTS-->
-                <CommentList 
-                    :comments="cacheComments?.comments || []" 
-                    :pagination="cacheComments?.pagination || {}"
-                    :loading-fetch="loadingFetchComments" 
-                    :loading-load-more="loadingLoadMoreComments" 
-                    :active-comment="post?.sortCommentId"
-                    :postId="postId"
-                    @on-load-more="handleLoadMoreComments" @on-reply="openNewCommentDrawer" />
-            </div>
-        </div>
-        <div v-else>
-            <p>Carregando...</p>
-        </div>
-
-        <!--DRWER-->
-        <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
-            <template v-if="drawer?.name === 'newComment'">
-                <div class="flex w-full gap-2.5 flex-col p-4">
-                    <div class="flex items-center gap-2" v-if="drawer?.metadata?.parent">
-                        <span>Respondendo:</span>
-                        <div class="flex items-center flex-row gap-1.5">
-                            <Avatar
-                                :url="drawer?.metadata?.replyTo?.profile_image?.thumbnails?.xs || drawer?.metadata?.replyTo?.profile_image?.url"
-                                :alt="drawer?.metadata?.replyTo?.name" size="xs" />
-                            <span class="text-[13px] dark:text-white text-black font-semibold">
-                                {{ drawer?.metadata?.replyTo?.name ||
-                                    drawer?.metadata?.replyTo }}
+                    <!--COMMENTS FILTERS-->
+                    <div v-if="cacheComments?.comments?.length"
+                        class="flex items-center justify-between border-b dark:border-[rgb(57,56,57)] dark:bg-[#262626] bg-white py-3 px-3">
+                        <p class="text-sm font-semibold dark:text-white text-[rgb(40,40,41)]">Comentários</p>
+                        <button @click="openSortByFilterDrawer" class="flex items-center gap-1">
+                            <span class="font-semibold text-[13px]"> {{ sortByText }}</span>
+                            <span>
+                                <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="m5 8.5 7 7 7.005-7" class="icon_svg-stroke" stroke="currentColor"
+                                        stroke-width="2" fill="none" stroke-linecap="round"></path>
+                                </svg>
                             </span>
-                        </div>
-                    </div>
-                    <textarea
-                        class="w-full placeholder:dark:text-[rgb(177,179,182)] bg-transparent resize-none outline-none dark:text-white"
-                        v-model="commentContent" placeholder="Escreva o teu comentario"></textarea>
-                    <div class="flex justify-end">
-                        <button :disabled="!canComment"
-                            class="px-1.5 py-1 float-right w-min text-[#4894fd] font-semibold disabled:opacity-70 rounded-md"
-                            @click="handleComment">Postar</button>
+
+                        </button>
                     </div>
 
+
+                    <!--COMMENTS-->
+                    <CommentList :comments="cacheComments?.comments || []" :pagination="cacheComments?.pagination || {}"
+                        :loading-fetch="loadingFetchComments" :loading-load-more="loadingLoadMoreComments"
+                        :active-comment="post?.sortCommentId" :postId="postId" @on-load-more="handleLoadMoreComments"
+                        @on-reply="openNewCommentDrawer" />
                 </div>
+            </div>
+            <div v-else>
+                <LoadingScreen />
+            </div>
 
-            </template>
+            <!--DRWER-->
+            <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
+                <template v-if="drawer?.name === 'newComment'">
+                    <div class="flex w-full gap-2.5 flex-col p-4">
+                        <div class="flex items-center gap-2" v-if="drawer?.metadata?.parent">
+                            <span>Respondendo:</span>
+                            <div class="flex items-center flex-row gap-1.5">
+                                <Avatar
+                                    :url="drawer?.metadata?.replyTo?.profile_image?.thumbnails?.xs || drawer?.metadata?.replyTo?.profile_image?.url"
+                                    :alt="drawer?.metadata?.replyTo?.name" size="xs" />
+                                <span class="text-[13px] dark:text-white text-black font-semibold">
+                                    {{ drawer?.metadata?.replyTo?.name ||
+                                        drawer?.metadata?.replyTo }}
+                                </span>
+                            </div>
+                        </div>
+                        <textarea
+                            class="w-full placeholder:dark:text-[rgb(177,179,182)] bg-transparent resize-none outline-none dark:text-white"
+                            v-model="commentContent" placeholder="Escreva o teu comentario"></textarea>
+                        <div class="flex justify-end">
+                            <button :disabled="!canComment"
+                                class="px-1.5 py-1 float-right w-min text-[#4894fd] font-semibold disabled:opacity-70 rounded-md"
+                                @click="handleComment">Postar</button>
+                        </div>
 
-            <template v-if="drawer?.name === 'sortByFilter'">
-                <DrawerItem @on-press="sortBySelect(option?.value)" v-for="option in sortByOptions"
-                    :title="option?.label" :is-active="option.value === queryComments?.sortBy" :key="option?.id" />
-            </template>
-        </Drawer>
+                    </div>
+
+                </template>
+
+                <template v-if="drawer?.name === 'sortByFilter'">
+                    <DrawerItem @on-press="sortBySelect(option?.value)" v-for="option in sortByOptions"
+                        :title="option?.label" :is-active="option.value === queryComments?.sortBy" :key="option?.id" />
+                </template>
+            </Drawer>
+        </div>
     </div>
+
 </template>
 
 <script setup>
@@ -96,6 +89,8 @@ import CreateCommentTrigger from '@/views/comments/components/CreateCommentTrigg
 import CommentList from '@/views/comments/components/CommentList.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
+import LoadingScreen from '@/components/UI/LoadingScreen.vue';
+import Navbar from '@/views/main/components/Navbar.vue';
 
 const store = useStore()
 const route = useRoute()

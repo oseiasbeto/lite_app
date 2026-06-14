@@ -1,5 +1,6 @@
 <template>
-    <div class="relative h-[calc(100vh-56px)] overflow-y-scroll" ref="feedView">
+    <Navbar title="Notificações"/>
+    <div class="relative h-[calc(100vh-100px)] mt-[44px] overflow-y-scroll" ref="feedView">
         <NotificationList :notifications="notifications?.items || []" :pagination="notifications?.pagination || {}"
             @on-mark-read="handleMarkRead" @on-load-more="handleLoadMore" :loading-fetch="loadingFetching"
             :loading-load-more="loadingLoadMore" />
@@ -12,6 +13,7 @@ import NotificationList from '@/views/notifications/components/NotificationList.
 import { computed, onActivated, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import Navbar from '../components/Navbar.vue';
 
 const store = useStore()
 const router = useRouter()

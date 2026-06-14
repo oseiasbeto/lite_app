@@ -148,10 +148,10 @@
                     <div class="flex flex-col">
                         <DrawerItem :is-active="postAudience === 'everyone'" @on-press="setPostAudience('everyone')"
                             title="Público"
-                            description="Todos verão a tua identidade junto a pergunta no seu perfil ou no feed deles." />
+                            description="Todos verão a tua identidade junto a postagem no seu perfil ou no feed deles." />
                         <DrawerItem :is-active="postAudience === 'limited'" @on-press="setPostAudience('limited')"
                             title="Limitado"
-                            description="A sua identidade ficará visível, mas esta pergunta nao aparecerá no feed dos seu seguidores" />
+                            description="A sua identidade ficará visível, mas esta postagem não aparecerá no feed dos seu seguidores" />
                     </div>
                 </template>
             </Drawer>

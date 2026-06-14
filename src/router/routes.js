@@ -4,6 +4,8 @@ import main from '../views/main/routes'
 import posts from '../views/posts/routes'
 import users from '../views/users/routes'
 import profiles from '../views/profiles/routes'
+import search from '../views/search/routes'
+import settings from '../views/settings/routes'
 
 export default [
     ...auth,
@@ -11,5 +13,7 @@ export default [
     ...main,
     ...posts,
     ...users,
-    ...profiles
+    ...profiles,
+    ...search,
+    ...settings
 ]

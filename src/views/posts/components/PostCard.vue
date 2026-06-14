@@ -46,10 +46,20 @@
 
         <!--FOOTER-->
         <div v-if="!isParentPost" class="px-[10px] pt-1 pb-1">
-            <PostReactions :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
-                :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"
-                :comments-count="data?.comments_count" :shares-count="data?.shares_count" @on-upvote="handleUpvote"
-                :user-id="user?._id" @on-downvote="handleDownvote" @on-comment="goToComments" @on-share="goToShare" />
+            <PostReactions 
+                :loading="isReactingPost" :upvotes="data?.upvotes" 
+                :upvotes-count="data?.upvotes_count"
+                :downvotes="data?.downvotes" 
+                :downvotes-count="data?.downvotes_count"
+                :comments-count="data?.comments_count" 
+                :shares-count="data?.shares_count" 
+                :user-id="user?._id" 
+                @on-upvote="handleUpvote"
+                @on-downvote="handleDownvote" 
+                @on-comment="goToComments" 
+                @on-share="goToShare" 
+                @on-more="openMoreOptions(data)"
+                />
         </div>
     </div>
 </template>
@@ -62,7 +72,7 @@ import PostReactions from './PostReactions.vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 
-const emit = defineEmits(['openNewCommentDrawer'])
+const emit = defineEmits(['openNewCommentDrawer', 'openMoreOptionsDrawer'])
 
 const props = defineProps({
     data: {
@@ -110,7 +120,7 @@ const canFollowUser = computed(() => {
     else {
         if (props?.data?.author?._id == props?.user?._id) return false
         else {
-            if (props?.user?.following.includes(props?.data?.author?._id)) return false
+            if (props?.user?.following?.includes(props?.data?.author?._id)) return false
             else return true
         }
     }
@@ -191,6 +201,9 @@ const goToShare = () => {
     })
 }
 
-
+const openMoreOptions = (post) => {
+    if (!post) return
+    emit('openMoreOptionsDrawer', post)
+}
 
 </script>

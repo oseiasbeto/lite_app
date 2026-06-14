@@ -15,9 +15,14 @@
             <SpinnerSmall />
           </div>
         </div>
+        <div v-else>
+          <ChatEmpty/>
+        </div>
       </div>
       <div v-else>
-        <ChatSkeleton v-for="n in 8" :key="n" />
+        <LoadingScreen/>
+        <!-- <ChatSkeleton v-for="n in 8" :key="n" />-->
+       
       </div>
     </div>
 </template>
@@ -25,9 +30,10 @@
 <script setup>
 import { useIntersectionObserver } from '@vueuse/core';
 import ChatListItem from './ChatListItem.vue';
-import ChatSkeleton from './ChatSkeleton.vue';
+import ChatEmpty from './ChatEmpty.vue';
 import { ref } from 'vue';
 import SpinnerSmall from '@/components/UI/SpinnerSmall.vue';
+import LoadingScreen from '@/components/UI/LoadingScreen.vue';
 
 defineProps({
   conversations: Array,

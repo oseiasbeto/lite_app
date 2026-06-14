@@ -54,8 +54,6 @@ export default {
                 const posts = payload?.posts || []
                 const { page, totalPages, hasMore } = payload?.pagination || {}
 
-                if (!posts.length) return
-
                 cachedModule.posts = posts;
                 cachedModule.pagination.page = page;
                 cachedModule.pagination.totalPages = totalPages;
@@ -256,8 +254,10 @@ export default {
                     }
                 }
 
-                if (isPush) {
+
+                if (isPush && posts?.length) {
                     commit("PUSH_MODULE_FROM_POSTS", payload)
+
                 } else {
                     commit("SET_POSTS_FROM_MODULE", payload)
                 }

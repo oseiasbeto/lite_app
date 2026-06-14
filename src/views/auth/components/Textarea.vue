@@ -2,27 +2,11 @@
   <div>
     <div class="relative select-none h-14 w-full">
       <!-- Input -->
-      <textarea
-        rows="5"
-        :id="props.label"
-        class="peer w-full h-full pt-3 px-3 text-sm border border-border-secondary rounded-[4px] focus:border-secondary focus:border-2 outline-none transition-all text-gray-700 placeholder-transparent peer-valid:pt-4 pr-10"
-        :placeholder="props.title"
-        :class="{ '!border-red-500 !focus:border-red-500': props.error.show }"
-        v-model="inputValue"
-        required
-      />
-
-      <!-- Label flutuante -->
-      <label
-        :for="props.label"
-        class="absolute pointer-events-none left-3 top-4 text-gray-500 text-base transition-all 
-          peer-placeholder-shown:top-[14px] peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-500 
-          peer-focus:top-2 peer-focus:text-xs peer-focus:text-secondary 
-          peer-valid:top-2 peer-valid:text-xs peer-valid:text-gray-500"
-        :class="{ 'peer-valid:!text-red-500 peer-focus:!text-red-500': props.error.show }"
-      >
-        {{ props.title }}
-      </label>
+      <textarea rows="5" :id="props.label"
+      placeholder="Biografia"
+        class="peer w-full bg-transparent text-[15px] placeholder:text-[#939598] placeholder:dark:text-[#b1b3b6] border p-2 rounded-[3px] focus:shadow-[rgb(235,240,255)_0px_0px_0px_2px] dark:focus:shadow-[rgb(40,45,65)_0px_0px_0px_2px] dark:border-[rgb(57,56,57)] dark:text-white outline-none transition-all text-[rgb(40,40,41)] focus:!border-[#2e69ff]"
+        :class="{ '!border-red-500 !focus:border-red-500': props.error.show }" :placeholder="props.placeholder"
+        v-model="inputValue" required />
     </div>
 
     <!-- Mensagem de erro -->

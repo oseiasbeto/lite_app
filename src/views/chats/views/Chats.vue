@@ -1,5 +1,6 @@
 <template>
-    <div class="h-[calc(100vh-56px)] relative overflow-y-scroll">
+    <Navbar title="Mensagens"/>
+    <div class="h-[calc(100vh-100px)] mt-[44px] relative overflow-y-scroll">
         <div class="shrink-0 sticky flex flex-col top-0 w-full z-[10] px-5 bg-background-primary">
         </div>
         <div>
@@ -40,6 +41,7 @@ import { getSocket } from '@/services/socket';
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import FloatingActionButton from '@/components/buttons/FloatingActionButton.vue';
+import Navbar from '@/views/main/components/Navbar.vue';
 
 // Estado de carregamento para mais conversas
 const loadingMoreConversations = ref(false);

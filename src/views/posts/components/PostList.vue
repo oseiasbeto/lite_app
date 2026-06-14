@@ -2,13 +2,28 @@
     <div class="relative">
         <div v-if="!loadingFetch">
             <div v-if="posts?.length">
-                <PostCard v-for="item in posts" :show-border-bottom="showBorderBottom" :show-btn-follow="showBtnFollow" :key="item?._id" :module="module" :data="item" :user="user || {}" />
+                <PostCard v-for="item in posts" 
+                :show-border-bottom="showBorderBottom" 
+                :show-btn-follow="showBtnFollow" 
+                :key="item?._id" :module="module" 
+                :data="item" 
+                :user="user || {}" 
+                @open-more-options-drawer="openMoreOptionsDrawer"
+                />
 
                 <div ref="loadTrigger" v-if="hasMore || loadingLoadMore"
                     class="load-more-container py-3.5 flex justify-center">
                     <Spinner/>
                 </div>
             </div>
+
+            <!--DRAWER-->
+            <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
+                <template v-if="drawer?.name === 'moreOptions'">
+                    <DrawerItem @on-press="" title="Ver mais"/>
+                    <DrawerItem v-if="drawer?.metadata?.post?.author?._id === user?._id" title="Eliminar postagem"/>
+                </template>
+            </Drawer>
         </div>
         <div v-else>
             <div v-if="loadingFetch">
@@ -25,6 +40,8 @@ import PostCard from './PostCard.vue';
 import { useIntersectionObserver } from "@vueuse/core";
 import PostSkeleton from './PostSkeleton.vue';
 import Spinner from '@/components/UI/Spinner.vue';
+import Drawer from '@/components/drawer/Drawer.vue';
+import DrawerItem from '@/components/drawer/DrawerItem.vue';
 
 const store = useStore()
 
@@ -64,6 +81,42 @@ defineProps({
         default: false
     }
 })
+
+const drawer = ref({
+    show: false,
+    name: "",
+    metadata: {}
+})
+
+const openDrawer = (data) => {
+    const { show, name, metadata = {} } = data
+
+    drawer.value = {
+        show,
+        name,
+        metadata
+    }
+}
+
+const closeDrawer = () => {
+    drawer.value = {
+        show: false,
+        name: '',
+        metadata: {}
+    }
+}
+
+const openMoreOptionsDrawer = (post) => {
+    console.log(post)
+     openDrawer({
+        show: true,
+        name: "moreOptions",
+        metadata: {
+            post,
+            title: 'Postagem'
+        }
+    })
+}
 
 useIntersectionObserver(
     loadTrigger,

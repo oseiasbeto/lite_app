@@ -93,6 +93,18 @@ export default {
                 throw err  // Propaga o erro para que o componente possa lidarhar adequadamente (exibir mensagem de erro, etc).
             }
         },
+        async logout({ commit }, sessionId) {
+            try {
+                await api.delete("/auth/sessions/logout", {
+                    data: { sessionId }
+                });
+            } catch (err) {
+                logger.error('Erro ao fazer logout:', err.message);
+            } finally {
+                // Sempre limpa o estado local e desconecta o socket
+                commit('LOGOUT');
+            }
+        },
         async register({ commit }, { name, email }) {
             try {
                 const res = await api.post("/auth/register", { name, email });
