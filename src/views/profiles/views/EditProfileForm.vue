@@ -23,7 +23,8 @@
         <!--end header-->
         <template v-if="editForm == 'picture'">
             <div class="picture-editor">
-                <p class="mb-4 text-center text-[#282829] dark:text-inherit text-lg font-medium">Editar foto de perfil</p>
+                <p class="mb-4 text-center text-[#282829] dark:text-inherit text-lg font-medium">Editar foto de perfil
+                </p>
 
                 <!-- Preview da imagem -->
                 <div class="flex flex-col items-center gap-4">
@@ -114,7 +115,8 @@
         <template v-else-if="editForm == 'theme'">
             <div class="mb-5 px-4">
                 <h4 class="text-lg mb-4 font-bold text-[#282829] dark:text-inherit">Configuração do tema</h4>
-                <p class="text-sm text-[#636466] dark:text-[#e6e7e8]">Ajuste a maneira em que você gostaria que o tema apareça no seu App.</p>
+                <p class="text-sm text-[#636466] dark:text-[#e6e7e8]">Ajuste a maneira em que você gostaria que o tema
+                    apareça no seu App.</p>
             </div>
             <div class="flex px-4 items-center">
                 <label :class="form.theme == 'light' ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-transparent'"
@@ -690,7 +692,7 @@ const handleProfileSubmit = async () => {
                     setThemeColor(form.value.theme)
                 }
             })
-    // router.back()
+        // router.back()
     } catch (error) {
         logger.error('Erro ao atualizar perfil:', error)
     } finally {
@@ -707,29 +709,32 @@ const setThemeColor = (theme) => {
 
     // Aplicar classe no HTML
     if (form.value.theme === 'dark') {
+        window?.WTN?.setNavigationBarColor({ color: "#262626" });
+
         // Aplicar tema escuro  
         document.documentElement.classList.add('dark');
-        window?.WTN?.setNavigationBarColor({ color: "#262626" });
     } else if (form.value.theme === 'system') {
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
         if (isDark) {
-            document.documentElement.classList.add('dark');
             window?.WTN?.setNavigationBarColor({ color: "#262626" });
+            document.documentElement.classList.add('dark');
         } else {
-            document.documentElement.classList.remove('dark');
             window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+            document.documentElement.classList.remove('dark');
         }
     } else {
+        window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+
         // Aplicar tema claro
         document.documentElement.classList.remove('dark');
-        window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+
     }
 
     // Ajustar status bar
     statusBar({
         style: theme == 'dark' ? 'dark' : 'light',
-        color: theme == 'dark' ? '262626' : "ffffffcc",
+        color: theme == 'dark' ? '262626' : "FFFFFF",
         overlay: false //Only for android
     });
 }

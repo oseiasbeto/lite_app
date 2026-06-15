@@ -48,11 +48,11 @@ const goLogout = () => {
         // Limpar dados do Vuex (dispatch de logout)
         store.dispatch('logout', sessionId).then(() => {
             // Redirecionar para a tela de login ou home
-            router.push('/');
+           window.location.reload()
         }).catch((error) => {
             console.error("Erro ao terminar sessão:", error);
             // Mesmo com erro, tentar redirecionar
-            router.push('/');
+           window.location.reload()
         }).finally(() => {
             loadingLogout.value = false;
         });

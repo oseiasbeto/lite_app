@@ -1,4 +1,6 @@
 <script setup>
+import { statusBar } from "webtonative"
+
 const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
 if (isDark) {

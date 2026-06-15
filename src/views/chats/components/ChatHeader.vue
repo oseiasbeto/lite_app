@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex h-[44px] items-center px-2 backdrop-blur-sm dark:bg-[rgba(32,32,32,0.8)] bg-[rgba(255,255,255,0.8)] border-b dark:border-[rgb(57,56,57)] z-50">
+    class="flex h-[44px] items-center px-2 backdrop-blur-sm dark:bg-[rgba(32,32,32,0.8)] bg-white border-b dark:border-[rgb(57,56,57)] z-50">
     <button @click="$emit('goBack')"
       class="p-1 dark:text-white text-[rgb(40,40,41)] mr-1 rounded-full transition-colors">
       <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
