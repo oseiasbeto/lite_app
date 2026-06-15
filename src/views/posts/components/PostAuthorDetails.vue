@@ -22,7 +22,7 @@
 
                 </div>
 
-                <div v-show="!isParentPost" class="flex text-[13px] leading-4 items-center">
+                <div v-show="!isParentPost" class="flex text-sm leading-4 items-center">
                     <span class="trunc" v-show="author?.credentials">
                         <span class="break-all break-words">{{ author?.credentials }}</span>
                     </span>

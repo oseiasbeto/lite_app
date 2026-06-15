@@ -379,23 +379,27 @@ const setThemeColor = (theme) => {
 
   // Aplicar classe no HTML
   if (savedTheme.value === 'dark') {
+    window?.WTN?.setNavigationBarColor({ color: "#262626" });
+
     // Aplicar tema escuro  
     document.documentElement.classList.add('dark');
-    window?.WTN?.setNavigationBarColor({ color: "#262626" });
+
   } else if (savedTheme.value === 'system') {
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
     if (isDark) {
-      document.documentElement.classList.add('dark');
       window?.WTN?.setNavigationBarColor({ color: "#262626" });
+      document.documentElement.classList.add('dark');
+
     } else {
-      document.documentElement.classList.remove('dark');
       window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+      document.documentElement.classList.remove('dark');
     }
   } else {
+    window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
     // Aplicar tema claro
     document.documentElement.classList.remove('dark');
-    window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+
   }
 
   // Ajustar status bar
@@ -409,12 +413,18 @@ const setThemeColor = (theme) => {
 let heartbeat;
 onMounted(async () => {
 
-  // Aplicar tema salvo
-  setThemeColor(savedTheme.value)
+
 
   if (sessionId) {
     // Configurar listeners de conexão
     setupConnectionListeners();
+
+    // Aplicar tema salvo
+    setThemeColor(savedTheme.value)
+
+    setTimeout(() => {
+      setThemeColor(savedTheme.value)
+    }, 2000);
   }
 
   // Se tiver sessão salva, tentar restaurar
@@ -426,9 +436,6 @@ onMounted(async () => {
   } else {
     loading.value = false
   }
-  setTimeout(() => {
-    setThemeColor(savedTheme.value)
-  }, 2000);
 })
 
 watch(() => isNewSession.value, () => {
