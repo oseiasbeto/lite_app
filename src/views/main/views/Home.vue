@@ -16,7 +16,6 @@ import CreatePostTrigger from '@/views/posts/components/CreatePostTrigger.vue';
 import PostList from '@/views/posts/components/PostList.vue';
 import { ref, onMounted, onActivated, computed } from 'vue';
 import { useStore } from 'vuex';
-import { enablePullToRefresh } from "webtonative";
 
 const store = useStore()
 
@@ -84,7 +83,6 @@ const handleLoadMore = async () => {
 }
 
 onMounted(async () => {
-    enablePullToRefresh(true);
     try {
         loadingFeedPosts.value = true
         await fetchFeedPosts()
@@ -103,7 +101,5 @@ onActivated(() => {
 
         feedView.value.scrollTop = pagination?.scrollTop || 0
     }
-
-    enablePullToRefresh(true);
 })
 </script>

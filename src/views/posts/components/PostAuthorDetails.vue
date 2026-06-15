@@ -13,7 +13,7 @@
                                 class="text-sm dark:text-white text-[rgb(40,40,41)]">{{ author?.name }}
                             </span>
 
-                            <svg v-if="author?.is_verified" :class="{ 'w-[12px] h-[12px]': isParentPost }" class="ml-[5px]" fill="none" width="14"
+                            <svg v-if="author?.is_verified" :class="{ 'w-[12px] h-[12px]': isParentPost }" class="ml-[5px] mb-0.5" fill="none" width="14"
                                 viewBox="0 0 24 24" height="14">
                                 <circle cx="12" cy="12" r="11.5" fill="#0F73FF"></circle>
                                 <path fill="#fff" fill-rule="evenodd" clip-rule="evenodd"

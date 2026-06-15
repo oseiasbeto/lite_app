@@ -1,7 +1,7 @@
 <template>
   <div v-if="!isDeletedForMe" class="relative mb-2">
     <div class="flex">
-      <div class="flex flex-col justify-end" v-if="!isSent">
+      <div class="flex flex-col justify-end" v-if="!isSent || isEmojiOnly">
         <Avatar size="s" style="top: -2px;"
           :url="message?.sender?.profile_image?.thumbnails?.xs || message?.sender?.profile_image?.url" />
       </div>
