@@ -473,7 +473,7 @@ onUnmounted(() => {
 <template>
 
   <div
-    class="font-secondary text-[13px] bg-[rgb(230,231,232)] dark:bg-[#181818] text-[#636466] dark:text-[#e6e7e8] text-text-primary relative w-screen text-sm h-screen overflow-x-hidden text-light-text-primary overflow-auto">
+    class="font-primary text-[13px] bg-[rgb(230,231,232)] dark:bg-[#181818] text-[#636466] dark:text-[#e6e7e8] text-text-primary relative w-screen text-sm h-screen overflow-x-hidden text-light-text-primary overflow-auto">
     <!-- start main app area-->
     <div v-if="!loading">
       <!--start sidebar-->

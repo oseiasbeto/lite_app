@@ -1,6 +1,6 @@
 *, ::before, ::after {
   box-sizing: border-box;
-  font-family: 'Segoe UI Emoji', sans-serif;
+  font-family: 'Roboto', sans-serif;
   border-color: rgb(222, 224, 225);
 }
 
