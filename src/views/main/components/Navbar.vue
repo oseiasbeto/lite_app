@@ -13,8 +13,8 @@
     <div class="ml-3 flex-1 min-w-0">
       <!-- Title -->
       <div class="w-full flex">
-        <h2 class="text-[15px] mb-0.5 font-semibold dark:text-white text-[rgb(40,40,41)] truncate leading-tight">
-          {{ loading ? '...' : title || '' }}
+        <h2 class="text-lg mb-0.5 font-semibold dark:text-white text-[rgb(40,40,41)] truncate leading-tight">
+          {{ loading ? '' : title || '' }}
         </h2>
       </div>
     </div>

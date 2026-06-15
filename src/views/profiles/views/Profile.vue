@@ -98,6 +98,8 @@ import CredentialsHighlights from '../components/CredentialsHighlights.vue';
 import ProfileSkeleton from '../components/ProfileSkeleton.vue';
 import Navbar from '@/views/main/components/Navbar.vue';
 
+import { enablePullToRefresh } from "webtonative";
+
 const store = useStore()
 const route = useRoute()
 const router = useRouter()
@@ -227,6 +229,8 @@ const openMoreOptionsDrawer = () => {
         name: 'moreOptions'
     })
 }
+
+enablePullToRefresh(true);
 
 const fetchProfilePosts = async (userId) => {
     await store.dispatch("getProfilePosts", {

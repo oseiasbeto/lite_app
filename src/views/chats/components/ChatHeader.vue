@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex h-[44px] items-center px-2 backdrop-blur-sm dark:bg-[rgba(32,32,32,0.8)] bg-white border-b dark:border-[rgb(57,56,57)] z-50">
+    class="flex h-[44px] items-center px-2 backdrop-blur-sm dark:bg-[#262626] bg-white border-b dark:border-[rgb(57,56,57)] z-50">
     <button @click="$emit('goBack')"
       class="p-1 dark:text-white text-[rgb(40,40,41)] mr-1 rounded-full transition-colors">
       <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -9,15 +9,21 @@
       </svg>
     </button>
 
-    <!-- Avatar -->
-    <Avatar @click="goToProfile(conversation)"
-      :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="xl" class="flex-shrink-0" />
+    <div class="relative">
+      <!-- Avatar com clique -->
+      <Avatar @click="goToProfile(conversation)"
+        :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="xl" class="flex-shrink-0" />
+
+      <!-- Bolinha de status (ativo) -->
+      <span v-if="conversation?.is_online"
+        class="absolute bottom-0 right-0 bg-[rgba(63,187,70,1.0)] block h-2 w-2 rounded-full ring-2 ring-white dark:ring-[#262626]"></span>
+    </div>
 
     <!-- Informações do contato -->
     <div class="ml-3 flex-1 min-w-0">
       <!-- Nome -->
       <div @click="goToProfile(conversation)" class="w-full flex">
-        <h2 class="text-[15px] mb-0.5 font-semibold dark:text-white text-[rgb(40,40,41)] truncate leading-tight">
+        <h2 class="text-base mb-0.5 font-semibold dark:text-white text-[rgb(40,40,41)] truncate leading-tight">
           {{ loading ? 'Carregando...' : conversation?.name || 'Chat' }}
         </h2>
 

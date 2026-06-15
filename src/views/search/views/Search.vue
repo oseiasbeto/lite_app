@@ -27,8 +27,8 @@
                 <svg class="pr-2 ml-0.5 w-full h-full text-[#666] dark:text-inherit shrink-0" viewBox="0 0 24 24"
                     xmlns="http://www.w3.org/2000/svg">
                     <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Zm10.45 2.95L16 16l4.95 4.95Z"
-                        class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linecap="round"
-                        stroke-linejoin="round"></path>
+                        class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5" fill="none"
+                        stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
             </div>
 
@@ -42,8 +42,18 @@
                 @click="goToProfile(user?._id)" v-for="user in results" :key="user._id">
                 <Avatar :url="user.profile_image?.thumbnails?.md || user?.profile_image?.url" :alt="user.display_name"
                     size="xl" class="mr-2" />
-                <p> <span class="text-[#939599]">Perfil:</span> <span class="text-[#282829] dark:text-inherit"> {{
-                    user.display_name }}</span></p>
+                <p class="flex items-center"> <span class="text-[#939599]">Perfil:</span> <span class="text-[#282829] dark:text-inherit"> {{
+                    user.display_name }}</span>
+                    <!--celo de verificacao-->
+                <div v-if="user?.is_verified" class="shrink-0 flex-1 justify-start">
+                    <svg class="ml-[5px]" fill="none" width="14" viewBox="0 0 24 24" height="14">
+                        <circle cx="12" cy="12" r="11.5" fill="#0F73FF"></circle>
+                        <path fill="#fff" fill-rule="evenodd" clip-rule="evenodd"
+                            d="M17.659 8.175a1.361 1.361 0 0 1 0 1.925l-6.224 6.223a1.361 1.361 0 0 1-1.925 0L6.4 13.212a1.361 1.361 0 0 1 1.925-1.925l2.149 2.148 5.26-5.26a1.361 1.361 0 0 1 1.925 0Z">
+                        </path>
+                    </svg>
+                </div>
+                </p>
             </li>
         </ul>
     </div>

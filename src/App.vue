@@ -423,6 +423,7 @@ onMounted(async () => {
     // Aplicar tema salvo
     setThemeColor(savedTheme.value)
 
+    /* */
     setTimeout(() => {
       setThemeColor(savedTheme.value)
     }, 2000);
@@ -457,6 +458,8 @@ watch(() => isNewSession.value, () => {
 
   store.dispatch("getTopicList")
 })
+
+window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
 
 onUnmounted(() => {
   const socket = getSocket();

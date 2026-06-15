@@ -3,20 +3,20 @@
         <div class="flex">
             <!-- Avatar placeholder -->
             <div class="shrink-0">
-                <div class="w-10 h-10 rounded-full bg-gray-200 dark:bg-[#3c3c3c] animate-pulse"></div>
+                <div class="w-10 h-10 rounded-full bg-[rgb(230,231,232)] dark:bg-[#3c3c3c] animate-pulse"></div>
             </div>
             <div class="px-4 flex-1">
                 <!-- Timestamp placeholder -->
                 <div class="mb-1">
-                    <div class="h-3 w-16 bg-gray-200 dark:bg-[#3c3c3c] rounded animate-pulse"></div>
+                    <div class="h-3 w-16 bg-[rgb(230,231,232)] dark:bg-[#3c3c3c] rounded animate-pulse"></div>
                 </div>
                 <!-- Sender name placeholder -->
                 <div class="mb-1">
-                    <div class="h-4 w-32 bg-gray-200 dark:bg-[#3c3c3c] rounded animate-pulse"></div>
+                    <div class="h-4 w-32 bg-[rgb(230,231,232)] dark:bg-[#3c3c3c] rounded animate-pulse"></div>
                 </div>
                 <!-- Message text placeholder -->
                 <div>
-                    <div class="h-3 w-full bg-gray-200 dark:bg-[#3c3c3c] rounded animate-pulse"></div>
+                    <div class="h-3 w-full bg-[rgb(230,231,232)] dark:bg-[#3c3c3c] rounded animate-pulse"></div>
                    
                 </div>
             </div>

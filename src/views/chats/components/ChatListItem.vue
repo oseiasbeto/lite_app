@@ -6,6 +6,9 @@
     <!-- Avatar com status online -->
     <div class="relative flex-shrink-0">
       <Avatar :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="lg" alt="" />
+      
+      <!-- Bolinha de status -->
+      <span v-if="conversation?.is_online" class="absolute bottom-0 right-0 bg-[rgba(63,187,70,1.0)] block h-3 w-3 rounded-full ring-2 ring-white dark:ring-[#181818]"></span>
     </div>
 
     <!-- Conteúdo principal -->
@@ -28,7 +31,8 @@
 
 
         <!-- Horário da última mensagem -->
-        <div :class="['flex items-center', props?.conversation.unread_count ? 'dark:text-white' : 'dark:text-greyDark text-grey']"
+        <div
+          :class="['flex items-center', props?.conversation.unread_count ? 'dark:text-white' : 'dark:text-greyDark text-grey']"
           v-show="!conversation?.is_typing">
           <span class="text-[13px] flex-shrink-0">
             {{ formatMessageTime(props?.conversation?.last_message?.created_at, new Date(currentTime)) }}.
@@ -44,7 +48,7 @@
       </div>
 
       <div class="flex items-center text-sm justify-between gap-3">
-       
+
         <!-- Última mensagem + ícone de check se for enviada por você -->
         <p v-if="props.conversation?.last_message?.content" class="mt-[2.5px] text-xs truncate max-w-[220px]"
           :class="[props?.conversation.unread_count ? 'dark:text-white' : 'dark:text-greyDark text-grey']">
@@ -59,7 +63,7 @@
             {{ props?.conversation.unread_count > 99 ? '99+' : props?.conversation.unread_count }}
           </span>
         </div>
-        
+
         <!-- Mute icon (opcional, se tiver silenciado) -->
         <svg v-if="props?.conversation?.muted"
           class="w-4 h-4 text-light-text-secondary dark:text-dark-text-secondary flex-shrink-0" fill="none"

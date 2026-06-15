@@ -6,11 +6,27 @@
             </div>
 
             <div class="flex flex-col">
-                <p class="font-bold text-[21px] dark:text-white text-[rgb(40,40,41)]">{{ profile?.name || 'Nome' }}</p>
+                <div class="flex items-center">
+                    <p class="font-bold text-[21px] dark:text-white text-[rgb(40,40,41)]">{{ profile?.name || 'Nome' }}
+                    </p>
+
+                    <svg v-if="profile?.is_verified" class="ml-[5px] shrink-0 mr-[2px]" fill="none" width="21" viewBox="0 0 24 24"
+                        height="21">
+                        <circle cx="12" cy="12" r="11.5" fill="currentColor"></circle>
+                        <path class="text-white dark:text-[#262626]" fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
+                            d="M17.659 8.175a1.361 1.361 0 0 1 0 1.925l-6.224 6.223a1.361 1.361 0 0 1-1.925 0L6.4 13.212a1.361 1.361 0 0 1 1.925-1.925l2.149 2.148 5.26-5.26a1.361 1.361 0 0 1 1.925 0Z">
+                        </path>
+                    </svg>
+                </div>
+
+
+
                 <div class="flex mt-4 text-[13px] items-center gap-2">
-                    <span> <span class="dark:text-white text-[rgb(40,40,41)]">{{ formattedCount(profile?.followers_count) }}</span>  Seguidores</span>
+                    <span> <span class="dark:text-white text-[rgb(40,40,41)]">{{
+                        formattedCount(profile?.followers_count) }}</span> Seguidores</span>
                     <span style="box-sizing: border-box;"> · </span>
-                    <span> <span class="dark:text-white text-[rgb(40,40,41)]">{{ formattedCount(profile?.following_count) }}</span>  Seguindo</span>
+                    <span> <span class="dark:text-white text-[rgb(40,40,41)]">{{
+                        formattedCount(profile?.following_count) }}</span> Seguindo</span>
                 </div>
             </div>
         </div>

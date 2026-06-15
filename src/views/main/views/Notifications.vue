@@ -120,7 +120,7 @@ const handleLoadMore = async () => {
 }
 
 onMounted(async () => {
-    loadingFetching.value = false
+    loadingFetching.value = true
     await fetchNotifications()
         .finally(async () => {
             loadingFetching.value = false

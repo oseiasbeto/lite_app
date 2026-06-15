@@ -19,6 +19,7 @@ import { useStore } from 'vuex';
 import {
   bannerAd
 } from "webtonative/AdMob";
+import { enablePullToRefresh } from "webtonative";
 
 const store = useStore()
 
@@ -52,6 +53,8 @@ const resetQuery = () => {
         total: null
     }
 }
+
+enablePullToRefresh(true);
 
 const setScrollTopFromCache = (event) => {
     const scrollTop = event.target.scrollTop

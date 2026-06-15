@@ -46,15 +46,19 @@
           </p>
         </div>
 
-        <div v-if="!isSent" class="absolute text-[#f1f2f2] dark:text-[#3C3C3C] bottom-0 left-[-6px]">
-          <svg width="6" height="11" viewBox="0 0 6 11" fill="none" xmlns="http://www.w3.org/2000/svg"
+        <div v-if="!isSent" :class="[message.status === 'sending'
+            ? 'opacity-20 pointer-events-none'
+            : 'opacity-100']" class="absolute text-[#f1f2f2] dark:text-[#3C3C3C] bottom-0 left-[-6px]">
+          <svg v-if="!isEmojiOnly" width="6" height="11" viewBox="0 0 6 11" fill="none" xmlns="http://www.w3.org/2000/svg"
             class="Message___StyledSvg-sc-512a4315-1 fYSXik">
             <path
               d="M-3.05176e-05 10.5019C-3.05176e-05 10.777 0.222986 11 0.49809 11H5.99997V0C5.99997 4.06498 4.64357 7.63316 0.640783 9.52185C0.25977 9.70162 -3.05176e-05 10.0768 -3.05176e-05 10.4981V10.4981L-2.69413e-05 10.5L-3.05176e-05 10.5019V10.5019Z"
               fill="currentColor"></path>
           </svg>
         </div>
-        <div v-else class="absolute bottom-0 right-[-6px]" style="transform: scaleX(-1)">
+        <div :class="message.status === 'sending'
+            ? 'opacity-20 pointer-events-none'
+            : 'opacity-100'" v-else-if="!isEmojiOnly" class="absolute bottom-0 right-[-6px]" style="transform: scaleX(-1)">
           <svg width="6" height="11" viewBox="0 0 6 11" fill="none" xmlns="http://www.w3.org/2000/svg"
             class="Message___StyledSvg-sc-512a4315-1 fmwFbZ">
             <path
