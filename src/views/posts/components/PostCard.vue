@@ -26,12 +26,18 @@
             <!--MEDIA-->
             <div v-if="data?.media?.length" :class="isParentPost ? 'box-border -ml-[21px] -mr-[10px] mb-0' : 'w-full'">
                 <div v-for="media in data?.media">
-                    <div v-if="media.type == 'image'" class="box-border relative bg-[#151013] 
+                    <div v-if="media.type == 'image'" class="box-border relative 
+                      bg-[rgb(230,231,232)] dark:bg-[rgb(24,24,24)]
                         bg-center bg-contain bg-no-repeat 
-                        transition-[background-image] duration-[180ms] ease-in-out
+                        transition-[background-image] duration-[180ms] 
+                        ease-in-out
                         shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
 
-                        <img class="h-full w-full object-cover" :src="media?.url">
+                        <img @click="setMedia({
+                            selected: media,
+                            post: data,
+                            list: data?.media
+                        })" class="h-full w-full object-cover" :src="media?.url">
                     </div>
                 </div>
             </div>
@@ -204,6 +210,12 @@ const goToShare = () => {
 const openMoreOptions = (post) => {
     if (!post) return
     emit('openMoreOptionsDrawer', post)
+}
+
+const setMedia = ({selected, list, post}) => {
+    store.commit("SET_MEDIA", {selected, list, post})
+
+    router.push(`/media/${selected?._id}`)
 }
 
 </script>

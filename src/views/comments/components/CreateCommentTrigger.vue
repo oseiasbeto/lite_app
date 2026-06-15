@@ -1,5 +1,5 @@
 <template>
-    <div class="flex p-2 dark:bg-[rgb(32,32,32)] bg-[rgb(241,242,242)] items-center gap-2">
+    <div class="flex p-2 highlight dark:bg-[rgb(32,32,32)] bg-[rgb(241,242,242)] items-center gap-2">
         <div class="shrink-0">
             <Avatar size="md" :url="user?.profile_image?.thumbnails?.md || user?.profile_image?.url"/>
         </div>

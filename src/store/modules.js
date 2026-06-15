@@ -7,6 +7,7 @@ import users from '../views/users/store'
 import profiles from '../views/profiles/store'
 import notifications from '../views/notifications/store'
 import search from '../views/search/store'
+import media from '../views/media/store'
 
 export default {
     auth,
@@ -17,5 +18,6 @@ export default {
     users,
     profiles,
     notifications,
-    search
+    search,
+    media
 }

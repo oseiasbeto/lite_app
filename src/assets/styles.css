@@ -15,59 +15,8 @@ body {
 button {
   outline: none;
 }
-
-@font-face {
-  font-family: 'Segoe UI Emoji';
-  src: url('../assets/fonts/segoe-ui-light.ttf') format('truetype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-  /* Melhora performance de carregamento */
-}
-
-@font-face {
-  font-family: 'Segoe UI Emoji';
-  src: url('../assets/fonts/segoe-ui-light.ttf') format('truetype');
-  font-weight: normal;
-  font-style: normal;
-  font-display: swap;
-  /* Melhora performance de carregamento */
-}
-
-@font-face {
-  font-family: 'Segoe UI Emoji';
-  src: url('../assets/fonts/segoe-ui-light.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-  /* Melhora performance de carregamento */
-}
-
-@font-face {
-  font-family: 'Segoe UI Emoji';
-  src: url('../assets/fonts/Segoe\ UI.ttf') format('truetype');
-  font-weight: 500;
-  font-style: normal;
-  font-display: swap;
-  /* Melhora performance de carregamento */
-}
-
-@font-face {
-  font-family: 'Segoe UI Emoji';
-  src: url('../assets/fonts/segoe-ui-semibold.ttf') format('truetype');
-  font-weight: 600;
-  font-style: normal;
-  font-display: swap;
-  /* Melhora performance de carregamento */
-}
-
-@font-face {
-  font-family: 'Segoe UI Emoji';
-  src: url('../assets/fonts/Segoe\ UI\ Bold.ttf') format('truetype');
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-  /* Melhora performance de carregamento */
+.highlight {
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0.4);
 }
 
 .scrollbar-hide::-webkit-scrollbar {

@@ -1,10 +1,10 @@
 <template>
-    <div class="flex pb-1 pt-1.5 border-b-[6px] dark:bg-[#262626] bg-white dark:border-[rgb(24,24,24)] flex-col">
+    <div class="flex pb-1 pt-1.5  border-b-[6px] dark:bg-[#262626] bg-white dark:border-[rgb(24,24,24)] flex-col">
         <div class="px-[10px] flex items-center gap-1.5 pb-1 pt-[10px]">
             <div class=" shrink-0">
                 <Avatar size="sm" :url="user?.profile_image?.thumbnails?.sm || user?.profile_image?.url" />
             </div>
-            <div class="border flex-1 dark:bg-[#202020] bg-[#f7f7f8] rounded-[30px] flex items-center dark:border-[rgb(57,56,57)] h-[32px] text-[13px] dark:text-[rgb(177,179,182)]"
+            <div class="border highlight flex-1 dark:bg-[#202020] bg-[#f7f7f8] rounded-[30px] flex items-center dark:border-[rgb(57,56,57)] h-[32px] text-[13px] dark:text-[rgb(177,179,182)]"
                 @click="goToComposer(module)">
 
                 <p class="px-[10px] dark:text-[#b1b3b6] text-[#939598]">Postar uma atualização de

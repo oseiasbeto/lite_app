@@ -380,8 +380,6 @@ const setThemeColor = (theme) => {
   // Aplicar classe no HTML
   if (savedTheme.value === 'dark') {
     window.WTN.setNavigationBarColor({ color: "#262626" });
-    console.log(window.WTN.setNavigationBarColor)
-
     // Aplicar tema escuro  
     document.documentElement.classList.add('dark');
 

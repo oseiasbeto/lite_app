@@ -1,8 +1,6 @@
 <script setup>
 import { ref } from 'vue'
 import Input from '../components/Input.vue'
-import ButtonPrimary from '../components/ButtonPrimary.vue'
-import ButtonSecondary from '../components/ButtonSecondary.vue'
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 

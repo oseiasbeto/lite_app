@@ -16,9 +16,6 @@ import CreatePostTrigger from '@/views/posts/components/CreatePostTrigger.vue';
 import PostList from '@/views/posts/components/PostList.vue';
 import { ref, onMounted, onActivated, computed } from 'vue';
 import { useStore } from 'vuex';
-import {
-  bannerAd
-} from "webtonative/AdMob";
 import { enablePullToRefresh } from "webtonative";
 
 const store = useStore()
@@ -54,8 +51,6 @@ const resetQuery = () => {
     }
 }
 
-enablePullToRefresh(true);
-
 const setScrollTopFromCache = (event) => {
     const scrollTop = event.target.scrollTop
     store.commit("UPDATE_PAGINATION_POSTS_FROM_CACHE", {
@@ -89,12 +84,11 @@ const handleLoadMore = async () => {
 }
 
 onMounted(async () => {
+    enablePullToRefresh(true);
     try {
         loadingFeedPosts.value = true
         await fetchFeedPosts()
-        bannerAd({
-            adId: "ca-app-pub-3940256099942544/6300978111"
-        })
+        // bannerAd({ adId: "ca-app-pub-3940256099942544/6300978111"})
     } catch (err) {
         console.error("Erro ao buscar posts do feed:", err?.response?.data?.message)
     } finally {
@@ -109,5 +103,7 @@ onActivated(() => {
 
         feedView.value.scrollTop = pagination?.scrollTop || 0
     }
+
+    enablePullToRefresh(true);
 })
 </script>

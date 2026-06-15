@@ -77,17 +77,27 @@
                             <div class="shrink-0">
                                 <Avatar size="xl" :url="user?.profile_image?.url" />
                             </div>
-                            <div class="flex ml-1">
+                            <div class="flex items-center ml-1">
                                 <p class="font-semibold dark:text-white text-[rgb(40,40,41)]">{{ user?.display_name }}
                                 </p>
+
+                                <svg v-if="user?.is_verified"
+                                    class="ml-[5px]" fill="none" width="14" viewBox="0 0 24 24" height="14">
+                                    <circle cx="12" cy="12" r="11.5" fill="#0F73FF"></circle>
+                                    <path fill="#fff" fill-rule="evenodd" clip-rule="evenodd"
+                                        d="M17.659 8.175a1.361 1.361 0 0 1 0 1.925l-6.224 6.223a1.361 1.361 0 0 1-1.925 0L6.4 13.212a1.361 1.361 0 0 1 1.925-1.925l2.149 2.148 5.26-5.26a1.361 1.361 0 0 1 1.925 0Z">
+                                    </path>
+                                </svg>
                             </div>
                         </div>
                     </div>
                     <!--end author-->
 
                     <!--star quill editor -->
-                    <RichTextEditor v-model="postContent" :disable-upload-image="mediaPreviews.length > 0"
-                        :no-min-height="mediaPreviews.length > 0" @upload-image="imageInput?.click()" />
+                    <RichTextEditor v-model="postContent"
+                        :disable-upload-image="mediaPreviews.length > 0 || parentPost?._id?.length > 0"
+                        :no-min-height="mediaPreviews.length > 0 || parentPost?._id?.length > 0"
+                        @upload-image="imageInput?.click()" />
                     <!--end quill editor-->
 
                     <!-- start media previews -->
@@ -125,6 +135,12 @@
                         </div>
                     </div>
                     <!-- end media previews -->
+
+                    <!--start share post component-->
+                    <div class="mx-[-10px] pb-4" v-if="parentPost?._id">
+                        <ParentPostCard @close="removeParentPost" :show-btn-close="true" :user-id="user?._id" :data="parentPost" />
+                    </div>
+                    <!--end share post component-->
 
                     <!--input files-->
                     <input type="file" ref="imageInput" accept="image/*" multiple @change="handleImageUpload"
@@ -173,6 +189,7 @@ import RichTextEditor from '@/components/UI/RichTextEditor.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue';
 import { logger } from '@/utils/logger';
+import ParentPostCard from '../components/ParentPostCard.vue';
 
 // Constantes do Cloudinary
 const CLOUD_NAME = 'daujoblcc';
@@ -246,7 +263,7 @@ const setPostAudience = (status) => {
 
 const resetForm = () => {
     if (isSubmiting.value) return; // Não resetar durante envio
-    
+
     postContent.value = '';
     topics.value = [];
     postAudience.value = 'everyone';
@@ -316,12 +333,16 @@ const openPostAudienceDrawer = () => {
     });
 };
 
+const removeParentPost = () => {
+    store.commit("RESET_PARENT_POST")
+}
+
 const deleteMediaFromCloudinary = async (publicId, resourceType = 'image') => {
     // Não excluir mídias durante o envio do post
     if (isSubmiting.value && !isCancellingUploads.value) {
         return;
     }
-    
+
     try {
         const timestamp = Math.round(new Date().getTime() / 1000);
         const signatureString = `public_id=${publicId}&timestamp=${timestamp}${API_SECRET}`;
@@ -556,9 +577,9 @@ const confirmCancel = async () => {
     uploadedMediaIds.value = [];
     closeDrawer();
     store.commit("SET_PARENT_POST", {});
-    
+
     isCancellingUploads.value = false;
-    
+
     // Navegar de volta
     router.back();
 };
@@ -612,7 +633,7 @@ const handleSubmit = async () => {
         mediaPreviews.value = [];
         uploadedMediaIds.value = [];
         store.commit("SET_PARENT_POST", {});
-        
+
         isSubmiting.value = false;
 
     } catch (err) {
@@ -639,7 +660,7 @@ onBeforeRouteLeave((to, from, next) => {
         next(false); // Impedir navegação
         return;
     }
-    
+
     // Se está cancelando uploads, permitir navegação
     if (isCancellingUploads.value) {
         next();
@@ -660,8 +681,8 @@ onBeforeRouteLeave((to, from, next) => {
     }
 
     // Verifica se há conteúdo não salvo
-    const hasUnsavedContent = (canPost.value || mediaPreviews.value.length > 0 || postContent.value.trim().length > 0) 
-        && !isSubmited.value 
+    const hasUnsavedContent = (canPost.value || mediaPreviews.value.length > 0 || postContent.value.trim().length > 0)
+        && !isSubmited.value
         && !isNavigatingAway.value
         && !isSubmiting.value;
 

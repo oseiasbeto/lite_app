@@ -68,6 +68,9 @@ export default {
         SET_PARENT_POST(state, payload) {
             state.parentPost = payload
         },
+        RESET_PARENT_POST(state) {
+            state.parentPost = {}
+        },
         UPDATE_REACTIONS_POST(state, { module, payload }) {
             if (!module || !payload) return
 

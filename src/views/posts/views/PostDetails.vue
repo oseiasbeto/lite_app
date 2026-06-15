@@ -61,8 +61,10 @@
                             v-model="commentContent" placeholder="Escreva o teu comentario"></textarea>
                         <div class="flex justify-end">
                             <button :disabled="!canComment"
-                                class="px-1.5 py-1 float-right w-min text-[#4894fd] font-semibold disabled:opacity-70 rounded-md"
-                                @click="handleComment">Postar</button>
+                                class="px-1.5 py-1 float-right w-min text-[#4894fd] font-semibold disabled:opacity-70 rounded-md disabled:text-gray-400"
+                                @click="handleComment">
+                                {{ loadingCreateComment ? 'Postando...' : 'Postar' }}
+                            </button>
                         </div>
 
                     </div>

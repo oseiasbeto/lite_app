@@ -16,7 +16,7 @@
             ? 'bg-[#287dff] text-white rounded-[15.5px_15.5px_0px]'
             : 'dark:bg-[#3c3c3c] dark:text-white text-[rgb(40,40,41)] bg-[#f1f2f2] rounded-[16.5px_15.5px_15.5px_0px]',
           isEmojiOnly
-            ? 'bg-transparent m-0 p-0 rounded-none'
+            ? '!bg-transparent m-0 p-0 rounded-none'
             : 'max-w-[75%]',
           message.status === 'sending'
             ? 'opacity-20 pointer-events-none'
