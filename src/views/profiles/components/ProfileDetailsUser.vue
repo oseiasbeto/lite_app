@@ -21,7 +21,7 @@
 
 
 
-                <div class="flex mt-4 text-[13px] items-center gap-2">
+                <div class="flex mt-4 text-[13px] items-center gap-1.5">
                     <span> <span class="dark:text-white text-[rgb(40,40,41)]">{{
                         formattedCount(profile?.followers_count) }}</span> Seguidores</span>
                     <span style="box-sizing: border-box;"> · </span>

@@ -1,5 +1,5 @@
 <template>
-    <Navbar title="Mensagens"/>
+    <Navbar title="Mensagens" />
     <div class="h-[calc(100vh-100px)] mt-[44px] relative overflow-y-scroll">
         <div class="shrink-0 sticky flex flex-col top-0 w-full z-[10] px-5 bg-background-primary">
         </div>
@@ -18,12 +18,10 @@
             <!-- BOTÃO FLUTUANTE DO TELEGRAM -->
             <FloatingActionButton v-show="!loadingConversations" @new-chat="router.push('/new-message')">
                 <template #icon>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path class="icon_svg-fill_as_stroke"
-                            d="M4.5 6.5v-.75a.75.75 0 0 0-.75.75h.75Zm15 0h.75a.75.75 0 0 0-.75-.75v.75Zm0 12v.75a.75.75 0 0 0 .75-.75h-.75ZM3.75 13a.75.75 0 0 0 1.5 0h-1.5ZM10 17.75a.75.75 0 0 0 0 1.5v-1.5ZM4.5 7.25h15v-1.5h-15v1.5Zm14.25-.75v12h1.5v-12h-1.5ZM5.25 13V6.5h-1.5V13h1.5Zm14.25 4.75H10v1.5h9.5v-1.5Z"
-                            fill="#fff"></path>
-                        <path class="icon_svg-stroke" d="M4.5 7.5 12 14l7.5-6.5M7 18.5H2M4.5 16v5" stroke="#fff"
-                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32px" height="32px" viewBox="0 0 24 24"
+                        fill="none">
+                        <path d="M6 12H18M12 6V18" stroke="#fff" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
                     </svg>
                 </template>
             </FloatingActionButton>

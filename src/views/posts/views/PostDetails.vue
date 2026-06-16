@@ -336,7 +336,11 @@ onMounted(async () => {
 
         await store.dispatch("getPostById", { postId: postId.value })
             .then(async () => {
+                loadingFetchComments.value = true
                 await fetchComments(postId.value)
+                    .finally(() => {
+                        loadingFetchComments.value = false
+                    })
             })
             .finally(() => {
                 loadingFetchPost.value = false
@@ -373,9 +377,7 @@ onMounted(async () => {
 
 watch(() => route.params.id, async (newId, oldId) => {
     if (!newId || newId === oldId) return
-
-    loadingFetchComments.value = true
-
+    
     postId.value = newId
 
     if (post.value?._id !== postId.value) {
@@ -424,6 +426,7 @@ watch(() => route.params.id, async (newId, oldId) => {
         } else {
             resetQueryComments()
             queryComments.value.type = 'set'
+            loadingFetchComments.value = true
             await fetchComments(postId.value)
                 .finally(() => {
                     loadingFetchComments.value = false

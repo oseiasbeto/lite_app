@@ -34,7 +34,7 @@
         <div
           :class="['flex items-center', props?.conversation.unread_count ? 'dark:text-white' : 'dark:text-greyDark text-grey']"
           v-show="!conversation?.is_typing">
-          <span class="text-[13px] flex-shrink-0">
+          <span class="text-[15px] flex-shrink-0">
             {{ formatMessageTime(props?.conversation?.last_message?.created_at, new Date(currentTime)) }}.
           </span>
           <span class="ml-1">

@@ -13,59 +13,36 @@
         <div>
             <!--CONTENT-->
             <div :class="isParentPost ? 'p-0' : 'px-[10px]'">
-                <PostContent 
-                    :enable-truncate="enableTruncate" 
-                    :is-parent-post="isParentPost" 
-                    :show-more="showMore"
-                    @on-press="goToViewMore" 
-                    :content="data.content" 
-                />
+                <PostContent :enable-truncate="enableTruncate" :is-parent-post="isParentPost" :show-more="showMore"
+                    @on-press="goToViewMore" :content="data.content" />
             </div>
 
 
             <!--MEDIA-->
-            <div v-if="data?.media?.length" :class="isParentPost ? 'box-border -ml-[21px] -mr-[10px] mb-0' : 'w-full'">
-                <div v-for="media in data?.media">
-                    <div v-if="media.type == 'image'" class="box-border relative 
-                      bg-[rgb(230,231,232)] dark:bg-[rgb(24,24,24)]
-                        bg-center bg-contain bg-no-repeat 
-                        transition-[background-image] duration-[180ms] 
-                        ease-in-out
-                        shadow-[inset_0_0_0_1px_rgba(0,0,0,0.05)]">
+            <PostMediaImages 
+                v-if="data?.media?.length" 
+                :images="data.media.filter(m => m.type === 'image')"
+                :post="data" 
+                :module="module" 
+                :is-parent-post="isParentPost" 
+                @open="setMedia" 
+            />
 
-                        <img @click="setMedia({
-                            selected: media,
-                            post: data,
-                            list: data?.media
-                        })" class="h-full w-full object-cover" :src="media?.url">
-                    </div>
-                </div>
-            </div>
             <!--PARENT POST-->
             <div v-if="data?.shared_post?._id" class="px-[10px] pt-1 pb-2">
                 <div class="border-l-[3px] dark:border-[rgb(57,56,57)] pl-2">
                     <PostCard :data="data?.shared_post" :is-parent-post="true" :user-id="user?._id" :module="module" />
                 </div>
             </div>
-
         </div>
 
         <!--FOOTER-->
         <div v-if="!isParentPost" class="px-[10px] pt-1 pb-1">
-            <PostReactions 
-                :loading="isReactingPost" :upvotes="data?.upvotes" 
-                :upvotes-count="data?.upvotes_count"
-                :downvotes="data?.downvotes" 
-                :downvotes-count="data?.downvotes_count"
-                :comments-count="data?.comments_count" 
-                :shares-count="data?.shares_count" 
-                :user-id="user?._id" 
-                @on-upvote="handleUpvote"
-                @on-downvote="handleDownvote" 
-                @on-comment="goToComments" 
-                @on-share="goToShare" 
-                @on-more="openMoreOptions(data)"
-                />
+            <PostReactions :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
+                :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"
+                :comments-count="data?.comments_count" :shares-count="data?.shares_count" :user-id="user?._id"
+                @on-upvote="handleUpvote" @on-downvote="handleDownvote" @on-comment="goToComments" @on-share="goToShare"
+                @on-more="openMoreOptions(data)" />
         </div>
     </div>
 </template>
@@ -77,6 +54,7 @@ import PostContent from './PostContent.vue';
 import PostReactions from './PostReactions.vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
+import PostMediaImages from './PostMediaImages.vue';
 
 const emit = defineEmits(['openNewCommentDrawer', 'openMoreOptionsDrawer'])
 
@@ -212,10 +190,10 @@ const openMoreOptions = (post) => {
     emit('openMoreOptionsDrawer', post)
 }
 
-const setMedia = ({selected, list, post}) => {
-    store.commit("SET_MEDIA", {selected, list, post})
+const setMedia = ({ selected, list, post, module }) => {
+    store.commit("SET_MEDIA", { selected, list, post })
 
-    router.push(`/media/${selected?._id}`)
+    router.push(`/media/${selected?._id}?module=${module}`)
 }
 
 </script>

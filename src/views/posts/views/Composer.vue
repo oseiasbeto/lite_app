@@ -95,7 +95,7 @@
 
                     <!--star quill editor -->
                     <RichTextEditor v-model="postContent"
-                        :disable-upload-image="mediaPreviews.length > 0 || parentPost?._id?.length > 0"
+                        :disable-upload-image="mediaPreviews.length > 8 || parentPost?._id?.length > 0"
                         :no-min-height="mediaPreviews.length > 0 || parentPost?._id?.length > 0"
                         @upload-image="imageInput?.click()" />
                     <!--end quill editor-->
@@ -226,7 +226,7 @@ const isSubmittingSuccess = ref(false);
 const isCancellingUploads = ref(false); // Flag para evitar cancelamentos duplicados
 
 // Constants
-const MAX_IMAGES = 1;
+const MAX_IMAGES = 8;
 
 // Computed
 const audienceText = computed(() => {

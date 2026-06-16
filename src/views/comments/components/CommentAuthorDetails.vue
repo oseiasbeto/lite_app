@@ -5,7 +5,7 @@
                 <div class="flex items-center">
                     <span @click="goToProfile(author?._id)" class="dark:text-white text-[rgb(40,40,41)] font-bold">{{
                         author?.name }}</span>
-                    <svg v-if="author?.is_verified" class="ml-[5px] mb-0.5 mr-[2px]" fill="none" width="13" viewBox="0 0 24 24"
+                    <svg v-if="author?.is_verified" class="ml-[5px] mb-[3px] mr-[2px]" fill="none" width="13" viewBox="0 0 24 24"
                         height="13">
                         <circle cx="12" cy="12" r="11.5" fill="#0F73FF"></circle>
                         <path fill="#fff" fill-rule="evenodd" clip-rule="evenodd"

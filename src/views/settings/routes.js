@@ -4,7 +4,7 @@ export default [
         name: 'Settings',
         meta: {
             requiresAuth: true,
-            rootPage: 'main',
+            rootPage: 'settings',
             title: 'Configurações'
         },
         component: () => import('./views/Settings.vue')

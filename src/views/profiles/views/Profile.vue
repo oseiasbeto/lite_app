@@ -1,6 +1,6 @@
 <template>
-    <Navbar :title="profile?.name || 'Perfil'">
-        <template #right>
+    <Navbar :loading="loadingFetchProfile" :title="profile?.name || 'Perfil'">
+        <template v-if="!loadingFetchProfile" #right>
             <button v-if="isSameUser" @click="router.push('/settings')" class="p-2 text-text-primary hover:bg-background-secondary rounded-full">
                 <svg width="20px" height="20px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
                     xmlns:xlink="http://www.w3.org/1999/xlink">
@@ -97,8 +97,6 @@ import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import CredentialsHighlights from '../components/CredentialsHighlights.vue';
 import ProfileSkeleton from '../components/ProfileSkeleton.vue';
 import Navbar from '@/views/main/components/Navbar.vue';
-
-import { enablePullToRefresh } from "webtonative";
 
 const store = useStore()
 const route = useRoute()
@@ -229,8 +227,6 @@ const openMoreOptionsDrawer = () => {
         name: 'moreOptions'
     })
 }
-
-enablePullToRefresh(true);
 
 const fetchProfilePosts = async (userId) => {
     await store.dispatch("getProfilePosts", {

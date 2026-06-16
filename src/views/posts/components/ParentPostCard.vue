@@ -8,9 +8,9 @@
             <button v-if="showBtnClose"
                 class="py-1.5 right-0 absolute top-0 px-2.5 text-sm text-light-link dark:text-dark-link rounded-full font-semibold flex text-inherit items-center"
                 @click="$emit('close')">
-                <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="m5.5 5.5 13 13m-13 0 13-13" class="icon_svg-stroke" stroke="currentColor"
-                        stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
+                        stroke-width="1.8" fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
                 </svg>
             </button>
         </div>

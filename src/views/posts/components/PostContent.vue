@@ -161,7 +161,7 @@ onBeforeUnmount(() => {
     <!-- Conteúdo com truncamento condicional -->
     <div ref="contentRef" :class="[
       custom,
-      'font-normal pb-1.5 content dark:text-[inherit] text-[rgb(40,40,41)] text-[15px] overflow-hidden break-words whitespace-pre-wrap',
+      'font-normal mb-1.5 content dark:text-[inherit] text-[rgb(40,40,41)] text-[15px] overflow-hidden break-words whitespace-pre-wrap',
       enableTruncate ? 'line-clamp' : ''
     ]" :style="enableTruncate ? {
         'display': '-webkit-box',

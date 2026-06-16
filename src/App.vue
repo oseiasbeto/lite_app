@@ -379,7 +379,7 @@ const setThemeColor = (theme) => {
 
   // Aplicar classe no HTML
   if (savedTheme.value === 'dark') {
-    window.WTN.setNavigationBarColor({ color: "#262626" });
+    window?.WTN?.setNavigationBarColor({ color: "#262626" });
     // Aplicar tema escuro  
     document.documentElement.classList.add('dark');
 
@@ -387,15 +387,15 @@ const setThemeColor = (theme) => {
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
     if (isDark) {
-      window.WTN.setNavigationBarColor({ color: "#262626" });
+      window?.WTN?.setNavigationBarColor({ color: "#262626" });
       document.documentElement.classList.add('dark');
 
     } else {
-      window.WTN.setNavigationBarColor({ color: "#FFFFFF" });
+      window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
       document.documentElement.classList.remove('dark');
     }
   } else {
-    window.WTN.setNavigationBarColor({ color: "#FFFFFF" });
+    window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
     // Aplicar tema claro
     document.documentElement.classList.remove('dark');
 

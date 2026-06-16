@@ -51,7 +51,7 @@
             </button>
         </div>
 
-        <div>
+        <div v-if="showBtnMore">
             <button @click="$emit('on-more')" class="h-[30px] min-w-[30px] flex items-center justify-center">
                 <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path
@@ -100,6 +100,10 @@ defineProps({
         type: Number,
         default: 0
     },
+    showBtnMore: {
+        type: Boolean,
+        default: true
+    }
 })
 
 defineEmits(['on-upvote', 'on-downvote', 'on-comment', 'on-share', 'on-more'])
