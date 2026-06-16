@@ -15,31 +15,40 @@
         </svg>
       </button>
 
-      <button :disabled="disableUploadImage" v-if="!showToolbar" @click="$emit('upload-image')"
-        class="bg-transparent dark:text-[#e6e7e8] disabled:opacity-60 border-none ml-1 mr-2" title="Subir imagem">
-        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24"
-          viewBox="0 0 24 24">
-          <defs>
-            <path d="M5 4.5v14H2V.5h16.5v4H5z" id="a"></path>
-          </defs>
-          <g fill="currentColor" fill-rule="evenodd" class="icon_svg-fill_as_stroke">
-            <g fill-rule="nonzero">
-              <path
-                d="M8 7a.5.5 0 0 0-.5.5v12a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5v-12A.5.5 0 0 0 20 7H8zm0-1.25h12a1.75 1.75 0 0 1 1.75 1.75v12A1.75 1.75 0 0 1 20 21.25H8a1.75 1.75 0 0 1-1.75-1.75v-12A1.75 1.75 0 0 1 8 5.75zM17.5 9a1 1 0 1 0 0 2 1 1 0 1 0 0-2zm0-1.25a2.25 2.25 0 1 1 0 4.5 2.25 2.25 0 1 1 0-4.5z">
-              </path>
-              <path
-                d="M7.511 16.316V20h13v-3.682c-1.73-.926-2.81-1.389-3.241-1.389-.647 0-2.606 1.388-3.257 1.389s-2.609-2.299-3.252-2.299c-.429 0-1.512.766-3.25 2.298zm6.674-1.353.867-.443c1.296-.69 1.629-.842 2.217-.842.732 0 1.874.489 3.831 1.537a1.25 1.25 0 0 1 .66 1.102V20a1.25 1.25 0 0 1-1.25 1.25h-13A1.25 1.25 0 0 1 6.261 20v-3.684a1.25 1.25 0 0 1 .423-.938c2.065-1.82 3.183-2.61 4.077-2.61.523 0 .911.21 1.443.613.271.205.489.392 1.007.849l.866.732.041.031.067-.03z">
-              </path>
-            </g>
-            <mask id="b" fill="#fff">
-              <use xlink:href="#a"></use>
-            </mask>
+      <div class="flex items-center" v-if="!showToolbar">
+        <button :disabled="disableUploadImage" @click="$emit('upload-image')"
+          class="bg-transparent dark:text-[#e6e7e8] disabled:opacity-60 border-none ml-1 mr-1.5" title="Subir imagem">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z" stroke="currentColor"
+              stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
             <path
-              d="M4.5 3.5A.5.5 0 0 0 4 4v12a.5.5 0 0 0 .5.5h12a.5.5 0 0 0 .5-.5V4a.5.5 0 0 0-.5-.5h-12zm0-1.25h12A1.75 1.75 0 0 1 18.25 4v12a1.75 1.75 0 0 1-1.75 1.75h-12A1.75 1.75 0 0 1 2.75 16V4A1.75 1.75 0 0 1 4.5 2.25z"
-              fill-rule="nonzero" mask="url(#b)"></path>
-          </g>
-        </svg>
-      </button>
+              d="M9 10C10.1046 10 11 9.10457 11 8C11 6.89543 10.1046 6 9 6C7.89543 6 7 6.89543 7 8C7 9.10457 7.89543 10 9 10Z"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            <path
+              d="M2.67004 18.9501L7.60004 15.6401C8.39004 15.1101 9.53004 15.1701 10.24 15.7801L10.57 16.0701C11.35 16.7401 12.61 16.7401 13.39 16.0701L17.55 12.5001C18.33 11.8301 19.59 11.8301 20.37 12.5001L22 13.9001"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </button>
+        <button :disabled="disableUploadVideo" @click="$emit('upload-video')"
+          class="bg-transparent dark:text-[#e6e7e8] disabled:opacity-60 border-none ml-1 mr-2" title="Subir imagem">
+
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22H15C20 22 22 20 22 15Z"
+              stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M2.52002 7.11011H21.48" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M8.52002 2.11011V6.97011" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path d="M15.48 2.11011V6.52011" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+              stroke-linejoin="round" />
+            <path
+              d="M9.75 14.4501V13.2501C9.75 11.7101 10.84 11.0801 12.17 11.8501L13.21 12.4501L14.25 13.0501C15.58 13.8201 15.58 15.0801 14.25 15.8501L13.21 16.4501L12.17 17.0501C10.84 17.8201 9.75 17.1901 9.75 15.6501V14.4501V14.4501Z"
+              stroke="currentColor" stroke-width="1.8" stroke-miterlimit="10" stroke-linecap="round"
+              stroke-linejoin="round" />
+          </svg>
+        </button>
+      </div>
+
 
       <!-- Toolbar expansível -->
       <div v-show="showToolbar && editor" class="flex scrollbar-hide  flex-nowrap overflow-x-auto gap-1 px-2 pt-0">
@@ -139,6 +148,10 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  disableUploadVideo: {
+    type: Boolean,
+    default: false
+  },
   placeholder: {
     type: String,
     default: 'Diz alguma coisa...'
@@ -177,7 +190,7 @@ const editor = useEditor({
     },
   },
   onUpdate: ({ editor }) => {
-      // Sanitiza o conteúdo antes de emitir
+    // Sanitiza o conteúdo antes de emitir
     let content = editor.getHTML();
     if (isContentEmpty(content)) {
       content = '';
@@ -214,18 +227,18 @@ watch(
 )
 const isContentEmpty = (htmlContent) => {
   if (!htmlContent || htmlContent.trim() === '') return true;
-  
+
   // Remove tags HTML e verifica se sobrou algum texto
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = htmlContent;
   const textContent = tempDiv.textContent || tempDiv.innerText || '';
-  
+
   // Verifica se existe texto significativo (não apenas espaços, quebras, etc)
   const hasText = textContent.trim().length > 0;
-  
+
   // Verifica se existem elementos não vazios (como imagens, etc)
   const hasNonTextContent = tempDiv.querySelectorAll('img, video, iframe, hr').length > 0;
-  
+
   return !hasText && !hasNonTextContent;
 };
 

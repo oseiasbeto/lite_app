@@ -9,7 +9,11 @@
         :user-id="user?._id"
         :module="module"
         />
-        <VideoMediaPlayer v-else :current-video="currentMedia?.selected" :list="currentMedia?.list" />
+
+        <VideoMediaPlayer v-else 
+        :current-video="currentMedia?.selected" 
+        :list="currentMedia?.list" 
+        />
         <!--end body media-->
 
     </div>

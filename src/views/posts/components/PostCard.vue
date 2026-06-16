@@ -19,14 +19,11 @@
 
 
             <!--MEDIA-->
-            <PostMediaImages 
-                v-if="data?.media?.length" 
-                :images="data.media.filter(m => m.type === 'image')"
-                :post="data" 
-                :module="module" 
-                :is-parent-post="isParentPost" 
-                @open="setMedia" 
-            />
+            <PostMediaImages v-if="data?.media?.length" :images="data.media.filter(m => m.type === 'image')"
+                :post="data" :module="module" :is-parent-post="isParentPost" @open="setMedia" />
+
+            <PostMediaVideo v-if="data?.media?.find(m => m.type === 'video')"
+                :video="data.media.find(m => m.type === 'video')" :is-parent-post="isParentPost" @open="openVideo" />
 
             <!--PARENT POST-->
             <div v-if="data?.shared_post?._id" class="px-[10px] pt-1 pb-2">
@@ -55,6 +52,7 @@ import PostReactions from './PostReactions.vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import PostMediaImages from './PostMediaImages.vue';
+import PostMediaVideo from './PostMediaVideo.vue';
 
 const emit = defineEmits(['openNewCommentDrawer', 'openMoreOptionsDrawer'])
 
@@ -194,6 +192,11 @@ const setMedia = ({ selected, list, post, module }) => {
     store.commit("SET_MEDIA", { selected, list, post })
 
     router.push(`/media/${selected?._id}?module=${module}`)
+}
+
+const openVideo = (video) => {
+    store.commit("SET_MEDIA", { selected: video, list: [video], post: props.data })
+    router.push(`/media/${video._id}?module=${props.module}`)
 }
 
 </script>
