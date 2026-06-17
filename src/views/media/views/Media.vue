@@ -27,14 +27,8 @@ const currentTheme = computed(() => store.getters.currentTheme)
 const module = ref(route.query?.module || 'feed')
 
 const setThemeColor = (theme) => {
-    // Salvar preferência
-    if (savedTheme.value !== theme) {
-        Cookies.set('theme', theme)
-        savedTheme.value = theme
-    }
-
     // Aplicar classe no HTML
-    if (savedTheme.value === 'dark') {
+    if (theme === 'dark') {
         window?.WTN?.setNavigationBarColor({ color: "#262626" });
         window?.WTN?.statusBar({
             style: 'light',
@@ -43,7 +37,7 @@ const setThemeColor = (theme) => {
         });
         // Aplicar tema escuro  
         document.documentElement.classList.add('dark');
-    } else if (savedTheme.value === 'system') {
+    } else if (theme === 'system') {
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
         if (isDark) {
