@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
 import Input from '../components/Input.vue'
@@ -34,6 +34,8 @@ const toast = ref({
   message: "",
   type: undefined
 })
+
+const currentTheme = computed(() => store.getters.currentTheme)
 
 function validateName() {
   const value = name.value.trim()
@@ -206,14 +208,6 @@ async function handleNext() {
   }
 }
 
-function handleBack() {
-  if (step.value > 1) {
-    step.value--
-  } else {
-    router.back()
-  }
-}
-
 function handleClose() {
   router.back()
 }
@@ -226,6 +220,30 @@ onBeforeRouteLeave((to, from, next) => {
     next();
   }
 });
+
+onMounted(() => {
+  if (currentTheme.value == 'dark' || currentTheme.value == 'system') {
+    if (currentTheme.value === 'dark') {
+      window?.WTN?.setNavigationBarColor({ color: "#181818" });
+      window?.WTN?.statusBar({
+        style: 'light',
+        color: '181818',
+        overlay: false //Only for android
+      });
+    } else if (currentTheme.value === 'system') {
+      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+      if (isDark) {
+        window?.WTN?.setNavigationBarColor({ color: "#181818" });
+        window?.WTN?.statusBar({
+          style: 'dark',
+          color: '181818',
+          overlay: false //Only for android
+        });
+      }
+    }
+  }
+})
 </script>
 
 <template>
@@ -246,8 +264,9 @@ onBeforeRouteLeave((to, from, next) => {
           text="Próximo" />
         <SecondaryButton v-if="step == 2" @on-press="handleNext" :loading="isVerifyingCode"
           :disabled="!verificationCode.trim() || isVerifyingCode || codeError?.show" text="Próximo" />
-        <SecondaryButton v-if="step == 3" @on-press="handleNext" :disabled="!password.trim() || !confirmPassword.trim() || passwordError?.show || confirmError?.show"
-            :loading="isSigningUp" text="Registrar" />
+        <SecondaryButton v-if="step == 3" @on-press="handleNext"
+          :disabled="!password.trim() || !confirmPassword.trim() || passwordError?.show || confirmError?.show"
+          :loading="isSigningUp" text="Registrar" />
       </div>
     </div>
 

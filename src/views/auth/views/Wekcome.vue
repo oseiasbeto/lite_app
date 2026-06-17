@@ -2,10 +2,10 @@
 const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
 if (isDark) {
-  window.WTN.setNavigationBarColor({ color: "#262626" });
+  window.WTN.setNavigationBarColor({ color: "#181818" });
   window?.WTN.statusBar({
     style: 'light',
-    color: '262626',
+    color: '181818',
     overlay: false //Only for android
   });
 
