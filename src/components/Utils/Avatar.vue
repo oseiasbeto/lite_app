@@ -1,6 +1,6 @@
 <template>
-    <div class="border-[.5px] dark:border-[rgb(57,56,57)] hrink-0 relative overflow-hidden rounded-full"
-        :class="[sizeClasses]" role="img" :aria-label="`Avatar de ${altText || 'nome'}`">
+    <div class="border-[.5px] shrink-0 relative overflow-hidden rounded-full"
+        :class="[sizeClasses, isDarkoo ? '!border-[rgb(57,56,57)]' : 'dark:border-[rgb(57,56,57)]']" role="img" :aria-label="`Avatar de ${altText || 'nome'}`">
         <img v-lazy="props?.url && props.url" :alt="`Avatar de ${altText || 'nome'}`" class=" w-full h-full object-cover"
             :class="[sizeClasses]" />
     </div>
@@ -25,6 +25,10 @@ const props = defineProps({
         default: 'md',
         validator: (value) => ['s', 'xs', 'xl', 'big', 'sm', 'md', 'lg'].includes(value),
     },
+    isDarkoo: {
+        type: Boolean,
+        default: false
+    }
 });
 
 // Classes dinâmicas para tamanhos

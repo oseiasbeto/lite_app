@@ -13,7 +13,9 @@
             </svg>
         </button>
 
-        <PostReactions :loading="isReactingPost" :upvotes="post?.upvotes" :upvotes-count="post?.upvotes_count"
+        <PostReactions 
+            :loading="isReactingPost" :upvotes="post?.upvotes" :upvotes-count="post?.upvotes_count"
+            :is-darkoo="true"
             :downvotes="post?.downvotes" :downvotes-count="post?.downvotes_count" :comments-count="post?.comments_count"
             :shares-count="post?.shares_count" :user-id="userId" 
             :show-btn-more="false" 

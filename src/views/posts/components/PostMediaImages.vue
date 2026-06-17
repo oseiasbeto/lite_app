@@ -1,5 +1,5 @@
 <template>
-    <div v-if="images?.length" class="w-full overflow-hidden" :class="wrapperClass">
+    <div v-if="images?.length" class="w-full overflow-hidden">
 
         <!-- ── 1 imagem: largura total, altura proporcional livre ── -->
         <template v-if="images.length === 1">
@@ -94,10 +94,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['open']);
-
-const wrapperClass = computed(() => ({
-    'box-border -ml-[21px] -mr-[10px]': props.isParentPost
-}));
 
 const open = (selected) => {
     emit('open', {

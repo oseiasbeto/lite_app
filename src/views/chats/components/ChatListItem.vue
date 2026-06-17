@@ -34,7 +34,7 @@
         <div
           :class="['flex items-center', props?.conversation.unread_count ? 'dark:text-white' : 'dark:text-greyDark text-grey']"
           v-show="!conversation?.is_typing">
-          <span class="text-[15px] flex-shrink-0">
+          <span class="text-[13px] flex-shrink-0">
             {{ formatMessageTime(props?.conversation?.last_message?.created_at, new Date(currentTime)) }}.
           </span>
           <span class="ml-1">
@@ -50,7 +50,7 @@
       <div class="flex items-center text-sm justify-between gap-3">
 
         <!-- Última mensagem + ícone de check se for enviada por você -->
-        <p v-if="props.conversation?.last_message?.content" class="mt-[2.5px] text-xs truncate max-w-[220px]"
+        <p v-if="props.conversation?.last_message?.content" class="mt-[2.5px] text-sm truncate max-w-[220px]"
           :class="[props?.conversation.unread_count ? 'dark:text-white' : 'dark:text-greyDark text-grey']">
 
           {{ previewText }}

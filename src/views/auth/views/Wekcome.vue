@@ -1,24 +1,24 @@
 <script setup>
-import { statusBar } from "webtonative"
-
 const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
 if (isDark) {
   window.WTN.setNavigationBarColor({ color: "#262626" });
-  statusBar({
+  window?.WTN.statusBar({
     style: 'dark',
     color: '262626',
     overlay: false //Only for android
   });
+
   document.documentElement.classList.add('dark');
 } else {
-  statusBar({
+  window?.WTN?.setNavigationBarColor({ color: "FFFFFF" });
+  window?.WTN.statusBar({
     style: 'light',
-    color: 'FFFFFF',
+    color: "FFFFFF",
     overlay: false //Only for android
   });
+  
   document.documentElement.classList.remove('dark');
-  window?.WTN?.setNavigationBarColor({ color: "FFFFFF" });
 }
 
 </script>

@@ -3,8 +3,7 @@ import { ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
 import Input from '../components/Input.vue'
-import ButtonPrimary from '../components/ButtonPrimary.vue'
-import ButtonSecondary from '../components/ButtonSecondary.vue'
+
 import Toast from '@/components/UI/Toast.vue'
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 

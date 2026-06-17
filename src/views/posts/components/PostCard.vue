@@ -2,7 +2,7 @@
     <div v-if="data?._id" class="flex flex-col"
         :class="[showBorderBottom ? 'border-b-[6px] border-[rgb(230,231,232)] dark:border-[rgb(24,24,24)]' : 'border-none', !showMore && !isParentPost ? 'dark:bg-[rgba(36,37,38,1.0)] bg-white' : 'dark:bg-transparent bg-white']">
         <!--HEADER-->
-        <div :class="isParentPost ? 'p-0' : 'p-[10px]'">
+        <div :class="isParentPost ? 'px-[10px] pb-1 pt-[8px]' : 'p-[10px]'">
             <!--AUTHOR DETAILS-->
             <PostAuthorDetails @on-follow="handleFollowUser(data?.author?._id)" :is-following-user="isFollowingUser"
                 :show-btn-follow="canFollowUser" :author="data?.author" :created-at="data?.created_at"
@@ -12,7 +12,7 @@
         <!--BODY-->
         <div>
             <!--CONTENT-->
-            <div :class="isParentPost ? 'p-0' : 'px-[10px]'">
+            <div :class="isParentPost ? 'px-[10px]' : 'px-[10px]'">
                 <PostContent :enable-truncate="enableTruncate" :is-parent-post="isParentPost" :show-more="showMore"
                     @on-press="goToViewMore" :content="data.content" />
             </div>
@@ -27,7 +27,7 @@
 
             <!--PARENT POST-->
             <div v-if="data?.shared_post?._id" class="px-[10px] pt-1 pb-2">
-                <div class="border-l-[3px] dark:border-[rgb(57,56,57)] pl-2">
+                <div class="border-[1px] dark:border-[rgb(57,56,57)]">
                     <PostCard :data="data?.shared_post" :is-parent-post="true" :user-id="user?._id" :module="module" />
                 </div>
             </div>

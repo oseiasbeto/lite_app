@@ -380,40 +380,50 @@ const setThemeColor = (theme) => {
   // Aplicar classe no HTML
   if (savedTheme.value === 'dark') {
     window?.WTN?.setNavigationBarColor({ color: "#262626" });
+    window?.WTN?.statusBar({
+      style: 'dark',
+      color: '262626',
+      overlay: false //Only for android
+    });
     // Aplicar tema escuro  
     document.documentElement.classList.add('dark');
-
   } else if (savedTheme.value === 'system') {
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
     if (isDark) {
       window?.WTN?.setNavigationBarColor({ color: "#262626" });
-      document.documentElement.classList.add('dark');
+      window?.WTN?.statusBar({
+        style: 'dark',
+        color: '262626',
+        overlay: false //Only for android
+      });
 
+      document.documentElement.classList.add('dark');
     } else {
       window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+      window?.WTN.statusBar({
+        style: 'light',
+        color: "FFFFFF",
+        overlay: false //Only for android
+      });
+
       document.documentElement.classList.remove('dark');
     }
   } else {
     window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+    window?.WTN.statusBar({
+      style: 'light',
+      color: "FFFFFF",
+      overlay: false //Only for android
+    });
     // Aplicar tema claro
     document.documentElement.classList.remove('dark');
-
   }
-
-  // Ajustar status bar
-  statusBar({
-    style: theme == 'dark' ? 'dark' : 'light',
-    color: theme == 'dark' ? '262626' : "FFFFFF",
-    overlay: false //Only for android
-  });
 }
 
 let heartbeat;
 onMounted(async () => {
-
-
-
+  
   if (sessionId) {
     // Configurar listeners de conexão
     setupConnectionListeners();

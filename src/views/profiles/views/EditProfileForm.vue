@@ -710,7 +710,11 @@ const setThemeColor = (theme) => {
     // Aplicar classe no HTML
     if (form.value.theme === 'dark') {
         window?.WTN?.setNavigationBarColor({ color: "#262626" });
-
+        window?.WTN.statusBar({
+            style: 'dark',
+            color: '262626',
+            overlay: false //Only for android
+        });
         // Aplicar tema escuro  
         document.documentElement.classList.add('dark');
     } else if (form.value.theme === 'system') {
@@ -718,25 +722,33 @@ const setThemeColor = (theme) => {
 
         if (isDark) {
             window?.WTN?.setNavigationBarColor({ color: "#262626" });
+            window?.WTN.statusBar({
+                style: 'dark',
+                color: '262626',
+                overlay: false //Only for android
+            });
+            
             document.documentElement.classList.add('dark');
         } else {
             window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+            window?.WTN.statusBar({
+                style: 'light',
+                color: "FFFFFF",
+                overlay: false //Only for android
+            });
             document.documentElement.classList.remove('dark');
         }
     } else {
         window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
-
+        window?.WTN.statusBar({
+            style: 'light',
+            color: "FFFFFF",
+            overlay: false //Only for android
+        });
         // Aplicar tema claro
         document.documentElement.classList.remove('dark');
 
     }
-
-    // Ajustar status bar
-    statusBar({
-        style: theme == 'dark' ? 'dark' : 'light',
-        color: theme == 'dark' ? '262626' : "FFFFFF",
-        overlay: false //Only for android
-    });
 }
 </script>
 

@@ -10,7 +10,7 @@
         </div>
         <div v-if="author?._id" class="flex px-4 gap-2.5 py-2 items-center flex-row">
             <div class="shrink-0">
-                <Avatar size="md" :url="author?.profile_image?.thumbnails?.sm || author?.profile_image?.url" />
+                <Avatar :is-darkoo="true" size="md" :url="author?.profile_image?.thumbnails?.sm || author?.profile_image?.url" />
             </div>
             <div class="flex-1">
                 <div class="flex justify-between items-center">

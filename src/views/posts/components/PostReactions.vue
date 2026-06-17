@@ -2,9 +2,11 @@
     <div class="flex items-center justify-between" :class="{ 'pointer-events-none': loading }">
         <div class="flex gap-1 items-center">
             <div
-                class="flex rounded-[30px] overflow-hidden border bg-[rgba(0,0,1,0.03)] border-[rgb(222,224,225)] dark:border-[#393839] dark:bg-[rgba(255,255,255,0.05)] items-center gap-0.5 mr-[8px]">
+                :class="[isDarkoo ? '!bg-[rgba(255,255,255,0.05)] border-transparent' : 'border-[rgb(222,224,225)] dark:border-[#393839]']"
+                class="flex rounded-[30px] overflow-hidden border bg-[rgba(0,0,1,0.03)] dark:bg-[rgba(255,255,255,0.05)] items-center gap-0.5 mr-[8px]">
                 <button @click="$emit('on-upvote')"
-                    class="p-[0px_10px] h-[28px] text-center dark:active:bg-[rgba(255,255,255,0.04)] flex items-center text-blue">
+                    :class="[isDarkoo ? 'active:bg-[rgba(255,255,255,0.04)]' : 'dark:active:bg-[rgba(255,255,255,0.04)]']"
+                    class="p-[0px_10px] h-[28px] text-center flex items-center text-blue">
                     <span>
 
                         <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24"
@@ -17,9 +19,10 @@
                     <span v-show="upvotesCount" class="ml-1 min-w-[20px] font-semibold">{{ formattedCount(upvotesCount)
                         }}</span>
                 </button>
-                <span class="h-[28px] w-[1px] bg-[rgb(222,224,225)] dark:bg-[#393839]"></span>
+                <span :class="[isDarkoo ? 'bg-transparent' : 'bg-[rgb(222,224,225)] dark:bg-[#393839]']" class="h-[28px] w-[1px]"></span>
                 <button @click="$emit('on-downvote')"
-                    class="p-[0px_10px_0px_8px] dark:active:bg-[rgba(255,255,255,0.04)] h-[28px] text-center flex items-center">
+                    :class="[isDarkoo ? 'active:bg-[rgba(255,255,255,0.04)]' : 'dark:active:bg-[rgba(255,255,255,0.04)]']"
+                    class="p-[0px_10px_0px_8px] h-[28px] text-center flex items-center">
                     <span :class="downvotes?.includes(userId) ? 'text-[#e95111]' : 'text-inherit'">
                         <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24"
                             xmlns="http://www.w3.org/2000/svg">
@@ -99,6 +102,10 @@ defineProps({
     sharesCount: {
         type: Number,
         default: 0
+    },
+    isDarkoo: {
+        type: Boolean,
+        default: false
     },
     showBtnMore: {
         type: Boolean,
