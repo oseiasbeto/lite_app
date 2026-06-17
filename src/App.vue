@@ -381,7 +381,7 @@ const setThemeColor = (theme) => {
   if (savedTheme.value === 'dark') {
     window?.WTN?.setNavigationBarColor({ color: "#262626" });
     window?.WTN?.statusBar({
-      style: 'dark',
+      style: 'light',
       color: '262626',
       overlay: false //Only for android
     });
@@ -402,7 +402,7 @@ const setThemeColor = (theme) => {
     } else {
       window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
       window?.WTN.statusBar({
-        style: 'light',
+        style: 'dark',
         color: "FFFFFF",
         overlay: false //Only for android
       });
@@ -412,7 +412,7 @@ const setThemeColor = (theme) => {
   } else {
     window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
     window?.WTN.statusBar({
-      style: 'light',
+      style: 'dark',
       color: "FFFFFF",
       overlay: false //Only for android
     });
