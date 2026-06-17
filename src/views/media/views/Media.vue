@@ -11,11 +11,11 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onUnmounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import ImageMediaPreview from '../components/ImageMediaPreview.vue';
 import VideoMediaPlayer from '../components/VideoMediaPlayer.vue';
-import { useRoute } from 'vue-router';
+import { useRoute, onBeforeRouteLeave } from 'vue-router';
 
 const store = useStore()
 const route = useRoute()
