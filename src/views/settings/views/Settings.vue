@@ -3,14 +3,6 @@
         <Navbar title="Configurações" />
         <div class="mt-[44px]">
             <ul>
-                <li class="flex px-4 border-b justify-between items-center text-[#282829] dark:text-inherit border-[#dee0e1] dark:border-[rgb(57,56,57)] py-3"
-                    @click="goToEditTheme">
-                    <span>Exibição</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path d="m9 5 7 7-7 7.005" class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5"
-                            fill="none" stroke-linecap="round"></path>
-                    </svg>
-                </li>
                 <button :disabled="loadingLogout"
                     class="flex px-4 border-b w-full justify-between items-center text-red-500 border-[#dee0e1] dark:border-[rgb(57,56,57)] py-3"
                     @click="goLogout">
@@ -37,9 +29,6 @@ const loadingLogout = ref(false)
 
 const sessionId = Cookies.get("session_id")
 
-const goToEditTheme = () => {
-    router.push({ path: `/profile/${store.state.auth.user._id}/edit`, query: { edit_form: 'theme' } })
-}
 
 const goLogout = () => {
     const confirmLogout = confirm("Deseja realmente terminar a sessão?");

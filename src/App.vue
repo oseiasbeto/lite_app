@@ -60,7 +60,7 @@ const isAuthenticated = computed(() => {
 })
 
 // Preparar som de notificação
-const notificationSound = new Audio('/sounds/boop.mp3');
+const notificationSound = new Audio('/sounds/dm.mp3');
 notificationSound.preload = 'auto'
 
 // Configuração de background
@@ -283,12 +283,17 @@ const initializeSocket = () => {
       logger.log("nova notificacao:", newNotification)
       store.commit("PUSH_NOTIFICATION_FROM_NOTIFICATIONS", newNotification)
 
+
+
       const unreadCount = unreadNotificationsCount.value
       if (route.name == 'Notifications') {
         await store.dispatch("updateUnreadNotificationsCount", 0)
+
       } else {
         await store.dispatch("updateUnreadNotificationsCount", unreadCount + 1)
       }
+      // Tocar som de notificação
+      playNotificationSound();
     })
   } else {
     logger.log('Nenhum socket encontrado');
@@ -418,7 +423,7 @@ const setThemeColor = (theme) => {
 
 let heartbeat;
 onMounted(async () => {
-  
+
   if (sessionId) {
     // Configurar listeners de conexão
     setupConnectionListeners();

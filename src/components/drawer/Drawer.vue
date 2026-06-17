@@ -12,7 +12,7 @@
       <div v-show="title"
         class="flex px-[16px] justify-center border-b dark:border-[#393839] shadow-[0_1px_1px_rgba(0,0,0,.15)] w-full h-12">
         <div class="h-full w-full flex items-center">
-          <button @click="close" class="shrink-0 text-[#f52936]">
+          <button @click="close" class="shrink-0 text-inherit">
             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
               <path d="m5.5 5.5 13 13m-13 0 13-13" class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5"
                 fill="none" fill-rule="evenodd" stroke-linecap="round"></path>

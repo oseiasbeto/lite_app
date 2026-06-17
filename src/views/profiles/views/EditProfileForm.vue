@@ -162,14 +162,14 @@
                             <rect x="8" y="227" width="8" height="8" rx="4" fill="#636466"></rect>
                             <rect y="260" width="154" height="26" fill="#fff"></rect>
                             <rect y="260" width="154" height="1" fill="#dee0e1"></rect>
-                            <circle cx="18.5" cy="272.5" r="6.5" fill="#b92b27"></circle>
+                            <circle cx="18.5" cy="272.5" r="6.5" fill="#1471ff"></circle>
                             <circle cx="47.5" cy="272.5" r="6.5" fill="#636466"></circle>
                             <circle cx="76.5" cy="272.5" r="6.5" fill="#636466"></circle>
                             <circle cx="105.5" cy="272.5" r="6.5" fill="#636466"></circle>
                             <circle cx="134.5" cy="272.5" r="6.5" fill="#636466"></circle>
                             <circle cx="14.5" cy="12.5" r="6.5" fill="#282829"></circle>
                             <rect x="27" y="10" width="23" height="6" rx="3" fill="#282829"></rect>
-                            <circle cx="127" cy="233" r="18" fill="#b92b27"></circle>
+                            <circle cx="127" cy="233" r="18" fill="#1471ff"></circle>
                         </svg>
                     </div>
                 </label>
@@ -217,14 +217,14 @@
                             <rect x="8" y="227" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
                             <rect y="260" width="154" height="26" fill="#262626"></rect>
                             <rect y="260" width="154" height="1" fill="#393839"></rect>
-                            <circle cx="18.5" cy="272.5" r="6.5" fill="#f52936"></circle>
+                            <circle cx="18.5" cy="272.5" r="6.5" fill="#1471ff"></circle>
                             <circle cx="47.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
                             <circle cx="76.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
                             <circle cx="105.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
                             <circle cx="134.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
                             <circle cx="14.5" cy="12.5" r="6.5" fill="#fff"></circle>
                             <rect x="27" y="10" width="23" height="6" rx="3" fill="#fff"></rect>
-                            <circle cx="127" cy="233" r="18" fill="#f52936"></circle>
+                            <circle cx="127" cy="233" r="18" fill="#1471ff"></circle>
                         </svg>
                     </div>
                 </label>
@@ -271,14 +271,14 @@
                             <rect x="8" y="227" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
                             <rect y="260" width="154" height="26" fill="#262626"></rect>
                             <rect y="260" width="154" height="1" fill="#393839"></rect>
-                            <circle cx="18.5" cy="272.5" r="6.5" fill="#f52936"></circle>
+                            <circle cx="18.5" cy="272.5" r="6.5" fill="#1471ff"></circle>
                             <circle cx="47.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
                             <circle cx="76.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
                             <circle cx="105.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
                             <circle cx="134.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
                             <circle cx="14.5" cy="12.5" r="6.5" fill="#fff"></circle>
                             <rect x="27" y="10" width="23" height="6" rx="3" fill="#fff"></rect>
-                            <circle cx="127" cy="233" r="18" fill="#f52936"></circle>
+                            <circle cx="127" cy="233" r="18" fill="#1471ff"></circle>
                         </svg>
                     </div>
                 </label>

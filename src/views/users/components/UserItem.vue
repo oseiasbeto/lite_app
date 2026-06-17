@@ -4,6 +4,9 @@
     <!-- Avatar com status online -->
     <div class="relative flex-shrink-0">
       <Avatar :url="user?.profile_image?.url || '/default-avatar.png'" size="md" class="w-12 h-12" alt="" />
+      <!-- Bolinha de status -->
+      <span v-if="user?.is_online"
+        class="absolute bottom-0 right-0 bg-[rgba(63,187,70,1.0)] block h-3 w-3 rounded-full ring-2 ring-white dark:ring-[#181818]"></span>
     </div>
 
     <!-- Conteúdo -->

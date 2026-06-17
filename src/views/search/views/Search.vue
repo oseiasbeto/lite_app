@@ -2,7 +2,7 @@
     <div class="bg-primary flex items-center w-full py-2 pl-[5px] px-4">
         <button @click="router.back" class="pr-1">
             <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="m15 5-7 7 7 7.005" class="icon_svg-stroke" stroke="#fff" stroke-width="1.5" fill="none"
+                <path d="m15 5-7 7 7 7.005" class="icon_svg-stroke" stroke="#fff" stroke-width="1.9" fill="none"
                     stroke-linecap="round"></path>
             </svg>
         </button>

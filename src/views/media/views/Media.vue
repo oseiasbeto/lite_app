@@ -4,7 +4,7 @@
         <ImageMediaPreview v-if="currentMedia?.selected?.type !== 'video'" :current-image="currentMedia?.selected"
             :list="currentMedia?.list" :post="currentMedia?.post" :user-id="user?._id" :module="module" />
 
-        <VideoMediaPlayer v-else :current-video="currentMedia?.selected" :list="currentMedia?.list" />
+        <VideoMediaPlayer v-else :post="currentMedia?.post" :current-video="currentMedia?.selected" :list="currentMedia?.list" />
         <!--end body media-->
 
     </div>

@@ -15,7 +15,7 @@
                                     stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
                             </svg>
                         </button>
-                        <button class="flex dark:text-[rgb(230,231,232)] items-center gap-1"
+                        <button class="flex text-inherit items-center gap-1"
                             @click="openPostAudienceDrawer">
                             <svg v-if="postAudience === 'everyone'" width="24" height="24" viewBox="0 0 24 24"
                                 xmlns="http://www.w3.org/2000/svg">
@@ -141,7 +141,8 @@
                     <!--end share post component-->
 
                     <!--input files-->
-                    <input type="file" ref="imageInput" accept="image/*" multiple @change="handleImageUpload"
+                    <input type="file" ref="imageInput" accept="image/*" 
+                        multiple @change="handleImageUpload"
                         class="hidden" />
                     <input type="file" ref="videoInput" accept="video/*" @change="handleVideoUpload" class="hidden" />
                     <!--input files-->
@@ -175,7 +176,7 @@
             class="fixed bg-white flex items-center justify-between pl-[15px] px-4 bottom-0 dark:bg-transparent h-14 w-full">
             <!--start toolbar -->
             <div class="flex py-2 h-full flex-row items-center overflow-hidden">
-                <button @click="toggleToolbar" class="bg-transparent dark:text-[rgb(230,231,232)] border-none mr-2"
+                <button @click="toggleToolbar" class="bg-transparent dark:text-[#b0b3b8] border-none mr-2"
                     :title="showToolbar ? 'Ocultar formatação' : 'Mostrar formatação'">
                     <svg v-if="showToolbar" width="24" height="24" viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg">
@@ -191,7 +192,7 @@
 
                 <div class="flex items-center" v-if="!showToolbar">
                     <button :disabled="disableUploadImage" @click="imageInput?.click()"
-                        class="bg-transparent dark:text-[rgb(230,231,232)] disabled:opacity-60 border-none ml-1 mr-1.5"
+                        class="bg-transparent dark:text-[#b0b3b8] disabled:opacity-60 border-none ml-1 mr-1.5"
                         title="Subir imagem">
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
                             <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z"
@@ -208,7 +209,7 @@
                         </svg>
                     </button>
                     <button :disabled="disableUploadVideo" @click="videoInput?.click()"
-                        class="bg-transparent dark:text-[rgb(230,231,232)] disabled:opacity-60 border-none ml-1 mr-2"
+                        class="bg-transparent dark:text-[#b0b3b8] disabled:opacity-60 border-none ml-1 mr-2"
                         title="Subir imagem">
 
                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
@@ -235,7 +236,7 @@
                     class="flex scrollbar-hide  flex-nowrap overflow-x-auto gap-1 px-2 pt-0">
                     <button @click="richTextEditorRef?.editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="[
                         'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('heading', { level: 1 }) ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[rgb(230,231,232)] text-inherit'
+                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('heading', { level: 1 }) ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[#b0b3b8] text-inherit'
                     ]" title="Título H1">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -246,7 +247,7 @@
 
                     <button @click="richTextEditorRef?.editor.chain().focus().toggleBold().run()" :class="[
                         'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('bold') ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[rgb(230,231,232)] text-inherit'
+                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('bold') ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[#b0b3b8] text-inherit'
                     ]" title="Negrito (Ctrl+B)">
                         <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -257,7 +258,7 @@
 
                     <button @click="richTextEditorRef?.editor.chain().focus().toggleItalic().run()" :class="[
                         'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('italic') ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[rgb(230,231,232)] text-inherit'
+                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('italic') ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[#b0b3b8] text-inherit'
                     ]" title="Itálico (Ctrl+I)">
                         <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -268,7 +269,7 @@
 
                     <button @click="richTextEditorRef?.editor.chain().focus().toggleOrderedList().run()" :class="[
                         'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('orderedList') ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[rgb(230,231,232)] text-inherit'
+                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('orderedList') ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[#b0b3b8] text-inherit'
                     ]" title="Lista numerada">
                         <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -279,7 +280,7 @@
 
                     <button @click="richTextEditorRef?.editor.chain().focus().toggleBulletList().run()" :class="[
                         'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('bulletList') ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[rgb(230,231,232)] text-inherit'
+                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('bulletList') ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[#b0b3b8] text-inherit'
                     ]" title="Lista com marcadores">
                         <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -290,7 +291,7 @@
 
                     <button @click="richTextEditorRef?.editor.chain().focus().toggleBlockquote().run()" :class="[
                         'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('blockquote') ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[rgb(230,231,232)] text-inherit'
+                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('blockquote') ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[#b0b3b8] text-inherit'
                     ]" title="Citação">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                             fill="currentColor">
