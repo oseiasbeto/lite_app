@@ -3,7 +3,8 @@ import api from '../../api'
 export default {
     state: {
         topicList: [],
-        isLoadingComponent: false
+        isLoadingComponent: false,
+        theme: ""
     },
     mutations: {
         SET_TOPICLIST(state, payload) {
@@ -11,6 +12,9 @@ export default {
         },
         SET_IS_LOADING_COMPONENT(state, payload) {
             state.isLoadingComponent = payload
+        },
+        SET_CURRENT_THEME(state, payload) {
+            state.theme = payload
         },
     },
     actions: {
@@ -27,6 +31,7 @@ export default {
     },
     getters: {
         topicList: (state) => state.topicList,
-        isLoadingComponent: (state) => state.isLoadingComponent
+        isLoadingComponent: (state) => state.isLoadingComponent,
+        currentTheme: (state) => state.theme
     }
 }

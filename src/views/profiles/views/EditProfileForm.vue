@@ -705,6 +705,7 @@ const setThemeColor = (theme) => {
     if (form.value.theme !== theme) {
         Cookies.set('theme', theme)
         form.value.theme = theme
+        store.commit("SET_CURRENT_THEME", theme)
     }
 
     // Aplicar classe no HTML

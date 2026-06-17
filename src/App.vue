@@ -20,10 +20,6 @@ const store = useStore()
 // Rota atual
 const route = useRoute()
 
-// Router para navegação programática
-const router = useRouter();
-
-
 // Pega sessão salva em cookie
 const sessionId = Cookies.get("session_id")
 
