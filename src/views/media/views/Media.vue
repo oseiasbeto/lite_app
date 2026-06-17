@@ -35,8 +35,6 @@ const setThemeColor = (theme) => {
             color: '262626',
             overlay: false //Only for android
         });
-        // Aplicar tema escuro  
-        document.documentElement.classList.add('dark');
     } else if (theme === 'system') {
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
@@ -47,8 +45,6 @@ const setThemeColor = (theme) => {
                 color: '262626',
                 overlay: false //Only for android
             });
-
-            document.documentElement.classList.add('dark');
         } else {
             window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
             window?.WTN.statusBar({
@@ -56,8 +52,6 @@ const setThemeColor = (theme) => {
                 color: "FFFFFF",
                 overlay: false //Only for android
             });
-
-            document.documentElement.classList.remove('dark');
         }
     } else {
         window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
@@ -65,9 +59,7 @@ const setThemeColor = (theme) => {
             style: 'dark',
             color: "FFFFFF",
             overlay: false //Only for android
-        });
-        // Aplicar tema claro
-        document.documentElement.classList.remove('dark');
+        })
     }
 }
 

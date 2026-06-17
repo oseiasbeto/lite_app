@@ -1,10 +1,11 @@
 import api from '../../api'
+import Cookies from "js-cookie";
 
 export default {
     state: {
         topicList: [],
         isLoadingComponent: false,
-        theme: ""
+        theme: Cookies.get("theme")
     },
     mutations: {
         SET_TOPICLIST(state, payload) {
@@ -14,6 +15,7 @@ export default {
             state.isLoadingComponent = payload
         },
         SET_CURRENT_THEME(state, payload) {
+            console.log(payload)
             state.theme = payload
         },
     },
