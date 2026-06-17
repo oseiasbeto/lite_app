@@ -6,7 +6,6 @@ import { useRoute, useRouter } from "vue-router";
 import Cookies from "js-cookie";
 import { getSocket, disconnectSocket } from '@/services/socket';
 import { getPlayerId } from "webtonative/OneSignal";
-import { statusBar } from "webtonative"
 import { logger } from "./utils/logger";
 import generateSource from "./utils/generate-source";
 import LoadingComponent from "./components/UI/LoadingComponent.vue";
