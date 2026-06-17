@@ -15,7 +15,8 @@
                                     stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
                             </svg>
                         </button>
-                        <button class="flex dark:text-[rgb(230,231,232)] items-center gap-1" @click="openPostAudienceDrawer">
+                        <button class="flex dark:text-[rgb(230,231,232)] items-center gap-1"
+                            @click="openPostAudienceDrawer">
                             <svg v-if="postAudience === 'everyone'" width="24" height="24" viewBox="0 0 24 24"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <g class="icon_svg-stroke" transform="translate(4 4)" stroke="currentColor"
@@ -93,11 +94,8 @@
                     <!--end author-->
 
                     <!--start editor-->
-                    <RichTextEditor 
-                        ref="richTextEditorRef" 
-                        v-model="postContent"
-                        :no-min-height="mediaPreviews.length > 0 || parentPost?._id?.length > 0"
-                        />
+                    <RichTextEditor ref="richTextEditorRef" v-model="postContent"
+                        :no-min-height="mediaPreviews.length > 0 || parentPost?._id?.length > 0" />
                     <!--end editor-->
 
                     <!-- start media previews -->
@@ -319,7 +317,7 @@
            a12.5 12.5 0 0 1 0 -25" stroke-linecap="butt" stroke-width="3" stroke="currentColor" />
                 </svg>
                 <p class="text-sm truncate flex-1 text-ellipsis text-inherit font-semibold">
-                    Enviando {{ hasVideo ? 'o vídeo...' : `${mediaPreviews.length == 1 ? 'a imagem...' : 'as imagens...'}` }} 
+                    Enviando {{ hasVideo ? 'o vídeo...' : `${mediaPreviews.length == 1 ? 'a imagem...' : 'as imagens...'}` }}
                 </p>
             </div>
             <!--end spinner video-->
@@ -390,13 +388,14 @@ const MAX_CHARS = 500;
 const MAX_IMAGES = 8;
 const MAX_VIDEO_SIZE_MB = 50;  // ← novo
 
-// Computed
 const audienceText = computed(() => {
     switch (postAudience.value) {
         case 'limited': return 'Limitado';
         default: return 'Público';
     }
 });
+
+const currentTheme = computed(() => store.getters.currentTheme)
 
 const module = computed(() => route.query.module || null);
 
@@ -906,6 +905,43 @@ onBeforeRouteLeave((to, from, next) => {
     }
 });
 
+const setThemeColor = (theme) => {
+    // Aplicar classe no HTML
+    if (theme === 'dark') {
+        window?.WTN?.setNavigationBarColor({ color: "#262626" });
+        window?.WTN?.statusBar({
+            style: 'light',
+            color: '262626',
+            overlay: false //Only for android
+        });
+    } else if (theme === 'system') {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+        if (isDark) {
+            window?.WTN?.setNavigationBarColor({ color: "#262626" });
+            window?.WTN?.statusBar({
+                style: 'dark',
+                color: '262626',
+                overlay: false //Only for android
+            });
+        } else {
+            window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+            window?.WTN.statusBar({
+                style: 'dark',
+                color: "FFFFFF",
+                overlay: false //Only for android
+            });
+        }
+    } else {
+        window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+        window?.WTN.statusBar({
+            style: 'dark',
+            color: "FFFFFF",
+            overlay: false //Only for android
+        })
+    }
+}
+
 const handlePopState = () => {
     if (isSubmiting.value && !isSubmittingSuccess.value) {
         history.pushState(null, '', location.href);
@@ -917,6 +953,28 @@ const handlePopState = () => {
 };
 
 onMounted(async () => {
+    if (currentTheme.value == 'dark' || currentTheme.value == 'system') {
+        if (currentTheme.value === 'dark') {
+            window?.WTN?.setNavigationBarColor({ color: "#262626" });
+            window?.WTN?.statusBar({
+                style: 'light',
+                color: '181818',
+                overlay: false //Only for android
+            });
+        } else if (currentTheme.value === 'system') {
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+            if (isDark) {
+                window?.WTN?.setNavigationBarColor({ color: "#262626" });
+                window?.WTN?.statusBar({
+                    style: 'dark',
+                    color: '181818',
+                    overlay: false //Only for android
+                });
+            }
+        }
+    }
+
     if (parentPost.value?._id) {
         loadingFetchPostParent.value = true;
         await store.dispatch("getPostById", {
@@ -926,10 +984,15 @@ onMounted(async () => {
             loadingFetchPostParent.value = false;
         });
     }
+
     window.addEventListener('popstate', handlePopState);
 });
 
 onUnmounted(() => {
+    if (currentTheme.value == 'dark' || currentTheme.value == 'system') {
+        setThemeColor(currentTheme.value)
+    }
+
     if (!isSubmiting.value) clearCancelTokens();
     window.removeEventListener('popstate', handlePopState);
 });

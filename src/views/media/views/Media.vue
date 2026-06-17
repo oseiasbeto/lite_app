@@ -11,11 +11,11 @@
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue';
+import { computed, onMounted, onUnmounted, ref } from 'vue';
 import { useStore } from 'vuex';
 import ImageMediaPreview from '../components/ImageMediaPreview.vue';
 import VideoMediaPlayer from '../components/VideoMediaPlayer.vue';
-import { useRoute, onBeforeRouteLeave } from 'vue-router';
+import { useRoute } from 'vue-router';
 
 const store = useStore()
 const route = useRoute()
@@ -72,8 +72,7 @@ onMounted(() => {
     });
 })
 
-onBeforeRouteLeave((to, from, next) => {
+onUnmounted(() => {
     setThemeColor(currentTheme.value)
-    next()
 })
 </script>
