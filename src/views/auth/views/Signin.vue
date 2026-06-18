@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import Input from '../components/Input.vue'
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
@@ -21,8 +21,6 @@ const toast = ref({
 
 const router = useRouter() // Para navegação programática
 const store = useStore() // Para acessar ações do Vuex
-
-const currentTheme = computed(() => store.getters.currentTheme)
 
 
 function validateIdentifier() {
@@ -76,30 +74,6 @@ async function handleSignin() {
 function handleClose() {
   router.back()
 }
-
-onMounted(() => {
-  if (currentTheme.value == 'dark' || currentTheme.value == 'system') {
-    if (currentTheme.value === 'dark') {
-      window?.WTN?.setNavigationBarColor({ color: "#181818" });
-      window?.WTN?.statusBar({
-        style: 'light',
-        color: '181818',
-        overlay: false //Only for android
-      });
-    } else if (currentTheme.value === 'system') {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-      if (isDark) {
-        window?.WTN?.setNavigationBarColor({ color: "#181818" });
-        window?.WTN?.statusBar({
-          style: 'dark',
-          color: '181818',
-          overlay: false //Only for android
-        });
-      }
-    }
-  }
-})
 </script>
 
 <template>

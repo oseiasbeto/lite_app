@@ -33,8 +33,6 @@ const toast = ref({
     type: undefined
 })
 
-const currentTheme = computed(() => store.getters.currentTheme)
-
 function validateEmail() {
     const value = email.value.trim()
     if (!value) {
@@ -202,30 +200,6 @@ onBeforeRouteLeave((to, from, next) => {
         next();
     }
 });
-
-onMounted(() => {
-    if (currentTheme.value == 'dark' || currentTheme.value == 'system') {
-        if (currentTheme.value === 'dark') {
-            window?.WTN?.setNavigationBarColor({ color: "#181818" });
-            window?.WTN?.statusBar({
-                style: 'light',
-                color: '181818',
-                overlay: false //Only for android
-            });
-        } else if (currentTheme.value === 'system') {
-            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-            if (isDark) {
-                window?.WTN?.setNavigationBarColor({ color: "#181818" });
-                window?.WTN?.statusBar({
-                    style: 'dark',
-                    color: '181818',
-                    overlay: false //Only for android
-                });
-            }
-        }
-    }
-})
 </script>
 
 <template>

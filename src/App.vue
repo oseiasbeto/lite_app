@@ -2,7 +2,7 @@
 import LoadingScreen from "./components/UI/LoadingScreen.vue"
 import { useStore } from "vuex"
 import { computed, onMounted, ref, watch, onUnmounted } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import Cookies from "js-cookie";
 import { getSocket, disconnectSocket } from '@/services/socket';
 import { getPlayerId } from "webtonative/OneSignal";
@@ -375,6 +375,7 @@ const setThemeColor = (theme) => {
   if (savedTheme.value !== theme) {
     Cookies.set('theme', theme)
     savedTheme.value = theme
+     store.commit("SET_CURRENT_THEME", theme)
   }
 
   // Aplicar classe no HTML
@@ -466,8 +467,6 @@ watch(() => isNewSession.value, () => {
 
   store.dispatch("getTopicList")
 })
-
-window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
 
 onUnmounted(() => {
   const socket = getSocket();

@@ -1,5 +1,5 @@
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter, onBeforeRouteLeave } from 'vue-router'
 import { useStore } from 'vuex'
 import Input from '../components/Input.vue'
@@ -34,8 +34,6 @@ const toast = ref({
   message: "",
   type: undefined
 })
-
-const currentTheme = computed(() => store.getters.currentTheme)
 
 function validateName() {
   const value = name.value.trim()
@@ -222,27 +220,7 @@ onBeforeRouteLeave((to, from, next) => {
 });
 
 onMounted(() => {
-  if (currentTheme.value == 'dark' || currentTheme.value == 'system') {
-    if (currentTheme.value === 'dark') {
-      window?.WTN?.setNavigationBarColor({ color: "#181818" });
-      window?.WTN?.statusBar({
-        style: 'light',
-        color: '181818',
-        overlay: false //Only for android
-      });
-    } else if (currentTheme.value === 'system') {
-      const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-      if (isDark) {
-        window?.WTN?.setNavigationBarColor({ color: "#181818" });
-        window?.WTN?.statusBar({
-          style: 'dark',
-          color: '181818',
-          overlay: false //Only for android
-        });
-      }
-    }
-  }
+  
 })
 </script>
 
