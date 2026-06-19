@@ -177,15 +177,14 @@ const initializeSocket = () => {
         }
 
         const unreadCount = unreadMessagesCount.value
-
-        if (route.meta.rootPage == 'chats') {
+        
+        if (route.name == 'Chats' || route.meta.rootPage == 'chats') {
           await store.dispatch("updateUnreadMessagesCount", 0)
         } else {
           await store.dispatch("updateUnreadMessagesCount", unreadCount + 1)
         }
       }
     })
-
     socket.on('delete_message', (msg) => {
       const myId = user.value?._id;
       const isFromMe = msg?.sender?._id === myId;
@@ -260,7 +259,6 @@ const initializeSocket = () => {
     socket.on("conversation_as_read", (data) => {
       if (user.value?._id === data.user?._id) return
       else {
-
         setTimeout(() => {
           const { user: reciver, read_at, conv } = data
 
@@ -276,6 +274,8 @@ const initializeSocket = () => {
           })
 
         }, 300);
+
+        console.log(data)
       }
     })
 

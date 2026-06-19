@@ -7,7 +7,7 @@
 
                 <!-- Bolinha de status -->
                 <span v-if="author?.is_online && !isParentPost"
-                    class="absolute bottom-[2px] right-0 bg-[rgba(63,187,70,1.0)] block h-3 w-3 rounded-full ring-2 ring-white dark:ring-[rgba(36,37,38,1.0)]"></span>
+                    class="absolute bottom-[2px] right-0 bg-[rgba(63,187,70,1.0)] block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-[rgba(36,37,38,1.0)]"></span>
             </div>
             <div class="flex-1">
                 <div class="flex justify-between items-center">

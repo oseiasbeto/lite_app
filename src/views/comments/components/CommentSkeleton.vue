@@ -1,5 +1,5 @@
 <template>
-  <div class="gap-2 flex bg-white dark:bg-[#262626] pt-1.5 pb-0.5 flex-col px-[10px] border-b dark:border-[rgb(57,56,57)]">
+  <div class="gap-2 flex bg-white dark:bg-transparent pt-1.5 pb-0.5 flex-col px-[10px] border-b dark:border-[rgb(57,56,57)]">
     <div class="flex flex-row gap-2">
       <!-- Avatar skeleton -->
       <div class="shrink-0">

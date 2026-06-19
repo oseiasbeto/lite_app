@@ -1,46 +1,54 @@
 <template>
     <div class="relative bg-white dark:bg-transparent">
-        <div class="sticky w-full flex flex-col bg-background-primary z-10 top-0">
-            <Navbar @go-back="router.back" title="Nova mensagem" :is-fixed="false" />
-            <div v-show="!loadingLoadUsers" class="mb-3"></div>
-            <SearchUsersForm v-if="!loadingLoadUsers" ref="searchUserFormComponent" @search="handleSearch" />
-        </div>
-        <VirtualUsersList :ukey="ukey" ref="virtualUsersListComponent"
-            :users="isSearching ? searchUsers.items || [] : suggestedUsers.items || []" :loading="loadingLoadUsers"
-            :loading-more="loadingMoreUsers"
-            :has-more="isSearching ? searchUsers?.pagination?.hasMore : suggestedUsers?.pagination?.hasMore"
-            @load-more="loadMoreUsers" @select="select">
-            <template v-if="!loadingLoadUsers" #before-content>
-                <div v-if="!isSearching" class="px-4 mt-4 text-sm">
-                    <p class="text-text-secondary">Sugestões:</p>
+        <Navbar @go-back="router.back" title="Nova mensagem" :is-fixed="false" />
+        <div class="h-[calc(100vh-44px)] overflow-y-auto mt-[44px]">
+
+            <div class="pt-4 mb-1">
+                <SearchUsersForm :disabled="loadingChatSuggestions" ref="searchUserFormComponent"
+                    @search="handleSearch" />
+            </div>
+            <div class="px-4 pb-8">
+                <div>
+                    <div>
+                        <div v-if="!isSearching && chatSuggestions?.items?.length" class="pt-4 mb-1 text-sm">
+                            <p class="text-[11px]">Sugestões:</p>
+                        </div>
+                    </div>
+                    <UsersList ref="UsersListComponent"
+                        :users="isSearching ? searchUsers.items || [] : chatSuggestions.items || []"
+                        :loading="loadingChatSuggestions" :loading-more="loadingMoreUsers"
+                        :has-more="isSearching ? searchUsers?.pagination?.hasMore : chatSuggestions?.pagination?.hasMore"
+                        @load-more="loadMoreChatSuggetions" @select="select">
+                    </UsersList>
                 </div>
-            </template>
-        </VirtualUsersList>
+            </div>
+        </div>
+
     </div>
 </template>
 
 <script setup>
 import { computed, onMounted, onActivated, onDeactivated, ref } from 'vue';
 import { useStore } from 'vuex';
-import VirtualUsersList from '../../users/components/VirtualUsersList.vue';
+import UsersList from '../../users/components/UsersList.vue';
 import { useRouter } from 'vue-router';
 import { debounce } from 'lodash-es'
-import Navbar from '@/components/UI/Navbar.vue';
 import SearchUsersForm from '@/views/search/components/SearchUsersForm.vue';
+import Navbar from '@/views/main/components/Navbar.vue';
 
-const loadingLoadUsers = ref(true)
+const loadingChatSuggestions = ref(true)
 const loadingMoreUsers = ref(false)
 const loadingSearchUsers = ref(false)
 const loadingOpenConv = ref(false)
 const searchUserFormComponent = ref(null)
 const ukey = ref("")
 const isSearching = ref(false)
-const virtualUsersListComponent = ref(null)
+const UsersListComponent = ref(null)
 
 const store = useStore()
 const router = useRouter()
 
-const suggestedUsers = computed(() => store.getters.users)
+const chatSuggestions = computed(() => store.getters.chatSuggestions)
 const searchUsers = computed(() => store.getters.searchUsers)
 
 // Computed para acessar as conversas do store Vuex
@@ -60,6 +68,8 @@ const isOnline = computed(() => {
 
 const select = async (user) => {
     if (loadingOpenConv.value) return
+
+    store.commit("SET_IS_LOADING_COMPONENT", true)
 
     const convModules = conversations.value
 
@@ -112,32 +122,31 @@ const handleSearch = debounce(async (q) => {
         loadingSearchUsers.value = false
         isSearching.value = false
         store.commit("RESET_SEARCH_USERS")
-        ukey.value = ""
     } else {
         if (!isOnline.value) return
         loadingSearchUsers.value = true
         isSearching.value = true
-        await store.dispatch("searchUsers", q).then(items => {
-            ukey.value = items?.length + '-' + Date.now()
-        }).finally(() => {
-            loadingSearchUsers.value = false
-        })
+        await store.dispatch("searchUsers", { query: q, typeSearch: 'new_message' })
+            .finally(() => {
+                loadingSearchUsers.value = false
+            })
     }
 }, 300)
 
-const loadMoreUsers = async () => {
+const loadMoreChatSuggetions = async () => {
     if (loadingMoreUsers.value || !isOnline.value) return;
 
     // Indica carregamento
     loadingMoreUsers.value = true;
 
     // Calcula a próxima página
-    const nextPage = users?.value?.pagination?.page + 1 || 2;
-    const total = users?.value?.pagination?.total || 0;
-    const limit = 20
+    const nextPage = chatSuggestions?.value?.pagination?.page + 1;
+
+    const total = chatSuggestions?.value?.pagination?.total || 0;
+    const limit = 5
 
     // Busca mais conversas
-    await store.dispatch("loadUsers", ({
+    await store.dispatch("loadChatSuggestions", ({
         page: nextPage,
         limit,
         total,
@@ -150,19 +159,19 @@ const loadMoreUsers = async () => {
 
 onActivated(() => {
     focusSearchUsersForm()
-    virtualUsersListComponent?.value?.setScrollTop(0)
+    UsersListComponent?.value?.setScrollTop(0)
 })
 onDeactivated(() => {
     resetComponent()
 })
 onMounted(async () => {
     if (!isOnline.value) return
-    
-    await store.dispatch("loadUsers", {
+
+    await store.dispatch("loadChatSuggestions", {
         page: 1,
-        limit: 20
+        limit: 5
     }).finally(() => {
-        loadingLoadUsers.value = false
+        loadingChatSuggestions.value = false
     })
 })
 </script>

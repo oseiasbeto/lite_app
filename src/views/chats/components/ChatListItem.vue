@@ -1,14 +1,15 @@
 <template>
   <div @contextmenu.prevent="" @click="$emit('click')" class="
-      flex items-center px-4 py-3 gap-3.5 cursor-pointer bg-white dark:bg-transparent transition-all duration-200 relative
+      flex items-center px-4 py-3 gap-2.5 cursor-pointer bg-white dark:bg-transparent transition-all duration-200 relative
       border-b dark:border-[rgb(57,56,57)]
     ">
     <!-- Avatar com status online -->
     <div class="relative flex-shrink-0">
       <Avatar :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="lg" alt="" />
-      
+
       <!-- Bolinha de status -->
-      <span v-if="conversation?.is_online" class="absolute bottom-0 right-0 bg-[rgba(63,187,70,1.0)] block h-3 w-3 rounded-full ring-2 ring-white dark:ring-[#181818]"></span>
+      <span v-if="conversation?.is_online"
+        class="absolute bottom-0 right-0 bg-[rgba(63,187,70,1.0)] block h-3 w-3 rounded-full ring-2 ring-white dark:ring-[#181818]"></span>
     </div>
 
     <!-- Conteúdo principal -->
@@ -32,7 +33,7 @@
 
         <!-- Horário da última mensagem -->
         <div
-          :class="['flex items-center', props?.conversation.unread_count ? 'dark:text-white' : 'dark:text-greyDark text-grey']"
+          :class="['flex items-center', props?.conversation.unread_count ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[#b0b3b8]']"
           v-show="!conversation?.is_typing">
           <span class="text-xs flex-shrink-0">
             {{ formatMessageTime(props?.conversation?.last_message?.created_at, new Date(currentTime)) }}.
@@ -51,17 +52,26 @@
 
         <!-- Última mensagem + ícone de check se for enviada por você -->
         <p v-if="props.conversation?.last_message?.content" class="mt-[2.5px] text-sm truncate max-w-[220px]"
-          :class="[props?.conversation.unread_count ? 'dark:text-white' : 'dark:text-greyDark text-grey']">
+          :class="[props?.conversation.unread_count ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[#b0b3b8] text-inherit']">
 
           {{ previewText }}
         </p>
 
         <!-- Badge de não lidas (igual Telegram) -->
         <div v-if="props?.conversation?.unread_count && !conversation?.is_typing" class="flex-shrink-0">
-          <span
-            class="flex items-center justify-center min-w-5 h-5 px-1.5 text-[11px] font-semibold mt-0.5 text-white bg-primary rounded-full shadow-sm">
-            {{ props?.conversation.unread_count > 99 ? '99+' : props?.conversation.unread_count }}
-          </span>
+          <div
+            class="flex relative items-center justify-center min-w-5 h-5 px-1.5 text-[11px] font-bold mt-0.5 text-white bg-[#f52936] leading-6 rounded-full shadow-sm">
+            <p class="mt-[0.5px]"> {{ props?.conversation.unread_count > 99 ? '99+' : props?.conversation.unread_count }}</p>
+          </div>
+        </div>
+
+        <div class=" shrink-0" v-else-if="readBy?.length && !conversation?.is_typing">
+          <div class="flex -space-x-2">
+            <img v-for="reader in readBy.slice(0, 5)" :key="reader.user._id"
+              :src="reader.user.profile_image?.thumbnails?.xs || reader.user.profile_image?.url" :alt="reader.user.name"
+              class="w-[18px] h-[18px] rounded-full border-[.5px] dark:border-[rgb(57,56,57)] object-cover"
+              :title="reader.user.name" />
+          </div>
         </div>
 
         <!-- Mute icon (opcional, se tiver silenciado) -->
@@ -91,9 +101,21 @@ const props = defineProps({
 const currentTime = ref(Date.now())
 
 const readBy = computed(() => {
-  if (!props?.conversation?._id) return []
-  else return props?.conversation?.read_by?.filter(i => i.user?._id !== props.userId) || []
-})
+  if (!props?.conversation?._id) return [];
+
+  const filtered = props.conversation?.read_by?.filter(
+    i => i.user?._id !== props.userId
+  ) || [];
+
+  const map = new Map();
+  filtered.forEach(item => {
+    if (item.user?._id) {
+      // Sobrescreve com a última ocorrência (ou a primeira se preferir)
+      map.set(item.user._id, item);
+    }
+  });
+  return Array.from(map.values());
+});
 
 const previewText = computed(() => {
 

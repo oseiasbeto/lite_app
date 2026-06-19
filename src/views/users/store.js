@@ -7,34 +7,45 @@ export default {
             items: [],
             pagination: {}
         },
+        suggestedUsers: {
+            items: [],
+            pagination: {}
+        },
+        chatSuggestions: {
+            items: [],
+            pagination: {}
+        },
         searchUsers: {
             items: [],
             pagination: {}
         }
     },
     mutations: {
-        LOAD_USERS(state, { items, pagination, loadMore }) {
+        LOAD_CHAT_SUGGESTIONS(state, { items, pagination, loadMore }) {
             if (!loadMore) {
-                state.users.items = items;
-                state.users.pagination = pagination;
+                state.chatSuggestions.items = items;
+                state.chatSuggestions.pagination = pagination;
             } else {
-                const users = state.users.items
+                const chatSuggestions = state.chatSuggestions.items
 
                 // Filtra os novos posts para remover quaisquer que já existam no cache
                 const uniqueItems = items.filter(
                     (user) =>
-                        !users.some(
+                        !chatSuggestions.some(
                             (existingUser) => existingUser._id === user._id
                         )
                 );
+
                 logger.log(items)
                 logger.log(uniqueItems)
 
-                
-                state.users.items = [
-                    ...users,
+
+                state.chatSuggestions.items = [
+                    ...chatSuggestions,
                     ...uniqueItems
                 ]
+
+                state.chatSuggestions.pagination = pagination
             }
         },
         RESET_USERS(state) {
@@ -57,13 +68,13 @@ export default {
         RESET_SEARCH_USERS(state) {
             state.searchUsers = {
                 items: [],
-                pagination: {} 
+                pagination: {}
             }
         }
     },
     actions: {
         // Função para obter conversas
-        async loadUsers({ commit }, { page = 1, limit = 10, loadMore = false, total = 0 }) {
+        async loadChatSuggestions({ commit }, { page = 1, limit = 10, loadMore = false, total = 0 }) {
             try {
                 // Requisição para obter usuarios
                 const response = await api.get('/users/new-message', {
@@ -89,7 +100,7 @@ export default {
                 };
 
                 // Atualiza o store com as conversas
-                commit("LOAD_USERS", { items, loadMore, pagination });
+                commit("LOAD_CHAT_SUGGESTIONS", { items, loadMore, pagination });
 
 
             } catch (err) {
@@ -98,12 +109,15 @@ export default {
                 throw err;
             }
         },
-        async searchUsers({ commit }, query) {
+        async searchUsers({ commit }, { query, typeSearch }) {
             try {
                 // Requisição para obter usuarios
                 const response = await api.get('/users/search', {
                     params: {
-                        q: query
+                        q: query,
+                        ...(typeSearch && {
+                            type: typeSearch
+                        })
                     }
                 });
 
@@ -145,6 +159,7 @@ export default {
     },
     getters: {
         users: (state) => state.users,
-        searchUsers: (state) => state.searchUsers
+        searchUsers: (state) => state.searchUsers,
+        chatSuggestions: (state) => state.chatSuggestions,
     }
 }

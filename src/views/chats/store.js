@@ -137,6 +137,7 @@ export default {
 
             if (index !== -1) {
                 const conversation = conversations[index]
+                console.log(conversation)
                 if (index !== 0) {
                     conversations.splice(index, 1);
                     conversations.unshift(conversation);
@@ -282,7 +283,8 @@ export default {
                     const index = conversations.findIndex(conv => conv._id === convId)
 
                     if (index !== -1) {
-                        conversations[index].unread_count = count
+                        conversations[index].unread_count = count,
+                        conversations[index].read_by = []
                     }
                 }
             }

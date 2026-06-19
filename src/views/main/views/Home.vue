@@ -6,7 +6,7 @@
         <div>
             <PostList :posts="feedPosts?.posts || []" :has-more="feedPosts?.pagination?.hasMore || false"
                 :loading-fetch="loadingFeedPosts" :loading-load-more="loadingLoadMore" :show-btn-follow="true"
-                module="feed" @on-load-more="handleLoadMore" />
+                module="feed" @on-load-more="handleLoadMore" @on-refresh="handleRefresh" />
         </div>
     </div>
 </template>
@@ -82,10 +82,59 @@ const handleLoadMore = async () => {
 
 }
 
+const handleRefresh = async (done) => {
+    await fetchFeedPosts()
+    await scrollToTopWithBoost()
+    done() // libera o indicador de loading
+}
+
+const scrollToTopWithBoost = () => {
+    return new Promise((resolve) => {
+        const el = feedView.value
+        if (!el) return resolve()
+
+        // Scroll suave até o topo
+        el.scrollTo({ top: 0, behavior: 'smooth' })
+
+        // Espera o scroll chegar ao topo antes de aplicar o boost
+        const checkIfReachedTop = setInterval(() => {
+            if (el.scrollTop <= 0) {
+                clearInterval(checkIfReachedTop)
+                applyBoostEffect(el)
+                resolve()
+            }
+        }, 50)
+
+        // Fallback de segurança caso não detecte o scrollTop (alguns navegadores arredondam)
+        setTimeout(() => {
+            clearInterval(checkIfReachedTop)
+            applyBoostEffect(el)
+            resolve()
+        }, 600)
+    })
+}
+
+const applyBoostEffect = (el) => {
+    el.style.transition = 'transform 0.18s ease-out'
+    el.style.transform = 'translateY(8px)'
+
+    setTimeout(() => {
+        el.style.transition = 'transform 0.22s ease-in-out'
+        el.style.transform = 'translateY(0)'
+    }, 180)
+
+    // Limpa os estilos inline depois da animação
+    setTimeout(() => {
+        el.style.transition = ''
+        el.style.transform = ''
+    }, 420)
+}
+
 onMounted(async () => {
     try {
         loadingFeedPosts.value = true
         await fetchFeedPosts()
+
         // bannerAd({ adId: "ca-app-pub-3940256099942544/6300978111"})
     } catch (err) {
         console.error("Erro ao buscar posts do feed:", err?.response?.data?.message)

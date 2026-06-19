@@ -1,49 +1,82 @@
 <template>
-  <!-- Skeleton (exibir com v-if="loading" ou v-if="!user") -->
-  <div class="flex items-center animate-pulse">
+  <div class="flex border-b dark:dark:bg-[rgba(36,37,38,1.0)]  dark:border-[rgb(57,56,57)] items-center px-2 py-2 transition-all duration-200">
     <!-- Avatar Skeleton -->
     <div class="relative flex-shrink-0">
-      <div class="w-[40px] h-[40px] bg-background-secondary rounded-full"></div>
+      <div 
+        class="rounded-full bg-[rgb(230,231,232)] animate-pulse animate-pulse dark:bg-[#404143] relative overflow-hidden"
+        :style="{ width: avatarSize, height: avatarSize }"
+      >
+        <div v-if="shimmer" class="bg-[rgb(230,231,232)] animate-pulse dark:bg-[#404143] absolute inset-0"></div>
+      </div>
     </div>
 
-    <!-- Textos Skeleton -->
-    <div class="flex-1 ml-3 space-y-2">
-      <div class="flex items-center justify-between gap-3">
-        <!-- Nome -->
-        <div class="h-3 bg-background-secondary rounded w-[130px]"></div>
-        
+    <!-- Conteúdo Skeleton -->
+    <div class="flex-1 ml-2 leading-4 min-w-0 space-y-2">
+      <div class="flex items-center w-full gap-[1px]">
+        <div 
+          class="h-3.5 bg-[rgb(230,231,232)] animate-pulse dark:bg-[#404143] rounded relative overflow-hidden"
+          :style="{ width: nameWidth }"
+        >
+          <div v-if="shimmer" class="bg-[rgb(230,231,232)] dark:bg-[#404143] animate-pulse absolute inset-0"></div>
+        </div>
+        <div v-if="showVerified" class="w-[14px] h-[14px] bg-[rgb(230,231,232)] animate-pulse dark:bg-[#404143] rounded-full ml-[4px] mt-0.5 relative overflow-hidden">
+         
+        </div>
       </div>
-
-      <!-- Bio / username -->
-      <div class="h-3 bg-background-secondary rounded w-[90%]"></div>
+      
+      <div class="w-full">
+        <div 
+          class="h-2.5 bg-[rgb(230,231,232)] animate-pulse dark:bg-[#404143] rounded relative overflow-hidden"
+          :style="{ width: bioWidth }"
+        >
+          <div v-if="shimmer" class="bg-[rgb(230,231,232)] dark:bg-[#404143] animate-pulse absolute inset-0"></div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-// Não precisa de nada aqui — é só um componente visual
+defineProps({
+  shimmer: {
+    type: Boolean,
+    default: true
+  },
+  avatarSize: {
+    type: String,
+    default: '32px'
+  },
+  nameWidth: {
+    type: String,
+    default: '130px'
+  },
+  bioWidth: {
+    type: String,
+    default: '90%'
+  },
+  showVerified: {
+    type: Boolean,
+    default: true
+  }
+});
 </script>
 
 <style scoped>
-/* Shimmer opcional (mais bonito que o animate-pulse padrão) */
 .animate-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; }
-  50% { opacity: 0.5; }
-}
-
-/* Se quiser shimmer de verdade (tipo Telegram Web) */
-.bg-skeleton {
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-  background-size: 200% 100%;
-  animation: shimmer 2s infinite;
+  50% { opacity: 0.6; }
 }
 
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 </style>

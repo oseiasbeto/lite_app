@@ -2,7 +2,8 @@
     <div class="flex flex-col h-screen overflow-hidden">
         <!-- Fundo fixo com cor + pattern oficial -->
         <div class="sticky z-50 top-0 w-full">
-            <ChatHeader @go-back="router.back()" :user-id="user?._id" :loading="loading" :conversation="conversation" />
+            <ChatHeader :status-text="statusText" @go-to-profile="goToProfile" @go-back="router.back()"
+                :user-id="user?._id" :loading="loading" :conversation="conversation" />
         </div>
 
         <div ref="messagesContainer" @scroll="handleScroll" :style="{ paddingBottom: inputHeight + 'px' }"
@@ -12,8 +13,46 @@
                 <div class="flex justify-center" ref="loadTrigger" v-if="cachedMessages?.pagination?.hasMore">
                     <SpinnerSmall />
                 </div>
+
+                <!-- === CABEÇALHO DO PARTICIPANTE (aparece no topo) === -->
+                <div :class="cachedMessages?.items?.length ? 'border-b dark:border-[rgb(57,56,57)]' : 'border-none'"
+                    v-if="!cachedMessages?.pagination?.hasMore && conversation?.type === 'direct'"
+                    class="flex flex-col items-center justify-center py-8 text-center mb-4">
+
+                    <Avatar :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="big" />
+
+                    <div class="mt-3 mb-3">
+                        <p class="text-lg font-semibold dark:text-white text-[rgb(40,40,41)]">{{
+                            conversation?.name
+                        }}</p>
+
+                        <p class="dark:text-[#b0b3b8]">{{ statusText }}</p>
+                    </div>
+
+
+                    <div class="flex my-2 justify-between items-center">
+                        <button
+                            class="flex active:opacity-50 bg-[rgb(230,231,232)] items-center gap-1 py-2 px-6 text-[rgb(40,40,41)] dark:text-inherit dark:bg-[#313131] rounded-full"
+                            @click="goToProfile(conversation)">
+                            <p>Ir para este perfil</p>
+                        </button>
+                    </div>
+                </div>
+
                 <MessageBox @more-option="" v-for="(message, index) in cachedMessages?.items || []" :key="message._id"
                     :message="message" :user-id="user?._id" :previousMessage="cachedMessages?.items[index - 1]" />
+
+                <div v-if="readersExcludingCurrent.length && cachedMessages?.items?.length"
+                    class="flex items-center justify-end gap-1 mt-2">
+                    <div class="flex -space-x-2">
+                        <img v-for="reader in readersExcludingCurrent.slice(0, 5)" :key="reader.user._id"
+                            :src="reader.user.profile_image?.thumbnails?.xs || reader.user.profile_image?.url"
+                            :alt="reader.user.name"
+                            class="w-[18px] h-[18px] rounded-full border-[.5px] dark:border-[rgb(57,56,57)] object-cover"
+                            :title="reader.user.name" />
+
+                    </div>
+                </div>
             </div>
             <div class="h-full flex justify-center items-center w-full" v-else>
                 <SpinnerSmall />
@@ -22,10 +61,10 @@
 
 
         <div class="z-10 dark:bg-dark-bg w-full">
-            <MessageForm :show-shadow="showShadowMessageForm" @typing-start="handleTypingStart"
-                @typing-stop="handleTypingStop" @message-sent="handleSendMessage" ref="messageFormRef"
-                :user-id="user._id" :disabled="isLoadingSendMessage" :reply-to="replyTo"
-                @close-reply-to="resetReplyTo" />
+            <MessageForm @voice-message-sent="handleSendVoiceMessage" :show-shadow="showShadowMessageForm"
+                @typing-start="handleTypingStart" @typing-stop="handleTypingStop" @message-sent="handleSendMessage"
+                @auto-resize="updateInputResize" ref="messageFormRef" :user-id="user._id"
+                :disabled="isLoadingSendMessage" :reply-to="replyTo" @close-reply-to="resetReplyTo" />
         </div>
 
         <!--drawer-->
@@ -117,7 +156,7 @@ import { useIntersectionObserver } from "@vueuse/core";
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
-import NetworkStatusBar from '@/components/Utils/NetworkStatusBar.vue';
+import Avatar from '@/components/Utils/Avatar.vue';
 
 const route = useRoute()
 const store = useStore()
@@ -131,6 +170,8 @@ const isLoadingSendMessage = ref(false)
 const messageSelected = ref(null)
 const messagesContainer = ref(null)
 const replyTo = ref({ show: false, message: null })
+
+
 const modalConfirm = ref({
     isOpen: false,
     title: '',
@@ -164,6 +205,24 @@ const cachedMessages = computed(() => {
     return messages.value.find(module => module.byId === conversation.value?._id) || null
 })
 
+const readersExcludingCurrent = computed(() => {
+    const readers = conversation.value?.read_by || [];
+    const currentUserId = user.value?._id;
+
+    // Filtra removendo o usuário atual
+    const filtered = readers.filter(item => item.user?._id !== currentUserId);
+
+    // Remove duplicatas (mantém a última ocorrência)
+    const map = new Map();
+    filtered.forEach(item => {
+        if (item.user?._id) {
+            map.set(item.user._id, item);
+        }
+    });
+    return Array.from(map.values());
+});
+
+
 // Estado da rede
 const networkStatus = computed(() => {
     return store.getters.networkStatus
@@ -172,6 +231,80 @@ const networkStatus = computed(() => {
 const isOnline = computed(() => {
     return networkStatus.value === 'online' ? true : false
 })
+
+// ========== Status do participante ==========
+const statusText = computed(() => {
+    const conv = conversation.value;
+    if (!conv || conv.type !== 'direct') return '';
+
+    if (conv.is_online) return 'Activo(a) agora';
+
+    if (!conv.last_seen) return 'Visto recentemente';
+
+    const now = currentTime.value;
+    const last = new Date(conv.last_seen).getTime();
+    const diff = now - last;
+
+    // Menos de 1 minuto → "Activo há pouco"
+    if (diff < 60000) return 'Activo há pouco';
+
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 60) {
+        return `Activo há ${minutes} minuto${minutes > 1 ? 's' : ''}`;
+    }
+
+    const hours = Math.floor(minutes / 60);
+
+    // Se passaram 72 horas ou mais, exibe a data
+    if (hours >= 72) {
+        const date = new Date(last);
+        return `Visto em ${date.toLocaleDateString('pt-PT', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        })}`;
+    }
+
+    if (hours < 24) {
+        return `Activo há ${hours} hora${hours > 1 ? 's' : ''}`;
+    }
+
+    const days = Math.floor(hours / 24);
+    return `Visto há ${days} dia${days > 1 ? 's' : ''}`;
+});
+
+const currentTime = ref(Date.now());
+let statusTimer = null;
+
+const startStatusTimer = () => {
+    if (statusTimer) clearInterval(statusTimer);
+    statusTimer = setInterval(() => {
+        currentTime.value = Date.now();
+    }, 60000);
+};
+
+const stopStatusTimer = () => {
+    if (statusTimer) {
+        clearInterval(statusTimer);
+        statusTimer = null;
+    }
+};
+
+// Função que atualiza o timer com base no estado atual
+const refreshStatusTimer = () => {
+    const conv = conversation.value;
+    if (!conv || conv.type !== 'direct' || conv.is_online) {
+        stopStatusTimer();
+    } else {
+        // offline → inicia/continua timer
+        if (!statusTimer) {
+            currentTime.value = Date.now(); // atualiza imediatamente
+            startStatusTimer();
+        }
+    }
+};
 
 const isReacted = (emoji, message) => {
     return message?.reactions?.find((reaction) => reaction.emoji === emoji && reaction?.user?._id === user.value?._id);
@@ -247,6 +380,16 @@ const onCloseDrawer = () => {
 const resetReplyTo = () => {
     replyTo.value.show = false
     replyTo.value.message = null
+}
+
+const goToProfile = (conv) => {
+    const { participants } = conv
+    const participant = participants.find(p => p?.user?._id !== user?.value?._id)
+
+    const profile = participant?.user
+
+    if (!profile?._id) return
+    router.push('/profile/' + profile?._id)
 }
 
 const openDrawerMessage = (msg) => {
@@ -381,7 +524,8 @@ const handleSendMessage = async (message) => {
                     created_at: Date.now(),
                     content: newMessage?.content || '',
                     message_type: messageType || 'text'
-                }
+                },
+                read_by: []
             }, // pode estar incompleto  
             userId: user.value?._id, // meu ID
             senderId: newMessage.sender?._id, // quem enviou a mensagem 
@@ -411,6 +555,73 @@ const handleSendMessage = async (message) => {
     }))
 };
 
+const handleSendVoiceMessage = async ({ url, duration }) => {
+    const tempId = Math.random().toString(36).substring(2, 10)
+
+    const newMessage = {
+        content: '',
+        conversation: conversation.value,
+        created_at: Date.now(),
+        read_by: [],
+        message_type: 'voice',
+        file_url: url,
+        file_duration: duration,
+        sender: {
+            profile_image: user?.value?.profile_image,
+            _id: user?.value?._id,
+            name: user?.value?.name,
+            username: user?.value?.username,
+        },
+        ...(replyTo.value?.show && { reply_to: replyTo.value.message }),
+        status: 'sending',
+        updated_at: Date.now(),
+        _id: tempId
+    }
+
+    store.commit("ADD_MESSAGE_REALTIME", {
+        convId: conversation.value?._id,
+        source: conversation?.value?.source || 'active',
+        message: newMessage
+    })
+
+    if (!conversation.value.last_message?.content?.length) {
+        store.commit("ADD_OR_UPDATE_CONVERSATION", {
+            conversation: {
+                ...conversation.value,
+                last_message: {
+                    created_at: Date.now(),
+                    content: '🎤 Mensagem de voz',
+                    message_type: 'voice'
+                },
+                read_by: []
+            },
+            userId: user.value?._id,
+            senderId: newMessage.sender?._id,
+            source: conversation.value?.source || 'active'
+        })
+    }
+
+    store.commit('UPDATE_UNREAD_COUNT_ON_CONVERSATION', {
+        convId: conversation?.value?._id,
+        source: conversation?.value?.source,
+        count: 0
+    })
+
+    scrollToBottom()
+    if (replyTo.value?.show) resetReplyTo()
+
+    await store.dispatch("sendMessage", ({
+        tempId,
+        convId: conversation.value?._id,
+        ...(newMessage?.reply_to && { replyToId: newMessage?.reply_to?._id || null }),
+        source: conversation?.value?.source,
+        content: '',
+        message_type: 'voice',
+        file_url: url,
+        file_duration: duration
+    }))
+}
+
 const handleReactMessage = (messageId, emoji) => {
     store.dispatch("reactMessage", {
         convId: conversation.value?._id,
@@ -427,7 +638,6 @@ const handleReactMessage = (messageId, emoji) => {
     })
     resetDrawer()
 }
-
 
 // Observa o último elemento da lista
 let isLoadingMore = false
@@ -484,6 +694,16 @@ watch(() => route.params.convId, async (newId, oldId) => {
     }
 })
 
+// Quando a conversa mudar (ID)
+watch(() => conversation.value?._id, () => {
+    refreshStatusTimer();
+}, { immediate: true });
+
+// Quando o status online mudar
+watch(() => conversation.value?.is_online, (newVal, oldVal) => {
+    refreshStatusTimer();
+}, { immediate: true });
+
 onBeforeRouteLeave((to, from, next) => {
     if (drawer.value.show) {
         resetDrawer()
@@ -495,6 +715,18 @@ onBeforeRouteLeave((to, from, next) => {
         next()
     }
 })
+
+const updateInputResize = () => {
+    const viewport = window.visualViewport;
+    if (viewport) {
+        const tolerance = 100
+        const isBottom = messagesContainer.value?.scrollHeight - messagesContainer.value?.scrollTop <= messagesContainer.value?.offsetHeight + tolerance
+
+        if (isBottom) {
+            scrollToBottom(false)
+        }
+    }
+}
 
 onMounted(async () => {
     if (!conversation.value?._id) {
@@ -558,7 +790,7 @@ onMounted(async () => {
     viewportHandler = () => {
         const viewport = window.visualViewport;
         if (viewport) {
-            const tolerance = 50
+            const tolerance = 100
             const isBottom = messagesContainer.value.scrollHeight - messagesContainer.value.scrollTop <= messagesContainer.value.offsetHeight + tolerance
 
             if (isBottom) {
@@ -578,13 +810,34 @@ onMounted(async () => {
                 await scrollToBottom();
             }
         });
+
+        socket.on("conversation_as_read", (data) => {
+            if (user.value?._id === data.user?._id) return
+            else {
+                setTimeout(() => {
+                    const viewport = window.visualViewport;
+                    if (viewport) {
+                        const tolerance = 300
+                        const isBottom = messagesContainer.value?.scrollHeight - messagesContainer.value?.scrollTop <= messagesContainer.value?.offsetHeight + tolerance
+
+                        if (isBottom) {
+                            scrollToBottom(true)
+                        }
+                    }
+                }, 300);
+            }
+        })
     }
 })
 
 onUnmounted(() => {
     // SEMPRE remove o listener ao sair do componente
-    socket.off('newMessage');
+    socket.off('new_message');
+    socket.off('conversation_as_read');
+
     window.visualViewport?.removeEventListener('resize', viewportHandler);
     //window.visualViewport?.removeEventListener('scroll', viewportHandler);
+
+    stopStatusTimer();
 })
 </script>

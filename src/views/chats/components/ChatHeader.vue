@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex h-[44px] items-center px-2 backdrop-blur-sm dark:bg-[#262626] bg-white border-b dark:border-[rgb(57,56,57)] z-50">
+    class="flex h-[50px] items-center px-2 backdrop-blur-sm dark:bg-[#262626] bg-white border-b dark:border-[rgb(57,56,57)] z-50">
     <button @click="$emit('goBack')"
       class="p-1 dark:text-white text-[rgb(40,40,41)] mr-1 rounded-full transition-colors">
       <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -12,7 +12,7 @@
     <div class="relative">
       <!-- Avatar com clique -->
       <Avatar @click="goToProfile(conversation)"
-        :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="xl" class="flex-shrink-0" />
+        :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="xl" class="flex-shrink-0 !w-7 !h-7" />
 
       <!-- Bolinha de status (ativo) -->
       <span v-if="conversation?.is_online"
@@ -37,6 +37,11 @@
           </svg>
         </div>
       </div>
+
+      <!--subtitule-->
+      <p class="text-xs truncate dark:text-[#b0b3b8] mt-[-2px]">
+        {{ statusText }}
+      </p>
     </div>
 
     <!-- Botões da direita (busca e menu) -->
@@ -54,25 +59,19 @@
 
 <script setup>
 import Avatar from '@/components/Utils/Avatar.vue'
-import { useRouter } from 'vue-router'
 
 const props = defineProps({
   userId: { type: String, required: true },
   conversation: { type: Object, default: () => ({}) },
-  loading: { type: Boolean, default: false }
+  loading: { type: Boolean, default: false },
+  statusText: {type: String, default: ""}
 })
 
-const router = useRouter()
+const emit = defineEmits(['goToProfile', 'goBack'])
+
 
 const goToProfile = (conv) => {
-  const { participants } = conv
-  const participant = participants.find(p => p?.user?._id !== props?.userId)
-
-  const profile = participant?.user
-
-  if (!profile?._id) return
-  router.push('/profile/' + profile?._id)
+  emit('goToProfile', conv)
 }
 
-defineEmits(['goBack'])
 </script>

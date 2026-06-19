@@ -1,7 +1,8 @@
 <template>
     <Navbar :loading="loadingFetchProfile" :title="profile?.name || 'Perfil'">
         <template v-if="!loadingFetchProfile" #right>
-            <button v-if="isSameUser" @click="router.push('/settings')" class="p-2 text-text-primary hover:bg-background-secondary rounded-full">
+            <button v-if="isSameUser" @click="router.push('/settings')"
+                class="p-2 text-text-primary hover:bg-background-secondary rounded-full">
                 <svg width="20px" height="20px" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
                     xmlns:xlink="http://www.w3.org/1999/xlink">
                     <g stroke="none" fill="none" fill-rule="evenodd">
@@ -244,6 +245,7 @@ const openConv = async (user) => {
     const moduleIndex = convModules.findIndex(m => m.source === 'active') || 0
 
     if (moduleIndex === -1) {
+        store.commit("SET_IS_LOADING_COMPONENT", true)
         await store.dispatch('openDirectMessage', user._id)
             .then((conv) => {
                 closeDrawer()
@@ -257,7 +259,6 @@ const openConv = async (user) => {
 
         if (convIndex !== -1) {
             const conv = module.items[convIndex]
-            console.log(conv)
             store.commit("SET_CONVERSATION", {
                 ...conv,
                 source: 'active'
@@ -266,6 +267,7 @@ const openConv = async (user) => {
             closeDrawer()
             router.push('/messages/' + conv?._id)
         } else {
+            store.commit("SET_IS_LOADING_COMPONENT", true)
             await store.dispatch('openDirectMessage', user._id)
                 .then((conv) => {
                     closeDrawer()

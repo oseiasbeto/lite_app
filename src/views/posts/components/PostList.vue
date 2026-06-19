@@ -1,5 +1,12 @@
 <template>
-    <div class="relative">
+    <div ref="scrollContainer" class="relative overflow-y-auto h-full">
+        <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
+        <PullToRefreshIndicator
+            :distance="pullDistance"
+            :threshold="threshold"
+            :is-refreshing="isRefreshing"
+        />
+
         <div v-if="!loadingFetch">
             <div v-if="posts?.length">
                 <PostCard v-for="item in posts" 
@@ -42,14 +49,17 @@ import PostSkeleton from './PostSkeleton.vue';
 import Spinner from '@/components/UI/Spinner.vue';
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
+import PullToRefreshIndicator from '@/components/UI/PullToRefreshIndicator.vue';
+import { usePullToRefresh } from '@/composables/usePullToRefresh';
 
 const store = useStore()
 
 const user = computed(() => store.getters.currentUser)
 
 const loadTrigger = ref(null);
+const scrollContainer = ref(null);
 
-const emit = defineEmits(['on-load-more']);
+const emit = defineEmits(['on-load-more', 'on-refresh']);
 
 defineProps({
     posts: {
@@ -90,24 +100,14 @@ const drawer = ref({
 
 const openDrawer = (data) => {
     const { show, name, metadata = {} } = data
-
-    drawer.value = {
-        show,
-        name,
-        metadata
-    }
+    drawer.value = { show, name, metadata }
 }
 
 const closeDrawer = () => {
-    drawer.value = {
-        show: false,
-        name: '',
-        metadata: {}
-    }
+    drawer.value = { show: false, name: '', metadata: {} }
 }
 
 const openMoreOptionsDrawer = (post) => {
-    console.log(post)
      openDrawer({
         show: true,
         name: "moreOptions",
@@ -126,4 +126,17 @@ useIntersectionObserver(
         }
     }
 );
+
+// === Pull to refresh (overlay, sem empurrar o conteúdo) ===
+const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
+    scrollContainer,
+    () => emitRefreshAndWait(),
+    { threshold: 70, maxPull: 90 }
+)
+
+const emitRefreshAndWait = () => {
+    return new Promise((resolve) => {
+        emit('on-refresh', resolve)
+    })
+}
 </script>

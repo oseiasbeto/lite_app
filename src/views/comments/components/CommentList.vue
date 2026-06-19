@@ -81,7 +81,7 @@ defineProps({
     },
     loadingFetch: {
         type: Boolean,
-        default: false
+        default: true
     },
     loadingLoadMore: {
         type: Boolean,
