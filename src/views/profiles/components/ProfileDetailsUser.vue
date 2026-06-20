@@ -2,7 +2,7 @@
     <div class="relative">
         <div class="flex mb-2 items-center gap-1">
             <div class="relative shrink-0 mr-[16px]">
-                <Avatar size="big" :url="profile?.profile_image?.thumbnails?.lg || profile?.profile_image?.url" />
+                <Avatar @click="$emit('goToPictureFullScreen')" size="big" :url="profile?.profile_image?.thumbnails?.lg || profile?.profile_image?.url" />
 
                 <!-- Bolinha de status -->
                 <span v-if="profile?.is_online"
@@ -46,6 +46,9 @@
 <script setup>
 import Avatar from '@/components/Utils/Avatar.vue';
 import formattedCount from '@/utils/formatted-count';
+
+
+defineEmits(['goToPictureFullScreen'])
 
 const props = defineProps({
     profile: {

@@ -34,7 +34,7 @@
                     class="border-b-[6px] dark:bg-[#262626] dark:border-[rgb(24,24,24)] bg-white border-[rgb(230,231,232)]">
                     <!--DETAILS USER-->
                     <div class="px-[10px] py-4 pb-2">
-                        <ProfileDetailsUser :profile="profile" :user-id="user?._id" />
+                        <ProfileDetailsUser @go-to-picture-full-screen="goToPictureFullScreen" :profile="profile" :user-id="user?._id" />
                     </div>
 
                     <!--REACTIOS-->
@@ -230,6 +230,10 @@ const setScrollTopFromCache = (event) => {
     store.commit("UPDATE_PROFILE", {
         scrollTop
     })
+}
+
+const goToPictureFullScreen = () => {
+    router.push(`/profile/${route.params.profile_id}/picture-fullscreen`)
 }
 
 const openMoreOptionsDrawer = () => {

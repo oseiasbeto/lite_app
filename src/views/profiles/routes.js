@@ -18,5 +18,15 @@ export default [
             title: 'Editar Perfil'
         },
         component: () => import('./views/EditProfile.vue')
-    }
+    },
+    {
+        path: '/profile/:profile_id/picture-fullscreen',
+        name: 'Avatar',
+        meta: {
+            requiresAuth: true,
+            rootPage: 'profile',
+            title: 'Foto de Perfil'
+        },
+        component: () => import('./views/PictureFullScreen.vue')
+    },
 ]

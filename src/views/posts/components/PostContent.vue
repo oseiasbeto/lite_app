@@ -49,9 +49,53 @@ const sanitizeContent = (html) => {
   return cleaned
 }
 
+// Regex para identificar URLs "soltas" no texto (http, https ou www.)
+const URL_REGEX = /\b((?:https?:\/\/|www\.)[^\s<>"']+)/gi
+
+// Envolve URLs encontradas no texto (fora de tags) com <a>, sem mexer no que já é HTML
+const linkifyContent = (html) => {
+  if (!html) return ''
+
+  // Divide o HTML em pedaços de tag (<...>) e texto puro, para só mexer no texto
+  const parts = html.split(/(<[^>]+>)/g)
+
+  return parts
+    .map((part) => {
+      // Se for uma tag HTML, não mexe (evita linkificar dentro de atributos como href="")
+      if (part.startsWith('<') && part.endsWith('>')) return part
+
+      // Se for texto, aplica a substituição de URLs
+      return part.replace(URL_REGEX, (match) => {
+        // Remove pontuação final comum que normalmente não faz parte da URL
+        const trailingPunctuation = match.match(/[.,;:!?)]+$/)
+        let href = match
+        let suffix = ''
+        if (trailingPunctuation) {
+          suffix = trailingPunctuation[0]
+          href = match.slice(0, match.length - suffix.length)
+        }
+
+        const finalHref = href.startsWith('www.') ? `https://${href}` : href
+
+        return `<a href="${finalHref}" target="_blank" rel="noopener noreferrer nofollow" class="link-in-content">${href}</a>${suffix}`
+      })
+    })
+    .join('')
+}
+
 const sanitizedContent = computed(() => {
-  return sanitizeContent(props.content)
+  const cleaned = sanitizeContent(props.content)
+  return linkifyContent(cleaned)
 })
+
+// Impede que o clique em um <a> dentro do conteúdo dispare o @click do componente pai (onPress)
+const handleContentClick = (event) => {
+  const anchor = event.target.closest('a')
+  if (anchor && contentRef.value && contentRef.value.contains(anchor)) {
+    event.stopPropagation()
+    // Sem preventDefault: o navegador segue o link normalmente
+  }
+}
 
 // Função para aplicar ou remover o truncamento
 const applyTruncate = () => {
@@ -159,7 +203,7 @@ onBeforeUnmount(() => {
 <template>
   <div @click="$emit('onPress')" class="relative w-full max-w-full">
     <!-- Conteúdo com truncamento condicional -->
-    <div ref="contentRef" :class="[
+    <div ref="contentRef" @click="handleContentClick" :class="[
       custom,
       'font-normal mb-1.5 content dark:text-[inherit] text-[rgb(40,40,41)] text-[15px] overflow-hidden break-words whitespace-pre-wrap',
       enableTruncate ? 'line-clamp' : ''
@@ -264,5 +308,14 @@ onBeforeUnmount(() => {
 .dark .content blockquote {
   border-color: rgb(57, 56, 57);
   color: inherit;
+}
+
+.content a.link-in-content {
+  color: rgb(25, 95, 170);
+  word-break: break-all;
+}
+
+.dark .content a.link-in-content {
+  color: rgb(72, 148, 253);
 }
 </style>
