@@ -24,7 +24,9 @@
         <div v-if="!hasError?.show">
             <div v-if="!loadingFetchProfile">
                 <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
-                <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"
+                <PullToRefreshIndicator v-if="enablePullToRefresh" 
+                    :distance="pullDistance" 
+                    :threshold="threshold"
                     :is-refreshing="isRefreshing"
                     :top-position="54"
                     />

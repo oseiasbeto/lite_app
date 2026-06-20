@@ -1,8 +1,7 @@
 <template>
     <div class="flex items-center justify-between" :class="{ 'pointer-events-none': loading }">
         <div class="flex gap-1 items-center">
-            <div
-                :class="[isDarkoo ? '!bg-[rgba(255,255,255,0.05)] border-transparent' : 'border-[rgb(222,224,225)] dark:border-[#393839]']"
+            <div :class="[isDarkoo ? '!bg-[rgba(255,255,255,0.05)] border-transparent' : 'border-[rgb(222,224,225)] dark:border-[#393839]']"
                 class="flex rounded-[30px] overflow-hidden border bg-[rgba(0,0,1,0.03)] dark:bg-[rgba(255,255,255,0.05)] items-center gap-0.5 mr-[8px]">
                 <button @click="$emit('on-upvote')"
                     :class="[isDarkoo ? 'active:bg-[rgba(255,255,255,0.04)]' : 'dark:active:bg-[rgba(255,255,255,0.04)]']"
@@ -17,9 +16,10 @@
                         </svg>
                     </span>
                     <span v-show="upvotesCount" class="ml-1 min-w-[20px] font-semibold">{{ formattedCount(upvotesCount)
-                        }}</span>
+                    }}</span>
                 </button>
-                <span :class="[isDarkoo ? 'bg-transparent' : 'bg-[rgb(222,224,225)] dark:bg-[#393839]']" class="h-[28px] w-[1px]"></span>
+                <span :class="[isDarkoo ? 'bg-transparent' : 'bg-[rgb(222,224,225)] dark:bg-[#393839]']"
+                    class="h-[28px] w-[1px]"></span>
                 <button @click="$emit('on-downvote')"
                     :class="[isDarkoo ? 'active:bg-[rgba(255,255,255,0.04)]' : 'dark:active:bg-[rgba(255,255,255,0.04)]']"
                     class="p-[0px_10px_0px_8px] h-[28px] text-center flex items-center">
@@ -43,12 +43,10 @@
                 <span v-show="commentsCount" class="text-[13px]">{{ formattedCount(commentsCount) }}</span>
             </button>
             <button @click="$emit('on-share')" class="px-0.5 flex items-center gap-1 text-xs">
-                <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <g class="icon_svg-stroke" stroke="currentColor" stroke-width="2" fill="none" fill-rule="evenodd"
-                        stroke-linecap="round">
-                        <path d="M19.748 10a8.003 8.003 0 0 0-15.496.002m.001 4.003a8.003 8.003 0 0 0 15.494 0"></path>
-                        <path d="m2.5 7.697 1.197 3.289 3.289-1.197m14.5 6.5L20.289 13 17 14.197"></path>
-                    </g>
+                <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M16.5 8.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Zm-10 6a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Zm10 6a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5Zm-7.504-9.996 5.009-3-5.01 3Zm.008 2.996 4.997 3.002L9.004 13.5Z"
+                        class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5" fill="none"></path>
                 </svg>
                 <p v-show="sharesCount">{{ formattedCount(sharesCount) }}</p>
             </button>
@@ -56,11 +54,12 @@
 
         <div v-if="showBtnMore">
             <button @click="$emit('on-more')" class="h-[30px] min-w-[30px] flex items-center justify-center">
-                <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M11.25 11.25a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Zm-7 0a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Zm14 0a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Z"
-                        class="icon_svg-stroke" fill="currentColor" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                        stroke-linejoin="round"></path>
+                        class="icon_svg-stroke" fill="currentColor" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round"></path>
                 </svg>
             </button>
         </div>

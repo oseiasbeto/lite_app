@@ -1,40 +1,50 @@
 <template>
     <div class="relative">
         <Navbar title="Postagem" />
-        <div @scroll="setScrollTopFromCache" ref="postView" class="h-[calc(100vh-44px)] overflow-y-scroll mt-[44px]">
+        <div @scroll="setScrollTopFromCache" ref="postView"
+            class="h-[calc(100vh-44px)] relative overflow-y-scroll mt-[44px]">
             <div v-if="!loadingFetchPost">
-                <!--NODY-->
+                 <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
+                <PullToRefreshIndicator 
+                    v-if="enablePullToRefresh" 
+                    :distance="pullDistance" 
+                    :threshold="threshold"
+                    :is-refreshing="isRefreshing"
+                    :top-position="46"
+                    />
+
+
+                <PostCard :module="module" :data="post" :show-more="true" :user="user" :enable-truncate="false"
+                    @open-new-comment-drawer="openNewCommentDrawer" 
+                />
+
                 <div>
-                    <PostCard :module="module" :data="post" :show-more="true" :user="user" :enable-truncate="false"
-                        @open-new-comment-drawer="openNewCommentDrawer" />
-                    <div>
-                        <!--CREATE COMMENT TRIGGER-->
-                        <CreateCommentTrigger @on-press="openNewCommentDrawer" :user="user" :type="post?.type" />
-                    </div>
-
-                    <!--COMMENTS FILTERS-->
-                    <div v-if="cacheComments?.comments?.length"
-                        class="flex items-center justify-between border-b dark:border-[rgb(57,56,57)] dark:bg-[#262626] bg-white py-3 px-3">
-                        <p class="text-sm font-semibold dark:text-white text-[rgb(40,40,41)]">Comentários</p>
-                        <button @click="openSortByFilterDrawer" class="flex items-center gap-1">
-                            <span class="font-semibold text-[13px]"> {{ sortByText }}</span>
-                            <span>
-                                <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="m5 8.5 7 7 7.005-7" class="icon_svg-stroke" stroke="currentColor"
-                                        stroke-width="2" fill="none" stroke-linecap="round"></path>
-                                </svg>
-                            </span>
-
-                        </button>
-                    </div>
-
-
-                    <!--COMMENTS-->
-                    <CommentList :comments="cacheComments?.comments || []" :pagination="cacheComments?.pagination || {}"
-                        :loading-fetch="loadingFetchComments" :loading-load-more="loadingLoadMoreComments"
-                        :active-comment="post?.sortCommentId" :postId="postId" @on-load-more="handleLoadMoreComments"
-                        @on-reply="openNewCommentDrawer" />
+                    <!--CREATE COMMENT TRIGGER-->
+                    <CreateCommentTrigger @on-press="openNewCommentDrawer" :user="user" :type="post?.type" />
                 </div>
+
+                <!--COMMENTS FILTERS-->
+                <div v-if="cacheComments?.comments?.length"
+                    class="flex items-center justify-between border-b dark:border-[rgb(57,56,57)] dark:bg-[#262626] bg-white py-3 px-3">
+                    <p class="text-sm font-semibold dark:text-white text-[rgb(40,40,41)]">Comentários</p>
+                    <button @click="openSortByFilterDrawer" class="flex items-center gap-1">
+                        <span class="font-semibold text-[13px]"> {{ sortByText }}</span>
+                        <span>
+                            <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="m5 8.5 7 7 7.005-7" class="icon_svg-stroke" stroke="currentColor"
+                                    stroke-width="2" fill="none" stroke-linecap="round"></path>
+                            </svg>
+                        </span>
+
+                    </button>
+                </div>
+
+
+                <!--COMMENTS-->
+                <CommentList :comments="cacheComments?.comments || []" :pagination="cacheComments?.pagination || {}"
+                    :loading-fetch="loadingFetchComments" :loading-load-more="loadingLoadMoreComments"
+                    :active-comment="post?.sortCommentId" :postId="postId" @on-load-more="handleLoadMoreComments"
+                    @on-reply="openNewCommentDrawer" />
             </div>
             <div v-else>
                 <LoadingScreen />
@@ -93,6 +103,8 @@ import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
 import LoadingScreen from '@/components/UI/LoadingScreen.vue';
 import Navbar from '@/views/main/components/Navbar.vue';
+import PullToRefreshIndicator from '@/components/UI/PullToRefreshIndicator.vue';
+import { usePullToRefresh } from '@/composables/usePullToRefresh';
 
 const store = useStore()
 const route = useRoute()
@@ -164,6 +176,8 @@ const queryComments = ref({
     hasTotal: null
 })
 
+const enablePullToRefresh = ref(true)
+
 const openDrawer = (data) => {
     const { show, name, metadata = {} } = data
 
@@ -172,6 +186,24 @@ const openDrawer = (data) => {
         name,
         metadata
     }
+}
+
+// === Pull to refresh, só ativo se enablePullToRefresh for true ===
+const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
+    postView,
+    () => emitRefreshAndWait(),
+    {
+        threshold: 70,
+        maxPull: 90,
+        enabled: enablePullToRefresh.value
+    }
+)
+
+const emitRefreshAndWait = () => {
+    return new Promise(async (resolve) => {
+        await loadPost(postId.value)
+        resolve()
+    })
 }
 
 const closeDrawer = () => {
@@ -330,21 +362,26 @@ onBeforeRouteLeave((to, from, next) => {
 });
 
 
+const loadPost = async (postId) => {
+    await store.dispatch("getPostById", { postId })
+        .then(async () => {
+            loadingFetchComments.value = true
+            await fetchComments(postId)
+                .finally(() => {
+                    loadingFetchComments.value = false
+                })
+        })
+        .finally(() => {
+            loadingFetchPost.value = false
+        })
+}
+
+
 onMounted(async () => {
     if (!post.value?._id) {
         loadingFetchPost.value = true
-
-        await store.dispatch("getPostById", { postId: postId.value })
-            .then(async () => {
-                loadingFetchComments.value = true
-                await fetchComments(postId.value)
-                    .finally(() => {
-                        loadingFetchComments.value = false
-                    })
-            })
-            .finally(() => {
-                loadingFetchPost.value = false
-            })
+        await loadPost(postId.value)
+        enablePullToRefresh.value = true
     } else {
         if (post.value?.showCommentFormDrawer) {
             setTimeout(() => {
@@ -377,7 +414,7 @@ onMounted(async () => {
 
 watch(() => route.params.id, async (newId, oldId) => {
     if (!newId || newId === oldId) return
-    
+
     postId.value = newId
 
     if (post.value?._id !== postId.value) {
