@@ -4,7 +4,7 @@
             <CreatePostTrigger module="feed" :user="user" />
         </div>
         <div>
-            <PostList :posts="feedPosts?.posts || []" :has-more="feedPosts?.pagination?.hasMore || false"
+            <PostList :enable-pull-to-refresh="true" :posts="feedPosts?.posts || []" :has-more="feedPosts?.pagination?.hasMore || false"
                 :loading-fetch="loadingFeedPosts" :loading-load-more="loadingLoadMore" :show-btn-follow="true"
                 module="feed" @on-load-more="handleLoadMore" @on-refresh="handleRefresh" />
         </div>
@@ -66,6 +66,8 @@ const handleLoadMore = async () => {
     const pagination = feedPosts.value?.pagination
     const { hasMore, total } = pagination
 
+    loadingLoadMore.value = true
+    
     if (hasMore) {
         loadingLoadMore.value = true
         query.value.page += 1
@@ -83,51 +85,10 @@ const handleLoadMore = async () => {
 }
 
 const handleRefresh = async (done) => {
+    loadingFeedPosts.value = true
     await fetchFeedPosts()
-    await scrollToTopWithBoost()
+    loadingFeedPosts.value = false
     done() // libera o indicador de loading
-}
-
-const scrollToTopWithBoost = () => {
-    return new Promise((resolve) => {
-        const el = feedView.value
-        if (!el) return resolve()
-
-        // Scroll suave até o topo
-        el.scrollTo({ top: 0, behavior: 'smooth' })
-
-        // Espera o scroll chegar ao topo antes de aplicar o boost
-        const checkIfReachedTop = setInterval(() => {
-            if (el.scrollTop <= 0) {
-                clearInterval(checkIfReachedTop)
-                applyBoostEffect(el)
-                resolve()
-            }
-        }, 50)
-
-        // Fallback de segurança caso não detecte o scrollTop (alguns navegadores arredondam)
-        setTimeout(() => {
-            clearInterval(checkIfReachedTop)
-            applyBoostEffect(el)
-            resolve()
-        }, 600)
-    })
-}
-
-const applyBoostEffect = (el) => {
-    el.style.transition = 'transform 0.18s ease-out'
-    el.style.transform = 'translateY(8px)'
-
-    setTimeout(() => {
-        el.style.transition = 'transform 0.22s ease-in-out'
-        el.style.transform = 'translateY(0)'
-    }, 180)
-
-    // Limpa os estilos inline depois da animação
-    setTimeout(() => {
-        el.style.transition = ''
-        el.style.transform = ''
-    }, 420)
 }
 
 onMounted(async () => {

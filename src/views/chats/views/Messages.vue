@@ -39,7 +39,8 @@
                     </div>
                 </div>
 
-                <MessageBox @more-option="" v-for="(message, index) in cachedMessages?.items || []" :key="message._id"
+                <MessageBox 
+                    @more-option="" v-for="(message, index) in cachedMessages?.items || []" :key="message._id"
                     :message="message" :user-id="user?._id" :previousMessage="cachedMessages?.items[index - 1]" />
 
                 <div v-if="readersExcludingCurrent.length && cachedMessages?.items?.length"
@@ -61,10 +62,18 @@
 
 
         <div class="z-10 dark:bg-dark-bg w-full">
-            <MessageForm @voice-message-sent="handleSendVoiceMessage" :show-shadow="showShadowMessageForm"
-                @typing-start="handleTypingStart" @typing-stop="handleTypingStop" @message-sent="handleSendMessage"
-                @auto-resize="updateInputResize" ref="messageFormRef" :user-id="user._id"
-                :disabled="isLoadingSendMessage" :reply-to="replyTo" @close-reply-to="resetReplyTo" />
+            <MessageForm 
+                @voice-message-sent="handleSendVoiceMessage" 
+                :show-shadow="showShadowMessageForm"
+                @typing-start="handleTypingStart" 
+                @typing-stop="handleTypingStop" 
+                @message-sent="handleSendMessage"
+                @auto-resize="updateInputResize" 
+                ref="messageFormRef" 
+                :user-id="user._id"
+                :disabled="isLoadingSendMessage" 
+                :reply-to="replyTo" 
+                @close-reply-to="resetReplyTo" />
         </div>
 
         <!--drawer-->

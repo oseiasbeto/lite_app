@@ -102,7 +102,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['message-sent', 'typing-start', 'typing-stop', 'close-reply-to', 'auto-resize', 'focus'])
+const emit = defineEmits(['message-sent', 'typing-start', 'voice-message-sent', 'typing-stop', 'close-reply-to', 'auto-resize', 'focus'])
 
 const inputMessage = ref('')
 const textareaRef = ref(null)

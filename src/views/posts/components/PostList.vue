@@ -2,6 +2,7 @@
     <div ref="scrollContainer" class="relative overflow-y-auto h-full">
         <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
         <PullToRefreshIndicator
+            v-if="enablePullToRefresh"
             :distance="pullDistance"
             :threshold="threshold"
             :is-refreshing="isRefreshing"
@@ -41,7 +42,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, toRef } from 'vue';
 import { useStore } from 'vuex';
 import PostCard from './PostCard.vue';
 import { useIntersectionObserver } from "@vueuse/core";
@@ -61,7 +62,7 @@ const scrollContainer = ref(null);
 
 const emit = defineEmits(['on-load-more', 'on-refresh']);
 
-defineProps({
+const props = defineProps({
     posts: {
         type: Array,
         required: true
@@ -79,6 +80,10 @@ defineProps({
         default: true
     },
     loadingLoadMore: {
+        type: Boolean,
+        default: false
+    },
+    enablePullToRefresh: {
         type: Boolean,
         default: false
     },
@@ -127,11 +132,15 @@ useIntersectionObserver(
     }
 );
 
-// === Pull to refresh (overlay, sem empurrar o conteúdo) ===
+// === Pull to refresh, só ativo se enablePullToRefresh for true ===
 const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
     scrollContainer,
     () => emitRefreshAndWait(),
-    { threshold: 70, maxPull: 90 }
+    {
+        threshold: 70,
+        maxPull: 90,
+        enabled: toRef(props, 'enablePullToRefresh')
+    }
 )
 
 const emitRefreshAndWait = () => {

@@ -4,25 +4,35 @@
     <div
       v-if="distance > 0 || isRefreshing"
       class="left-1/2 z-30 -translate-x-1/2 flex items-center justify-center
-             w-9 h-9 rounded-full bg-white dark:bg-[#242526]
-             shadow-[0_2px_10px_rgba(0,0,0,0.15)]"
+             w-10 h-10 rounded-full bg-white dark:bg-[#242526]
+             shadow-[0_1px_2px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.12)]
+             ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
       :class="isRefreshing ? 'fixed' : 'absolute'"
       :style="indicatorStyle"
     >
-      <!-- Spinner girando enquanto carrega -->
-      <svg v-if="isRefreshing" class="animate-spin" width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <circle cx="12" cy="12" r="9" stroke="#e4e6eb" stroke-width="3" class="dark:stroke-[#3a3b3c]" />
-        <path d="M21 12a9 9 0 0 0-9-9" stroke="#287dff" stroke-width="3" stroke-linecap="round" />
+      <!-- Spinner girando enquanto carrega: só o arco, sem trilho cinzento -->
+      <svg v-if="isRefreshing" class="fb-spin" width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <path
+          d="M21.5 12a9.5 9.5 0 0 0-9.5-9.5"
+          stroke="#1877f2"
+          stroke-width="2.5"
+          stroke-linecap="round"
+        />
       </svg>
 
-      <!-- Anel de progresso enquanto puxa, sem soltar ainda -->
-      <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="none" :style="{ transform: `rotate(${rotation}deg)` }">
-        <circle cx="12" cy="12" r="9" stroke="#e4e6eb" class="dark:stroke-[#3a3b3c]" stroke-width="3" fill="none" />
-        <circle
-          cx="12" cy="12" r="9" fill="none"
-          stroke="#287dff" stroke-width="3" stroke-linecap="round"
-          :stroke-dasharray="circumference"
-          :stroke-dashoffset="dashOffset"
+      <!-- Seta enquanto puxa: vira 180° quando passa do threshold (pronto pra soltar) -->
+      <svg
+        v-else
+        width="24" height="24" viewBox="0 0 24 24" fill="none"
+        :style="{ transform: `rotate(${arrowRotation}deg)`, transition: 'transform 0.2s ease' }"
+      >
+        <path
+          d="M12 4v13M12 17l-5.5-5.5M12 17l5.5-5.5"
+          :stroke="reachedThreshold ? '#1877f2' : '#8a8d91'"
+          stroke-width="2.2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          style="transition: stroke 0.2s ease"
         />
       </svg>
     </div>
@@ -38,15 +48,13 @@ const props = defineProps({
   isRefreshing: { type: Boolean, default: false }
 })
 
-const circumference = 2 * Math.PI * 9 // raio 9
-
 // Progresso de 0 a 1 conforme se aproxima do threshold
 const progress = computed(() => Math.min(props.distance / props.threshold, 1))
 
-const dashOffset = computed(() => circumference * (1 - progress.value))
+const reachedThreshold = computed(() => props.distance >= props.threshold)
 
-// Pequeno "bounce" de rotação quando passa do threshold (feedback de soltar)
-const rotation = computed(() => progress.value * 360)
+// Seta aponta pra baixo enquanto puxa, e vira pra cima quando já passou do threshold
+const arrowRotation = computed(() => (reachedThreshold.value ? 180 : 0))
 
 // Posição vertical: o círculo acompanha o dedo até o threshold, depois fica fixo (igual Facebook)
 const indicatorStyle = computed(() => {
@@ -71,5 +79,20 @@ const indicatorStyle = computed(() => {
 .fade-scale-leave-to {
   opacity: 0;
   transform: translate(-50%, -10px) scale(0.6);
+}
+
+/* Rotação contínua e suave, igual ao spinner do Facebook (sem trilho cinzento) */
+.fb-spin {
+  animation: fb-spin-rotate 0.85s linear infinite;
+  transform-origin: center;
+}
+
+@keyframes fb-spin-rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

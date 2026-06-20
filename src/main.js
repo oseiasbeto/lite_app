@@ -9,6 +9,7 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import './assets/tailwind.css' // Importe o arquivo CSS aqui
 import './assets/styles.css' // Importe o arquivo CSS aqui
 
+
 const app = createApp(App)
 
 
