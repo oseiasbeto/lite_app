@@ -23,7 +23,7 @@
                                 </g>
                             </svg>
                         </li>
-                        <li class="flex px-4 border-b justify-between items-center text-[#282829] dark:text-inherit border-[#dee0e1] dark:border-[rgb(57,56,57)] py-2.5 flex-row items-center"
+                        <li class="flex px-4 border-b justify-between items-center text-[#282829] dark:text-inherit border-[#dee0e1] dark:border-[rgb(57,56,57)] py-2.5 flex-row"
                             @click="goToEditForm('name')">
 
                             <div class="flex flex-col">

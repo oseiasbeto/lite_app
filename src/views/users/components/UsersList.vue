@@ -13,7 +13,7 @@
     <!-- Trigger para carregar mais -->
     <div v-if="hasMore || loadingMore" class="load-more-container flex items-center justify-center h-[34px]">
       <div v-if="!loadingMore">
-        <button class="w-full h-full tapHighlight text-[#4894fd] text-[13px]" @click="emit('load-more');">Ver mais ></button>
+        <button class="w-full h-full tapHighlight text-[rgba(25,95,170)] dark:text-[#4894fd] text-[13px]" @click="emit('load-more');">Ver mais ></button>
       </div>
       <div v-else>
         <Spinner />
