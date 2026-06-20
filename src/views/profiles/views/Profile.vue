@@ -20,9 +20,14 @@
             </button>
         </template>
     </Navbar>
-    <div @scroll="setScrollTopFromCache" ref="profileView" class="h-[calc(100vh-100px)] overflow-y-scroll mt-[44px]">
+    <div @scroll="setScrollTopFromCache" ref="profileView" class="relative h-[calc(100vh-100px)] overflow-y-scroll mt-[44px]">
         <div v-if="!hasError?.show">
             <div v-if="!loadingFetchProfile">
+                <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
+                <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"
+                    :is-refreshing="isRefreshing"
+                    :top-position="54"
+                    />
                 <div
                     class="border-b-[6px] dark:bg-[#262626] dark:border-[rgb(24,24,24)] bg-white border-[rgb(230,231,232)]">
                     <!--DETAILS USER-->
@@ -98,6 +103,8 @@ import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import CredentialsHighlights from '../components/CredentialsHighlights.vue';
 import ProfileSkeleton from '../components/ProfileSkeleton.vue';
 import Navbar from '@/views/main/components/Navbar.vue';
+import PullToRefreshIndicator from '@/components/UI/PullToRefreshIndicator.vue';
+import { usePullToRefresh } from '@/composables/usePullToRefresh';
 
 const store = useStore()
 const route = useRoute()
@@ -146,6 +153,7 @@ const loadingFetchProfilePosts = ref(false)
 const isFollowing = ref(false)
 const isSubscribing = ref(false)
 const loadingOpenConv = ref(false)
+const enablePullToRefresh = ref(true)
 
 const hasError = ref({
     show: false,
@@ -321,29 +329,51 @@ onBeforeRouteLeave((to, from, next) => {
     }
 });
 
+// === Pull to refresh, só ativo se enablePullToRefresh for true ===
+const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
+    profileView,
+    () => emitRefreshAndWait(),
+    {
+        threshold: 70,
+        maxPull: 90,
+        enabled: enablePullToRefresh.value
+    }
+)
+
+const emitRefreshAndWait = () => {
+    return new Promise(async (resolve) => {
+        await loadProfile(userId.value)
+        resolve()
+    })
+}
+
+const loadProfile = async (userId) => {
+    await store.dispatch("getProfileByUserId", userId)
+        .finally(async () => {
+            loadingFetchProfile.value = false
+            loadingFetchProfilePosts.value = true
+
+            queryPosts.value.isPush = false
+
+            await fetchProfilePosts(userId)
+                .finally(() => {
+                    loadingFetchProfilePosts.value = false
+                })
+        })
+        .catch(err => {
+            const errMessage = err?.response?.data?.message || 'Houve um erro'
+
+            hasError.value = {
+                show: true,
+                message: errMessage
+            }
+        })
+}
+
 onMounted(async () => {
     if (profile.value?._id !== userId.value) {
         loadingFetchProfile.value = true
-        await store.dispatch("getProfileByUserId", userId.value)
-            .finally(async () => {
-                loadingFetchProfile.value = false
-                loadingFetchProfilePosts.value = true
-
-                queryPosts.value.isPush = false
-
-                await fetchProfilePosts(userId.value)
-                    .finally(() => {
-                        loadingFetchProfilePosts.value = false
-                    })
-            })
-            .catch(err => {
-                const errMessage = err?.response?.data?.message || 'Houve um erro'
-
-                hasError.value = {
-                    show: true,
-                    message: errMessage
-                }
-            })
+        await loadProfile(userId.value)
     } else {
         const pagination = profilePosts.value?.pagination || null
 

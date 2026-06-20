@@ -32,7 +32,7 @@
 
                     <div class="flex my-2 justify-between items-center">
                         <button
-                            class="flex active:opacity-50 bg-[rgb(230,231,232)] items-center gap-1 py-2 px-6 text-[rgb(40,40,41)] dark:text-inherit dark:bg-[#313131] rounded-full"
+                            class="flex active:opacity-50 bg-[#f1f2f2] items-center gap-1 py-2 px-6 text-[rgb(40,40,41)] dark:text-inherit dark:bg-[#313131] rounded-full"
                             @click="goToProfile(conversation)">
                             <p>Ir para este perfil</p>
                         </button>

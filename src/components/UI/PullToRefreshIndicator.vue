@@ -45,7 +45,8 @@ import { computed } from 'vue'
 const props = defineProps({
   distance: { type: Number, default: 0 },
   threshold: { type: Number, default: 70 },
-  isRefreshing: { type: Boolean, default: false }
+  isRefreshing: { type: Boolean, default: false },
+  topPosition: { type: Number, default: 14 }
 })
 
 // Progresso de 0 a 1 conforme se aproxima do threshold
@@ -56,11 +57,20 @@ const reachedThreshold = computed(() => props.distance >= props.threshold)
 // Seta aponta pra baixo enquanto puxa, e vira pra cima quando já passou do threshold
 const arrowRotation = computed(() => (reachedThreshold.value ? 180 : 0))
 
-// Posição vertical: o círculo acompanha o dedo até o threshold, depois fica fixo (igual Facebook)
+// Posição vertical: começa em topPosition e vai até topPosition + threshold
 const indicatorStyle = computed(() => {
-  const top = props.isRefreshing
-    ? 14
-    : Math.min(props.distance, props.threshold) - 28 // começa "escondido" atrás do header
+  let top
+  if (props.isRefreshing) {
+    // Quando está atualizando: fica fixo em topPosition + um pequeno offset
+    top = props.topPosition + 10
+  } else {
+    // Quando está puxando: começa em topPosition e sobe conforme puxa
+    // O valor mínimo é topPosition (quando distance = 0)
+    // O valor máximo é topPosition + (threshold - 28) quando atinge o threshold
+    const maxOffset = Math.max(0, props.threshold - 28)
+    const currentOffset = Math.min(props.distance, props.threshold) - 28
+    top = props.topPosition + Math.min(currentOffset, maxOffset)
+  }
 
   return {
     top: `${top}px`,

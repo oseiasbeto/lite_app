@@ -4,7 +4,9 @@
             <CreatePostTrigger module="feed" :user="user" />
         </div>
         <div>
-            <PostList :enable-pull-to-refresh="true" :posts="feedPosts?.posts || []" :has-more="feedPosts?.pagination?.hasMore || false"
+            <PostList 
+                :enable-pull-to-refresh="enablePullToRefresh" 
+                :posts="feedPosts?.posts || []" :has-more="feedPosts?.pagination?.hasMore || false"
                 :loading-fetch="loadingFeedPosts" :loading-load-more="loadingLoadMore" :show-btn-follow="true"
                 module="feed" @on-load-more="handleLoadMore" @on-refresh="handleRefresh" />
         </div>
@@ -21,6 +23,7 @@ const store = useStore()
 
 const loadingFeedPosts = ref(false)
 const loadingLoadMore = ref(false)
+const enablePullToRefresh = ref(false)
 
 const query = ref({
     page: 1,
@@ -101,6 +104,7 @@ onMounted(async () => {
         console.error("Erro ao buscar posts do feed:", err?.response?.data?.message)
     } finally {
         loadingFeedPosts.value = false
+        enablePullToRefresh.value = true
     }
 
 })
