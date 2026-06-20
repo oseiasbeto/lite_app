@@ -4,19 +4,13 @@
         <div @scroll="setScrollTopFromCache" ref="postView"
             class="h-[calc(100vh-44px)] relative overflow-y-scroll mt-[44px]">
             <div v-if="!loadingFetchPost">
-                 <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
-                <PullToRefreshIndicator 
-                    v-if="enablePullToRefresh" 
-                    :distance="pullDistance" 
-                    :threshold="threshold"
-                    :is-refreshing="isRefreshing"
-                    :top-position="46"
-                    />
+                <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
+                <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"
+                    :is-refreshing="isRefreshing" :top-position="46" />
 
 
                 <PostCard :module="module" :data="post" :show-more="true" :user="user" :enable-truncate="false"
-                    @open-new-comment-drawer="openNewCommentDrawer" 
-                />
+                    @open-new-comment-drawer="openNewCommentDrawer" />
 
                 <div>
                     <!--CREATE COMMENT TRIGGER-->
@@ -44,7 +38,7 @@
                 <CommentList :comments="cacheComments?.comments || []" :pagination="cacheComments?.pagination || {}"
                     :loading-fetch="loadingFetchComments" :loading-load-more="loadingLoadMoreComments"
                     :active-comment="post?.sortCommentId" :postId="postId" @on-load-more="handleLoadMoreComments"
-                    @on-reply="openNewCommentDrawer" />
+                    @on-reply="openNewCommentDrawer" @on-more="openMoreOptions" />
             </div>
             <div v-else>
                 <LoadingScreen />
@@ -78,7 +72,14 @@
                         </div>
 
                     </div>
+                </template>
 
+                <template v-if="drawer?.name === 'commentMoreOptions'">
+                    <DrawerItem @on-press="openNewCommentDrawer({
+                        parent: drawer?.metadata,
+                        replyTo: drawer?.metadata?.author
+                    })" title="Responder" :is-active="false" />
+                    <DrawerItem v-if="isCommentAuthor" :is-danger="true" @on-press="" title="Eliminar" :is-active="false" />
                 </template>
 
                 <template v-if="drawer?.name === 'sortByFilter'">
@@ -188,6 +189,25 @@ const openDrawer = (data) => {
     }
 }
 
+// ============ COMPUTED PARA VERIFICAR AUTOR DO COMENTÁRIO ============
+const isCommentAuthor = computed(() => {
+    // Verifica se o drawer está aberto com o nome 'commentMoreOptions'
+    if (drawer.value?.name !== 'commentMoreOptions') return false
+    
+    // Pega o autor do comentário do metadata
+    const commentAuthor = drawer.value?.metadata?.author
+    
+    // Se não tiver autor, retorna false
+    if (!commentAuthor) return false
+    
+    // Compara o ID do autor do comentário com o ID do usuário atual
+    // Supondo que o author pode ser um objeto ou string ID
+    const authorId = commentAuthor?._id || commentAuthor
+    const currentUserId = user.value?._id
+    
+    return authorId?.toString() === currentUserId?.toString()
+})
+
 // === Pull to refresh, só ativo se enablePullToRefresh for true ===
 const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
     postView,
@@ -252,6 +272,17 @@ const openNewCommentDrawer = (metadata) => {
         metadata: {
             ...metadata,
             title: metadata?.parent ? 'Responder' : "Comentar"
+        }
+    })
+}
+
+const openMoreOptions = (metadata) => {
+    openDrawer({
+        show: true,
+        name: "commentMoreOptions",
+        metadata: {
+            ...metadata,
+            title: 'Comentário'
         }
     })
 }

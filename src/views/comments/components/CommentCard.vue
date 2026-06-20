@@ -23,7 +23,10 @@
                     <CommentReactions :loading="isReactingComment" :upvotes="data?.upvotes"
                         :upvotes-count="data?.upvotes_count" :downvotes="data?.downvotes" :user-id="userId"
                         :downvotes-count="data?.downvotes_count" :replies-count="data?.replies_count"
-                        :shares-count="data?.shares_count" @on-upvote="handleUpvote" @on-downvote="handleDownvote"
+                        :shares-count="data?.shares_count" 
+                        @on-more="handleOneMore(data)"
+                        @on-upvote="handleUpvote" 
+                        @on-downvote="handleDownvote"
                         @on-reply="onReply({
                             parent: data,
                             replyTo: data?.author
@@ -127,6 +130,10 @@ const handleUpvote = async () => {
         .finally(() => {
             isReactingComment.value = false
         })
+}
+
+const handleOneMore = async (data) => {
+    emit('on-more', data)
 }
 
 const handleDownvote = async () => {

@@ -310,12 +310,13 @@ onBeforeUnmount(() => {
   color: inherit;
 }
 
-.content a.link-in-content {
+
+.content a {
   color: rgb(25, 95, 170);
   word-break: break-all;
 }
 
-.dark .content a.link-in-content {
+.dark .content a {
   color: rgb(72, 148, 253);
 }
 </style>

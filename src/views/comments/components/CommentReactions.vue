@@ -15,7 +15,7 @@
                         </svg>
                     </span>
                     <span v-show="upvotesCount" class="ml-1 min-w-[20px] font-semibold">{{ formattedCount(upvotesCount)
-                    }}</span>
+                        }}</span>
                 </button>
                 <span class="h-[28px] w-[1px] dark:bg-[#393839] bg-[rgb(222,224,225)] "></span>
                 <button @click="$emit('on-downvote')"
@@ -31,12 +31,20 @@
                 </button>
             </div>
             <button @click="$emit('on-reply')" class="flex font-semibold text-[13px] items-center h-[28px] px-0.5">
-               <p>Responder</p>
+                <p>Responder</p>
             </button>
         </div>
 
         <div>
-
+            <button @click="$emit('on-more')" class="h-[30px] min-w-[30px] flex items-center justify-center">
+                <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M11.25 11.25a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Zm-7 0a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Zm14 0a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Z"
+                        class="icon_svg-stroke" fill="currentColor" stroke="currentColor" stroke-width="1.5"
+                        stroke-linecap="round" stroke-linejoin="round"></path>
+                </svg>
+            </button>
         </div>
     </div>
 </template>
@@ -79,5 +87,5 @@ defineProps({
     },
 })
 
-defineEmits(['on-upvote', 'on-downvote', 'on-reply', 'on-share'])
+defineEmits(['on-upvote', 'on-downvote', 'on-reply', 'on-more', 'on-share'])
 </script>

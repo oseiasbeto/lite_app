@@ -3,7 +3,10 @@
         <!-- ITENS -->
         <div v-if="!loadingFetch">
             <div v-if="comments?.length">
-                <CommentCard v-for="item in comments" @on-reply="onReply" :postId="postId" 
+                <CommentCard v-for="item in comments" 
+                    @on-reply="onReply" 
+                    @on-more="onMore"
+                    :postId="postId" 
                     :data="item"
                     :user-id="user?._id" :key="item?._id" 
                     :active="activeComment === item?._id"
@@ -43,6 +46,9 @@ const emit = defineEmits(['on-scroll', 'on-reply', 'on-load-more']);
 
 const onReply = (data) => {
     emit('on-reply', data)
+}
+const onMore = (data) => {
+    emit('on-more', data)
 }
 
 const setScrollTop = (position) => {

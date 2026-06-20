@@ -41,7 +41,7 @@
         </li>
 
         <li class="flex-1 h-full">
-            <router-link class="flex outline-none items-center h-full" :class="{'text-primary': route.name == 'Search' }" to="/search">
+            <router-link class="flex outline-none !text-inherit items-center h-full" :class="{'!text-primary': route.name == 'Search' }" to="/search">
                 <svg fill="none" v-if="route.name === 'Search'" width="28" viewBox="0 0 24 24" height="28"
                     aria-hidden="true" class="mx-auto">
                     <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
@@ -58,7 +58,7 @@
         </li>
 
         <li class="flex-1 h-full">
-            <router-link class="flex outline-none relative items-center h-full" :class="{'text-primary': route.name == 'Chats' }" to="/chats">
+            <router-link class="flex outline-none text-inherit relative items-center h-full" :class="{'text-primary': route.name == 'Chats' }" to="/chats">
                 <svg v-if="route.name === 'Chats'" xmlns="http://www.w3.org/2000/svg" class="mx-auto"
                     fill="currentColor" width="28px" height="28px" viewBox="0 0 24 24">
                     <path
@@ -79,7 +79,7 @@
         </li>
 
         <li class="flex-1 h-full">
-            <button class="flex items-center w-full h-full" :class="{'text-primary': route.name == 'Profile' }" @click="goToProfile(user)">
+            <button class="flex items-center text-inherit w-full h-full" :class="{'text-primary': route.name == 'Profile' }" @click="goToProfile(user)">
                 <svg v-if="route.name === 'Profile'" fill="none" width="26" viewBox="0 0 24 24" height="26"
                     aria-hidden="true" class="mx-auto">
                     <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
