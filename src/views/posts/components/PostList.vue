@@ -1,6 +1,5 @@
 <template>
     <div ref="scrollContainer" class="relative overflow-y-auto h-full">
-        <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
         <PullToRefreshIndicator
             v-if="enablePullToRefresh"
             :distance="pullDistance"
@@ -10,7 +9,6 @@
 
         <div v-if="!loadingFetch">
             <div v-if="posts?.length">
-                <!-- Spacer com a altura total da lista virtual -->
                 <div class="relative w-full" :style="{ height: `${totalSize}px` }">
                     <div
                         v-for="virtualRow in virtualItems"
@@ -37,7 +35,6 @@
                 </div>
             </div>
 
-            <!--DRAWER-->
             <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
                 <template v-if="drawer?.name === 'moreOptions'">
                     <DrawerItem @on-press="" title="Ver mais"/>
@@ -67,7 +64,6 @@ import PullToRefreshIndicator from '@/components/UI/PullToRefreshIndicator.vue';
 import { usePullToRefresh } from '@/composables/usePullToRefresh';
 
 const store = useStore()
-
 const user = computed(() => store.getters.currentUser)
 
 const loadTrigger = ref(null);
@@ -76,51 +72,46 @@ const scrollContainer = ref(null);
 const emit = defineEmits(['on-load-more', 'on-refresh']);
 
 const props = defineProps({
-    posts: {
-        type: Array,
-        required: true
-    },
-    module: {
-        type: String,
-        default: "feed"
-    },
-    loadingFetch: {
-        type: Boolean,
-        default: false
-    },
-    showBorderBottom: {
-        type: Boolean,
-        default: true
-    },
-    loadingLoadMore: {
-        type: Boolean,
-        default: false
-    },
-    enablePullToRefresh: {
-        type: Boolean,
-        default: false
-    },
-    showBtnFollow: {
-        type: Boolean,
-        default: false
-    },
-    hasMore: {
-        type: Boolean,
-        default: false
-    }
+    posts: { type: Array, required: true },
+    module: { type: String, default: "feed" },
+    loadingFetch: { type: Boolean, default: false },
+    showBorderBottom: { type: Boolean, default: true },
+    loadingLoadMore: { type: Boolean, default: false },
+    enablePullToRefresh: { type: Boolean, default: false },
+    showBtnFollow: { type: Boolean, default: false },
+    hasMore: { type: Boolean, default: false },
+    // Posição de scroll para restaurar SEM efeito de salto/ajuste
+    initialScroll: { type: Number, default: 0 }
 })
 
-// === Virtualização ===
-// estimateSize é só um palpite inicial (px); a altura real de cada PostCard
-// (imagem, texto, etc.) é medida depois via measureElement, então alturas
-// variáveis funcionam sem problema.
+// === Cache de alturas medidas, persistente ENQUANTO O APP ESTIVER ABERTO ===
+// Fora do componente (module-level) para sobreviver a remounts da lista.
+// Chave: post._id -> altura real medida em px.
+const sizeCache = (PostList_sizeCache());
+function PostList_sizeCache() {
+    if (!window.__postListSizeCache) {
+        window.__postListSizeCache = new Map();
+    }
+    return window.__postListSizeCache;
+}
+
 const ESTIMATED_POST_HEIGHT = 420;
+
+const estimateSize = (index) => {
+    const post = props.posts[index];
+    if (post && sizeCache.has(post._id)) {
+        return sizeCache.get(post._id);
+    }
+    return ESTIMATED_POST_HEIGHT;
+};
 
 const virtualizerOptions = computed(() => ({
     count: props.posts?.length || 0,
     getScrollElement: () => scrollContainer.value,
-    estimateSize: () => ESTIMATED_POST_HEIGHT,
-    overscan: 4
+    estimateSize,
+    overscan: 4,
+    // Nasce já na posição certa — sem precisar setar scrollTop depois e sem salto visual
+    initialOffset: props.initialScroll || 0
 }));
 
 const virtualizer = useVirtualizer(virtualizerOptions);
@@ -128,30 +119,33 @@ const virtualizer = useVirtualizer(virtualizerOptions);
 const virtualItems = computed(() => virtualizer.value.getVirtualItems());
 const totalSize = computed(() => virtualizer.value.getTotalSize());
 
+// Mede em lote (1 frame) e atualiza o cache global de alturas
 let rafId = null;
-const pendingMeasurements = new Set();
+const pendingMeasurements = new Map(); // el -> index
 
 const measureElement = (el, index) => {
-  if (!el) return;
+    if (!el) return;
+    pendingMeasurements.set(el, index);
+    if (rafId) return;
 
-  pendingMeasurements.add(el);
+    rafId = requestAnimationFrame(() => {
+        pendingMeasurements.forEach((idx, node) => {
+            virtualizer.value.measureElement(node);
 
-  if (rafId) return; // já tem um frame agendado, não duplica
-
-  rafId = requestAnimationFrame(() => {
-    pendingMeasurements.forEach((node) => {
-      virtualizer.value.measureElement(node);
+            const post = props.posts[idx];
+            if (post) {
+                const height = node.getBoundingClientRect().height;
+                if (height > 0) {
+                    sizeCache.set(post._id, height);
+                }
+            }
+        });
+        pendingMeasurements.clear();
+        rafId = null;
     });
-    pendingMeasurements.clear();
-    rafId = null;
-  });
 };
 
-const drawer = ref({
-    show: false,
-    name: "",
-    metadata: {}
-})
+const drawer = ref({ show: false, name: "", metadata: {} })
 
 const openDrawer = (data) => {
     const { show, name, metadata = {} } = data
@@ -163,39 +157,20 @@ const closeDrawer = () => {
 }
 
 const openMoreOptionsDrawer = (post) => {
-     openDrawer({
-        show: true,
-        name: "moreOptions",
-        metadata: {
-            post,
-            title: 'Postagem'
-        }
-    })
+     openDrawer({ show: true, name: "moreOptions", metadata: { post, title: 'Postagem' } })
 }
 
-useIntersectionObserver(
-    loadTrigger,
-    ([{ isIntersecting }]) => {
-        if (isIntersecting) {
-            emit('on-load-more');
-        }
-    }
-);
+useIntersectionObserver(loadTrigger, ([{ isIntersecting }]) => {
+    if (isIntersecting) emit('on-load-more');
+});
 
-// === Pull to refresh, só ativo se enablePullToRefresh for true ===
 const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
     scrollContainer,
     () => emitRefreshAndWait(),
-    {
-        threshold: 70,
-        maxPull: 90,
-        enabled: toRef(props, 'enablePullToRefresh')
-    }
+    { threshold: 70, maxPull: 90, enabled: toRef(props, 'enablePullToRefresh') }
 )
 
 const emitRefreshAndWait = () => {
-    return new Promise((resolve) => {
-        emit('on-refresh', resolve)
-    })
+    return new Promise((resolve) => emit('on-refresh', resolve))
 }
 </script>
