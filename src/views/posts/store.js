@@ -68,6 +68,35 @@ export default {
         SET_PARENT_POST(state, payload) {
             state.parentPost = payload
         },
+        DELETE_POST(state, postId) {
+            // Remove a postagem do array
+            state.posts = state.posts.filter(post => post._id !== postId);
+
+            // Se tiver paginação, também remove do cache de páginas
+            if (state.pagePosts) {
+                // Remove de todas as páginas
+                Object.keys(state.pagePosts).forEach(pageKey => {
+                    state.pagePosts[pageKey] = state.pagePosts[pageKey].filter(
+                        post => post._id !== postId
+                    );
+                });
+            }
+        },
+        
+        // Nova mutation específica para remover de um módulo específico
+        REMOVE_POST_FROM_MODULE(state, { moduleName, postId }) {
+            if (!moduleName || !postId) return;
+
+            const moduleIndex = state.posts.findIndex(m => m.module === moduleName);
+
+            if (moduleIndex !== -1) {
+                const module = state.posts[moduleIndex];
+                if (module?.posts?.length) {
+                    module.posts = module.posts.filter(post => post._id !== postId);
+                }
+            }
+        },
+
         RESET_PARENT_POST(state) {
             state.parentPost = {}
         },
@@ -199,6 +228,39 @@ export default {
             } catch (err) {
                 logger.error(err);
                 throw err
+            }
+        },
+        async deletePost({ commit, state }, postId) {
+            try {
+                // Faz a requisição para deletar
+                const response = await api.delete(`/posts/${postId}`);
+
+                if (response.data.success) {
+                    // Commit das mutations para remover a postagem
+                    commit('DELETE_POST', postId);
+
+                    // Se tiver profile com posts, remove também
+                    if (state.profile && state.profile.posts) {
+                        state.profile.posts = state.profile.posts.filter(
+                            post => post._id !== postId
+                        );
+                        commit('UPDATE_PROFILE', {
+                            posts: state.profile.posts
+                        });
+                    }
+
+                    // Decrementa contador de posts do perfil se existir
+                    if (state.profile && state.profile.posts_count !== undefined) {
+                        commit('UPDATE_PROFILE', {
+                            posts_count: Math.max(0, state.profile.posts_count - 1)
+                        });
+                    }
+                }
+
+                return response.data;
+            } catch (error) {
+                logger.error("Erro ao deletar postagem:", error?.response?.data?.message || error);
+                throw error;
             }
         },
         async getFeedPosts({ commit }, query) {

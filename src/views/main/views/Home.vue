@@ -1,27 +1,29 @@
 <template>
-    <PostList
-        v-if="isActive"
-        :enable-pull-to-refresh="enablePullToRefresh"
-        :posts="feedPosts?.posts || []" :has-more="feedPosts?.pagination?.hasMore || false"
-        :loading-fetch="loadingFeedPosts" :loading-load-more="loadingLoadMore" :show-btn-follow="true"
-        :initial-scroll="feedPosts?.pagination?.scrollTop || 0"
-        module="feed"
-        @on-load-more="handleLoadMore"
-        @on-refresh="handleRefresh"
-        @on-scroll="setScrollTopFromCache"
-    >
-        <template #header>
-            <div class="relative">
-                <CreatePostTrigger module="feed" :user="user" />
-            </div>
-        </template>
-    </PostList>
+    <div @scroll="setScrollTopFromCache" class="relative h-[calc(100vh-56px)] overflow-y-scroll" ref="feedView">
+        <div class="relative">
+            <CreatePostTrigger module="feed" :user="user" />
+        </div>
+        <div>
+            <PostList 
+                :enable-pull-to-refresh="enablePullToRefresh" 
+                :posts="feedPosts?.posts || []" 
+                :has-more="feedPosts?.pagination?.hasMore || false"
+                :loading-fetch="loadingFeedPosts" 
+                :loading-load-more="loadingLoadMore" 
+                :show-btn-follow="true"
+                module="feed" 
+                @post-deleted="handlePostDeleted"
+                @on-load-more="handleLoadMore" 
+                @on-refresh="handleRefresh" 
+            />
+        </div>
+    </div>
 </template>
 
 <script setup>
 import CreatePostTrigger from '@/views/posts/components/CreatePostTrigger.vue';
 import PostList from '@/views/posts/components/PostList.vue';
-import { ref, onMounted, onActivated, onDeactivated, computed } from 'vue';
+import { ref, onMounted, onActivated, computed } from 'vue';
 import { useStore } from 'vuex';
 
 const store = useStore()
@@ -29,21 +31,41 @@ const store = useStore()
 const loadingFeedPosts = ref(false)
 const loadingLoadMore = ref(false)
 const enablePullToRefresh = ref(false)
-const isActive = ref(true)
 
-const query = ref({ page: 1, limit: 10, module: 'feed', hasTotal: null })
+const query = ref({
+    page: 1,
+    limit: 10,
+    module: 'feed',
+    hasTotal: null
+})
+
 const module = ref('feed')
+const feedView = ref(null)
 
 const feedPosts = computed(() => {
     const modules = store.getters.modulePosts
-    if (modules.length) return modules.find(m => m.module === module.value)
-    return []
+    if (modules.length) {
+        return modules.find(m => m.module === module.value)
+    } else return []
 })
 
 const user = computed(() => store.getters.currentUser)
 
-const setScrollTopFromCache = (scrollTop) => {
-    store.commit("UPDATE_PAGINATION_POSTS_FROM_CACHE", { module: module.value, scrollTop })
+const resetQuery = () => {
+    query.value = {
+        page: 1,
+        limit: 10,
+        module: 'feed',
+        total: null
+    }
+}
+
+const setScrollTopFromCache = (event) => {
+    const scrollTop = event.target.scrollTop
+    store.commit("UPDATE_PAGINATION_POSTS_FROM_CACHE", {
+        module: module.value,
+        scrollTop
+    })
 }
 
 const fetchFeedPosts = async () => {
@@ -55,10 +77,12 @@ const handleLoadMore = async () => {
     const { hasMore, total } = pagination
 
     loadingLoadMore.value = true
-
+    
     if (hasMore) {
+        loadingLoadMore.value = true
         query.value.page += 1
         query.value.hasTotal = total
+
         try {
             await fetchFeedPosts()
         } catch (err) {
@@ -67,27 +91,48 @@ const handleLoadMore = async () => {
             loadingLoadMore.value = false
         }
     }
+
 }
 
 const handleRefresh = async (done) => {
     loadingFeedPosts.value = true
     await fetchFeedPosts()
     loadingFeedPosts.value = false
-    done()
+    done() // libera o indicador de loading
+}
+
+// Handler para quando uma postagem é deletada
+const handlePostDeleted = (postId) => {
+  // Atualiza a lista localmente se necessário
+  // O Vuex já vai atualizar automaticamente via mutation
+  console.log('Postagem deletada:', postId);
+
+  store.commit("REMOVE_POST_FROM_MODULE", {
+    postId,
+    moduleName: 'feed'
+  })
 }
 
 onMounted(async () => {
     try {
         loadingFeedPosts.value = true
         await fetchFeedPosts()
+
+        // bannerAd({ adId: "ca-app-pub-3940256099942544/6300978111"})
     } catch (err) {
         console.error("Erro ao buscar posts do feed:", err?.response?.data?.message)
     } finally {
         loadingFeedPosts.value = false
         enablePullToRefresh.value = true
     }
+
 })
 
-onDeactivated(() => { isActive.value = false })
-onActivated(() => { isActive.value = true })
+onActivated(() => {
+    if (feedPosts.value) {
+        const { pagination } = feedPosts.value
+
+        feedView.value.scrollTop = pagination?.scrollTop || 0
+    }
+})
 </script>
