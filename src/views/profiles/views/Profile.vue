@@ -20,24 +20,19 @@
             </button>
         </template>
     </Navbar>
-    <div @scroll="setScrollTopFromCache" ref="profileView" class="relative h-[calc(100vh-100px)] overflow-y-scroll mt-[44px]">
+    <div @scroll="setScrollTopFromCache" ref="profileView"
+        class="relative h-[calc(100vh-100px)] overflow-y-scroll mt-[44px]">
         <div v-if="!hasError?.show">
             <div v-if="!loadingFetchProfile">
-                <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
-                <PullToRefreshIndicator v-if="enablePullToRefresh" 
-                    :distance="pullDistance" 
-                    :threshold="threshold"
-                    :is-refreshing="isRefreshing"
-                    :top-position="54"
-                    />
+                <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"
+                    :is-refreshing="isRefreshing" :top-position="54" />
                 <div
                     class="border-b-[6px] dark:bg-[#262626] dark:border-[rgb(24,24,24)] bg-white border-[rgb(230,231,232)]">
-                    <!--DETAILS USER-->
                     <div class="px-[10px] py-4 pb-2">
-                        <ProfileDetailsUser @go-to-picture-full-screen="goToPictureFullScreen" :profile="profile" :user-id="user?._id" />
+                        <ProfileDetailsUser @go-to-picture-full-screen="goToPictureFullScreen" :profile="profile"
+                            :user-id="user?._id" />
                     </div>
 
-                    <!--REACTIOS-->
                     <div class="px-[10px] pb-3">
                         <ProfileReactions :profile="profile" :user-id="user?._id" :is-same-user="isSameUser"
                             :has-followed="hasFollowed" :has-subscribed="hasSubscribed"
@@ -49,17 +44,15 @@
                     </div>
                 </div>
 
-                <!--J-->
                 <CredentialsHighlights />
 
-                <!--TABS-->
                 <Tabs :tabs="tabs" v-model="currentTab" />
 
-                <!--TAB VIEWS-->
                 <template v-if="currentTab === 'posts'">
-                    <PostList :posts="profilePosts?.posts || []" :has-more="profilePosts?.pagination?.hasMore || false"
-                        :loading-fetch="loadingFetchProfilePosts" :loading-load-more="loadingLoadMorePosts"
-                        :module="module" @on-load-more="handleLoadMore" />
+                    <PostList ref="postListRef" :posts="profilePosts?.posts || []"
+                        :has-more="profilePosts?.pagination?.hasMore || false" :loading-fetch="loadingFetchProfilePosts"
+                        :loading-load-more="loadingLoadMorePosts" :module="module" :scroll-element="profileView"
+                        :initial-scroll="profile?.scrollTop || 0" @on-load-more="handleLoadMore" />
                 </template>
                 <template v-if="currentTab === 'questions'">
                     <!--Perguntas-->
@@ -74,7 +67,6 @@
                     <!--Seguindo-->
                 </template>
 
-                <!--DRAWER-->
                 <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
                     <template v-if="drawer?.name == 'moreOptions'">
                         <DrawerItem v-if="canSendMessage" @on-press="openConv(profile)" title="Enviar mensagem" />
@@ -93,7 +85,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch, ref } from 'vue';
+import { computed, onMounted, watch, ref, nextTick } from 'vue';
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import ProfileDetailsUser from '../components/ProfileDetailsUser.vue';
@@ -142,12 +134,7 @@ const canSendMessage = computed(() => {
     }
 })
 
-// Computed para acessar as conversas do store Vuex
-const conversations = computed(() => {
-    // Acessa as conversas do store Vuex
-    return store.getters.conversations;
-})
-
+const conversations = computed(() => store.getters.conversations);
 
 const loadingFetchProfile = ref(false)
 const loadingLoadMorePosts = ref(false)
@@ -157,12 +144,10 @@ const isSubscribing = ref(false)
 const loadingOpenConv = ref(false)
 const enablePullToRefresh = ref(true)
 
-const hasError = ref({
-    show: false,
-    message: ""
-})
+const hasError = ref({ show: false, message: "" })
 
 const profileView = ref(null)
+const postListRef = ref(null)
 const currentTab = ref('posts')
 const module = ref('profile')
 
@@ -175,28 +160,15 @@ const queryPosts = ref({
     hasTotal: null
 })
 
-const drawer = ref({
-    show: false,
-    name: "",
-    metadata: {}
-})
+const drawer = ref({ show: false, name: "", metadata: {} })
 
 const openDrawer = (data) => {
     const { show, name, metadata = {} } = data
-
-    drawer.value = {
-        show,
-        name,
-        metadata
-    }
+    drawer.value = { show, name, metadata }
 }
 
 const closeDrawer = () => {
-    drawer.value = {
-        show: false,
-        name: '',
-        metadata: {}
-    }
+    drawer.value = { show: false, name: '', metadata: {} }
 }
 
 const tabs = ref([
@@ -207,12 +179,10 @@ const tabs = ref([
     { label: 'Seguindo', value: 'following' },
 ])
 
-
 const profilePosts = computed(() => {
     const modules = store.getters.modulePosts
-    if (modules.length) {
-        return modules.find(m => m.module === module.value)
-    } else return []
+    if (modules.length) return modules.find(m => m.module === module.value)
+    else return []
 })
 
 const resetQueryPosts = () => {
@@ -227,9 +197,7 @@ const resetQueryPosts = () => {
 
 const setScrollTopFromCache = (event) => {
     const scrollTop = event.target.scrollTop
-    store.commit("UPDATE_PROFILE", {
-        scrollTop
-    })
+    store.commit("UPDATE_PROFILE", { scrollTop })
 }
 
 const goToPictureFullScreen = () => {
@@ -237,17 +205,11 @@ const goToPictureFullScreen = () => {
 }
 
 const openMoreOptionsDrawer = () => {
-    openDrawer({
-        show: true,
-        name: 'moreOptions'
-    })
+    openDrawer({ show: true, name: 'moreOptions' })
 }
 
 const fetchProfilePosts = async (userId) => {
-    await store.dispatch("getProfilePosts", {
-        ...queryPosts.value,
-        userId
-    })
+    await store.dispatch("getProfilePosts", { ...queryPosts.value, userId })
 }
 
 const openConv = async (user) => {
@@ -255,7 +217,6 @@ const openConv = async (user) => {
     loadingOpenConv.value = true
 
     const convModules = conversations.value
-
     const moduleIndex = convModules.findIndex(m => m.source === 'active') || 0
 
     if (moduleIndex === -1) {
@@ -264,19 +225,14 @@ const openConv = async (user) => {
             .then((conv) => {
                 closeDrawer()
                 router.push('/messages/' + conv?._id)
-            }).finally(() => {
-                loadingOpenConv.value = false
-            })
+            }).finally(() => { loadingOpenConv.value = false })
     } else {
         const module = convModules[moduleIndex]
         const convIndex = module?.items?.findIndex(c => c.participants?.map(p => p.user?._id).includes(user._id))
 
         if (convIndex !== -1) {
             const conv = module.items[convIndex]
-            store.commit("SET_CONVERSATION", {
-                ...conv,
-                source: 'active'
-            })
+            store.commit("SET_CONVERSATION", { ...conv, source: 'active' })
             loadingOpenConv.value = false
             closeDrawer()
             router.push('/messages/' + conv?._id)
@@ -286,11 +242,8 @@ const openConv = async (user) => {
                 .then((conv) => {
                     closeDrawer()
                     router.push('/messages/' + conv?._id)
-                }).finally(() => {
-                    loadingOpenConv.value = false
-                })
+                }).finally(() => { loadingOpenConv.value = false })
         }
-
     }
 }
 
@@ -304,26 +257,18 @@ const handleLoadMore = async () => {
         queryPosts.value.page += 1
         queryPosts.value.hasTotal = total
         await fetchProfilePosts(profile?.value?._id)
-            .finally(() => {
-                loadingLoadMorePosts.value = false
-            })
+            .finally(() => { loadingLoadMorePosts.value = false })
     }
 }
 
 const handleFollow = async (userId) => {
     isFollowing.value = true
-    await store.dispatch("followUser", userId)
-        .finally(() => {
-            isFollowing.value = false
-        })
+    await store.dispatch("followUser", userId).finally(() => { isFollowing.value = false })
 }
 
 const handleSubscribe = async (userId) => {
     isSubscribing.value = true
-    await store.dispatch("subscribeUser", userId)
-        .finally(() => {
-            isSubscribing.value = false
-        })
+    await store.dispatch("subscribeUser", userId).finally(() => { isSubscribing.value = false })
 }
 
 onBeforeRouteLeave((to, from, next) => {
@@ -335,15 +280,11 @@ onBeforeRouteLeave((to, from, next) => {
     }
 });
 
-// === Pull to refresh, só ativo se enablePullToRefresh for true ===
+// === Pull to refresh continua no profileView, como antes ===
 const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
     profileView,
     () => emitRefreshAndWait(),
-    {
-        threshold: 70,
-        maxPull: 90,
-        enabled: enablePullToRefresh.value
-    }
+    { threshold: 70, maxPull: 90, enabled: enablePullToRefresh.value }
 )
 
 const emitRefreshAndWait = () => {
@@ -358,21 +299,14 @@ const loadProfile = async (userId) => {
         .finally(async () => {
             loadingFetchProfile.value = false
             loadingFetchProfilePosts.value = true
-
             queryPosts.value.isPush = false
 
             await fetchProfilePosts(userId)
-                .finally(() => {
-                    loadingFetchProfilePosts.value = false
-                })
+                .finally(() => { loadingFetchProfilePosts.value = false })
         })
         .catch(err => {
             const errMessage = err?.response?.data?.message || 'Houve um erro'
-
-            hasError.value = {
-                show: true,
-                message: errMessage
-            }
+            hasError.value = { show: true, message: errMessage }
         })
 }
 
@@ -391,17 +325,22 @@ onMounted(async () => {
         }
 
         const activeTab = profile?.value?.activeTab
+        if (activeTab) currentTab.value = activeTab
 
-        if (activeTab) {
-            currentTab.value = activeTab
-        }
-
-        const scrollTop = profile?.value?.scrollTop
-        if (scrollTop) {
-            profileView.value.scrollTop = scrollTop
-        }
+        // A restauração do scroll agora é feita pelo próprio PostList
+        // (via prop :initial-scroll + scrollToOffset interno), não mais
+        // setando profileView.scrollTop direto aqui.
     }
 })
+
+// Quando o conteúdo acima do PostList mudar de altura (ex: dados do perfil
+// chegaram e mudaram o layout), recalcula o scrollMargin pra manter a
+// posição dos posts correta.
+watch([loadingFetchProfile, currentTab], () => {
+    nextTick(() => {
+        postListRef.value?.recalculateScrollMargin();
+    });
+});
 
 watch(() => currentTab.value, async (newTab, oldTab) => {
     if (!newTab || newTab === oldTab) return
@@ -414,9 +353,7 @@ watch(() => currentTab.value, async (newTab, oldTab) => {
         await fetchProfilePosts(userId.value)
             .finally(() => {
                 loadingFetchProfilePosts.value = false
-                store.commit("UPDATE_PROFILE", {
-                    activeTab: newTab
-                })
+                store.commit("UPDATE_PROFILE", { activeTab: newTab })
             })
     }
 },)
