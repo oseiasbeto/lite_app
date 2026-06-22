@@ -259,8 +259,7 @@ export default {
 
             const currentConversation = state.conversation
 
-            if (currentConversation?._id) {
-
+            if (currentConversation?._id === convId) {
                 currentConversation?.read_by?.push({
                     user,
                     read_at

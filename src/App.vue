@@ -185,6 +185,7 @@ const initializeSocket = () => {
         }
       }
     })
+    
     socket.on('delete_message', (msg) => {
       const myId = user.value?._id;
       const isFromMe = msg?.sender?._id === myId;
@@ -263,7 +264,6 @@ const initializeSocket = () => {
           const { user: reciver, read_at, conv } = data
 
           const myId = user.value?._id
-
           const source = generateSource(conv, myId)
 
           store.commit("MARK_AS_READ_CONVERSATION", {
@@ -274,8 +274,6 @@ const initializeSocket = () => {
           })
 
         }, 300);
-
-        console.log(data)
       }
     })
 
