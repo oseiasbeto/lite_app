@@ -10,14 +10,26 @@
 
         <div v-if="!loadingFetch">
             <div v-if="posts?.length">
-                <PostCard v-for="item in posts" 
-                :show-border-bottom="showBorderBottom" 
-                :show-btn-follow="showBtnFollow" 
-                :key="item?._id" :module="module" 
-                :data="item" 
-                :user="user || {}" 
-                @open-more-options-drawer="openMoreOptionsDrawer"
-                />
+                <!-- Spacer com a altura total da lista virtual -->
+                <div class="relative w-full" :style="{ height: `${totalSize}px` }">
+                    <div
+                        v-for="virtualRow in virtualItems"
+                        :key="posts[virtualRow.index]?._id"
+                        :ref="(el) => measureElement(el, virtualRow.index)"
+                        :data-index="virtualRow.index"
+                        class="absolute top-0 left-0 w-full"
+                        :style="{ transform: `translateY(${virtualRow.start}px)` }"
+                    >
+                        <PostCard
+                            :show-border-bottom="showBorderBottom"
+                            :show-btn-follow="showBtnFollow"
+                            :module="module"
+                            :data="posts[virtualRow.index]"
+                            :user="user || {}"
+                            @open-more-options-drawer="openMoreOptionsDrawer"
+                        />
+                    </div>
+                </div>
 
                 <div ref="loadTrigger" v-if="hasMore || loadingLoadMore"
                     class="load-more-container py-3.5 flex justify-center">
@@ -42,10 +54,11 @@
 </template>
 
 <script setup>
-import { ref, computed, toRef } from 'vue';
+import { ref, computed, toRef, nextTick } from 'vue';
 import { useStore } from 'vuex';
 import PostCard from './PostCard.vue';
 import { useIntersectionObserver } from "@vueuse/core";
+import { useVirtualizer } from '@tanstack/vue-virtual';
 import PostSkeleton from './PostSkeleton.vue';
 import Spinner from '@/components/UI/Spinner.vue';
 import Drawer from '@/components/drawer/Drawer.vue';
@@ -96,6 +109,43 @@ const props = defineProps({
         default: false
     }
 })
+
+// === Virtualização ===
+// estimateSize é só um palpite inicial (px); a altura real de cada PostCard
+// (imagem, texto, etc.) é medida depois via measureElement, então alturas
+// variáveis funcionam sem problema.
+const ESTIMATED_POST_HEIGHT = 420;
+
+const virtualizerOptions = computed(() => ({
+    count: props.posts?.length || 0,
+    getScrollElement: () => scrollContainer.value,
+    estimateSize: () => ESTIMATED_POST_HEIGHT,
+    overscan: 4
+}));
+
+const virtualizer = useVirtualizer(virtualizerOptions);
+
+const virtualItems = computed(() => virtualizer.value.getVirtualItems());
+const totalSize = computed(() => virtualizer.value.getTotalSize());
+
+let rafId = null;
+const pendingMeasurements = new Set();
+
+const measureElement = (el, index) => {
+  if (!el) return;
+
+  pendingMeasurements.add(el);
+
+  if (rafId) return; // já tem um frame agendado, não duplica
+
+  rafId = requestAnimationFrame(() => {
+    pendingMeasurements.forEach((node) => {
+      virtualizer.value.measureElement(node);
+    });
+    pendingMeasurements.clear();
+    rafId = null;
+  });
+};
 
 const drawer = ref({
     show: false,

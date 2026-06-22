@@ -1,43 +1,34 @@
 <template>
-  <div class="relative">
-    <div v-if="!loading">
-      <div v-if="conversations?.length" class="h-[calc(100vh-56px)]">
-        <RecycleScroller
-          ref="scroller"
-          class="h-full"
-          :items="conversations"
-          :item-size="72"
-          key-field="_id"
-          @scroll="handleScrollEvent"
-          @update="onVirtualUpdate"
-        >
-          <template #default="{ item }">
-            <ChatListItem
-              :conversation="item"
-              :user-id="userId"
-              @click="$emit('select', item)"
-              @more-options="handleMoreOptions"
-            />
-          </template>
-        </RecycleScroller>
+    <div class="relative">
+      <div v-if="!loading">
+        <div v-if="conversations?.length">
+          <ChatListItem 
+            v-for="item in conversations" 
+            :key="item._id" :conversation="item" 
+            :user-id="userId"
+            @click="$emit('select', item)" 
+            @more-options="handleMoreOptions" 
+          />
 
-        <div v-if="loadingMore" class="load-more-container flex justify-center my-5">
-          <SpinnerSmall />
+          <!--LOAD MORE-->
+          <div ref="loadTrigger" v-if="hasMore || loadingMore" class="load-more-container flex justify-center my-5">
+            <SpinnerSmall />
+          </div>
+        </div>
+        <div v-else>
+          <ChatEmpty/>
         </div>
       </div>
       <div v-else>
-        <ChatEmpty />
+        <LoadingScreen/>
+        <!-- <ChatSkeleton v-for="n in 8" :key="n" />-->
+       
       </div>
     </div>
-    <div v-else>
-      <LoadingScreen />
-    </div>
-  </div>
 </template>
 
 <script setup>
-import { RecycleScroller } from 'vue-virtual-scroller';
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
+import { useIntersectionObserver } from '@vueuse/core';
 import ChatListItem from './ChatListItem.vue';
 import ChatEmpty from './ChatEmpty.vue';
 import { ref } from 'vue';
@@ -51,40 +42,49 @@ defineProps({
   userId: String,
   source: String,
   hasMore: Boolean,
-  showBtnFloating: { type: Boolean, default: true }
+  showBtnFloating: {
+    type: Boolean,
+    default: true
+  }
 });
 
 const emit = defineEmits(['select', 'on-scroll', 'more-options', 'load-more']);
 
-const scroller = ref(null);
-let lastEndIndex = -1;
+const loadTrigger = ref(null);
+const virtualChatListScroller = ref(null);
 
-// dispara load-more quando o virtual scroller renderiza perto do fim
-const onVirtualUpdate = (startIndex, endIndex) => {
-  if (endIndex === lastEndIndex) return; // evita disparo duplicado
-  lastEndIndex = endIndex;
+useIntersectionObserver(
+  loadTrigger,
+  ([{ isIntersecting }]) => {
+    if (isIntersecting) {
+      emit('load-more');
+    }
+  }
+);
 
-  const total = scroller.value?.items?.length ?? 0;
-  if (endIndex >= total - 1) {
-    emit('load-more');
+const setScrollTop = (position) => {
+  const scrollElement = virtualChatListScroller.value?.$el;
+  if (scrollElement) {
+
+    scrollElement.scrollTop = position;
   }
 };
 
-const setScrollTop = (position) => {
-  // RecycleScroller expõe scrollToPosition nativamente
-  scroller.value?.scrollToPosition(position);
-};
 
 const handleScrollEvent = (event) => {
   const scrollElement = event.target;
+
   if (scrollElement) {
-    emit('on-scroll', scrollElement.scrollTop);
+    emit('on-scroll', scrollElement.scrollTop)
   }
 };
 
-const handleMoreOptions = (conv) => {
-  emit('more-options', conv);
-};
+const handleMoreOptions = conv => {
+  emit('more-options', conv)
+}
 
-defineExpose({ setScrollTop });
+// Expõe a função para o componente pai
+defineExpose({
+  setScrollTop
+});
 </script>
