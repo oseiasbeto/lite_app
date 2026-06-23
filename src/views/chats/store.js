@@ -184,6 +184,8 @@ export default {
         },
 
         ADD_OR_UPDATE_CONVERSATION(state, { conversation, source, userId, senderId }) {
+
+            console.log(conversation, source, userId, senderId)
             if (!userId || !senderId) return
 
             if (source) {
@@ -375,7 +377,7 @@ export default {
 
         ADD_MESSAGE_REALTIME(state, { convId, source, message }) {
             const module = state.messages.find(m => m.byId === convId)
-
+            
             if (!module) return
 
             const messages = module.items

@@ -91,6 +91,7 @@ import { ref, computed, nextTick, watch, onMounted, onUnmounted } from 'vue'
 import ReplyToMessageCard from './ReplyToMessageCard.vue'
 import { useAudioRecorder } from '@/composables/useAudioRecorder'
 import { uploadVoiceMessage } from '@/services/cloudinary'
+import SpinnerSmall from '@/components/UI/SpinnerSmall.vue'
 
 const props = defineProps({
   disabled: { type: Boolean, default: false },
@@ -107,10 +108,16 @@ const emit = defineEmits(['message-sent', 'typing-start', 'voice-message-sent', 
 const inputMessage = ref('')
 const textareaRef = ref(null)
 
+
 const canSend = computed(() => inputMessage.value.trim() && !props.disabled)
 
 // ALTURA MÁXIMA = 4 LINHAS (≈ 98px com line-height 1.4 + padding)
 const MAX_HEIGHT = 98
+
+const isTyping = ref(false)
+let typingTimer = null
+let startTypingDebounce = null // ← Novo timer para o debounce do start
+
 
 const autoResize = () => {
   const el = textareaRef.value
@@ -129,6 +136,28 @@ const autoResize = () => {
     el.style.overflowY = 'auto'
   }
 
+  // DEBOUNCE para iniciar digitação - espera 300ms antes de emitir
+  clearTimeout(startTypingDebounce)
+  startTypingDebounce = setTimeout(() => {
+    // Se tem conteúdo E não está atualmente digitando → inicia digitação
+    if (inputMessage.value.trim() && !isTyping.value) {
+      isTyping.value = true
+      emit('typing-start')
+      logger.log('Iniciando digitação...')
+    }
+  }, 300) // Espera 300ms de inatividade antes de emitir typing-start
+
+  // SEMPRE reseta o timer quando digita (isso evita parar após 1 minuto)
+  clearTimeout(typingTimer)
+  typingTimer = setTimeout(() => {
+    // Só para de digitar se estiver atualmente no estado de digitação
+    if (isTyping.value) {
+      isTyping.value = false
+      emit('typing-stop')
+      logger.log('Parando digitação (timeout)')
+    }
+    typingTimer = null
+  }, 1000) // 1 segundo sem digitar
 }
 
 const allowNewLine = () => {

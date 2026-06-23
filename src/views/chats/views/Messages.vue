@@ -39,8 +39,7 @@
                     </div>
                 </div>
 
-                <MessageBox 
-                    @more-option="" v-for="(message, index) in cachedMessages?.items || []" :key="message._id"
+                <MessageBox @more-option="" v-for="(message, index) in cachedMessages?.items || []" :key="message._id"
                     :message="message" :user-id="user?._id" :previousMessage="cachedMessages?.items[index - 1]" />
 
                 <div v-if="readersExcludingCurrent.length && cachedMessages?.items?.length"
@@ -49,7 +48,7 @@
                         <img v-for="reader in readersExcludingCurrent.slice(0, 5)" :key="reader.user._id"
                             :src="reader.user.profile_image?.thumbnails?.xs || reader.user.profile_image?.url"
                             :alt="reader.user.name"
-                            class="w-[18px] h-[18px] rounded-full border-[.5px] dark:border-[rgb(57,56,57)] object-cover"
+                            class="w-[16px] h-[16px] rounded-full border-[.5px] dark:border-[rgb(57,56,57)] object-cover"
                             :title="reader.user.name" />
 
                     </div>
@@ -65,15 +64,9 @@
             <MessageForm 
                 @voice-message-sent="handleSendVoiceMessage" 
                 :show-shadow="showShadowMessageForm"
-                @typing-start="handleTypingStart" 
-                @typing-stop="handleTypingStop" 
-                @message-sent="handleSendMessage"
-                @auto-resize="updateInputResize" 
-                ref="messageFormRef" 
-                :user-id="user._id"
-                :disabled="isLoadingSendMessage" 
-                :reply-to="replyTo" 
-                @close-reply-to="resetReplyTo" />
+                @typing-start="handleTypingStart" @typing-stop="handleTypingStop" @message-sent="handleSendMessage"
+                @auto-resize="updateInputResize" ref="messageFormRef" :user-id="user._id"
+                :disabled="isLoadingSendMessage" :reply-to="replyTo" @close-reply-to="resetReplyTo" />
         </div>
 
         <!--drawer-->
@@ -213,6 +206,19 @@ const messages = computed(() => store.getters.messages)
 const cachedMessages = computed(() => {
     return messages.value.find(module => module.byId === conversation.value?._id) || null
 })
+
+
+// Computed para pegar o destinatário da conversa
+const receiver = computed(() => {
+    const conv = conversation.value;
+    if (!conv || conv.type !== 'direct') return null;
+
+    const participant = conv.participants?.find(
+        p => p?.user?._id !== user.value?._id
+    );
+
+    return participant?.user || null;
+});
 
 const readersExcludingCurrent = computed(() => {
     const readers = conversation.value?.read_by || [];
@@ -434,9 +440,7 @@ const closeModalConfirm = () => {
     }
 }
 
-// Funções para controlar a digitação
-const handleTypingStart = () => {
-}
+
 
 const handleScroll = () => {
     checkScrollPosition()
@@ -454,9 +458,27 @@ const checkScrollPosition = () => {
     } else showShadowMessageForm.value = true
 }
 
-const handleTypingStop = () => {
+// Funções para controlar a digitação
+const handleTypingStart = () => {
+    if (conversation.value?.type !== 'direct') return
 
+    socket.emit('typing_start', {
+        convId: conversation.value?._id,
+        reciverId: receiver.value?._id,
+        source: conversation?.value?.source || 'active'
+    })
 }
+
+const handleTypingStop = () => {
+    if (conversation.value?.type !== 'direct') return
+
+    socket.emit('typing_stop', {
+        convId: conversation.value?._id,
+        reciverId: receiver.value?._id,
+        source: conversation?.value?.source || 'active'
+    })
+}
+
 
 const handleDeleteMessageForMe = (convId, source, msgId, userId) => {
     store.dispatch("deleteMessageForMe", { convId, source, msgId, userId })
@@ -522,6 +544,14 @@ const handleSendMessage = async (message) => {
         message: newMessage
     })
 
+    // Atualiza conversa na sidebar
+    store.commit("ADD_OR_UPDATE_CONVERSATION", {
+        conversation: conversation.value, // pode estar incompleto  
+        userId: user.value?._id, // meu ID
+        senderId: user?.value?._id, // quem enviou a mensagem 
+        source: conversation.value?.source || 'active'
+    });
+
     if (!conversation.value.last_message?.content?.length) {
 
         const messageType = 'text'
@@ -541,6 +571,7 @@ const handleSendMessage = async (message) => {
             source: conversation.value?.source || 'active'
         });
     }
+
     store.commit('UPDATE_UNREAD_COUNT_ON_CONVERSATION', {
         convId: conversation?.value?._id,
         source: conversation?.value?.source,
@@ -728,7 +759,7 @@ onBeforeRouteLeave((to, from, next) => {
 const updateInputResize = () => {
     const viewport = window.visualViewport;
     if (viewport) {
-        const tolerance = 100
+        const tolerance = 250
         const isBottom = messagesContainer.value?.scrollHeight - messagesContainer.value?.scrollTop <= messagesContainer.value?.offsetHeight + tolerance
 
         if (isBottom) {
@@ -843,6 +874,8 @@ onUnmounted(() => {
     // SEMPRE remove o listener ao sair do componente
     socket.off('new_message');
     socket.off('conversation_as_read');
+    socket.off('typing_start');
+    socket.off('typing_stop');
 
     window.visualViewport?.removeEventListener('resize', viewportHandler);
     //window.visualViewport?.removeEventListener('scroll', viewportHandler);

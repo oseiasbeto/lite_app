@@ -12,7 +12,8 @@
     <div class="relative">
       <!-- Avatar com clique -->
       <Avatar @click="goToProfile(conversation)"
-        :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="xl" class="flex-shrink-0 !w-7 !h-7" />
+        :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="xl"
+        class="flex-shrink-0 !w-7 !h-7" />
 
       <!-- Bolinha de status (ativo) -->
       <span v-if="conversation?.is_online"
@@ -39,8 +40,18 @@
       </div>
 
       <!--subtitule-->
+
       <p class="text-xs truncate dark:text-[#b0b3b8] mt-[-2px]">
-        {{ statusText }}
+        <!-- Digitando com animação de 3 pontinhos -->
+        <span v-if="conversation?.is_typing" class="flex items-center gap-0.5">
+          escrevendo
+          <span class="flex ml-1 space-x-0.5">
+            <span class="w-1 h-1 bg-[#dee0e1] dark:bg-[#b0b3b8] rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+            <span class="w-1 h-1 bg-[#dee0e1] dark:bg-[#b0b3b8] rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+            <span class="w-1 h-1 bg-[#dee0e1] dark:bg-[#b0b3b8] rounded-full animate-bounce"></span>
+          </span>
+        </span>
+        <span v-else>{{ statusText }}</span>
       </p>
     </div>
 
@@ -64,7 +75,7 @@ const props = defineProps({
   userId: { type: String, required: true },
   conversation: { type: Object, default: () => ({}) },
   loading: { type: Boolean, default: false },
-  statusText: {type: String, default: ""}
+  statusText: { type: String, default: "" }
 })
 
 const emit = defineEmits(['goToProfile', 'goBack'])

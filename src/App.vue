@@ -140,7 +140,7 @@ const initializeSocket = () => {
 
       // ID da conversa atualmente aberta
       const currentConvId = route.params?.convId || route.query?.convId;
-
+      
       // Atualiza conversa na sidebar
       store.commit("ADD_OR_UPDATE_CONVERSATION", {
         conversation: msg.conversation, // pode estar incompleto  
@@ -177,7 +177,7 @@ const initializeSocket = () => {
         }
 
         const unreadCount = unreadMessagesCount.value
-        
+
         if (route.name == 'Chats' || route.meta.rootPage == 'chats') {
           await store.dispatch("updateUnreadMessagesCount", 0)
         } else {
@@ -185,7 +185,7 @@ const initializeSocket = () => {
         }
       }
     })
-    
+
     socket.on('delete_message', (msg) => {
       const myId = user.value?._id;
       const isFromMe = msg?.sender?._id === myId;
@@ -257,6 +257,34 @@ const initializeSocket = () => {
       logger.log("Usuário desconectado:", userId)
     })
 
+    // Listeners de digitação
+    socket.on("user_typing_start", ({ convId, userId, source }) => {
+      if (userId !== user.value?._id) {
+
+        console.log("comecou a escrever")
+        // Atualiza estado de digitação na conversa
+        store.commit("UPDATE_TYPING_ON_CONVERSATION", {
+          convId,
+          source,
+          payload: true
+        })
+      }
+    })
+
+    // Listener para quando o outro usuário parar de digitar
+    socket.on("user_typing_stop", ({ convId, userId, source }) => {
+      if (userId !== user.value?._id) {
+
+        console.log("pausou escrever")
+
+        store.commit("UPDATE_TYPING_ON_CONVERSATION", {
+          convId,
+          source,
+          payload: false
+        })
+      }
+    })
+
     socket.on("conversation_as_read", (data) => {
       if (user.value?._id === data.user?._id) return
       else {
@@ -293,6 +321,8 @@ const initializeSocket = () => {
       // Tocar som de notificação
       playNotificationSound();
     })
+
+
   } else {
     logger.log('Nenhum socket encontrado');
     return false;
@@ -373,7 +403,7 @@ const setThemeColor = (theme) => {
   if (savedTheme.value !== theme) {
     Cookies.set('theme', theme)
     savedTheme.value = theme
-     store.commit("SET_CURRENT_THEME", theme)
+    store.commit("SET_CURRENT_THEME", theme)
   }
 
   // Aplicar classe no HTML

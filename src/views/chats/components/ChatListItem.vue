@@ -51,7 +51,12 @@
       <div class="flex items-center text-sm justify-between gap-3">
 
         <!-- Última mensagem + ícone de check se for enviada por você -->
-        <p v-if="props.conversation?.last_message?.content" class="mt-[2.5px] text-sm truncate max-w-[220px]"
+        <p v-if="conversation?.is_typing" class="text-[13.5px] mt-[2.5px] text-green-600 dark:text-green-500 truncate max-w-[220px]">
+          Escrevendo...
+        </p>
+
+        <!-- Última mensagem + ícone de check se for enviada por você -->
+        <p v-else-if="props.conversation?.last_message?.content" class="mt-[2.5px] text-sm truncate max-w-[220px]"
           :class="[props?.conversation.unread_count ? 'dark:text-white text-[rgb(40,40,41)]' : 'dark:text-[#b0b3b8] text-inherit']">
 
           {{ previewText }}
@@ -69,7 +74,7 @@
           <div class="flex -space-x-2">
             <img v-for="reader in readBy.slice(0, 5)" :key="reader.user._id"
               :src="reader.user.profile_image?.thumbnails?.xs || reader.user.profile_image?.url" :alt="reader.user.name"
-              class="w-[18px] h-[18px] rounded-full border-[.5px] dark:border-[rgb(57,56,57)] object-cover"
+              class="w-[16px] h-[16px] rounded-full border-[.5px] dark:border-[rgb(57,56,57)] object-cover"
               :title="reader.user.name" />
           </div>
         </div>
