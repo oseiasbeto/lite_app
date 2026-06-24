@@ -39,8 +39,10 @@
                     </div>
                 </div>
 
-                <MessageBox @more-option="" v-for="(message, index) in cachedMessages?.items || []" :key="message._id"
-                    :message="message" :user-id="user?._id" :previousMessage="cachedMessages?.items[index - 1]" />
+                <MessageBox @more-option="openDrawerMessage" v-for="(message, index) in cachedMessages?.items || []"
+                    :key="message._id" :message="message" :user-id="user?._id"
+                    :previous-message="cachedMessages?.items[index - 1]"
+                    :next-message="cachedMessages?.items[index + 1]" />
 
                 <div v-if="readersExcludingCurrent.length && cachedMessages?.items?.length"
                     class="flex items-center justify-end gap-1 mt-2">
@@ -61,9 +63,7 @@
 
 
         <div class="z-10 dark:bg-dark-bg w-full">
-            <MessageForm 
-                @voice-message-sent="handleSendVoiceMessage" 
-                :show-shadow="showShadowMessageForm"
+            <MessageForm @voice-message-sent="handleSendVoiceMessage" :show-shadow="showShadowMessageForm"
                 @typing-start="handleTypingStart" @typing-stop="handleTypingStop" @message-sent="handleSendMessage"
                 @auto-resize="updateInputResize" ref="messageFormRef" :user-id="user._id"
                 :disabled="isLoadingSendMessage" :reply-to="replyTo" @close-reply-to="resetReplyTo" />
@@ -73,44 +73,45 @@
         <Drawer :is-open="drawer.show" @close="onCloseDrawer">
             <div v-if="drawer.name === 'MESSAGE_MORE_OPTIONS'">
                 <div
-                    class="flex border-b border-border-primary mb-1 overflow-x-auto gap-1 justify-center pt-3 px-1.5 py-2 items-center">
+                    class="flex border-b dark:border-[rgb(57,56,57)] mb-1 overflow-x-auto gap-1 justify-center pt-3 px-1.5 py-2 items-center">
                     <button @click="handleReactMessage(messageSelected._id, '❤️')"
-                        class="px-1 py-1 rounded-full text-3xl bg-background-secondary hover:bg-background-tertiary"
-                        :class="{ 'bg-background-tertiary': isReacted('❤️', messageSelected) }">
+                        class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
+                        :class="{ 'bg-black/10 dark:bg-white/10': isReacted('❤️', messageSelected) }">
                         <img class="w-8 h-u" src="../../../assets/imgs/emojis/heart.png" />
                     </button>
                     <button @click="handleReactMessage(messageSelected._id, '😆')"
-                        class="px-1 py-1 rounded-full text-3xl bg-background-secondary hover:bg-background-tertiary"
-                        :class="{ 'bg-background-tertiary': isReacted('😆', messageSelected) }">
+                        class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
+                        :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😆', messageSelected) }">
                         <img class="w-8 h-u" src="../../../assets/imgs/emojis/haha.png" />
                     </button>
 
                     <button @click="handleReactMessage(messageSelected._id, '😡')"
-                        class="px-1 py-1 rounded-full text-3xl bg-background-secondary hover:bg-background-tertiary"
-                        :class="{ 'bg-background-tertiary': isReacted('😡', messageSelected) }">
+                        class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
+                        :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😡', messageSelected) }">
                         <img class="w-8 h-u" src="../../../assets/imgs/emojis/angry.png" />
                     </button>
                     <button @click="handleReactMessage(messageSelected._id, '😢')"
-                        class="px-1 py-1 rounded-full text-3xl bg-background-secondary hover:bg-background-tertiary"
-                        :class="{ 'bg-background-tertiary': isReacted('😢', messageSelected) }">
+                        class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
+                        :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😢', messageSelected) }">
                         <img class="w-8 h-u" src="../../../assets/imgs/emojis/sad.png" />
                     </button>
 
                     <button @click="handleReactMessage(messageSelected._id, '😮')"
-                        class="px-1 py-1 rounded-full text-3xl bg-background-secondary hover:bg-background-tertiary"
-                        :class="{ 'bg-background-tertiary': isReacted('😮', messageSelected) }">
+                        class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
+                        :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😮', messageSelected) }">
                         <img class="w-8 h-u" src="../../../assets/imgs/emojis/wow.png" />
                     </button>
 
                     <button @click="handleReactMessage(messageSelected._id, '👍')"
-                        class="px-1 py-1 rounded-full text-3xl bg-background-secondary hover:bg-background-tertiary"
-                        :class="{ 'bg-background-tertiary': isReacted('👍', messageSelected) }">
+                        class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
+                        :class="{ 'bg-black/10 dark:bg-white/10': isReacted('👍', messageSelected) }">
                         <img class="w-8 h-u" src="../../../assets/imgs/emojis/like.png" />
                     </button>
 
 
                 </div>
-                <DrawerItem @on-press="onCloseDrawer" title="Copiar" />
+                <DrawerItem v-if="messageSelected?.message_type !== 'voice'"
+                    @on-press="handleCopyText(messageSelected?.context)" title="Copiar" />
                 <DrawerItem @on-press="handleReplyTo(messageSelected)" title="Responder" />
                 <DrawerItem @on-press="setModalConfirm({
                     isOpen: true,
@@ -140,8 +141,8 @@
         </Drawer>
 
         <!--modal-->
-        <ConfirmationModal :is-open="modalConfirm.isOpen" :title="modalConfirm.title" :message="modalConfirm.message"
-            :confirm-text="modalConfirm.confirmText" @close="closeModalConfirm" @confirm="handleConfirm" />
+        <Confirmdialog v-model="modalConfirm.isOpen" :title="modalConfirm.title" :message="modalConfirm.message"
+            variant="danger" @confirm="handleConfirm" @cancel="closeModalConfirm" />
     </div>
 </template>
 
@@ -157,8 +158,8 @@ import SpinnerSmall from '@/components/UI/SpinnerSmall.vue';
 import { useIntersectionObserver } from "@vueuse/core";
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
-import ConfirmationModal from '@/components/modal/ConfirmationModal.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
+import Confirmdialog from '@/components/UI/Confirmdialog.vue';
 
 const route = useRoute()
 const store = useStore()
@@ -507,6 +508,17 @@ const handleConfirm = () => {
     closeModalConfirm()
 }
 
+const handleCopyText = (text) => {
+    if (text) {
+        console.log(text)
+        const { clipboard } = window.WTN
+        clipboard.set({
+            data: text
+        })
+    }
+    onCloseDrawer()
+}
+
 const handleReplyTo = (msg) => {
     replyTo.value.show = true
     replyTo.value.message = msg
@@ -544,33 +556,22 @@ const handleSendMessage = async (message) => {
         message: newMessage
     })
 
-    // Atualiza conversa na sidebar
+    const messageType = 'text'
+
     store.commit("ADD_OR_UPDATE_CONVERSATION", {
-        conversation: conversation.value, // pode estar incompleto  
+        conversation: {
+            ...conversation.value,
+            last_message: {
+                created_at: Date.now(),
+                content: newMessage?.content || '',
+                message_type: messageType || 'text'
+            },
+            read_by: []
+        }, // pode estar incompleto  
         userId: user.value?._id, // meu ID
-        senderId: user?.value?._id, // quem enviou a mensagem 
+        senderId: newMessage.sender?._id, // quem enviou a mensagem 
         source: conversation.value?.source || 'active'
     });
-
-    if (!conversation.value.last_message?.content?.length) {
-
-        const messageType = 'text'
-
-        store.commit("ADD_OR_UPDATE_CONVERSATION", {
-            conversation: {
-                ...conversation.value,
-                last_message: {
-                    created_at: Date.now(),
-                    content: newMessage?.content || '',
-                    message_type: messageType || 'text'
-                },
-                read_by: []
-            }, // pode estar incompleto  
-            userId: user.value?._id, // meu ID
-            senderId: newMessage.sender?._id, // quem enviou a mensagem 
-            source: conversation.value?.source || 'active'
-        });
-    }
 
     store.commit('UPDATE_UNREAD_COUNT_ON_CONVERSATION', {
         convId: conversation?.value?._id,
@@ -624,22 +625,20 @@ const handleSendVoiceMessage = async ({ url, duration }) => {
         message: newMessage
     })
 
-    if (!conversation.value.last_message?.content?.length) {
-        store.commit("ADD_OR_UPDATE_CONVERSATION", {
-            conversation: {
-                ...conversation.value,
-                last_message: {
-                    created_at: Date.now(),
-                    content: '🎤 Mensagem de voz',
-                    message_type: 'voice'
-                },
-                read_by: []
+    store.commit("ADD_OR_UPDATE_CONVERSATION", {
+        conversation: {
+            ...conversation.value,
+            last_message: {
+                created_at: Date.now(),
+                content: '🎤 Mensagem de voz',
+                message_type: 'voice'
             },
-            userId: user.value?._id,
-            senderId: newMessage.sender?._id,
-            source: conversation.value?.source || 'active'
-        })
-    }
+            read_by: []
+        },
+        userId: user.value?._id,
+        senderId: newMessage.sender?._id,
+        source: conversation.value?.source || 'active'
+    })
 
     store.commit('UPDATE_UNREAD_COUNT_ON_CONVERSATION', {
         convId: conversation?.value?._id,
