@@ -24,7 +24,7 @@
                     <div class="mt-3 mb-3">
                         <p class="text-lg font-semibold dark:text-white text-[rgb(40,40,41)]">{{
                             conversation?.name
-                        }}</p>
+                            }}</p>
 
                         <p class="dark:text-[#b0b3b8]">{{ statusText }}</p>
                     </div>
@@ -698,8 +698,6 @@ useIntersectionObserver(
     { threshold: 0.1 }
 )
 
-let viewportHandler;
-
 watch(() => route.params.convId, async (newId, oldId) => {
     if (!newId || newId === oldId) return;
     loadingMoreMessages.value = false
@@ -767,6 +765,20 @@ const updateInputResize = () => {
     }
 }
 
+// Ajusta com teclado (mobile)
+const viewportHandler = () => {
+    const viewport = window.visualViewport;
+    if (viewport) {
+        const tolerance = 250
+        const isBottom = messagesContainer.value.scrollHeight - messagesContainer.value.scrollTop <= messagesContainer.value.offsetHeight + tolerance
+
+        if (isBottom) {
+            scrollToBottom(false)
+        }
+    }
+};
+
+
 onMounted(async () => {
     if (!conversation.value?._id) {
         await store.dispatch("getConversation", convId).then(async () => {
@@ -825,18 +837,6 @@ onMounted(async () => {
     await nextTick()
     updateInputHeight();
 
-    // Ajusta com teclado (mobile)
-    viewportHandler = () => {
-        const viewport = window.visualViewport;
-        if (viewport) {
-            const tolerance = 100
-            const isBottom = messagesContainer.value.scrollHeight - messagesContainer.value.scrollTop <= messagesContainer.value.offsetHeight + tolerance
-
-            if (isBottom) {
-                scrollToBottom(false)
-            }
-        }
-    };
 
     window.visualViewport?.addEventListener('resize', viewportHandler);
     //window.visualViewport?.addEventListener('scroll', viewportHandler);

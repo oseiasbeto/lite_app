@@ -3,7 +3,7 @@
         <div class="flex flex-col flex-1 min-w-0">
             <p class="text-sm font-semibold dark:text-white text-[rgb(40,40,41)] truncate">Responder {{ isSent ? 'à tua mensagem' : 'a '+ getFirstName(message?.sender?.name) }}</p>
 
-            <p class="text-[13px] truncate ">{{ previewText || '...' }}</p>
+            <p class="text-[13px] dark:text-[#b0b3b8] truncate ">{{ previewText || '...' }}</p>
         </div>
 
         <button class="shrink-0" @click="close">
