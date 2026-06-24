@@ -77,35 +77,35 @@
                     <button @click="handleReactMessage(messageSelected._id, '❤️')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('❤️', messageSelected) }">
-                        <img class="w-8 h-u" src="../../../assets/imgs/emojis/heart.png" />
+                        <img class="w-9 h-9" src="../../../assets/imgs/emojis/heart.png" />
                     </button>
                     <button @click="handleReactMessage(messageSelected._id, '😆')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😆', messageSelected) }">
-                        <img class="w-8 h-u" src="../../../assets/imgs/emojis/haha.png" />
+                        <img class="w-9 h-9" src="../../../assets/imgs/emojis/haha.png" />
                     </button>
 
                     <button @click="handleReactMessage(messageSelected._id, '😡')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😡', messageSelected) }">
-                        <img class="w-8 h-u" src="../../../assets/imgs/emojis/angry.png" />
+                        <img class="w-9 h-9" src="../../../assets/imgs/emojis/angry.png" />
                     </button>
                     <button @click="handleReactMessage(messageSelected._id, '😢')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😢', messageSelected) }">
-                        <img class="w-8 h-u" src="../../../assets/imgs/emojis/sad.png" />
+                        <img class="w-9 h-9" src="../../../assets/imgs/emojis/sad.png" />
                     </button>
 
                     <button @click="handleReactMessage(messageSelected._id, '😮')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😮', messageSelected) }">
-                        <img class="w-8 h-u" src="../../../assets/imgs/emojis/wow.png" />
+                        <img class="w-9 h-9" src="../../../assets/imgs/emojis/wow.png" />
                     </button>
 
                     <button @click="handleReactMessage(messageSelected._id, '👍')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('👍', messageSelected) }">
-                        <img class="w-8 h-u" src="../../../assets/imgs/emojis/like.png" />
+                        <img class="w-9 h-9" src="../../../assets/imgs/emojis/like.png" />
                     </button>
 
 

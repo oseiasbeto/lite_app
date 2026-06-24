@@ -102,7 +102,8 @@
           <!-- Conteúdo normal -->
           <p v-else :class="[
             'break-words [overflow-wrap:anywhere] whitespace-pre-wrap leading-snug min-w-0',
-            isEmojiOnly ? 'text-5xl' : 'text-[15px]'
+            isEmojiOnly ? 'text-5xl' : 'text-[15px]',
+            isEmojiOnly && !isSent ? 'ml-6' : 'ml-0'
           ]">
             {{ message.content }}
           </p>
@@ -161,14 +162,28 @@ const GROUP_WINDOW_MS = 60 * 1000
 const sameSender = (a, b) => a && b && a.sender?._id === b.sender?._id
 const diffMs = (a, b) => (!a || !b) ? Infinity : Math.abs(new Date(b.created_at) - new Date(a.created_at))
 
+const isMessageEmojiOnly = (msg) => {
+  const content = msg?.content?.trim()
+  if (!content || /^\d+$/.test(content)) return false
+  if (/^[a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>?~ ]+$/.test(content)) return false
+  const emojiRegex = /^(?:[\p{Emoji}\u200d\uFE0F]+)+$/gu
+  if (!emojiRegex.test(content)) return false
+  const count = (content.match(/[\p{Emoji}]/gu) || []).length
+  return count >= 1 && count <= 3
+}
+
 const isGroupedWithPrevious = computed(() =>
   !!props.previousMessage &&
+  !isMessageEmojiOnly(props.previousMessage) &&
+  !isMessageEmojiOnly(props.message) &&
   sameSender(props.previousMessage, props.message) &&
   diffMs(props.previousMessage, props.message) <= GROUP_WINDOW_MS
 )
 
 const isGroupedWithNext = computed(() =>
   !!props.nextMessage &&
+  !isMessageEmojiOnly(props.message) &&
+  !isMessageEmojiOnly(props.nextMessage) &&
   sameSender(props.message, props.nextMessage) &&
   diffMs(props.message, props.nextMessage) <= GROUP_WINDOW_MS
 )
