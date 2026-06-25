@@ -1,3 +1,4 @@
+import Vue from 'vue' // necessário só se for Vue 2
 import { logger } from '@/utils/logger';
 import api from '../../api'
 
@@ -435,25 +436,47 @@ export default {
             state.conversation = {}
         },
 
+
         DELETE_MESSAGE_FOR_ME(state, { convId, source, msgId, userId }) {
-            if (!convId || !msgId) return
+            if (!convId || !msgId || !userId) return
 
             const modules = state.messages
             const index = modules.findIndex(m => m.byId === convId)
+            if (index === -1) return
 
-            if (index !== -1) {
-                const module = modules[index]
-                const messages = module.items
+            const module = modules[index]
+            const messages = module.items
+            const indexMessage = messages.findIndex((m) => m._id == msgId)
+            if (indexMessage === -1) return
 
-                const indexMessage = messages.findIndex((m) => m._id == msgId)
+            const message = messages[indexMessage]
 
-                if (indexMessage !== -1) {
-                    if (!messages[indexMessage].deleted_for?.includes(userId)) {
-                        messages[indexMessage].deleted_for.push(userId)
+            // Garante que deleted_for existe e é reativo (Vue 2)
+            if (!message.deleted_for) {
+                Vue.set(message, 'deleted_for', [])
+            }
 
-                        logger.log("mensagem apagada para mim: ", messages[indexMessage])
-                    }
-                }
+            if (!message.deleted_for.includes(userId)) {
+                message.deleted_for.push(userId)
+                logger.log("mensagem apagada para mim: ", message)
+            }
+        },
+
+        // Mutação de rollback caso a API rejeite o DELETE_MESSAGE_FOR_ME
+        UNDO_DELETE_MESSAGE_FOR_ME(state, { convId, msgId, userId }) {
+            if (!convId || !msgId || !userId) return
+
+            const modules = state.messages
+            const index = modules.findIndex(m => m.byId === convId)
+            if (index === -1) return
+
+            const messages = modules[index].items
+            const indexMessage = messages.findIndex((m) => m._id == msgId)
+            if (indexMessage === -1) return
+
+            const message = messages[indexMessage]
+            if (message.deleted_for) {
+                message.deleted_for = message.deleted_for.filter(id => id !== userId)
             }
         },
 
@@ -462,12 +485,10 @@ export default {
 
             const modules = state.messages
             const index = modules.findIndex(m => m.byId === convId)
-
             if (index !== -1) {
                 const module = modules[index]
                 const messages = module.items
                 const indexMessage = messages.findIndex((m) => m._id == msgId)
-
                 if (indexMessage !== -1) {
                     messages[indexMessage].status = 'is_deleted'
                 }
@@ -475,35 +496,50 @@ export default {
 
             const convModules = state.conversations
             const convIndex = convModules.findIndex(m => m.source === source)
-
             if (convIndex !== -1) {
                 const convItemIndex = state.conversations[convIndex].items.findIndex(c => c._id === convId)
-
                 if (convItemIndex !== -1) {
                     const previewText = 'Eliminou uma mensagem'
                     const typeMessage = 'deleted_message'
                     const now = new Date()
 
-                    state.conversations[convIndex].items[convItemIndex].unread_count = 0
-                    state.conversations[convIndex].items[convItemIndex].read_by = []
-                    state.conversations[convIndex].items[convItemIndex].message_type = typeMessage
-                    state.conversations[convIndex].items[convItemIndex].last_message.content = previewText
-                    state.conversations[convIndex].items[convItemIndex].last_message.created_at = now
-                    state.conversations[convIndex].items[convItemIndex].last_message.msgId = msgId || null
-
-                    if (convItemIndex !== 0) {
-                        const conversation = state.conversations[convIndex].items[convItemIndex]
-                        state.conversations[convIndex].items.splice(convItemIndex, 1);
-                        state.conversations[convIndex].items.unshift(conversation);
+                    const conversationItem = state.conversations[convIndex].items[convItemIndex]
+                    conversationItem.unread_count = 0
+                    conversationItem.read_by = []
+                    conversationItem.message_type = typeMessage
+                    if (conversationItem.last_message) {
+                        conversationItem.last_message.content = previewText
+                        conversationItem.last_message.created_at = now
+                        conversationItem.last_message.msgId = msgId || null
                     }
 
-                    if (state.conversation?._id && state.conversation?._id == convId) {
+                    if (convItemIndex !== 0) {
+                        const conversation = state.conversations[convIndex].items.splice(convItemIndex, 1)[0]
+                        state.conversations[convIndex].items.unshift(conversation)
+                    }
+
+                    if (state.conversation?._id && state.conversation._id == convId) {
                         state.conversation.read_by = []
                     }
                 }
             }
 
             logger.log("mensagem apagada para todos: ", msgId)
+        },
+
+        // Mutação de rollback caso a API rejeite o DELETE_MESSAGE
+        UNDO_DELETE_MESSAGE(state, { convId, msgId, previousStatus }) {
+            if (!convId || !msgId) return
+
+            const modules = state.messages
+            const index = modules.findIndex(m => m.byId === convId)
+            if (index === -1) return
+
+            const messages = modules[index].items
+            const indexMessage = messages.findIndex((m) => m._id == msgId)
+            if (indexMessage !== -1) {
+                messages[indexMessage].status = previousStatus || 'sent'
+            }
         },
 
         REACT_MESSAGE(state, { convId, msgId, source, emoji, sender, isFromMe = true }) {
@@ -753,21 +789,39 @@ export default {
 
         async deleteMessageForMe({ commit }, { convId, msgId, userId }) {
             try {
-                commit('DELETE_MESSAGE_FOR_ME', { convId, msgId, userId })
+                // ⚠️ Chama a API primeiro. O backend DEVE validar que
+                // o userId autenticado tem permissão sobre esta mensagem/conversa
+                // antes de aceitar o pedido (evita IDOR).
                 await api.delete(`/messages/for-me/${msgId}`)
+
+                // Só altera o estado local se a API confirmar sucesso
+                commit('DELETE_MESSAGE_FOR_ME', { convId, msgId, userId })
             } catch (err) {
-                logger.error("Failed to delete message for me: ", err);
-                throw err;
+                logger.error("Failed to delete message for me: ", err)
+                throw err
             }
         },
 
-        async deleteMessage({ commit }, { convId, source, msgId }) {
+        async deleteMessage({ commit, state }, { convId, source, msgId }) {
+            // Guarda o estado anterior para possível rollback (UX otimista opcional)
+            const modules = state.messages
+            const moduleIndex = modules.findIndex(m => m.byId === convId)
+            const previousStatus = moduleIndex !== -1
+                ? modules[moduleIndex].items.find(m => m._id == msgId)?.status
+                : undefined
+
             try {
-                commit('DELETE_MESSAGE', { convId, source, msgId })
+                // ⚠️ O backend DEVE validar que o utilizador autenticado
+                // é o autor da mensagem (ou tem permissão de admin no grupo)
+                // antes de marcar como apagada para todos.
                 await api.delete(`/messages/${msgId}`)
+
+                commit('DELETE_MESSAGE', { convId, source, msgId })
             } catch (err) {
-                logger.error("Failed to delete message: ", err);
-                throw err;
+                logger.error("Failed to delete message: ", err)
+                // Se preferir UX otimista (commit antes do await), descomente:
+                // commit('UNDO_DELETE_MESSAGE', { convId, msgId, previousStatus })
+                throw err
             }
         },
 
