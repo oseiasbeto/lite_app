@@ -497,15 +497,22 @@ const handleConfirm = async () => {
     const source = conversation?.value?.source
     const { convId, msgId, userId } = el.data
 
-    switch (actionType) {
-        case 'deleteForMe':
-            await handleDeleteMessageForMe(convId, source, msgId, userId)
-            break;
-        case 'deleteMessage':
-            await handleDeleteMessage(convId, source, msgId)
-            break
+    try {
+        switch (actionType) {
+            case 'deleteForMe':
+                await handleDeleteMessageForMe(convId, source, msgId, userId)
+                break
+            case 'deleteMessage':
+                await handleDeleteMessage(convId, source, msgId)
+                break
+        }
+    } catch (err) {
+        logger.error('Erro ao executar ação de confirmação:', err)
+        // Feedback visual ao utilizador (toast/snackbar/etc)
+        // ex: showToast('Não foi possível eliminar a mensagem. Tenta novamente.')
+    } finally {
+        closeModalConfirm()  // ✅ sempre executa, sucesso ou erro
     }
-    closeModalConfirm()
 }
 
 const handleCopyText = (text) => {

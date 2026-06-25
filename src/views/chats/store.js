@@ -441,6 +441,7 @@ export default {
             if (!convId || !msgId || !userId) return
 
             const modules = state.messages
+            
             const index = modules.findIndex(m => m.byId === convId)
             if (index === -1) return
 
@@ -527,7 +528,6 @@ export default {
             logger.log("mensagem apagada para todos: ", msgId)
         },
 
-        // Mutação de rollback caso a API rejeite o DELETE_MESSAGE
         UNDO_DELETE_MESSAGE(state, { convId, msgId, previousStatus }) {
             if (!convId || !msgId) return
 
@@ -804,26 +804,23 @@ export default {
         },
 
         async deleteMessage({ commit, state }, { convId, source, msgId }) {
-            // Guarda o estado anterior para possível rollback (UX otimista opcional)
+            // Captura o estado anterior ANTES de mutar, para rollback em caso de erro
             const modules = state.messages
             const moduleIndex = modules.findIndex(m => m.byId === convId)
-            const previousStatus = moduleIndex !== -1
-                ? modules[moduleIndex].items.find(m => m._id == msgId)?.status
-                : undefined
+            const message = moduleIndex !== -1
+                ? modules[moduleIndex].items.find(m => m._id == msgId)
+                : null
+            const previousStatus = message?.status
+
+            // Atualiza a UI imediatamente
+            commit('DELETE_MESSAGE', { convId, source, msgId })
 
             try {
-                // ⚠️ O backend DEVE validar que o utilizador autenticado
-                // é o autor da mensagem (ou tem permissão de admin no grupo)
-                // antes de marcar como apagada para todos.
                 await api.delete(`/messages/${msgId}`)
-
-
-                console.log(convId, source, msgId)
-                commit('DELETE_MESSAGE', { convId, source, msgId })
             } catch (err) {
                 logger.error("Failed to delete message: ", err)
-                // Se preferir UX otimista (commit antes do await), descomente:
-                // commit('UNDO_DELETE_MESSAGE', { convId, msgId, previousStatus })
+                // Desfaz a mutação local, já que o servidor rejeitou
+                commit('UNDO_DELETE_MESSAGE', { convId, msgId, previousStatus })
                 throw err
             }
         },
