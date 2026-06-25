@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!isDeletedForMe" :id="`message-${message._id}`" class="relative" :class="wrapperSpacingClass">
+  <div v-if="!isDeletedForMe" :id="`message-${props.message._id}`" class="relative over" :class="wrapperSpacingClass">
 
     <!-- Separador de data/hora estilo Messenger -->
     <div v-if="showDateSeparator" class="flex justify-center my-3">
@@ -10,7 +10,7 @@
 
     <!-- Player de áudio -->
     <div v-if="message.message_type === 'voice' && message.status !== 'is_deleted'"
-      class="flex items-center gap-2 min-w-[180px] py-1">
+      class="flex items-center gap-2 min-w-[180px] py-1 px-4">
       <button @click="toggleAudio" type="button"
         class="w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0"
         :class="isSent ? 'bg-white/20' : 'bg-black/10 dark:bg-white/15'">
@@ -34,103 +34,113 @@
         @timeupdate="onAudioTimeUpdate" @ended="onAudioEnded"></audio>
     </div>
 
-    <div class="flex items-end" :class="isSent ? 'justify-end' : 'justify-start'">
-      <!-- Avatar: só no último balão do grupo recebido -->
-      <div class="flex flex-col justify-end w-6 flex-shrink-0 mb-[1px]" v-if="!isSent && !isEmojiOnly">
-        <Avatar class="w-[28px] h-[28px]" v-if="isLastOfGroup" size="xl"
-          :url="message?.sender?.profile_image?.thumbnails?.xs || message?.sender?.profile_image?.url" />
-      </div>
-
-      <div :class="[
-        'flex flex-col relative max-w-[75%] min-w-0',
-        isSent ? 'items-end ml-0' : 'items-start ml-2'
-      ]">
-
-        <!-- Bloco de resposta -->
-        <div v-if="message.reply_to && !isEmojiOnly && message.status !== 'is_deleted'" class="w-full min-w-0 relative"
-          style="margin-bottom: -10px;">
-          <span class="flex items-center w-full text-[12px] mb-1 font-normal text-grey dark:text-greyDark"
-            :class="isSent ? 'justify-end' : 'justify-start'">
-            <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"
-              class="mr-1 flex-shrink-0">
-              <path
-                d="M6.497 1.035C7.593-.088 9.5.688 9.5 2.257V4.54c1.923.215 3.49 1.246 4.593 2.672C15.328 8.808 16 10.91 16 13v.305c0 .632-.465 1.017-.893 1.127-.422.11-.99.005-1.318-.493-.59-.894-1.2-1.482-1.951-1.859-.611-.307-1.359-.496-2.338-.558v2.23c0 1.57-1.908 2.346-3.003 1.222L.893 9.223a1.75 1.75 0 0 1 .001-2.444l5.603-5.744z">
-              </path>
-            </svg>
-            <span class="truncate">{{ replyLabel }}</span>
-          </span>
-          <button type="button" @click="scrollToReply" :class="[
-            'block max-w-full min-w-0 text-left rounded-[16px] px-3 py-[10px] text-[13px] leading-tight cursor-pointer transition-opacity opacity-90 hover:opacity-100',
-            isSent ? 'ml-auto bg-[#287dff]/40' : 'bg-[#e4e6eb] dark:bg-[#4a4a4a]'
-          ]" :style="isSent ? 'border-radius: 16px 16px 4px 16px;' : 'border-radius: 16px 16px 16px 4px;'">
-            <span class="block truncate opacity-90"
-              :class="isSent ? 'text-white' : 'text-[rgb(40,40,41)] dark:text-white'">
-              {{ replyPreviewText }}
-            </span>
-          </button>
-        </div>
-
-        <!-- Balão principal -->
-        <button type="button" @contextmenu.prevent="handleMoreOption(message)"
-          :style="!isEmojiOnly && message.status !== 'is_deleted' ? bubbleRadiusStyle : {}" :class="[
-            'relative z-[1] text-left transition-transform active:scale-[0.99] max-w-full min-w-0',
-
-            // ── fundo normal ──────────────────────────────────────────────
-            !isEmojiOnly && message.status !== 'is_deleted'
-              ? (isSent
-                ? 'bg-[#287dff] text-white p-[6px_12px]'
-                : 'dark:bg-[#3c3c3c] dark:text-white text-[rgb(40,40,41)] bg-[#f1f2f2] p-[6px_12px]')
-              : '',
-
-            // ── mensagem eliminada: sem fundo, só borda cinza ─────────────
-            message.status === 'is_deleted'
-              ? 'border border-[#b0b3b8] dark:border-[#555] rounded-[18px] px-3 py-[6px] bg-transparent italic opacity-80'
-              : '',
-
-            // ── emoji puro ────────────────────────────────────────────────
-            isEmojiOnly ? '!bg-transparent m-0 p-0' : '',
-
-            // ── espaço extra quando emoji puro tem reações sobrepostas ────
-            isEmojiOnly && groupedReactions.length ? 'mb-3' : '',
-
-            message.status === 'sending' ? 'opacity-20 pointer-events-none' : 'opacity-100',
-            isHighlighted ? 'ring-2 ring-yellow-400 ring-offset-1' : '',
-          ]">
-
-          <!-- Mensagem eliminada -->
-          <p v-if="message.status === 'is_deleted'" class="text-[13px] text-grey dark:text-greyDark">
-            Mensagem eliminada
-          </p>
-
-          <!-- Conteúdo normal -->
-          <p v-else :class="[
-            'break-words [overflow-wrap:anywhere] whitespace-pre-wrap leading-snug min-w-0',
-            isEmojiOnly ? 'text-5xl' : 'text-base',
-            isEmojiOnly && !isSent ? 'ml-6' : 'ml-0'
-          ]">
-            {{ message.content }}
-          </p>
-
-          <!-- Reações sobrepostas no canto inferior do balão -->
-          <div v-if="groupedReactions.length && message.status !== 'is_deleted'"
-            class="absolute z-[99] flex items-center bg-white dark:bg-[#2c2c2c] shadow-sm border border-black/5 dark:border-white/10 rounded-full"
-            :class="[
-              isSent ? 'right-1' : 'left-1',
-              '-bottom-3',
-              isEmojiOnly ? 'ml-6' : 'ml-0',
-              groupedReactions.length === 1 ? 'w-5 h-5 justify-center p-0' : 'gap-[2px] px-[5px] py-[2px]'
-            ]">
-            <span v-for="r in groupedReactions" :key="r.emoji" class="leading-none flex items-center gap-[1px]"
-              :class="groupedReactions.length === 1 ? 'text-[12px]' : 'text-[13px]'">
-              <img v-if="getEmojiImage(r.emoji)" :src="'/img/emojis/' + getEmojiImage(r.emoji)" :alt="r.emoji"
-                class="w-[14px] h-[14px] object-contain" />
-              <span v-else>{{ r.emoji }}</span>
-              <span v-if="r.count > 1" class="text-[10px] text-grey dark:text-greyDark font-medium">{{ r.count }}</span>
-            </span>
+    <!--
+      ── Swipe-to-reply wrapper ──────────────────────────────────────────────
+      Envolve apenas a linha do balão (avatar + bubble).
+      translateX é aplicado ao conteúdo; o ícone de resposta aparece do lado oposto.
+    -->
+    <div
+      class="swipe-row relative overflow-visible"
+      @touchstart.passive="onTouchStart"
+      @touchmove.passive="onTouchMove"
+      @touchend="onTouchEnd"
+    >
+      <!-- Conteúdo deslocado pelo swipe -->
+      <div
+        class="swipe-content px-4"
+        :style="{ transform: `translateX(${swipeOffset}px)`, transition: isSwipeActive ? 'none' : 'transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)' }"
+      >
+        <div class="flex items-end" :class="isSent ? 'justify-end' : 'justify-start'">
+          <!-- Avatar: só no último balão do grupo recebido -->
+          <div class="flex flex-col justify-end w-6 flex-shrink-0 mb-[1px]" v-if="!isSent && !isEmojiOnly">
+            <Avatar class="w-[28px] h-[28px]" v-if="isLastOfGroup" size="xl"
+              :url="message?.sender?.profile_image?.thumbnails?.xs || message?.sender?.profile_image?.url" />
           </div>
-        </button>
-      </div>
-    </div>
+
+          <div :class="[
+            'flex flex-col relative max-w-[75%] min-w-0',
+            isSent ? 'items-end ml-0' : 'items-start ml-2'
+          ]">
+
+            <!-- Bloco de resposta -->
+            <div v-if="message.reply_to && !isEmojiOnly && message.status !== 'is_deleted'" class="w-full min-w-0 relative"
+              style="margin-bottom: -10px;">
+              <span class="flex items-center w-full text-[12px] mb-1 font-normal text-grey dark:text-greyDark"
+                :class="isSent ? 'justify-end' : 'justify-start'">
+                <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"
+                  class="mr-1 flex-shrink-0">
+                  <path
+                    d="M6.497 1.035C7.593-.088 9.5.688 9.5 2.257V4.54c1.923.215 3.49 1.246 4.593 2.672C15.328 8.808 16 10.91 16 13v.305c0 .632-.465 1.017-.893 1.127-.422.11-.99.005-1.318-.493-.59-.894-1.2-1.482-1.951-1.859-.611-.307-1.359-.496-2.338-.558v2.23c0 1.57-1.908 2.346-3.003 1.222L.893 9.223a1.75 1.75 0 0 1 .001-2.444l5.603-5.744z">
+                  </path>
+                </svg>
+                <span class="truncate">{{ replyLabel }}</span>
+              </span>
+              <button type="button" @click="scrollToReply" :class="[
+                'block max-w-full min-w-0 text-left rounded-[16px] px-3 py-[10px] text-[13px] leading-tight cursor-pointer transition-opacity opacity-90 hover:opacity-100',
+                isSent ? 'ml-auto bg-[#287dff]/40' : 'bg-[#e4e6eb] dark:bg-[#4a4a4a]'
+              ]" :style="isSent ? 'border-radius: 16px 16px 4px 16px;' : 'border-radius: 16px 16px 16px 4px;'">
+                <span class="block truncate opacity-90"
+                  :class="isSent ? 'text-white' : 'text-[rgb(40,40,41)] dark:text-white'">
+                  {{ replyPreviewText }}
+                </span>
+              </button>
+            </div>
+
+            <!-- Balão principal -->
+            <button type="button" @contextmenu.prevent="handleMoreOption(message)"
+              :style="!isEmojiOnly && message.status !== 'is_deleted' ? bubbleRadiusStyle : {}" :class="[
+                'relative z-[1] text-left transition-transform active:scale-[0.99] max-w-full min-w-0',
+                !isEmojiOnly && message.status !== 'is_deleted'
+                  ? (isSent
+                    ? 'bg-[#287dff] text-white p-[6px_12px]'
+                    : 'dark:bg-[#3c3c3c] dark:text-white text-[rgb(40,40,41)] bg-[#f1f2f2] p-[6px_12px]')
+                  : '',
+                message.status === 'is_deleted'
+                  ? 'border border-[#b0b3b8] dark:border-[#555] rounded-[18px] px-3 py-[6px] bg-transparent italic opacity-80'
+                  : '',
+                isEmojiOnly ? '!bg-transparent m-0 p-0' : '',
+                isEmojiOnly && groupedReactions.length ? 'mb-3' : '',
+                message.status === 'sending' ? 'opacity-20 pointer-events-none' : 'opacity-100',
+                isHighlighted ? 'ring-2 ring-yellow-400 ring-offset-1' : '',
+              ]">
+
+              <!-- Mensagem eliminada -->
+              <p v-if="message.status === 'is_deleted'" class="text-[13px] text-grey dark:text-greyDark">
+                Mensagem eliminada
+              </p>
+
+              <!-- Conteúdo normal -->
+              <p v-else :class="[
+                'break-words [overflow-wrap:anywhere] whitespace-pre-wrap leading-snug min-w-0',
+                isEmojiOnly ? 'text-5xl' : 'text-base',
+                isEmojiOnly && !isSent ? 'ml-6' : 'ml-0'
+              ]">
+                {{ message.content }}
+              </p>
+
+              <!-- Reações sobrepostas no canto inferior do balão -->
+              <div v-if="groupedReactions.length && message.status !== 'is_deleted'"
+                class="absolute z-[99] flex items-center bg-white dark:bg-[#2c2c2c] shadow-sm border border-black/5 dark:border-white/10 rounded-full"
+                :class="[
+                  isSent ? 'right-1' : 'left-1',
+                  '-bottom-3',
+                  isEmojiOnly ? 'ml-6' : 'ml-0',
+                  groupedReactions.length === 1 ? 'w-5 h-5 justify-center p-0' : 'gap-[2px] px-[5px] py-[2px]'
+                ]">
+                <span v-for="r in groupedReactions" :key="r.emoji" class="leading-none flex items-center gap-[1px]"
+                  :class="groupedReactions.length === 1 ? 'text-[12px]' : 'text-[13px]'">
+                  <img v-if="getEmojiImage(r.emoji)" :src="'/img/emojis/' + getEmojiImage(r.emoji)" :alt="r.emoji"
+                    class="w-[14px] h-[14px] object-contain" />
+                  <span v-else>{{ r.emoji }}</span>
+                  <span v-if="r.count > 1" class="text-[10px] text-grey dark:text-greyDark font-medium">{{ r.count }}</span>
+                </span>
+              </div>
+            </button>
+          </div>
+        </div>
+      </div><!-- /swipe-content -->
+    </div><!-- /swipe-row -->
+
   </div>
 </template>
 
@@ -145,7 +155,7 @@ const props = defineProps({
   nextMessage: { type: Object, default: null }
 })
 
-const emit = defineEmits(['more-option', 'scroll-to-reply'])
+const emit = defineEmits(['more-option', 'scroll-to-reply', 'reply-swipe'])
 
 const isSent = computed(() => props.message.sender._id === props.userId)
 const isDeletedForMe = computed(() => props.message?.deleted_for?.includes(props.userId) || false)
@@ -176,16 +186,9 @@ const isMessageEmojiOnly = (msg) => {
   return count >= 1 && count <= 3
 }
 
-// Mensagem eliminada para o utilizador atual (não é renderizada, então não
-// pode "amarrar" o agrupamento de quem está antes/depois dela).
 const isMessageDeletedForMe = (msg) => !!(msg?.deleted_for?.includes(props.userId))
-
-// Mensagem eliminada para todos ("Mensagem eliminada"): no Messenger isso
-// sempre aparece como um bloco isolado, com a sua própria "borda" de grupo —
-// nunca fica visualmente colada a mensagens vizinhas.
 const isMessageDeletedForEveryone = (msg) => msg?.status === 'is_deleted'
 
-// Qualquer condição que deva "cortar" o agrupamento entre duas mensagens
 const breaksGrouping = (msg) =>
   !msg ||
   isMessageEmojiOnly(msg) ||
@@ -210,16 +213,10 @@ const isGroupedWithNext = computed(() =>
 
 const isLastOfGroup = computed(() => !isGroupedWithNext.value)
 
-// A mensagem anterior pode ter reações — se sim, precisamos de espaço extra
-// para as reações não ficarem sobrepostas à mensagem seguinte.
 const previousHasReactions = computed(() =>
   !!(props.previousMessage?.reactions?.length)
 )
 
-// Espaçamento:
-//   — dentro do grupo sem reações na anterior : 2px
-//   — dentro do grupo com reações na anterior : 18px (reações têm ~12px de altura + 6px de respiro)
-//   — novo grupo / remetente diferente / quebra (emoji, eliminada, etc.) : 10px
 const wrapperSpacingClass = computed(() => {
   if (!isGroupedWithPrevious.value) return 'mt-[10px]'
   return previousHasReactions.value ? 'mt-[18px]' : 'mt-[2px]'
@@ -351,6 +348,101 @@ if (typeof window !== 'undefined') {
       setTimeout(() => { isHighlighted.value = false }, 1500)
     })
   })
+}
+
+// ── Swipe-to-reply ───────────────────────────────────────────────────────────
+// Mensagens enviadas (isSent) → arrastar para a ESQUERDA  (offset negativo)
+// Mensagens recebidas          → arrastar para a DIREITA  (offset positivo)
+//
+// Threshold para activar o reply: 60px de deslocamento.
+// O ícone aparece do lado oposto ao balão e cresce à medida que se arrasta.
+
+const SWIPE_THRESHOLD = 60      // px para disparar o reply
+const SWIPE_MAX      = 72      // px máximo de deslocamento (elástico a partir daqui)
+const SWIPE_ELASTIC  = 0.3     // resistência após o threshold
+
+const swipeOffset     = ref(0)
+const isSwipeActive   = ref(false)
+const swipeTriggered  = ref(false)
+const touchStartX     = ref(0)
+const touchStartY     = ref(0)
+const isHorizontal    = ref(false) // evita interferir com scroll vertical
+
+// Opacidade e escala do ícone de reply (0 → 1 conforme se arrasta)
+const replyIconOpacity = computed(() => {
+  const abs = Math.abs(swipeOffset.value)
+  return Math.min(abs / SWIPE_THRESHOLD, 1)
+})
+
+const replyIconScale = computed(() => {
+  const abs = Math.abs(swipeOffset.value)
+  const progress = Math.min(abs / SWIPE_THRESHOLD, 1)
+  // cresce de 0.4 até 1, com um pequeno overshoot quando ultrapassa o threshold
+  const base = 0.4 + progress * 0.6
+  return swipeTriggered.value ? Math.min(base * 1.1, 1.15) : base
+})
+
+const onTouchStart = (e) => {
+  if (props.message.status === 'is_deleted' || props.message.status === 'sending') return
+  const t = e.touches[0]
+  touchStartX.value = t.clientX
+  touchStartY.value = t.clientY
+  isSwipeActive.value = true
+  isHorizontal.value = false
+  swipeTriggered.value = false
+}
+
+const onTouchMove = (e) => {
+  if (!isSwipeActive.value) return
+  const t = e.touches[0]
+  const dx = t.clientX - touchStartX.value
+  const dy = t.clientY - touchStartY.value
+
+  // Determina na primeira movimentação se é gesto horizontal ou vertical
+  if (!isHorizontal.value && Math.abs(dx) < 5 && Math.abs(dy) < 5) return
+  if (!isHorizontal.value) {
+    isHorizontal.value = Math.abs(dx) > Math.abs(dy)
+    if (!isHorizontal.value) { isSwipeActive.value = false; return }
+  }
+
+  // Direção correta por tipo de mensagem
+  // isSent → só aceita arrasto para a esquerda (dx < 0)
+  // recebida → só aceita arrasto para a direita (dx > 0)
+  const isCorrectDirection = isSent.value ? dx < 0 : dx > 0
+  if (!isCorrectDirection) { swipeOffset.value = 0; return }
+
+  const raw = isSent.value ? Math.abs(dx) : dx
+
+  let offset
+  if (raw <= SWIPE_THRESHOLD) {
+    offset = raw
+  } else {
+    // Resistência elástica após threshold
+    offset = SWIPE_THRESHOLD + (raw - SWIPE_THRESHOLD) * SWIPE_ELASTIC
+    offset = Math.min(offset, SWIPE_MAX)
+  }
+
+  swipeOffset.value = isSent.value ? -offset : offset
+
+  // Dispara haptic e marca triggered quando ultrapassa o threshold (uma vez)
+  if (!swipeTriggered.value && Math.abs(swipeOffset.value) >= SWIPE_THRESHOLD) {
+    swipeTriggered.value = true
+    if (navigator?.vibrate) navigator.vibrate(10)
+  }
+}
+
+const onTouchEnd = () => {
+  if (!isSwipeActive.value) return
+  isSwipeActive.value = false
+
+  if (swipeTriggered.value) {
+    emit('reply-swipe', props.message)
+  }
+
+  // Volta ao lugar com animação spring
+  swipeOffset.value = 0
+  swipeTriggered.value = false
+  isHorizontal.value = false
 }
 
 // ── Áudio ────────────────────────────────────────────────────────────────────

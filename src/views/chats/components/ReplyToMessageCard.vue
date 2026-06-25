@@ -1,7 +1,7 @@
 <template>
     <div class="flex border-t dark:border-[rgb(57,56,57)] px-4 py-1.5 justify-between">
         <div class="flex flex-col flex-1 min-w-0">
-            <p class="text-[15px] font-semibold dark:text-white text-[rgb(40,40,41)] truncate">Responder {{ isSent ? 'à tua mensagem' : 'a '+ getFirstName(message?.sender?.name) }}</p>
+            <p class="text-base font-semibold dark:text-white text-[rgb(40,40,41)] truncate">Responder {{ isSent ? 'à tua mensagem' : 'a '+ getFirstName(message?.sender?.name) }}</p>
 
             <p class="text-sm dark:text-[#b0b3b8] truncate ">{{ previewText || '...' }}</p>
         </div>
