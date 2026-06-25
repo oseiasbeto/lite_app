@@ -794,6 +794,7 @@ export default {
                 // antes de aceitar o pedido (evita IDOR).
                 await api.delete(`/messages/for-me/${msgId}`)
 
+                console.log(convId, msgId, userId)
                 // Só altera o estado local se a API confirmar sucesso
                 commit('DELETE_MESSAGE_FOR_ME', { convId, msgId, userId })
             } catch (err) {
@@ -816,6 +817,8 @@ export default {
                 // antes de marcar como apagada para todos.
                 await api.delete(`/messages/${msgId}`)
 
+
+                console.log(convId, source, msgId)
                 commit('DELETE_MESSAGE', { convId, source, msgId })
             } catch (err) {
                 logger.error("Failed to delete message: ", err)
