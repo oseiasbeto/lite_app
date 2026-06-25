@@ -12,7 +12,7 @@
     <div class="relative">
       <!-- Avatar com clique -->
       <Avatar @click="goToProfile(conversation)"
-        :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="xl"
+        :url="conversation?.avatar?.thumbnails?.lg || conversation?.avatar?.url" size="xl"
         class="flex-shrink-0 !w-7 !h-7" />
 
       <!-- Bolinha de status (ativo) -->

@@ -15,11 +15,11 @@
                 </div>
 
                 <!-- === CABEÇALHO DO PARTICIPANTE (aparece no topo) === -->
-                <div :class="cachedMessages?.items?.length ? 'border-b dark:border-[rgb(57,56,57)]' : 'border-none'"
+                <div
                     v-if="!cachedMessages?.pagination?.hasMore && conversation?.type === 'direct'"
                     class="flex flex-col items-center justify-center py-8 text-center mb-4">
 
-                    <Avatar :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="big" />
+                    <Avatar :url="conversation?.avatar?.thumbnails?.lg || conversation?.avatar?.url" size="big" />
 
                     <div class="mt-3 mb-3">
                         <p class="text-lg font-semibold dark:text-white text-[rgb(40,40,41)]">{{
@@ -73,39 +73,39 @@
         <Drawer :is-open="drawer.show" @close="onCloseDrawer">
             <div v-if="drawer.name === 'MESSAGE_MORE_OPTIONS'">
                 <div
-                    class="flex border-b dark:border-[rgb(57,56,57)] mb-1 overflow-x-auto gap-1 justify-center pt-3 px-1.5 py-2 items-center">
+                    class="flex border-b overflow-x-scroll dark:border-[rgb(57,56,57)] mb-1 gap-1 justify-center pt-3 px-1.5 py-2 items-center">
                     <button @click="handleReactMessage(messageSelected._id, '❤️')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('❤️', messageSelected) }">
-                        <img class="w-9 h-9" src="../../../assets/imgs/emojis/heart.png" />
+                        <img class="shrink-0 w-10" src="../../../assets/imgs/emojis/heart.png" />
                     </button>
                     <button @click="handleReactMessage(messageSelected._id, '😆')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😆', messageSelected) }">
-                        <img class="w-9 h-9" src="../../../assets/imgs/emojis/haha.png" />
+                        <img class="shrink-0 w-10" src="../../../assets/imgs/emojis/haha.png" />
                     </button>
 
                     <button @click="handleReactMessage(messageSelected._id, '😡')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😡', messageSelected) }">
-                        <img class="w-9 h-9" src="../../../assets/imgs/emojis/angry.png" />
+                        <img class="shrink-0 w-10" src="../../../assets/imgs/emojis/angry.png" />
                     </button>
                     <button @click="handleReactMessage(messageSelected._id, '😢')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😢', messageSelected) }">
-                        <img class="w-9 h-9" src="../../../assets/imgs/emojis/sad.png" />
+                        <img class="shrink-0 w-10" src="../../../assets/imgs/emojis/sad.png" />
                     </button>
 
                     <button @click="handleReactMessage(messageSelected._id, '😮')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😮', messageSelected) }">
-                        <img class="w-9 h-9" src="../../../assets/imgs/emojis/wow.png" />
+                        <img class="shrink-0 w-10" src="../../../assets/imgs/emojis/wow.png" />
                     </button>
 
                     <button @click="handleReactMessage(messageSelected._id, '👍')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('👍', messageSelected) }">
-                        <img class="w-9 h-9" src="../../../assets/imgs/emojis/like.png" />
+                        <img class="shrink-0 w-10" src="../../../assets/imgs/emojis/like.png" />
                     </button>
 
 
@@ -481,15 +481,15 @@ const handleTypingStop = () => {
 }
 
 
-const handleDeleteMessageForMe = (convId, source, msgId, userId) => {
-    store.dispatch("deleteMessageForMe", { convId, source, msgId, userId })
+const handleDeleteMessageForMe = async (convId, source, msgId, userId) => {
+    await store.dispatch("deleteMessageForMe", { convId, source, msgId, userId })
 }
 
-const handleDeleteMessage = (convId, source, msgId) => {
-    store.dispatch("deleteMessage", { convId, source, msgId })
+const handleDeleteMessage = async (convId, source, msgId) => {
+    await store.dispatch("deleteMessage", { convId, source, msgId })
 }
 
-const handleConfirm = () => {
+const handleConfirm = async () => {
     if (!modalConfirm.value?.isOpen) return
 
     const el = modalConfirm.value
@@ -499,10 +499,10 @@ const handleConfirm = () => {
 
     switch (actionType) {
         case 'deleteForMe':
-            handleDeleteMessageForMe(convId, source, msgId, userId)
+            await handleDeleteMessageForMe(convId, source, msgId, userId)
             break;
         case 'deleteMessage':
-            handleDeleteMessage(convId, source, msgId)
+            await handleDeleteMessage(convId, source, msgId)
             break
     }
     closeModalConfirm()
@@ -661,21 +661,34 @@ const handleSendVoiceMessage = async ({ url, duration }) => {
     }))
 }
 
-const handleReactMessage = (messageId, emoji) => {
-    store.dispatch("reactMessage", {
-        convId: conversation.value?._id,
-        msgId: messageId,
-        emoji,
-        sender: {
-            _id: user.value?._id,
-            name: user.value?.name,
-            username: user.value?.username,
-            profile_image: user.value?.profile_image,
-            is_verified: user.value?.is_verified
-        },
-        source: conversation?.value?.source
-    })
+const handleReactMessage = async (messageId, emoji) => {
+
+    const source = conversation?.value?.source
+    const convId = conversation.value?._id
+    const msgId = messageId
+
+    const sender = {
+        _id: user.value?._id,
+        name: user.value?.name,
+        is_online: user.value?.is_online,
+        username: user.value?.username,
+        profile_image: user.value?.profile_image,
+        is_verified: user.value?.is_verified
+    }
+
+    store.commit("REACT_MESSAGE", { convId, msgId, emoji, source, sender })
+
+    const viewport = window.visualViewport;
+    if (viewport) {
+        const tolerance = 50
+        const isBottom = messagesContainer.value?.scrollHeight - messagesContainer.value?.scrollTop <= messagesContainer.value?.offsetHeight + tolerance
+
+        if (isBottom) {
+            scrollToBottom(false)
+        }
+    }
     resetDrawer()
+    await store.dispatch("reactMessage", { convId, msgId: messageId, emoji })
 }
 
 // Observa o último elemento da lista

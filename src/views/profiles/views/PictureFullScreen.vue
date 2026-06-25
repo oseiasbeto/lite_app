@@ -34,9 +34,7 @@ const currentTheme = computed(() => store.getters.currentTheme)
 
 // URL da imagem do perfil
 const profileImage = computed(() => {
-    return profile.value?.profile_image?.thumbnails?.lg ||
-        profile.value?.profile_image?.url ||
-        '';
+    return profile.value?.profile_image?.url
 });
 
 // Controla visibilidade do header/footer

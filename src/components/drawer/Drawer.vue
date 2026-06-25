@@ -54,11 +54,11 @@ const close = () => {
 
 <style>
 .animate-slide-up {
-  animation: slide-up 0.3s ease-in-out;
+  animation: slide-up 0.1s ease-in-out;
 }
 
 .animate-slide-down {
-  animation: slide-down 0.3s ease-in-out;
+  animation: slide-down 0.1s ease-in-out;
 }
 
 @keyframes slide-up {

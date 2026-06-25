@@ -285,7 +285,7 @@ export default {
 
                     if (index !== -1) {
                         conversations[index].unread_count = count,
-                        conversations[index].read_by = []
+                            conversations[index].read_by = []
                     }
                 }
             }
@@ -377,7 +377,7 @@ export default {
 
         ADD_MESSAGE_REALTIME(state, { convId, source, message }) {
             const module = state.messages.find(m => m.byId === convId)
-            
+
             if (!module) return
 
             const messages = module.items
@@ -506,8 +506,10 @@ export default {
             logger.log("mensagem apagada para todos: ", msgId)
         },
 
-        REACT_MESSAGE(state, { convId, msgId, source, emoji, core, sender, isFromMe = true }) {
+        REACT_MESSAGE(state, { convId, msgId, source, emoji, sender, isFromMe = true }) {
             if (!convId || !msgId || !emoji || !sender?._id) return
+
+            let isPush = false // Vai ser determinado pela lógica
 
             const modules = state.messages
             const index = modules.findIndex(m => m.byId === convId)
@@ -515,26 +517,36 @@ export default {
             if (index !== -1) {
                 const module = modules[index]
                 const messages = module.items
-
                 const indexMessage = messages.findIndex((m) => m._id == msgId)
 
                 if (indexMessage !== -1) {
                     const message = messages[indexMessage]
 
-                    const existingReactionIndex = message.reactions.findIndex(r => r.user?._id.toString() === sender?._id.toString() && r.emoji === emoji)
+                    // Verifica se o usuário já tem uma reação com este emoji específico
+                    const existingReactionIndex = message.reactions.findIndex(
+                        r => r.user?._id.toString() === sender?._id.toString() && r.emoji === emoji
+                    )
 
                     if (existingReactionIndex !== -1) {
+                        // Se já existe a reação com este emoji, é REMOVE (toggle off)
                         message.reactions.splice(existingReactionIndex, 1)
-
-                        logger.log(`reação ${emoji} removida da mensagen: `, message)
+                        isPush = false
+                        logger.log(`reação ${emoji} removida da mensagem: `, message)
                     } else {
-                        const existingReaction = message.reactions.find(r => r.user?._id.toString() == sender?._id.toString())
+                        // Verifica se o usuário tem alguma outra reação
+                        const existingReaction = message.reactions.find(
+                            r => r.user?._id.toString() == sender?._id.toString()
+                        )
 
                         if (existingReaction) {
+                            // Substitui a reação existente por uma nova -> é PUSH
                             existingReaction.emoji = emoji
+                            isPush = true
                             logger.log(`mensagem reagida com ${emoji}: `, message)
                         } else {
+                            // Adiciona nova reação -> é PUSH
                             message.reactions.push({ user: sender, emoji })
+                            isPush = true
                             logger.log(`mensagem reagida com ${emoji}: `, message)
                         }
                     }
@@ -550,38 +562,39 @@ export default {
 
             if (convItemindex !== -1) {
                 const now = new Date()
+                const conversation = state.conversations[convIndex].items[convItemindex]
 
-                if (core === 'push') {
+                // Agora usa a variável isPush determinada pela lógica acima
+                if (isPush) {
                     if (!isFromMe) {
-                        const unreadCount = state.conversations[convIndex].items[convItemindex].unread_count
-                        state.conversations[convIndex].items[convItemindex].unread_count = unreadCount + 1
+                        conversation.unread_count = (conversation.unread_count || 0) + 1
                     }
-                    state.conversations[convIndex].items[convItemindex].last_message.message_type = 'reaction_message'
-                } else if (core === 'remove') {
+                    conversation.last_message.message_type = 'reaction_message'
+                } else {
                     if (!isFromMe) {
-                        const unreadCount = state.conversations[convIndex].items[convItemindex].unread_count
-                        state.conversations[convIndex].items[convItemindex].unread_count = unreadCount > 0 ? unreadCount - 1 : 0
+                        conversation.unread_count = Math.max(0, (conversation.unread_count || 0) - 1)
                     }
-                    state.conversations[convIndex].items[convItemindex].last_message.message_type = 'text'
+                    conversation.last_message.message_type = 'text'
                 }
 
-                state.conversations[convIndex].items[convItemindex].read_by = []
-                state.conversations[convIndex].items[convItemindex].last_message.sender = sender
-                state.conversations[convIndex].items[convItemindex].last_message.reaction = emoji
-                state.conversations[convIndex].items[convItemindex].last_message.created_at = now
-                state.conversations[convIndex].items[convItemindex].last_message.msgId = msgId || null
+                // Atualiza campos comuns
+                conversation.read_by = []
+                conversation.last_message.sender = sender
+                conversation.last_message.reaction = emoji
+                conversation.last_message.created_at = now
+                conversation.last_message.msgId = msgId || null
 
+                // Move para o topo se não estiver já
                 if (convItemindex !== 0) {
-                    const conversation = state.conversations[convIndex].items[convItemindex]
-                    state.conversations[convIndex].items.splice(convItemindex, 1);
-                    state.conversations[convIndex].items.unshift(conversation);
+                    state.conversations[convIndex].items.splice(convItemindex, 1)
+                    state.conversations[convIndex].items.unshift(conversation)
                 }
 
                 if (state.conversation?._id && state.conversation?._id == convId) {
                     state.conversation.read_by = []
                 }
             }
-        },
+        }
     },
     actions: {
         // Função para obter conversas
@@ -728,10 +741,10 @@ export default {
         // Marcar como lido
         async markAsRead({ commit }, { convId, source }) {
             try {
+                commit('UPDATE_UNREAD_COUNT_ON_CONVERSATION', { convId, source, count: 0 })
                 await api.post(`/conversations/${convId}/mark-as-read`, {
                     source: source
                 })
-                commit('UPDATE_UNREAD_COUNT_ON_CONVERSATION', { convId, source, count: 0 })
             } catch (err) {
                 logger.error("Failed to mark as read message: ", err);
                 throw err;
@@ -740,8 +753,8 @@ export default {
 
         async deleteMessageForMe({ commit }, { convId, msgId, userId }) {
             try {
-                await api.delete(`/messages/for-me/${msgId}`)
                 commit('DELETE_MESSAGE_FOR_ME', { convId, msgId, userId })
+                await api.delete(`/messages/for-me/${msgId}`)
             } catch (err) {
                 logger.error("Failed to delete message for me: ", err);
                 throw err;
@@ -750,24 +763,23 @@ export default {
 
         async deleteMessage({ commit }, { convId, source, msgId }) {
             try {
-                await api.delete(`/messages/${msgId}`)
                 commit('DELETE_MESSAGE', { convId, source, msgId })
+                await api.delete(`/messages/${msgId}`)
             } catch (err) {
                 logger.error("Failed to delete message: ", err);
                 throw err;
             }
         },
 
-        async reactMessage({ commit }, { convId, msgId, source, emoji, sender }) {
+        async reactMessage({ commit }, { msgId, source, emoji }) {
             try {
                 const response = await api.put(`/messages/react/${msgId}`, {
                     emoji,
                     source
                 })
 
-                const { core } = response?.data
+                return response?.data
 
-                commit("REACT_MESSAGE", { convId, msgId, emoji, source, sender, core })
             } catch (err) {
                 logger.error("Falha ao reagir a messagem  :", err);
                 throw err;

@@ -49,15 +49,15 @@
         <!-- Bloco de resposta -->
         <div v-if="message.reply_to && !isEmojiOnly && message.status !== 'is_deleted'" class="w-full min-w-0 relative"
           style="margin-bottom: -10px;">
-          <span class="flex items-center text-[12px] mb-1 font-normal text-grey dark:text-greyDark"
-            :class="isSent ? 'text-right' : 'text-left'">
+          <span class="flex items-center w-full text-[12px] mb-1 font-normal text-grey dark:text-greyDark"
+            :class="isSent ? 'justify-end' : 'justify-start'">
             <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"
-              class="mr-1">
+              class="mr-1 flex-shrink-0">
               <path
                 d="M6.497 1.035C7.593-.088 9.5.688 9.5 2.257V4.54c1.923.215 3.49 1.246 4.593 2.672C15.328 8.808 16 10.91 16 13v.305c0 .632-.465 1.017-.893 1.127-.422.11-.99.005-1.318-.493-.59-.894-1.2-1.482-1.951-1.859-.611-.307-1.359-.496-2.338-.558v2.23c0 1.57-1.908 2.346-3.003 1.222L.893 9.223a1.75 1.75 0 0 1 .001-2.444l5.603-5.744z">
               </path>
             </svg>
-            {{ replyLabel }}
+            <span class="truncate">{{ replyLabel }}</span>
           </span>
           <button type="button" @click="scrollToReply" :class="[
             'block max-w-full min-w-0 text-left rounded-[16px] px-3 py-[10px] text-[13px] leading-tight cursor-pointer transition-opacity opacity-90 hover:opacity-100',
@@ -90,6 +90,9 @@
             // ── emoji puro ────────────────────────────────────────────────
             isEmojiOnly ? '!bg-transparent m-0 p-0' : '',
 
+            // ── espaço extra quando emoji puro tem reações sobrepostas ────
+            isEmojiOnly && groupedReactions.length ? 'mb-3' : '',
+
             message.status === 'sending' ? 'opacity-20 pointer-events-none' : 'opacity-100',
             isHighlighted ? 'ring-2 ring-yellow-400 ring-offset-1' : '',
           ]">
@@ -102,7 +105,7 @@
           <!-- Conteúdo normal -->
           <p v-else :class="[
             'break-words [overflow-wrap:anywhere] whitespace-pre-wrap leading-snug min-w-0',
-            isEmojiOnly ? 'text-5xl' : 'text-[15px]',
+            isEmojiOnly ? 'text-5xl' : 'text-base',
             isEmojiOnly && !isSent ? 'ml-6' : 'ml-0'
           ]">
             {{ message.content }}
@@ -114,6 +117,7 @@
             :class="[
               isSent ? 'right-1' : 'left-1',
               '-bottom-3',
+              isEmojiOnly ? 'ml-6' : 'ml-0',
               groupedReactions.length === 1 ? 'w-5 h-5 justify-center p-0' : 'gap-[2px] px-[5px] py-[2px]'
             ]">
             <span v-for="r in groupedReactions" :key="r.emoji" class="leading-none flex items-center gap-[1px]"
@@ -172,18 +176,34 @@ const isMessageEmojiOnly = (msg) => {
   return count >= 1 && count <= 3
 }
 
+// Mensagem eliminada para o utilizador atual (não é renderizada, então não
+// pode "amarrar" o agrupamento de quem está antes/depois dela).
+const isMessageDeletedForMe = (msg) => !!(msg?.deleted_for?.includes(props.userId))
+
+// Mensagem eliminada para todos ("Mensagem eliminada"): no Messenger isso
+// sempre aparece como um bloco isolado, com a sua própria "borda" de grupo —
+// nunca fica visualmente colada a mensagens vizinhas.
+const isMessageDeletedForEveryone = (msg) => msg?.status === 'is_deleted'
+
+// Qualquer condição que deva "cortar" o agrupamento entre duas mensagens
+const breaksGrouping = (msg) =>
+  !msg ||
+  isMessageEmojiOnly(msg) ||
+  isMessageDeletedForEveryone(msg) ||
+  isMessageDeletedForMe(msg)
+
 const isGroupedWithPrevious = computed(() =>
   !!props.previousMessage &&
-  !isMessageEmojiOnly(props.previousMessage) &&
-  !isMessageEmojiOnly(props.message) &&
+  !breaksGrouping(props.previousMessage) &&
+  !breaksGrouping(props.message) &&
   sameSender(props.previousMessage, props.message) &&
   diffMs(props.previousMessage, props.message) <= GROUP_WINDOW_MS
 )
 
 const isGroupedWithNext = computed(() =>
   !!props.nextMessage &&
-  !isMessageEmojiOnly(props.message) &&
-  !isMessageEmojiOnly(props.nextMessage) &&
+  !breaksGrouping(props.message) &&
+  !breaksGrouping(props.nextMessage) &&
   sameSender(props.message, props.nextMessage) &&
   diffMs(props.message, props.nextMessage) <= GROUP_WINDOW_MS
 )
@@ -199,7 +219,7 @@ const previousHasReactions = computed(() =>
 // Espaçamento:
 //   — dentro do grupo sem reações na anterior : 2px
 //   — dentro do grupo com reações na anterior : 18px (reações têm ~12px de altura + 6px de respiro)
-//   — novo grupo / remetente diferente         : 10px
+//   — novo grupo / remetente diferente / quebra (emoji, eliminada, etc.) : 10px
 const wrapperSpacingClass = computed(() => {
   if (!isGroupedWithPrevious.value) return 'mt-[10px]'
   return previousHasReactions.value ? 'mt-[18px]' : 'mt-[2px]'

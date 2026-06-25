@@ -11,7 +11,7 @@
       :style="indicatorStyle"
     >
       <!-- Spinner girando enquanto carrega: só o arco, sem trilho cinzento -->
-      <svg v-if="isRefreshing" class="fb-spin" width="20" height="20" viewBox="0 0 24 24" fill="none">
+      <svg v-if="isRefreshing" class="fb-spin" width="23" height="23" viewBox="0 0 24 24" fill="none">
         <path
           d="M21.5 12a9.5 9.5 0 0 0-9.5-9.5"
           stroke="#1877f2"
@@ -23,7 +23,7 @@
       <!-- Seta enquanto puxa: vira 180° quando passa do threshold (pronto pra soltar) -->
       <svg
         v-else
-        width="24" height="24" viewBox="0 0 24 24" fill="none"
+        width="27" height="27" viewBox="0 0 24 24" fill="none"
         :style="{ transform: `rotate(${arrowRotation}deg)`, transition: 'transform 0.2s ease' }"
       >
         <path
@@ -72,23 +72,35 @@ const indicatorStyle = computed(() => {
     top = props.topPosition + Math.min(currentOffset, maxOffset)
   }
 
+  // O `top` só deve "seguir o dedo" sem transição enquanto está sendo
+  // puxado de fato. Quando `distance` volta a 0 (soltou/cancelou o pull),
+  // isso coincide exatamente com a animação de saída — então o `top`
+  // também precisa animar em conjunto, senão ele salta instantaneamente
+  // enquanto o fade/scale ainda está em transição, dando aquela travada.
+  const isSettling = props.isRefreshing || props.distance === 0
+
   return {
     top: `${top}px`,
     opacity: props.isRefreshing ? 1 : Math.min(progress.value * 1.3, 1),
-    transition: props.isRefreshing ? 'top 0.2s ease' : 'none'
+    transition: isSettling ? 'top 0.2s ease' : 'none'
   }
 })
 </script>
 
 <style scoped>
-.fade-scale-enter-active,
-.fade-scale-leave-active {
+.fade-scale-enter-active {
   transition: opacity 0.15s ease, transform 0.15s ease;
 }
-.fade-scale-enter-from,
-.fade-scale-leave-to {
+.fade-scale-leave-active {
+  transition: opacity 0.22s cubic-bezier(0.4, 0, 1, 1), transform 0.22s cubic-bezier(0.4, 0, 1, 1);
+}
+.fade-scale-enter-from {
   opacity: 0;
   transform: translate(-50%, -10px) scale(0.6);
+}
+.fade-scale-leave-to {
+  opacity: 0;
+  transform: translate(-50%, -14px) scale(0.5);
 }
 
 /* Rotação contínua e suave, igual ao spinner do Facebook (sem trilho cinzento) */
