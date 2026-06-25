@@ -495,15 +495,15 @@ const handleConfirm = async () => {
     const el = modalConfirm.value
     const actionType = el.actionType
     const source = conversation?.value?.source
-    const { convId, msgId, userId } = el.data
+    const { msgId, userId } = el.data
 
     try {
         switch (actionType) {
             case 'deleteForMe':
-                await handleDeleteMessageForMe(convId, source, msgId, userId)
+                await handleDeleteMessageForMe(conversation.value?._id, source, msgId, userId)
                 break
             case 'deleteMessage':
-                await handleDeleteMessage(convId, source, msgId)
+                await handleDeleteMessage(conversation.value?._id, source, msgId)
                 break
         }
     } catch (err) {
