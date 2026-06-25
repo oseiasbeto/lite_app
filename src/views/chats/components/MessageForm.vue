@@ -45,7 +45,7 @@
       <div class="flex-1">
         <textarea ref="textareaRef" v-model="inputMessage" @input="autoResize" @keydown.enter.shift.exact="allowNewLine"
           @focus="handleFocus" rows="1" placeholder="Mensagem..." class="w-full dark:caret-white 
-                resize-none text-[15px] overflow-hidden scroll-pt-4
+                resize-none text-base overflow-hidden scroll-pt-4
                  px-4 py-2.5 dark:bg-[#202020] bg-[#f7f7f8]
                  leading-snug
                  dark:placeholder-[#949494] 
