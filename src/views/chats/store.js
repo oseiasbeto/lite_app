@@ -440,8 +440,9 @@ export default {
         DELETE_MESSAGE_FOR_ME(state, { convId, source, msgId, userId }) {
             if (!convId || !msgId || !userId) return
 
+            console.log(convId, msgId)
             const modules = state.messages
-            
+
             const index = modules.findIndex(m => m.byId === convId)
             if (index === -1) return
 
@@ -484,6 +485,7 @@ export default {
         DELETE_MESSAGE(state, { convId, source, msgId }) {
             if (!convId || !msgId) return
 
+            console.log(convId, msgId)
             const modules = state.messages
             const index = modules.findIndex(m => m.byId === convId)
             if (index !== -1) {
