@@ -89,32 +89,32 @@
                     <button @click="handleReactMessage(messageSelected._id, '❤️')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('❤️', messageSelected) }">
-                        <img class="shrink-0 w-10" src="../../../assets/imgs/emojis/heart.png" />
+                        <img class="shrink-0 w-8" src="../../../assets/imgs/emojis/heart.png" />
                     </button>
                     <button @click="handleReactMessage(messageSelected._id, '😆')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😆', messageSelected) }">
-                        <img class="shrink-0 w-10" src="../../../assets/imgs/emojis/haha.png" />
+                        <img class="shrink-0 w-8" src="../../../assets/imgs/emojis/haha.png" />
                     </button>
                     <button @click="handleReactMessage(messageSelected._id, '😡')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😡', messageSelected) }">
-                        <img class="shrink-0 w-10" src="../../../assets/imgs/emojis/angry.png" />
+                        <img class="shrink-0 w-8" src="../../../assets/imgs/emojis/angry.png" />
                     </button>
                     <button @click="handleReactMessage(messageSelected._id, '😢')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😢', messageSelected) }">
-                        <img class="shrink-0 w-10" src="../../../assets/imgs/emojis/sad.png" />
+                        <img class="shrink-0 w-8" src="../../../assets/imgs/emojis/sad.png" />
                     </button>
                     <button @click="handleReactMessage(messageSelected._id, '😮')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('😮', messageSelected) }">
-                        <img class="shrink-0 w-10" src="../../../assets/imgs/emojis/wow.png" />
+                        <img class="shrink-0 w-8" src="../../../assets/imgs/emojis/wow.png" />
                     </button>
                     <button @click="handleReactMessage(messageSelected._id, '👍')"
                         class="px-1 py-1 rounded-[16px] text-3xl bg-background-secondary hover:bg-background-tertiary"
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('👍', messageSelected) }">
-                        <img class="shrink-0 w-10" src="../../../assets/imgs/emojis/like.png" />
+                        <img class="shrink-0 w-8" src="../../../assets/imgs/emojis/like.png" />
                     </button>
                 </div>
                 <DrawerItem v-if="messageSelected?.message_type !== 'voice'"
@@ -223,6 +223,7 @@ const readersExcludingCurrent = computed(() => {
 
 const networkStatus = computed(() => store.getters.networkStatus)
 const isOnline = computed(() => networkStatus.value === 'online')
+
 
 const statusText = computed(() => {
     const conv = conversation.value;
@@ -573,6 +574,8 @@ useIntersectionObserver(
 watch(() => route.params.convId, async (newId, oldId) => {
     if (!newId || newId === oldId) return;
     loadingMoreMessages.value = false
+    showScrollToBottomBtn.value = false
+    
     messageFormRef.value.clearInput()
     resetReplyTo()
     unreadWhileScrolled.value = 0

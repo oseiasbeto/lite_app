@@ -702,7 +702,10 @@ export default {
                         byId: newMessage?.conversation?._id,
                         msgId: tempId,
                         source,
-                        payload: newMessage
+                        payload: {
+                            ...newMessage,
+                            status: 'sent'
+                        }
                     })
                 }
             } catch (err) {

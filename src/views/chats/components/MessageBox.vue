@@ -135,7 +135,7 @@
 
               <!-- Reações sobrepostas no canto inferior do balão -->
               <div v-if="groupedReactions.length && message.status !== 'is_deleted'"
-                class="absolute z-[99] flex items-center bg-white dark:bg-[#2c2c2c] border border-black/5 dark:border-white/10 rounded-full"
+                class="absolute z-[99] flex items-center bg-white dark:bg-[#2c2c2c] border-2 border-white dark:border-[#181818] rounded-full"
                 :class="[
                   isSent ? 'right-1' : 'left-1',
                   '-bottom-3',
@@ -145,7 +145,7 @@
                 <span v-for="r in groupedReactions" :key="r.emoji" class="leading-none flex items-center gap-[1px]"
                   :class="groupedReactions.length === 1 ? 'text-[12px]' : 'text-[13px]'">
                   <img v-if="getEmojiImage(r.emoji)" :src="'/img/emojis/' + getEmojiImage(r.emoji)" :alt="r.emoji"
-                    class="w-[14px] h-[14px] object-contain" />
+                    class="w-[12px] h-[12px] object-contain" />
                   <span v-else>{{ r.emoji }}</span>
                   <span v-if="r.count > 1" class="text-[10px] text-grey dark:text-greyDark font-medium">{{ r.count }}</span>
                 </span>
@@ -158,10 +158,12 @@
               A enviar...
             </span>
 
-            <!-- Indicador "Entregue" / "Lido" na última mensagem enviada (estilo Messenger) -->
-            <span v-else-if="isSent && isLastSentMessage && !isReadByOther"
-              class="text-[11px] text-grey dark:text-greyDark mt-[2px] px-1">
-              <p> {{ message.status === 'delivered' ? 'Entregue' : 'Erro' }}</p>
+            <!-- Indicador "Entregue" na última mensagem enviada (estilo Messenger) -->
+            <span v-else-if="message.status == 'sent' && isLastSentMessage && !isReadByOther"
+              class="text-[11px] text-grey dark:text-greyDark mt-[2px] px-1"
+              :class="{'!mt-2.5': groupedReactions.length}"
+              >
+              Entregue
             </span>
           </div>
         </div>
@@ -197,6 +199,13 @@ const isEmojiOnly = computed(() => {
   const count = (content.match(/[\p{Emoji}]/gu) || []).length
   return count >= 1 && count <= 3
 })
+
+const isReadByOther = computed(() =>
+  (props.chatReadBy || []).some(r => {
+    const readerId = r?.user?._id || r?.user || r?._id
+    return readerId && readerId !== props.userId
+  })
+)
 
 // ── Agrupamento ──────────────────────────────────────────────────────────────
 const GROUP_WINDOW_MS = 60 * 1000
@@ -246,14 +255,6 @@ const isLastSentMessage = computed(() =>
   isSent.value &&
   !props.nextMessage &&
   props.message.status !== 'is_deleted'
-)
-
-// Verifica se alguém, além de mim, já leu a mensagem (read_by vindo do backend/socket)
-const isReadByOther = computed(() =>
-  (props.chatReadBy || []).some(r => {
-    const readerId = r?.user?._id || r?.user || r?._id
-    return readerId && readerId !== props.userId
-  })
 )
 
 const previousHasReactions = computed(() =>

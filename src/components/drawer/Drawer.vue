@@ -32,6 +32,10 @@
 </template>
 
 <script setup>
+import { computed, watch } from 'vue';
+import { useStore } from 'vuex';
+
+
 const props = defineProps({
   isOpen: Boolean,
   overlayClass: {
@@ -44,12 +48,72 @@ const props = defineProps({
   },
   costumClass: String,
 })
+const store = useStore()
+const currentTheme = computed(() => store.getters.currentTheme)
+
+const setThemeColor = (theme) => {
+    // Aplicar classe no HTML
+    if (theme === 'dark') {
+        window?.WTN?.setNavigationBarColor({ color: "#262626" });
+        window?.WTN?.statusBar({
+            style: 'light',
+            color: '262626',
+            overlay: false //Only for android
+        });
+    } else if (theme === 'system') {
+        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+
+        if (isDark) {
+            window?.WTN?.setNavigationBarColor({ color: "#262626" });
+            window?.WTN?.statusBar({
+                style: 'dark',
+                color: '262626',
+                overlay: false //Only for android
+            });
+        } else {
+            window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+            window?.WTN.statusBar({
+                style: 'dark',
+                color: "FFFFFF",
+                overlay: false //Only for android
+            });
+        }
+    } else {
+        window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+        window?.WTN.statusBar({
+            style: 'dark',
+            color: "FFFFFF",
+            overlay: false //Only for android
+        })
+    }
+}
 
 const emit = defineEmits(['close'])
+
+// Watch para monitorar o isOpen
+watch(() => props.isOpen, (newValue) => {
+  if (newValue) {
+    // Quando o drawer abrir (isOpen = true), troca a cor
+    // Você pode definir a cor que desejar aqui
+    if (window?.WTN) {
+      window.WTN.setNavigationBarColor({ color: "#00000000" });
+      window.WTN.statusBar({
+        style: 'light',
+        color: '00000000',
+        overlay: false
+      });
+    }
+  } else {
+    // Quando fechar, restaura a cor baseada no tema atual
+    setThemeColor(currentTheme.value);
+  }
+})
 
 const close = () => {
   emit('close')
 }
+
+
 </script>
 
 <style>
