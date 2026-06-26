@@ -94,7 +94,7 @@ watch(() => props.isOpen, (newValue) => {
     if (window?.WTN) {
       window.WTN.statusBar({
         style: 'light',
-        color: '00000080',
+        color: '262626',
         overlay: false
       });
     }
