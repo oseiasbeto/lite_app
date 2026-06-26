@@ -5,7 +5,7 @@
                 :user-id="user?._id" :loading="loading" :conversation="conversation" />
         </div>
 
-        <div ref="messagesContainer" @scroll="handleScroll" :style="{ paddingBottom: inputHeight + 'px' }"
+        <div ref="messagesContainer" @scroll="handleScroll" 
             class="flex-1 pt-4 !overflow-y-scroll bg-white dark:bg-transparent">
 
             <div v-if="!loadingMessages">
@@ -36,11 +36,12 @@
 
                 <MessageBox @more-option="openDrawerMessage" @reply-swipe="handleReplySwipe"
                     v-for="(message, index) in cachedMessages?.items || []" :key="message._id" :message="message"
+                    :chat-read-by="conversation?.read_by"
                     :user-id="user?._id" :previous-message="cachedMessages?.items[index - 1]"
                     :next-message="cachedMessages?.items[index + 1]" />
 
                 <div v-if="readersExcludingCurrent.length && cachedMessages?.items?.length"
-                    class="flex items-center justify-end gap-1 mt-2">
+                    class="flex px-4 items-center justify-end gap-1 mt-2">
                     <div class="flex -space-x-2">
                         <img v-for="reader in readersExcludingCurrent.slice(0, 5)" :key="reader.user._id"
                             :src="reader.user.profile_image?.thumbnails?.xs || reader.user.profile_image?.url"
@@ -55,7 +56,25 @@
             </div>
         </div>
 
-        <div class="z-10 dark:bg-dark-bg w-full">
+        <!-- Botão flutuante de voltar ao fundo (estilo Messenger) -->
+        <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="opacity-0 scale-75"
+            enter-to-class="opacity-100 scale-100" leave-active-class="transition duration-100 ease-in"
+            leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-75">
+            <button v-if="showScrollToBottomBtn" type="button" @click="scrollToBottomBtn"
+                :style="{ bottom: (inputHeight + 12) + 'px' }"
+                class="absolute right-3 z-40 w-9 h-9 rounded-full bg-white dark:bg-[#3a3b3c] shadow-md flex items-center justify-center active:scale-95 transition-transform">
+                <span v-if="unreadWhileScrolled > 0"
+                    class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#287dff] text-white text-[11px] font-semibold flex items-center justify-center leading-none">
+                    {{ unreadWhileScrolled > 9 ? '9+' : unreadWhileScrolled }}
+                </span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round" class="text-[rgb(40,40,41)] dark:text-white">
+                    <path d="M12 4v16M6 14l6 6 6-6" />
+                </svg>
+            </button>
+        </Transition>
+
+        <div ref="inputContainer" class="z-10 dark:bg-dark-bg w-full">
             <MessageForm @voice-message-sent="handleSendVoiceMessage" :show-shadow="showShadowMessageForm"
                 @typing-start="handleTypingStart" @typing-stop="handleTypingStop" @message-sent="handleSendMessage"
                 @auto-resize="updateInputResize" ref="messageFormRef" :user-id="user._id"
@@ -324,6 +343,8 @@ const openDrawerMessage = (msg) => {
     drawer.value.name = 'MESSAGE_MORE_OPTIONS'
 }
 
+
+let inputResizeObserver = null
 
 const updateInputHeight = () => {
     if (!inputContainer.value) return;
@@ -618,6 +639,14 @@ onMounted(async () => {
 
     await nextTick()
     updateInputHeight()
+
+    // Observa mudanças de altura do form (escrever, multilinha, barra de "responder a")
+    // e mantém o botão de scroll-to-bottom sempre colado acima dele.
+    if (inputContainer.value && typeof ResizeObserver !== 'undefined') {
+        inputResizeObserver = new ResizeObserver(() => updateInputHeight())
+        inputResizeObserver.observe(inputContainer.value)
+    }
+
     window.visualViewport?.addEventListener('resize', viewportHandler);
     scrollToBottom(false);
 
@@ -649,6 +678,7 @@ onUnmounted(() => {
     socket.off('typing_start');
     socket.off('typing_stop');
     window.visualViewport?.removeEventListener('resize', viewportHandler);
+    inputResizeObserver?.disconnect();
     stopStatusTimer();
 })
 </script>

@@ -115,7 +115,7 @@
                   : '',
                 isEmojiOnly ? '!bg-transparent m-0 p-0' : '',
                 isEmojiOnly && groupedReactions.length ? 'mb-3' : '',
-                message.status === 'sending' ? 'opacity-20 pointer-events-none' : 'opacity-100',
+                message.status === 'sending' ? 'pointer-events-none' : '',
                 isHighlighted ? 'ring-2 ring-yellow-400 ring-offset-1' : '',
               ]">
 
@@ -135,7 +135,7 @@
 
               <!-- Reações sobrepostas no canto inferior do balão -->
               <div v-if="groupedReactions.length && message.status !== 'is_deleted'"
-                class="absolute z-[99] flex items-center bg-white dark:bg-[#2c2c2c] shadow-sm border border-black/5 dark:border-white/10 rounded-full"
+                class="absolute z-[99] flex items-center bg-white dark:bg-[#2c2c2c] border border-black/5 dark:border-white/10 rounded-full"
                 :class="[
                   isSent ? 'right-1' : 'left-1',
                   '-bottom-3',
@@ -151,6 +151,18 @@
                 </span>
               </div>
             </button>
+
+            <!-- Indicador "A enviar..." (estilo Messenger), por baixo do balão -->
+            <span v-if="message.status === 'sending'"
+              class="text-[11px] text-grey dark:text-greyDark mt-[2px] px-1">
+              A enviar...
+            </span>
+
+            <!-- Indicador "Entregue" / "Lido" na última mensagem enviada (estilo Messenger) -->
+            <span v-else-if="isSent && isLastSentMessage && !isReadByOther"
+              class="text-[11px] text-grey dark:text-greyDark mt-[2px] px-1">
+              <p> {{ message.status === 'delivered' ? 'Entregue' : 'Erro' }}</p>
+            </span>
           </div>
         </div>
       </div><!-- /swipe-content -->
@@ -166,6 +178,7 @@ import { computed, ref, nextTick } from 'vue'
 const props = defineProps({
   message: { type: Object, required: true },
   userId: { type: String, required: true },
+  chatReadBy: {type: Array, default: []},
   previousMessage: { type: Object, default: null },
   nextMessage: { type: Object, default: null }
 })
@@ -227,6 +240,21 @@ const isGroupedWithNext = computed(() =>
 )
 
 const isLastOfGroup = computed(() => !isGroupedWithNext.value)
+
+// É a última mensagem enviada por mim na conversa → mostra "Entregue" (estilo Messenger)
+const isLastSentMessage = computed(() =>
+  isSent.value &&
+  !props.nextMessage &&
+  props.message.status !== 'is_deleted'
+)
+
+// Verifica se alguém, além de mim, já leu a mensagem (read_by vindo do backend/socket)
+const isReadByOther = computed(() =>
+  (props.chatReadBy || []).some(r => {
+    const readerId = r?.user?._id || r?.user || r?._id
+    return readerId && readerId !== props.userId
+  })
+)
 
 const previousHasReactions = computed(() =>
   !!(props.previousMessage?.reactions?.length)

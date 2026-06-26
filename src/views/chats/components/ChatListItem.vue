@@ -1,7 +1,6 @@
 <template>
   <div @contextmenu.prevent="" @click="$emit('click')" class="
       flex items-center px-4 py-3 gap-2.5 cursor-pointer bg-white dark:bg-transparent transition-all duration-200 relative
-      border-b dark:border-[rgb(57,56,57)]
     ">
     <!-- Avatar com status online -->
     <div class="relative flex-shrink-0">
