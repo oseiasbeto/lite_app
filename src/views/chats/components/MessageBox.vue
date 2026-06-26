@@ -45,9 +45,24 @@
       @touchmove.passive="onTouchMove"
       @touchend="onTouchEnd"
     >
+      <!-- Ícone de reply (estilo Messenger), fixo, surge por detrás do balão conforme o swipe -->
+      <div
+        class="absolute inset-y-0 flex items-center pointer-events-none z-0"
+        :class="isSent ? 'right-2' : 'left-2'"
+        :style="{ opacity: replyIconOpacity, transform: `scale(${replyIconScale})` }"
+      >
+        <div class="w-8 h-8 rounded-full bg-black/10 dark:bg-white/15 flex items-center justify-center">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" class="text-grey dark:text-greyDark" aria-hidden="true">
+            <path
+              d="M6.497 1.035C7.593-.088 9.5.688 9.5 2.257V4.54c1.923.215 3.49 1.246 4.593 2.672C15.328 8.808 16 10.91 16 13v.305c0 .632-.465 1.017-.893 1.127-.422.11-.99.005-1.318-.493-.59-.894-1.2-1.482-1.951-1.859-.611-.307-1.359-.496-2.338-.558v2.23c0 1.57-1.908 2.346-3.003 1.222L.893 9.223a1.75 1.75 0 0 1 .001-2.444l5.603-5.744z">
+            </path>
+          </svg>
+        </div>
+      </div>
+
       <!-- Conteúdo deslocado pelo swipe -->
       <div
-        class="swipe-content px-4"
+        class="swipe-content relative z-10 px-4"
         :style="{ transform: `translateX(${swipeOffset}px)`, transition: isSwipeActive ? 'none' : 'transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)' }"
       >
         <div class="flex items-end" :class="isSent ? 'justify-end' : 'justify-start'">
@@ -356,6 +371,8 @@ if (typeof window !== 'undefined') {
 //
 // Threshold para activar o reply: 60px de deslocamento.
 // O ícone aparece do lado oposto ao balão e cresce à medida que se arrasta.
+// O estado "triggered" é recalculado a cada touchmove (liga E desliga), por isso
+// se o utilizador arrastar e voltar atrás antes de soltar, o reply é cancelado.
 
 const SWIPE_THRESHOLD = 60      // px para disparar o reply
 const SWIPE_MAX      = 72      // px máximo de deslocamento (elástico a partir daqui)
@@ -409,7 +426,11 @@ const onTouchMove = (e) => {
   // isSent → só aceita arrasto para a esquerda (dx < 0)
   // recebida → só aceita arrasto para a direita (dx > 0)
   const isCorrectDirection = isSent.value ? dx < 0 : dx > 0
-  if (!isCorrectDirection) { swipeOffset.value = 0; return }
+  if (!isCorrectDirection) {
+    swipeOffset.value = 0
+    swipeTriggered.value = false
+    return
+  }
 
   const raw = isSent.value ? Math.abs(dx) : dx
 
@@ -424,17 +445,20 @@ const onTouchMove = (e) => {
 
   swipeOffset.value = isSent.value ? -offset : offset
 
-  // Dispara haptic e marca triggered quando ultrapassa o threshold (uma vez)
-  if (!swipeTriggered.value && Math.abs(swipeOffset.value) >= SWIPE_THRESHOLD) {
-    swipeTriggered.value = true
-    if (navigator?.vibrate) navigator.vibrate(10)
+  // Recalcula o estado "triggered" em tempo real (liga E desliga conforme o gesto).
+  // Isto garante que, se o utilizador voltar para trás antes de soltar, o reply é cancelado.
+  const nowTriggered = Math.abs(swipeOffset.value) >= SWIPE_THRESHOLD
+  if (nowTriggered && !swipeTriggered.value && navigator?.vibrate) {
+    navigator.vibrate(10) // haptic só na borda de subida (entrou na zona de trigger)
   }
+  swipeTriggered.value = nowTriggered
 }
 
 const onTouchEnd = () => {
   if (!isSwipeActive.value) return
   isSwipeActive.value = false
 
+  // Só dispara o reply se, no instante de soltar o dedo, ainda estiver acima do threshold
   if (swipeTriggered.value) {
     emit('reply-swipe', props.message)
   }
