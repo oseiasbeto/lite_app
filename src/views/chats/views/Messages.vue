@@ -13,8 +13,7 @@
                     <SpinnerSmall />
                 </div>
 
-                <div
-                    v-if="!cachedMessages?.pagination?.hasMore && conversation?.type === 'direct'"
+                <div v-if="!cachedMessages?.pagination?.hasMore && conversation?.type === 'direct'"
                     class="flex flex-col items-center justify-center py-8 text-center mb-4">
 
                     <Avatar :url="conversation?.avatar?.thumbnails?.lg || conversation?.avatar?.url" size="big" />
@@ -22,7 +21,7 @@
                     <div class="mt-3 mb-3">
                         <p class="text-lg font-semibold dark:text-white text-[rgb(40,40,41)]">{{
                             conversation?.name
-                            }}</p>
+                        }}</p>
                         <p class="dark:text-[#b0b3b8]">{{ statusText }}</p>
                     </div>
 
@@ -35,16 +34,10 @@
                     </div>
                 </div>
 
-                <MessageBox
-                    @more-option="openDrawerMessage"
-                    @reply-swipe="handleReplySwipe"
-                    v-for="(message, index) in cachedMessages?.items || []"
-                    :key="message._id"
-                    :message="message"
-                    :user-id="user?._id"
-                    :previous-message="cachedMessages?.items[index - 1]"
-                    :next-message="cachedMessages?.items[index + 1]"
-                />
+                <MessageBox @more-option="openDrawerMessage" @reply-swipe="handleReplySwipe"
+                    v-for="(message, index) in cachedMessages?.items || []" :key="message._id" :message="message"
+                    :user-id="user?._id" :previous-message="cachedMessages?.items[index - 1]"
+                    :next-message="cachedMessages?.items[index + 1]" />
 
                 <div v-if="readersExcludingCurrent.length && cachedMessages?.items?.length"
                     class="flex items-center justify-end gap-1 mt-2">
@@ -468,9 +461,21 @@ const handleSendMessage = async (message) => {
     }
 
     store.commit("ADD_MESSAGE_REALTIME", { convId: conversation.value?._id, source: conversation?.value?.source || 'active', message: newMessage })
+
     store.commit("ADD_OR_UPDATE_CONVERSATION", {
-        conversation: { ...conversation.value, last_message: { created_at: Date.now(), content: newMessage?.content || '', message_type: 'text' }, read_by: [] },
-        userId: user.value?._id, senderId: newMessage.sender?._id, source: conversation.value?.source || 'active'
+        conversation: {
+            ...conversation.value,
+            last_message: {
+                sender: user.value,
+                created_at: Date.now(),
+                content: newMessage?.content || '',
+                message_type: 'text'
+            }, 
+            read_by: []
+        },
+        userId: user.value?._id,
+        senderId: newMessage.sender?._id,
+        source: conversation.value?.source || 'active'
     });
     store.commit('UPDATE_UNREAD_COUNT_ON_CONVERSATION', { convId: conversation?.value?._id, source: conversation?.value?.source, count: 0 })
     scrollToBottom();
@@ -488,14 +493,20 @@ const handleSendVoiceMessage = async ({ url, duration }) => {
     const newMessage = {
         content: '', conversation: conversation.value, created_at: Date.now(), read_by: [],
         message_type: 'voice', file_url: url, file_duration: duration,
-        sender: { profile_image: user?.value?.profile_image, _id: user?.value?._id, name: user?.value?.name, username: user?.value?.username },
+        sender: {
+            profile_image: user?.value?.profile_image,
+            _id: user?.value?._id,
+            name: user?.value?.name,
+            username: user?.value?.username
+        },
         ...(replyTo.value?.show && { reply_to: replyTo.value.message }),
         status: 'sending', updated_at: Date.now(), _id: tempId
     }
 
     store.commit("ADD_MESSAGE_REALTIME", { convId: conversation.value?._id, source: conversation?.value?.source || 'active', message: newMessage })
     store.commit("ADD_OR_UPDATE_CONVERSATION", {
-        conversation: { ...conversation.value, last_message: { created_at: Date.now(), content: '🎤 Mensagem de voz', message_type: 'voice' }, read_by: [] },
+        conversation: { ...conversation.value, last_message: { 
+            created_at: Date.now(), content: '🎤 Mensagem de voz', message_type: 'voice' }, read_by: [] },
         userId: user.value?._id, senderId: newMessage.sender?._id, source: conversation.value?.source || 'active'
     })
     store.commit('UPDATE_UNREAD_COUNT_ON_CONVERSATION', { convId: conversation?.value?._id, source: conversation?.value?.source, count: 0 })
