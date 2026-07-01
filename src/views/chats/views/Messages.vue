@@ -6,11 +6,11 @@
         </div>
 
         <div ref="messagesContainer" @scroll="handleScroll" 
-            class="flex-1 pt-4 !overflow-y-scroll bg-white dark:bg-transparent">
+            class="flex-1 pt-4 overflow-x-hidden pb-3 !overflow-y-scroll bg-white dark:bg-transparent">
 
             <div v-if="!loadingMessages">
                 <div class="flex justify-center" ref="loadTrigger" v-if="cachedMessages?.pagination?.hasMore">
-                    <SpinnerSmall />
+                    <!--<SpinnerSmall />-->
                 </div>
 
                 <div v-if="!cachedMessages?.pagination?.hasMore && conversation?.type === 'direct'"
@@ -34,11 +34,24 @@
                     </div>
                 </div>
 
+                <!-- ── Virtualização de mensagens ──────────────────────────────────────────
+                     Usa `content-visibility: auto` (nativo do browser) em cada MessageBox, em
+                     vez de janela/spacers calculados manualmente. O browser deixa de fazer
+                     layout/estilo/pintura das mensagens fora do ecrã, reduzindo o custo de
+                     renderização de listas longas, SEM alterar a estrutura do DOM, a ordem, o
+                     índice ou a contagem de elementos — por isso não interfere com o scroll,
+                     a paginação (loadTrigger), o scrollToBottom, nem com nenhuma outra lógica
+                     funcional. `contain-intrinsic-size` dá uma altura estimada enquanto a
+                     mensagem está fora do ecrã (e ainda não foi medida), para o scrollbar não
+                     saltar; assim que a mensagem é pintada pela primeira vez, o browser passa
+                     a usar a altura real ("auto" = lembra o último tamanho pintado). -->
                 <MessageBox @more-option="openDrawerMessage" @reply-swipe="handleReplySwipe"
                     v-for="(message, index) in cachedMessages?.items || []" :key="message._id" :message="message"
                     :chat-read-by="conversation?.read_by"
                     :user-id="user?._id" :previous-message="cachedMessages?.items[index - 1]"
-                    :next-message="cachedMessages?.items[index + 1]" />
+                    :next-message="cachedMessages?.items[index + 1]"
+                    style="content-visibility: auto; contain-intrinsic-size: auto 72px;" />
+
 
                 <div v-if="readersExcludingCurrent.length && cachedMessages?.items?.length"
                     class="flex px-4 items-center justify-end gap-1 mt-2">
@@ -84,6 +97,8 @@
         <!--drawer-->
         <Drawer :is-open="drawer.show" @close="onCloseDrawer">
             <div v-if="drawer.name === 'MESSAGE_MORE_OPTIONS'">
+
+                <!-- 
                 <div
                     class="flex border-b overflow-x-scroll dark:border-[rgb(57,56,57)] mb-1 gap-1 justify-center pt-3 px-1.5 py-2 items-center">
                     <button @click="handleReactMessage(messageSelected._id, '❤️')"
@@ -116,7 +131,7 @@
                         :class="{ 'bg-black/10 dark:bg-white/10': isReacted('👍', messageSelected) }">
                         <img class="shrink-0 w-8" src="../../../assets/imgs/emojis/like.png" />
                     </button>
-                </div>
+                </div>-->
                 <DrawerItem v-if="messageSelected?.message_type !== 'voice'"
                     @on-press="handleCopyText(messageSelected?.context)" title="Copiar" />
                 <DrawerItem @on-press="handleReplyTo(messageSelected)" title="Responder" />
