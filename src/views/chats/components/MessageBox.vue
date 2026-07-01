@@ -133,7 +133,7 @@
                 {{ message.content }}
               </p>
 
-              <!-- Reações sobrepostas no canto inferior do balão 
+              <!-- Reações sobrepostas no canto inferior do balão -->
               <div v-if="groupedReactions.length && message.status !== 'is_deleted'"
                 class="absolute z-[99] flex items-center bg-white dark:bg-[#2c2c2c] border-2 border-white dark:border-[#181818] rounded-full"
                 :class="[
@@ -150,8 +150,6 @@
                   <span v-if="r.count > 1" class="text-[10px] text-grey dark:text-greyDark font-medium">{{ r.count }}</span>
                 </span>
               </div>
-              -->
-
             </button>
 
             <!-- Indicador "A enviar..." (estilo Messenger), por baixo do balão -->
