@@ -3,7 +3,7 @@
 
     <!-- Separador de data/hora estilo Messenger -->
     <div v-if="showDateSeparator" class="flex justify-center my-3">
-      <span class="text-[11px] font-medium text-grey dark:text-greyDark px-3">
+      <span class="text-[11px] font-medium text-x-light-textSecondary dark:text-x-dark-textSecondary  px-3">
         {{ dateSeparatorText }}
       </span>
     </div>
@@ -92,7 +92,7 @@
               </span>
               <button type="button" @click="scrollToReply" :class="[
                 'block max-w-full min-w-0 text-left rounded-[16px] px-3 py-[10px] text-[13px] leading-tight cursor-pointer transition-opacity opacity-90 hover:opacity-100',
-                isSent ? 'ml-auto bg-[#287dff]/40' : 'bg-[#e4e6eb] dark:bg-[#4a4a4a]'
+                isSent ? 'ml-auto bg-x-light-blue/40' : 'bg-[#e4e6eb] dark:bg-[#4a4a4a]'
               ]" :style="isSent ? 'border-radius: 16px 16px 4px 16px;' : 'border-radius: 16px 16px 16px 4px;'">
                 <span class="block truncate opacity-90"
                   :class="isSent ? 'text-white' : 'text-[rgb(40,40,41)] dark:text-white'">
@@ -107,8 +107,8 @@
                 'relative z-[1] text-left transition-transform active:scale-[0.99] max-w-full min-w-0',
                 !isEmojiOnly && message.status !== 'is_deleted'
                   ? (isSent
-                    ? 'bg-[#287dff] text-white p-[6px_12px]'
-                    : 'dark:bg-[#3c3c3c] dark:text-white text-[rgb(40,40,41)] bg-[#f1f2f2] p-[6px_12px]')
+                    ? 'bg-x-light-blue text-white p-[6px_12px]'
+                    : 'dark:bg-x-dark-surface dark:text-white text-[rgb(40,40,41)] bg-x-light-surface p-[6px_12px]')
                   : '',
                 message.status === 'is_deleted'
                   ? 'border border-[#b0b3b8] dark:border-[#555] rounded-[18px] px-3 py-[6px] bg-transparent italic opacity-80'

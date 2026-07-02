@@ -396,8 +396,6 @@ const audienceText = computed(() => {
     }
 });
 
-const currentTheme = computed(() => store.getters.currentTheme)
-
 const module = computed(() => route.query.module || null);
 
 const isUploading = computed(() =>
@@ -906,43 +904,6 @@ onBeforeRouteLeave((to, from, next) => {
     }
 });
 
-const setThemeColor = (theme) => {
-    // Aplicar classe no HTML
-    if (theme === 'dark') {
-        window?.WTN?.setNavigationBarColor({ color: "#262626" });
-        window?.WTN?.statusBar({
-            style: 'light',
-            color: '262626',
-            overlay: false //Only for android
-        });
-    } else if (theme === 'system') {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-        if (isDark) {
-            window?.WTN?.setNavigationBarColor({ color: "#262626" });
-            window?.WTN?.statusBar({
-                style: 'dark',
-                color: '262626',
-                overlay: false //Only for android
-            });
-        } else {
-            window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
-            window?.WTN.statusBar({
-                style: 'dark',
-                color: "FFFFFF",
-                overlay: false //Only for android
-            });
-        }
-    } else {
-        window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
-        window?.WTN.statusBar({
-            style: 'dark',
-            color: "FFFFFF",
-            overlay: false //Only for android
-        })
-    }
-}
-
 const handlePopState = () => {
     if (isSubmiting.value && !isSubmittingSuccess.value) {
         history.pushState(null, '', location.href);
@@ -954,28 +915,6 @@ const handlePopState = () => {
 };
 
 onMounted(async () => {
-    if (currentTheme.value == 'dark' || currentTheme.value == 'system') {
-        if (currentTheme.value === 'dark') {
-            window?.WTN?.setNavigationBarColor({ color: "#262626" });
-            window?.WTN?.statusBar({
-                style: 'light',
-                color: '181818',
-                overlay: false //Only for android
-            });
-        } else if (currentTheme.value === 'system') {
-            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-            if (isDark) {
-                window?.WTN?.setNavigationBarColor({ color: "#262626" });
-                window?.WTN?.statusBar({
-                    style: 'light',
-                    color: '181818',
-                    overlay: false //Only for android
-                });
-            }
-        }
-    }
-
     if (parentPost.value?._id) {
         loadingFetchPostParent.value = true;
         await store.dispatch("getPostById", {
@@ -990,10 +929,6 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-    if (currentTheme.value == 'dark' || currentTheme.value == 'system') {
-        setThemeColor(currentTheme.value)
-    }
-
     if (!isSubmiting.value) clearCancelTokens();
     window.removeEventListener('popstate', handlePopState);
 });

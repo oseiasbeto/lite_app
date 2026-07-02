@@ -70,7 +70,7 @@
       <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 scale-90"
         enter-to-class="opacity-100 scale-100" leave-active-class="transition ease-in duration-150"
         leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-90">
-        <button :disabled="!canSend" type="submit" class="p-1.5 bg-[#287dff] disabled:opacity-50
+        <button :disabled="!canSend" type="submit" class="p-1.5 bg-x-light-blue disabled:opacity-50
                  text-white rounded-full flex-shrink-0
                  transition-all duration-200 mb-1 active:scale-95">
           <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" id="send"

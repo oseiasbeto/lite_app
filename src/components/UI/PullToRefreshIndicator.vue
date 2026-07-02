@@ -11,10 +11,10 @@
       :style="indicatorStyle"
     >
       <!-- Spinner girando enquanto carrega: só o arco, sem trilho cinzento -->
-      <svg v-if="isRefreshing" class="fb-spin" width="23" height="23" viewBox="0 0 24 24" fill="none">
+      <svg v-if="isRefreshing" class="text-x-light-blue dark:text-x-dark-blue" width="23" height="23" viewBox="0 0 24 24" fill="none">
         <path
           d="M21.5 12a9.5 9.5 0 0 0-9.5-9.5"
-          stroke="#1877f2"
+          stroke="currentColor"
           stroke-width="2.5"
           stroke-linecap="round"
         />
@@ -28,7 +28,7 @@
       >
         <path
           d="M12 4v13M12 17l-5.5-5.5M12 17l5.5-5.5"
-          :stroke="reachedThreshold ? '#1877f2' : '#8a8d91'"
+          :stroke="reachedThreshold ? '#1D9BF0' : '#8a8d91'"
           stroke-width="2.2"
           stroke-linecap="round"
           stroke-linejoin="round"

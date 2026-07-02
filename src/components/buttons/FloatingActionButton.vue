@@ -9,7 +9,8 @@
       @click="$emit('new-chat')" 
       class="fixed bottom-20 right-6 z-50 flex items-center justify-center
              w-14 h-14 
-             bg-primary
+             bg-x-light-blue hover:bg-x-light-blueHover dark:bg-x-dark-blue dark:hover:bg-x-dark-blueHover dark:bg-x-dark-primary
+             hover:bg-x-primary-hover dark:hover:bg-x-dark-primary-hover
              text-white rounded-full 
              focus:outline-none"
              

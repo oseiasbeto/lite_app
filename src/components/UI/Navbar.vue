@@ -15,7 +15,7 @@
 
             <!-- Título centralizado -->
             <h1 class="text-xl ml-3 font-bold text-text-primary select-none">
-                {{ title }}
+                {{ title }}a
             </h1>
         </div>
 

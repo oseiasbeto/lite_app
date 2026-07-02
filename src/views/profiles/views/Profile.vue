@@ -28,7 +28,7 @@
                 <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"
                     :is-refreshing="isRefreshing" :top-position="54" />
                 <div
-                    class="border-b-[6px] dark:bg-[#262626] dark:border-[rgb(24,24,24)] bg-white border-[rgb(230,231,232)]">
+                    class="border-b border-x-light-border dark:border-x-dark-border">
                     <!--DETAILS USER-->
                     <div class="px-[10px] py-4 pb-2">
                         <ProfileDetailsUser @go-to-picture-full-screen="goToPictureFullScreen" :profile="profile"

@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex h-[50px] items-center px-2 backdrop-blur-sm dark:bg-[#262626] bg-white border-b dark:border-[rgb(57,56,57)] z-50">
+    class="flex h-[50px] items-center px-2 bg-x-light-bg dark:bg-x-dark-bg z-50">
     <button @click="$emit('goBack')"
       class="p-1 dark:text-white text-[rgb(40,40,41)] mr-1 rounded-full transition-colors">
       <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -24,7 +24,7 @@
     <div class="ml-3 flex-1 min-w-0">
       <!-- Nome -->
       <div @click="goToProfile(conversation)" class="w-full flex">
-        <h2 class="text-base mb-0.5 font-semibold dark:text-white text-[rgb(40,40,41)] truncate leading-tight">
+        <h2 class="text-base mb-0.5 font-semibold text-white truncate leading-tight">
           {{ loading ? 'Carregando...' : conversation?.name || 'Chat' }}
         </h2>
 
@@ -41,7 +41,7 @@
 
       <!--subtitule-->
 
-      <p class="text-xs truncate dark:text-[#b0b3b8] mt-[-2px]">
+      <p class="text-xs truncate text-x-light-textSecondary dark:text-x-dark-textSecondary mt-[-2px]">
         <!-- Digitando com animação de 3 pontinhos -->
         <span v-if="conversation?.is_typing" class="flex items-center gap-0.5">
           escrevendo

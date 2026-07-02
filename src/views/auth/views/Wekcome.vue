@@ -2,10 +2,10 @@
 const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
 if (isDark) {
-  window.WTN.setNavigationBarColor({ color: "#181818" });
+  window.WTN.setNavigationBarColor({ color: "#000000" });
   window?.WTN.statusBar({
     style: 'light',
-    color: '181818',
+    color: '000000',
     overlay: false //Only for android
   });
 
@@ -29,7 +29,7 @@ if (isDark) {
     <div class="flex-1 flex flex-col justify-between px-6 py-8">
       <!-- Hero -->
       <div class="mb-10">
-        <div class="text-5xl text-[rgb(40,40,41)] dark:text-inherit mb-4">
+        <div class="text-5xl text-inherit mb-4">
           <svg class="ml-[-12px]" xmlns="http://www.w3.org/2000/svg" version="1.0" width="80px"
             viewBox="0 0 1024.000000 1024.000000" preserveAspectRatio="xMidYMid meet">
 
@@ -43,7 +43,7 @@ if (isDark) {
             </g>
           </svg>
         </div>
-        <h1 class="text-3xl font-bold text-[rgb(40,40,41)] dark:text-inherit mb-2">
+        <h1 class="text-3xl font-bold text-inherit mb-2">
           Acontecendo agora
         </h1>
         <p class="text-gray-600 dark:text-inherit text-base">
@@ -54,12 +54,12 @@ if (isDark) {
       <!-- Botões estilo Twitter -->
       <div class="space-y-3">
         <button @click="$router.push('/auth/signup')"
-          class="w-full py-3 bg-secondary hover:bg-blue-600 text-white font-bold rounded-full transition">
+          class="w-full py-3 bg-x-dark-blue hover:bg-x-light-blueHover active:bg-x-light-blueActive text-white font-bold rounded-full transition">
           Criar conta
         </button>
 
         <button @click="$router.push('/auth/signin')"
-          class="w-full py-3 border text-[rgb(40,40,41)] dark:text-inherit dark:border-[rgb(57,56,57)] text-blue-500 font-bold rounded-full transition">
+          class="w-full py-3 border text-[rgb(40,40,41)] dark:text-inherit dark:border-[rgb(57,56,57)] font-bold rounded-full transition">
           Fazer login
         </button>
       </div>

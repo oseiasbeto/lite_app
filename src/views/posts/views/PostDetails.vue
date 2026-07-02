@@ -19,7 +19,7 @@
 
                 <!--COMMENTS FILTERS-->
                 <div v-if="cacheComments?.comments?.length"
-                    class="flex items-center justify-between border-b dark:border-[rgb(57,56,57)] dark:bg-[#262626] bg-white py-3 px-3">
+                    class="flex items-center justify-between py-3 px-3">
                     <p class="text-sm font-semibold dark:text-white text-[rgb(40,40,41)]">Comentários</p>
                     <button @click="openSortByFilterDrawer" class="flex items-center gap-1">
                         <span class="font-semibold text-[13px]"> {{ sortByText }}</span>

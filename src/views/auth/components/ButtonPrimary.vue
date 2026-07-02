@@ -85,7 +85,7 @@ defineProps({
   // Permite sobrescrever a cor de fundo (opcional)
   bgClass: {
     type: String,
-    default: 'bg-text-primary'
+    default: 'bg-x-light-blue dark:bg-x-dark-blue'
   },
 
   // Permite sobrescrever a cor do texto (opcional)

@@ -29,20 +29,20 @@ const module = ref(route.query?.module || 'feed')
 const setThemeColor = (theme) => {
     // Aplicar classe no HTML
     if (theme === 'dark') {
-        window?.WTN?.setNavigationBarColor({ color: "#262626" });
+        window?.WTN?.setNavigationBarColor({ color: "#000000" });
         window?.WTN?.statusBar({
             style: 'light',
-            color: '262626',
+            color: '000000',
             overlay: false //Only for android
         });
     } else if (theme === 'system') {
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
         if (isDark) {
-            window?.WTN?.setNavigationBarColor({ color: "#262626" });
+            window?.WTN?.setNavigationBarColor({ color: "#000000" });
             window?.WTN?.statusBar({
                 style: 'dark',
-                color: '262626',
+                color: '000000',
                 overlay: false //Only for android
             });
         } else {

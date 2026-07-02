@@ -1,6 +1,6 @@
 <template>
-    <div class="dark:text-white dark:bg-[#262626] bg-white">
-        <div class="border-b px-[10px] dark:border-[rgb(57,56,57)] py-2">
+    <div class="">
+        <div class="border-b px-[10px] border-b border-x-light-border dark:border-x-dark-border py-2">
             <span class="text-[15px] dark:text-white text-[rgb(40,40,41)] font-semibold">Credenciais e destaques</span>
         </div>
 

@@ -1,7 +1,7 @@
 <template>
-    <ul class="flex dark:bg-[#262626] bg-white items-center gap-2 w-full h-14 text-text-primary fixed bottom-0 overflow-hidden"
+    <ul class="flex dark:bg-x-dark-bg bg-x-light-bg items-center gap-2 w-full h-14 text-text-primary fixed bottom-0 overflow-hidden"
         :class="{ 'pointer-events-none': isDisabled, '!border-border-primary': route.name === 'Post details' }">
-        <li class="flex-1 h-full">
+        <li class="flex-1 h-full hover:bg-x-light-surfaceHover dark:hover:bg-x-dark-surfaceHover active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
             <button @click="router.replace('/home')" :class="{'text-primary': route.name == 'Home' }"
                 class="flex relative items-center w-full h-full" to="/feed">
                 <svg v-if="route.name === 'Home'" fill="none" class="mx-auto" width="27" viewBox="0 0 24 24" height="27"
@@ -17,7 +17,7 @@
                 </svg>
             </button>
         </li>
-        <li class="flex-1 h-full">
+        <li class="flex-1 h-full hover:bg-x-light-surfaceHover dark:hover:bg-x-dark-surfaceHover active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
             <button @click="goToNotification" class="flex relative items-center w-full h-full"
                 :class="{'text-primary': route.name == 'Notifications' }">
                 <svg v-if="route.name === 'Notifications'" fill="none" width="26" viewBox="0 0 24 24" height="26"
@@ -40,7 +40,7 @@
             </button>
         </li>
 
-        <li class="flex-1 h-full">
+        <li class="flex-1 h-full hover:bg-x-light-surfaceHover dark:hover:bg-x-dark-surfaceHover active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
             <router-link class="flex outline-none !text-inherit items-center h-full" :class="{'!text-primary': route.name == 'Search' }" to="/search">
                 <svg fill="none" v-if="route.name === 'Search'" width="28" viewBox="0 0 24 24" height="28"
                     aria-hidden="true" class="mx-auto">
@@ -57,7 +57,7 @@
             </router-link>
         </li>
 
-        <li class="flex-1 h-full">
+        <li class="flex-1 h-full hover:bg-x-light-surfaceHover dark:hover:bg-x-dark-surfaceHover active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
             <router-link class="flex outline-none text-inherit relative items-center h-full" :class="{'text-primary': route.name == 'Chats' }" to="/chats">
                 <svg v-if="route.name === 'Chats'" xmlns="http://www.w3.org/2000/svg" class="mx-auto"
                     fill="currentColor" width="28px" height="28px" viewBox="0 0 24 24">
@@ -78,7 +78,7 @@
             </router-link>
         </li>
 
-        <li class="flex-1 h-full">
+        <li class="flex-1 h-full hover:bg-x-light-surfaceHover dark:hover:bg-x-dark-surfaceHover active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
             <button class="flex items-center text-inherit w-full h-full" :class="{'text-primary': route.name == 'Profile' }" @click="goToProfile(user)">
                 <svg v-if="route.name === 'Profile'" fill="none" width="26" viewBox="0 0 24 24" height="26"
                     aria-hidden="true" class="mx-auto">

@@ -1,12 +1,10 @@
 <template>
-    <!--start navbar-->
-  <header
-    class="flex h-[44px] fixed w-full top-0 items-center px-2 dark:bg-[#262626] bg-white border-b dark:border-[rgb(57,56,57)] z-50">
-    <button @click="router.back()"
-      class="p-1 dark:text-white text-[rgb(40,40,41)] mr-1 rounded-full transition-colors">
-      <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="m15 5-7 7 7 7.005" class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5" fill="none"
-          stroke-linecap="round"></path>
+  <!--start navbar-->
+  <header class="flex h-[44px] fixed w-full top-0 items-center px-2 dark:bg-x-dark-bg bg-x-light-bg  z-50">
+    <button @click="router.back()" class="p-1 hover:bg-x-light-surfaceHover active:bg-x-light-surfaceActive dark:hover:bg-x-dark-surfaceHover dark:active:bg-x-dark-surfaceActive text-inherit mr-1 rounded-full transition-colors">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+        <path d="M5 12H19M5 12L11 6M5 12L11 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+          stroke-linejoin="round" />
       </svg>
     </button>
     <!-- Informações do contato -->
@@ -21,7 +19,7 @@
 
     <!-- Botões da direita (busca e menu) -->
     <div class="flex items-center gap-3">
-       <slot name="right"></slot>
+      <slot name="right"></slot>
     </div>
   </header>
 </template>

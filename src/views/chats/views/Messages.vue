@@ -6,7 +6,7 @@
         </div>
 
         <div ref="messagesContainer" @scroll="handleScroll" 
-            class="flex-1 pt-4 overflow-x-hidden pb-2.5 !overflow-y-scroll bg-white dark:bg-transparent">
+            class="flex-1 pt-4 overflow-x-hidden !overflow-y-scroll bg-white dark:bg-transparent">
 
             <div v-if="!loadingMessages">
                 <div class="flex justify-center" ref="loadTrigger" v-if="cachedMessages?.pagination?.hasMore">
@@ -27,7 +27,7 @@
 
                     <div class="flex my-2 justify-between items-center">
                         <button
-                            class="flex active:opacity-50 bg-[#f1f2f2] items-center gap-1 py-2 px-6 text-[rgb(40,40,41)] dark:text-inherit dark:bg-[#313131] rounded-full"
+                            class="flex active:opacity-50 bg-black text-white dark:bg-white dark:text-black items-center font-bold gap-1 py-2 px-6 rounded-full"
                             @click="goToProfile(conversation)">
                             <p>Ir para este perfil</p>
                         </button>

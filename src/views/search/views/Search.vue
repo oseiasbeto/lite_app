@@ -1,13 +1,13 @@
 <template>
     <div class="bg-primary flex items-center w-full py-2 pl-[5px] px-4">
-        <button @click="router.back" class="pr-1">
+        <button @click="router.back" class="pr-1 text-inherit">
             <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="m15 5-7 7 7 7.005" class="icon_svg-stroke" stroke="#fff" stroke-width="1.9" fill="none"
+                <path d="m15 5-7 7 7 7.005" stroke="currentColor" stroke-width="1.9" fill="none"
                     stroke-linecap="round"></path>
             </svg>
         </button>
         <div class="h-[30px] w-full flex items-center relative">
-            <span class="absolute text-white/[0.8] left-[8px]">
+            <span class="absolute dark:text-x-dark-textTertiary text-x-light-textTertiary text-inherit left-[8px]">
                 <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15Zm10.45 2.95L16 16l4.95 4.95Z"
                         class="icon_svg-stroke" stroke="currentColor" stroke-width="1.8" fill="none"
@@ -15,7 +15,7 @@
                 </svg>
             </span>
             <input
-                class="h-full pl-[28px] placeholder:text-white/[0.8] bg-white/[0.2] text-white px-2 outline-none w-full bg-b"
+                class="h-full pl-[28px] placeholder dark:text-x-dark-textTertiary:text-x-light-textTertiary bg-x-light-surfaceHover dark:bg-x-dark-surface text-inherit px-2 outline-none w-full bg-b"
                 v-model="searchQuery" @input="onSearchInput" placeholder="Pesquisar no 1kole..." />
         </div>
     </div>

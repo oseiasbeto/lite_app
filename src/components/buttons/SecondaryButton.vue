@@ -1,5 +1,5 @@
 <template>
-    <button :disabled="loading || disabled" @click="$emit('onPress')" class="h-[38px] bg-secondary text-white font-semibold rounded-[30px] w-full p-[0_20px] disabled:opacity-50">
+    <button :disabled="loading || disabled" @click="$emit('onPress')" class="h-[38px] bg-x-light-blue hover:bg-x-light-blueHover active:bg-x-dark-blueActive text-white font-semibold rounded-[30px] w-full p-[0_20px] disabled:opacity-50">
         <span v-if="!loading">{{ text }}</span>
         <Spinner color="bg-white" v-else/>
     </button>

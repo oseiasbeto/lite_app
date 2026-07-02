@@ -10,7 +10,7 @@
         <!-- Input -->
         <input :autocomplete="props.type === 'password' ? 'new-password' : 'off'"
           :type="showPassword ? 'text' : props.type" :id="props.label"
-          class="peer w-full bg-transparent h-full text-[15px] placeholder:text-[#939598] placeholder:dark:text-[#b1b3b6] border p-2 rounded-[3px] focus:shadow-[rgb(235,240,255)_0px_0px_0px_2px] dark:focus:shadow-[rgb(40,45,65)_0px_0px_0px_2px] dark:border-[rgb(57,56,57)] dark:text-white outline-none transition-all text-[rgb(40,40,41)] focus:!border-[#2e69ff]"
+          class="peer w-full bg-transparent h-full text-[15px] placeholder:text-[#939598] placeholder:dark:text-[#b1b3b6] border p-2 rounded-[3px] focus:shadow-[rgb(235,240,255)_0px_0px_0px_2px] dark:focus:shadow-[rgb(40,45,65)_0px_0px_0px_2px] dark:border-[rgb(57,56,57)] dark:text-white outline-none transition-all text-[rgb(40,40,41)] focus:!border-x-light-blueFocus"
           :placeholder="props.placeholder"
           :class="{ '!border-red-500 !focus:border-red-500': props.error.show, 'pr-10': props?.type == 'password' }"
           v-model="inputValue" required />

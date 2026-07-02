@@ -408,10 +408,10 @@ const setThemeColor = (theme) => {
 
   // Aplicar classe no HTML
   if (savedTheme.value === 'dark') {
-    window?.WTN?.setNavigationBarColor({ color: "#262626" });
+    window?.WTN?.setNavigationBarColor({ color: "#000000" });
     window?.WTN?.statusBar({
       style: 'light',
-      color: '262626',
+      color: '000000',
       overlay: false //Only for android
     });
     // Aplicar tema escuro  
@@ -420,10 +420,10 @@ const setThemeColor = (theme) => {
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
     if (isDark) {
-      window?.WTN?.setNavigationBarColor({ color: "#262626" });
+      window?.WTN?.setNavigationBarColor({ color: "#000000" });
       window?.WTN?.statusBar({
         style: 'dark',
-        color: '262626',
+        color: '000000',
         overlay: false //Only for android
       });
 
@@ -519,7 +519,7 @@ onUnmounted(() => {
 <template>
 
   <div
-    class="font-primary text-[13px] bg-[rgb(230,231,232)] dark:bg-[#181818] text-[#636466] dark:text-[#e6e7e8] text-text-primary relative w-screen text-sm h-screen overflow-x-hidden text-light-text-primary overflow-auto">
+    class="font-primary text-[13px] dark:bg-x-dark-bg dark:text-x-dark-textPrimary bg-x-light-bg text-x-light-textPrimary relative w-screen text-sm h-screen overflow-x-hidden text-light-text-primary overflow-auto">
     <!-- start main app area-->
     <div v-if="!loading">
       <!--start sidebar-->
