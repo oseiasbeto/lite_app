@@ -1,6 +1,6 @@
 <template>
     <div class="border-[.5px] shrink-0 relative overflow-hidden rounded-full"
-        :class="[sizeClasses, isDarkoo ? '!border-[rgb(57,56,57)]' : 'dark:border-[rgb(57,56,57)]']" role="img" :aria-label="`Avatar de ${altText || 'nome'}`">
+        :class="[sizeClasses, isDarkoo ? '!border-x-light-border]' : 'dark:border-x-dark-border']" role="img" :aria-label="`Avatar de ${altText || 'nome'}`">
         <img v-lazy="props?.url && props.url" :alt="`Avatar de ${altText || 'nome'}`" class=" w-full h-full object-cover"
             :class="[sizeClasses]" />
     </div>

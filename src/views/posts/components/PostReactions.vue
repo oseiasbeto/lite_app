@@ -1,20 +1,18 @@
 <template>
-    <div class="flex items-center justify-between" :class="{ 'pointer-events-none': loading }">
-        <div class="flex gap-1 items-center">
+    <div class="flex items-center " :class="{ 'pointer-events-none': loading }">
+        <div class="flex gap-1 items-center flex-1 justify-between">
             <button @click="$emit('on-upvote')"
-                :class="[isDarkoo ? 'active:bg-[rgba(255,255,255,0.04)]' : 'dark:active:bg-[rgba(255,255,255,0.04)]', upvotes.includes(userId) ? '!text-[#f91880]' : 'text-x-light-textSecondary dark:text-x-dark-textSecondary']"
-                class="p-[0px_10px] h-[28px] text-center flex items-center text-blue text-x-light-textSecondary dark:text-x-dark-textSecondary">
+                :class="[upvotes.includes(userId) ? '!text-[#f91880]' : 'text-x-light-textSecondary rounded-[30px] dark:text-x-dark-textSecondary']"
+                class="h-[28px] gap-1 text-center flex items-center text-blue text-x-light-textSecondary dark:text-x-dark-textSecondary">
                 <span>
                     <svg v-if="!upvotes?.includes(userId)" aria-label="Gosto" role="img" viewBox="-0.5 0 25 24"
-                        class="w-[19px] h-[19px]"
-                        fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        class="w-[19px] h-[19px]" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <title>Gosto</title>
                         <path
                             d="M16.5 2C14.8335 2 13.2217 2.70703 12 3.93652C10.7783 2.70704 9.1665 2 7.5 2C3.3785 2 0.5 5.08423 0.5 9.5C0.5 14.1284 4.84516 19.4619 11.311 22.7719C11.5267 22.8827 11.7633 22.9379 12 22.9379C12.2367 22.9379 12.4733 22.8827 12.689 22.7719C19.1548 19.4619 23.5 14.1284 23.5 9.5C23.5 5.08423 20.6217 2 16.5 2ZM12 20.8764C6.30767 17.8962 2.5 13.3467 2.5 9.5C2.5 6.15893 4.4625 4 7.5 4C9.5 4 11.25 5.75 12 7.5C12.75 5.75 14.5 4 16.5 4C19.5377 4 21.5 6.15893 21.5 9.5C21.5 13.3467 17.6923 17.8962 12 20.8764Z"
                             fill="currentColor"></path>
                     </svg>
-                    <svg v-else aria-label="Não gosto" role="img" viewBox="-0.5 0 25 24"
-                        class="w-[19px] h-[19px]"
+                    <svg v-else aria-label="Não gosto" role="img" viewBox="-0.5 0 25 24" class="w-[19px] h-[19px]"
                         fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <title>Não gosto</title>
                         <path
@@ -22,12 +20,12 @@
                             fill="currentColor"></path>
                     </svg>
                 </span>
-                <span v-show="upvotesCount" class="ml-1 min-w-[20px] text-inherit">{{ formattedCount(upvotesCount)
-                }}</span>
+                <span v-show="upvotesCount" class="text-inherit">{{ formattedCount(upvotesCount)
+                    }}</span>
             </button>
-            <button @click="$emit('on-comment')" class="flex  gap-1 mr-2 items-center h-[28px] px-0.5 text-x-light-textSecondary dark:text-x-dark-textSecondary">
-                <svg aria-label="Responder" role="img" viewBox="0 0 24 24"
-                    class="w-[18px] h-[18px]"
+            <button @click="$emit('on-comment')"
+                class="flex gap-1 items-center h-[28px]  text-x-light-textSecondary dark:text-x-dark-textSecondary">
+                <svg aria-label="Responder" role="img" viewBox="0 0 24 24" class="w-[18px] h-[18px]"
                     fill="currentColor">
                     <title>Responder</title>
                     <path clip-rule="evenodd"
@@ -36,9 +34,9 @@
                 </svg>
                 <span v-show="commentsCount" class="text-[13px] text-inherit">{{ formattedCount(commentsCount) }}</span>
             </button>
-            <button @click="$emit('on-share')" class="px-0.5 text-x-light-textSecondary dark:text-x-dark-textSecondary flex items-center gap-1 text-xs">
-                <svg aria-label="Partilhar" role="img" viewBox="0 0 24 24"
-                    class="w-[16px] h-[16px]">
+            <button @click="$emit('on-share')"
+                class="text-x-light-textSecondary dark:text-x-dark-textSecondary flex items-center gap-1 text-xs">
+                <svg aria-label="Partilhar" role="img" viewBox="0 0 24 24" class="w-[16px] h-[16px]">
                     <title>Partilhar</title>
                     <path clip-rule="evenodd"
                         d="M7.2474 1.49853C4.18324 -0.187039 0.600262 2.64309 1.53038 6.01431L3.18181 12L1.53038 17.9857C0.600277 21.3569 4.18324 24.1871 7.2474 22.5015L20.8245 15.0329C23.2153 13.7177 23.2153 10.2823 20.8244 8.96712L7.2474 1.49853ZM3.45835 5.48239C2.99873 3.81649 4.76927 2.41796 6.28345 3.25089L19.8605 10.7195C20.0016 10.7971 20.123 10.8923 20.2247 11H4.98064L3.45835 5.48239ZM4.98064 13L3.45835 18.5176C2.99873 20.1835 4.76927 21.5821 6.28345 20.7491L19.8605 13.2805C20.0016 13.2029 20.123 13.1078 20.2247 13H4.98064Z"
@@ -46,10 +44,9 @@
                 </svg>
                 <p class="text-inherit" v-show="sharesCount">{{ formattedCount(sharesCount) }}</p>
             </button>
-        </div>
 
-        <div v-if="showBtnMore">
-            <button @click="$emit('on-more')" class="h-[30px] min-w-[30px] text-x-light-textSecondary dark:text-x-dark-textSecondary flex items-center justify-center">
+            <button v-if="showBtnMore" @click="$emit('on-more')"
+                class="h-[30px] min-w-[30px] text-x-light-textSecondary dark:text-x-dark-textSecondary flex items-center justify-center">
                 <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <path

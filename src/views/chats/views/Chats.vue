@@ -16,7 +16,7 @@
             </Drawer>
 
             <!-- BOTÃO FLUTUANTE DO TELEGRAM -->
-            <FloatingActionButton v-show="!loadingConversations" @new-chat="router.push('/new-message')">
+            <FloatingActionButton v-show="!loadingConversations" @on-press="router.push('/new-message')">
                 <template #icon>
                     <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 24 24" fill="none">
                         <path d="M6 12H18M12 6V18" stroke="#fff" stroke-width="1.5" stroke-linecap="round"

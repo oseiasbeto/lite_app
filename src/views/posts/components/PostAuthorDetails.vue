@@ -1,24 +1,16 @@
 <template>
     <div>
         <div v-if="author?._id" class="flex items-center flex-row" :class="isParentPost ? 'gap-1' : 'gap-2.5'">
-            <div @click="goToProfile(author?._id)" class="relative shrink-0">
-                <Avatar :size="isParentPost ? 's' : 'md'"
-                    :url="isParentPost ? author?.profile_image?.thumbnails?.xs || author?.profile_image?.url : author?.profile_image?.thumbnails?.sm || author?.profile_image?.url" />
-
-                <!-- Bolinha de status -->
-                <span v-if="author?.is_online && !isParentPost"
-                    class="absolute bottom-[2px] right-0 bg-[rgba(63,187,70,1.0)] block h-2.5 w-2.5 rounded-full ring-2 ring-white dark:ring-[rgba(36,37,38,1.0)]"></span>
-            </div>
-            <div class="flex-1">
+            <div>
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-1">
-                        <div class="flex items-center" @click="goToProfile(author?._id)">
-                            <span :class="isParentPost ? 'font-normal' : 'font-bold'" class="text-sm text-inherit">{{
+                        <div class="flex items-center">
+                            <span @click.stop="goToProfile(author?._id)" :class="isParentPost ? 'font-normal' : 'font-bold'" class="text-sm text-inherit">{{
                                 author?.name }}
                             </span>
 
                             <svg v-if="author?.is_verified" :class="{ 'w-[12px] h-[12px]': isParentPost }" viewBox="0 0 22 22" aria-label="Verified account" role="img"
-                                class="w-[16px] h-[16px] text-x-light-blue ml-[2px]" fill="currentColor" xmlns="http://www.w3.org/2000/svg"
+                                class="w-[16px] h-[16px] text-x-light-blue ml-[4px]" fill="currentColor" xmlns="http://www.w3.org/2000/svg"
                                 data-testid="icon-verified">
                                 <g>
                                     <path
@@ -35,10 +27,9 @@
                                 v-if="showBtnFollow">Seguir</button>
                         </div>
                     </div>
-
                 </div>
 
-                <div v-show="!isParentPost"
+                <div @click.stop v-show="!isParentPost"
                     class="flex text-sm text-x-light-textSecondary dark:text-x-dark-textSecondary  leading-4 items-center">
                     <span class="trunc" v-show="author?.credentials">
                         <span class="break-all break-words">{{ author?.credentials }}</span>
@@ -52,7 +43,6 @@
 </template>
 
 <script setup>
-import Avatar from '@/components/Utils/Avatar.vue';
 import formattedDate from '@/utils/formatted-date';
 import { useRouter } from 'vue-router';
 

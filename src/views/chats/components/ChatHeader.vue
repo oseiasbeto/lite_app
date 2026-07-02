@@ -24,7 +24,7 @@
     <div class="ml-3 flex-1 min-w-0">
       <!-- Nome -->
       <div @click="goToProfile(conversation)" class="w-full flex">
-        <h2 class="text-base mb-0.5 font-semibold text-white truncate leading-tight">
+        <h2 class="text-base mb-0.5 font-semibold text-inherit truncate leading-tight">
           {{ loading ? 'Carregando...' : conversation?.name || 'Chat' }}
         </h2>
 

@@ -5,7 +5,7 @@
         </div>
         
         <div class="flex-1">
-            <div @click="$emit('on-press')" class="w-full bg-x-light-surface dark:bg-x-dark-surface text-[rgb(147,149,152)] dark:text-[rgb(177,179,182)] flex items-center h-[36px] px-2 rounded-[30px]">
+            <div @click="$emit('on-press')" class="w-full bg-x-light-surface dark:bg-x-dark-surface text-[rgb(147,149,152)] border dark:border-x-dark-border border-x-light-border dark:text-[rgb(177,179,182)] flex items-center h-[36px] px-2 rounded-[30px]">
                 <p class="text-[15px] ml-1">Adicione {{ type == 'post' ? ' um comentario' : 'uma resposta' }}...</p>
             </div>
         </div>

@@ -1,44 +1,60 @@
 <template>
-    <div v-if="data?._id" class="flex flex-col border-b dark:border-x-dark-border border-x-light-border bg-transparent">
+    <div @click="goToViewMore" v-if="data?._id"
+        class="flex flex-row dark:border-x-dark-border border-x-light-border bg-transparent"
+        :class="[!isParentPost ? 'border-b' : 'border-none', !showMore ? 'active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive' : '']">
         <!--HEADER-->
-        <div :class="isParentPost ? 'px-[10px] pb-1 pt-[8px]' : 'p-[10px]'">
-            <!--AUTHOR DETAILS-->
-            <PostAuthorDetails @on-follow="handleFollowUser(data?.author?._id)" :is-following-user="isFollowingUser"
-                :show-btn-follow="canFollowUser" :author="data?.author" :created-at="data?.created_at"
-                :user-id="user?._id" :is-parent-post="isParentPost" />
+        <div :class="isParentPost ? 'px-[10px] pb-1 pt-[12px]' : 'p-[10px]'">
+            <div @click.stop @click="goToProfile(data?.author?._id)" class="relative shrink-0">
+                <Avatar :size="isParentPost ? 's' : 'md'"
+                    :url="isParentPost ? data?.author?.profile_image?.thumbnails?.xs || data?.author?.profile_image?.url : data?.author?.profile_image?.thumbnails?.sm || data?.author?.profile_image?.url" />
+            </div>
         </div>
 
-        <!--BODY-->
-        <div>
-            <!--CONTENT-->
-            <div :class="isParentPost ? 'px-[10px]' : 'px-[10px]'">
-                <PostContent :enable-truncate="enableTruncate" :is-parent-post="isParentPost" :show-more="showMore"
-                    @on-press="goToViewMore" :content="data.content" />
-            </div>
+        <div class="flex shrink-0 flex-1 flex-col pr-4">
+            <!--BODY-->
+            <div>
+
+                <div class="pt-[10px] pb-[8px]">
+                    <!--AUTHOR DETAILS-->
+                    <PostAuthorDetails @on-follow="handleFollowUser(data?.author?._id)"
+                        :is-following-user="isFollowingUser" :show-btn-follow="canFollowUser" :author="data?.author"
+                        :created-at="data?.created_at" :user-id="user?._id" :is-parent-post="isParentPost" />
+                </div>
+
+                <!--CONTENT-->
+                <div>
+                    <PostContent :enable-truncate="enableTruncate" :is-parent-post="isParentPost" :show-more="showMore"
+                        @on-press="goToViewMore" :content="data.content" />
+                </div>
 
 
-            <!--MEDIA-->
-            <PostMediaImages v-if="data?.media?.length" :images="data.media.filter(m => m.type === 'image')"
-                :post="data" :module="module" :is-parent-post="isParentPost" @open="setMedia" />
+                <!--MEDIA-->
+                <div @click.stop>
+                    <PostMediaImages v-if="data?.media?.length" :images="data.media.filter(m => m.type === 'image')"
+                        :post="data" :module="module" :is-parent-post="isParentPost" @open="setMedia" />
 
-            <PostMediaVideo v-if="data?.media?.find(m => m.type === 'video')"
-                :video="data.media.find(m => m.type === 'video')" :is-parent-post="isParentPost" @open="openVideo" />
+                    <PostMediaVideo v-if="data?.media?.find(m => m.type === 'video')"
+                        :video="data.media.find(m => m.type === 'video')" :is-parent-post="isParentPost"
+                        @open="openVideo" />
+                </div>
 
-            <!--PARENT POST-->
-            <div v-if="data?.shared_post?._id" class="px-[10px] pt-1 pb-2">
-                <div class="border-[1px] dark:border-[rgb(57,56,57)]">
-                    <PostCard :data="data?.shared_post" :is-parent-post="true" :user-id="user?._id" :module="module" />
+                <!--PARENT POST-->
+                <div @click.stop v-if="data?.shared_post?._id" class="pt-1 pb-2">
+                    <div class="border border-x-light-border dark:border-x-dark-border rounded-2xl overflow-hidden">
+                        <PostCard :data="data?.shared_post" :is-parent-post="true" :user-id="user?._id"
+                            :module="module" />
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!--FOOTER-->
-        <div v-if="!isParentPost" class="px-[10px] pt-1 pb-1">
-            <PostReactions :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
-                :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"
-                :comments-count="data?.comments_count" :shares-count="data?.shares_count" :user-id="user?._id"
-                @on-upvote="handleUpvote" @on-downvote="handleDownvote" @on-comment="goToComments" @on-share="goToShare"
-                @on-more="openMoreOptions(data)" />
+            <!--FOOTER-->
+            <div @click.stop v-if="!isParentPost" class="pt-1 pb-1">
+                <PostReactions :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
+                    :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"
+                    :comments-count="data?.comments_count" :shares-count="data?.shares_count" :user-id="user?._id"
+                    @on-upvote="handleUpvote" @on-downvote="handleDownvote" @on-comment="goToComments"
+                    @on-share="goToShare" @on-more="openMoreOptions(data)" />
+            </div>
         </div>
     </div>
 </template>
@@ -52,6 +68,7 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import PostMediaImages from './PostMediaImages.vue';
 import PostMediaVideo from './PostMediaVideo.vue';
+import Avatar from '@/components/Utils/Avatar.vue';
 
 const emit = defineEmits(['openNewCommentDrawer', 'openMoreOptionsDrawer'])
 
@@ -185,6 +202,12 @@ const goToShare = () => {
 const openMoreOptions = (post) => {
     if (!post) return
     emit('openMoreOptionsDrawer', post)
+}
+
+const goToProfile = (userId) => {
+    router.push({
+        path: '/profile/' + userId
+    })
 }
 
 const setMedia = ({ selected, list, post, module }) => {

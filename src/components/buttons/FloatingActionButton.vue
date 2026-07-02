@@ -6,7 +6,7 @@
     leave-from-class="transform translate-y-0 opacity-100 scale-100"
     leave-to-class="transform translate-y-16 opacity-0 scale-75">
     <button v-if="showFab" 
-      @click="$emit('new-chat')" 
+      @click="$emit('onPress')" 
       class="fixed bottom-20 right-6 z-50 flex items-center justify-center
              w-14 h-14 
              bg-x-light-blue hover:bg-x-light-blueHover dark:bg-x-dark-blue dark:hover:bg-x-dark-blueHover dark:bg-x-dark-primary
@@ -24,7 +24,7 @@
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 
-defineEmits(['new-chat'])
+defineEmits(['onPress'])
 
 const showFab = ref(true)
 let scrollContainer = null
