@@ -4,10 +4,11 @@
             <PostUploadIndicator />
         </div>
         <div>
-            <PostList :enable-pull-to-refresh="enablePullToRefresh" :posts="feedPosts?.posts || []"
-                :has-more="feedPosts?.pagination?.hasMore || false" :loading-fetch="loadingFeedPosts"
-                :loading-load-more="loadingLoadMore" :show-btn-follow="true" module="feed"
-                @post-deleted="handlePostDeleted" @on-load-more="handleLoadMore" @on-refresh="handleRefresh" />
+            <PostList :scroll-target="feedView" :enable-pull-to-refresh="enablePullToRefresh"
+                :posts="feedPosts?.posts || []" :has-more="feedPosts?.pagination?.hasMore || false"
+                :loading-fetch="loadingFeedPosts" :loading-load-more="loadingLoadMore" :show-btn-follow="true"
+                module="feed" @post-deleted="handlePostDeleted" @on-load-more="handleLoadMore"
+                @on-refresh="handleRefresh" />
 
             <!-- BOTÃO FLUTUANTE DO TELEGRAM -->
             <FloatingActionButton @onPress="goToComposer('feed')">

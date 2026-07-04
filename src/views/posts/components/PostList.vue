@@ -1,5 +1,5 @@
 <template>
-    <div ref="scrollContainer" class="relative overflow-y-auto h-full">
+    <div ref="scrollContainer" class="relative">
         <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
         <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"
             :is-refreshing="isRefreshing" />
@@ -57,9 +57,9 @@ const router = useRouter()
 const user = computed(() => store.getters.currentUser)
 
 const loadTrigger = ref(null);
-const scrollContainer = ref(null);
+const scrollContainer = ref(null); // fallback: usado quando ninguém passa scrollTarget
 
-const emit = defineEmits(['on-load-more', 'on-refresh']);
+const emit = defineEmits(['on-load-more', 'on-refresh', 'post-deleted']);
 
 const props = defineProps({
     posts: {
@@ -93,8 +93,20 @@ const props = defineProps({
     hasMore: {
         type: Boolean,
         default: false
+    },
+    // elemento externo que realmente tem o scroll (ex: o container da página).
+    // se não for passado, a virtualização cai no fallback (scrollContainer local),
+    // e nesse caso é responsabilidade de quem usa o PostList garantir que ele
+    // receba altura real do pai (sem nenhum <div> sem altura no meio do caminho).
+    scrollTarget: {
+        type: Object,
+        default: null
     }
 })
+
+// usa o elemento externo (scroll real da página) se foi passado,
+// senão cai no próprio elemento do componente
+const scrollEl = computed(() => props.scrollTarget || scrollContainer.value)
 
 const drawer = ref({
     show: false,
@@ -133,7 +145,7 @@ useIntersectionObserver(
 
 // === Pull to refresh, só ativo se enablePullToRefresh for true ===
 const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
-    scrollContainer,
+    scrollEl,
     () => emitRefreshAndWait(),
     {
         threshold: 70,
@@ -153,8 +165,10 @@ const BUFFER_PX = 900             // "colchão" acima/abaixo do viewport, evita 
 const heights = reactive({})
 
 // Posição de scroll e altura do container reativas (com throttle p/ não travar em dispositivos fracos)
-const { y: scrollTop } = useScroll(scrollContainer, { throttle: 50 })
-const { height: containerHeight } = useElementSize(scrollContainer)
+// IMPORTANTE: escuta scrollEl (o elemento que REALMENTE tem overflow/scroll),
+// não um div interno sem altura definida — senão scrollTop nunca muda.
+const { y: scrollTop } = useScroll(scrollEl, { throttle: 50 })
+const { height: containerHeight } = useElementSize(scrollEl)
 
 // Offset (posição top) acumulado de cada post
 const offsets = computed(() => {
