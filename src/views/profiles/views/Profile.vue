@@ -55,7 +55,8 @@
 
                 <!--TAB VIEWS-->
                 <template v-if="currentTab === 'posts'">
-                    <PostList 
+                    <PostList
+                        :scroll-target="profileView"
                         :posts="profilePosts?.posts || []" :has-more="profilePosts?.pagination?.hasMore || false"
                         :loading-fetch="loadingFetchProfilePosts" :loading-load-more="loadingLoadMorePosts"
                         :module="module" @on-load-more="handleLoadMore" 
@@ -245,6 +246,11 @@ const openMoreOptionsDrawer = () => {
 }
 
 const fetchProfilePosts = async (userId, isRefresh = false) => {
+
+    if (isRefresh) {
+        resetQueryPosts()
+    }
+    
     await store.dispatch("getProfilePosts", {
         ...queryPosts.value,
         userId,

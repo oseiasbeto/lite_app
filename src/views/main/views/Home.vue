@@ -109,6 +109,8 @@ const handleLoadMore = async () => {
 
 const handleRefresh = async (done) => {
     loadingFeedPosts.value = true
+    query.value.page = 1
+    query.value.hasTotal = null
     await store.dispatch("getFeedPosts", { ...query.value, isRefresh: true })
     loadingFeedPosts.value = false
     done() // libera o indicador de loading
