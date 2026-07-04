@@ -40,7 +40,6 @@
 <script setup>
 import { ref, reactive, computed, toRef } from 'vue';
 import { useStore } from 'vuex';
-import PostCard from './PostCard.vue';
 import VirtualizedPostItem from './VirtualizedPostItem.vue';
 import { useIntersectionObserver, useScroll, useElementSize } from "@vueuse/core";
 import PostSkeleton from './PostSkeleton.vue';

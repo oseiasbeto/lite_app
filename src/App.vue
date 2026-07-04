@@ -37,6 +37,7 @@ const isNewSession = computed(() => store.getters.isNewSession)
 const isLoadingComponent = computed(() => store.getters.isLoadingComponent)
 const unreadNotificationsCount = computed(() => store.getters?.unreadNotificationsCount || 0);
 const unreadMessagesCount = computed(() => store.getters?.unreadMessagesCount || 0);
+const showBottomNav = computed(() => store.getters.showBottomNav)
 
 // Estado da rede
 const networkStatus = computed(() => {
@@ -523,13 +524,13 @@ onUnmounted(() => {
     <!-- start main app area-->
     <div v-if="!loading">
       <!--start sidebar-->
-      <Navegator v-show="isAuthenticated && route.meta.rootPage == 'main'" />
+      <Navegator :show-bottom-nav="isAuthenticated && route.meta.rootPage == 'main' && showBottomNav" />
 
       <!--start content-->
       <div class="overflow-hidden">
         <router-view v-slot="{ Component }">
           <keep-alive
-            :include="['Home', 'Chats', 'Notifications', 'PostDetails', 'ArchivedChats', 'NewMessage', 'Messages']">
+            :include="['Home', 'Profile', 'Chats', 'Notifications', 'PostDetails', 'ArchivedChats', 'NewMessage', 'Messages']">
             <component :is="Component" />
           </keep-alive>
         </router-view>

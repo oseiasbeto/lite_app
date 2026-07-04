@@ -2,13 +2,6 @@
     <div @scroll="setScrollTopFromCache" class="relative h-screen overflow-y-scroll" ref="feedView"
     :class="{'pb-[40px]': !feedPosts?.pagination?.hasMore}">
         <div class="relative">
-            <CreatePostTrigger @onClick="goToComposer('feed')" />
-        </div>
-        <div v-if="loadingFeedPosts" class="px-4">
-            <PostSkeleton v-for="n in 3" :key="n" />
-        </div>
-    >
-        <div class="relative">
             <PostUploadIndicator />
         </div>
         <div>

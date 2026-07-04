@@ -1,5 +1,5 @@
 <template>
-    <div @scroll="setScrollTopFromCache" ref="profileView" class="relative h-screen overflow-y-hidden mt-[44px]">
+    <div @scroll="setScrollTopFromCache" ref="profileView" class="relative h-screen overflow-y-scroll" :class="{'pb-[40px]': !profilePosts?.pagination?.hasMore}">
         <Navbar :loading="loadingFetchProfile" :title="profile?.name || 'Perfil'">
             <template v-if="!loadingFetchProfile" #right>
                 <button v-if="isSameUser" @click="router.push('/settings')"
@@ -21,7 +21,7 @@
                 </button>
             </template>
         </Navbar>
-        <div v-if="!hasError?.show">
+        <div class="mt-[44px]" v-if="!hasError?.show">
             <div v-if="!loadingFetchProfile">
                 <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
                 <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"
@@ -90,7 +90,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch, ref } from 'vue';
+import { computed, onMounted, onActivated, watch, ref } from 'vue';
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import ProfileDetailsUser from '../components/ProfileDetailsUser.vue';
@@ -104,6 +104,11 @@ import ProfileSkeleton from '../components/ProfileSkeleton.vue';
 import Navbar from '@/views/main/components/Navbar.vue';
 import PullToRefreshIndicator from '@/components/UI/PullToRefreshIndicator.vue';
 import { usePullToRefresh } from '@/composables/usePullToRefresh';
+
+// IMPORTANTE: o "name" precisa bater com o que estiver no :include do <keep-alive>
+defineOptions({
+    name: 'Profile'
+})
 
 const store = useStore()
 const route = useRoute()
@@ -395,13 +400,20 @@ const loadProfile = async (userId, isRefresh = false) => {
         })
 }
 
+// onMounted agora só cuida do fetch inicial (roda 1x, quando o componente é criado)
 onMounted(async () => {
     if (profile.value?._id !== userId.value) {
         loadingFetchProfile.value = true
         await loadProfile(userId.value)
-    } else {
-        const pagination = profilePosts.value?.pagination || null
+    }
+})
 
+// onActivated roda toda vez que a tela é (re)ativada via keep-alive,
+// inclusive na primeira montagem — igual ao padrão do Feed.vue
+onActivated(() => {
+    if (profile.value?._id === userId.value) {
+        const pagination = profilePosts.value?.pagination || null
+        
         if (pagination) {
             const { page, total } = pagination
             queryPosts.value.isPush = true
@@ -414,11 +426,11 @@ onMounted(async () => {
         if (activeTab) {
             currentTab.value = activeTab
         }
+    }
 
-        const scrollTop = profile?.value?.scrollTop
-        if (scrollTop) {
-            profileView.value.scrollTop = scrollTop
-        }
+    const scrollTop = profile?.value?.scrollTop
+    if (scrollTop && profileView.value) {
+        profileView.value.scrollTop = scrollTop
     }
 })
 

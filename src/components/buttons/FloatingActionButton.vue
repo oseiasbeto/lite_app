@@ -1,8 +1,8 @@
 <template>
   <!-- Botão Flutuante do Telegram -->
-  <transition enter-active-class="transition ease-out duration-300"
+  <transition enter-active-class="transition ease-out duration-100"
     enter-from-class="transform translate-y-16 opacity-0 scale-75"
-    enter-to-class="transform translate-y-0 opacity-100 scale-100" leave-active-class="transition ease-in duration-200"
+    enter-to-class="transform translate-y-0 opacity-100 scale-100" leave-active-class="transition ease-in duration-100"
     leave-from-class="transform translate-y-0 opacity-100 scale-100"
     leave-to-class="transform translate-y-16 opacity-0 scale-75">
     <button v-if="show" 

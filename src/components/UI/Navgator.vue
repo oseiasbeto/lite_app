@@ -1,7 +1,7 @@
 <template>
     <transition
-        enter-active-class="transition-transform duration-300 ease-out"
-        leave-active-class="transition-transform duration-200 ease-in"
+        enter-active-class="transition-transform duration-100 ease-out"
+        leave-active-class="transition-transform duration-100 ease-in"
         enter-from-class="translate-y-full"
         enter-to-class="translate-y-0"
         leave-from-class="translate-y-0"
@@ -113,12 +113,15 @@ const store = useStore()
 const user = computed(() => store.getters.currentUser)
 const unreadNotificationsCount = computed(() => store.getters?.unreadNotificationsCount || 0);
 const unreadMessagesCount = computed(() => store.getters?.unreadMessagesCount || 0);
-const showBottomNav = computed(() => store.getters.showBottomNav)
 
 defineProps({
     isDisabled: {
         type: Boolean,
         default: false
+    },
+    showBottomNav: {
+        type: Boolean,
+        default: true
     }
 })
 
