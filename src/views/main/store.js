@@ -7,6 +7,7 @@ export default {
     state: {
         topicList: [],
         isLoadingComponent: false,
+        showBottomNav: true,
         theme: Cookies.get("theme")
     },
     mutations: {
@@ -20,6 +21,9 @@ export default {
             console.log(payload)
             state.theme = payload
         },
+        SET_SHOW_BOTTOM_NAV(state, value) {
+            state.showBottomNav = value
+        }
     },
     actions: {
         async getTopicList({ commit }) {
@@ -36,6 +40,7 @@ export default {
     getters: {
         topicList: (state) => state.topicList,
         isLoadingComponent: (state) => state.isLoadingComponent,
-        currentTheme: (state) => state.theme
+        currentTheme: (state) => state.theme,
+        showBottomNav: (state) => state.showBottomNav
     }
 }

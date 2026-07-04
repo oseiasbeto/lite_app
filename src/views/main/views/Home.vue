@@ -1,5 +1,13 @@
 <template>
-    <div @scroll="setScrollTopFromCache" class="relative h-[calc(100vh-56px)] overflow-y-scroll" ref="feedView">
+    <div @scroll="setScrollTopFromCache" class="relative h-screen overflow-y-scroll" ref="feedView"
+    :class="{'pb-[40px]': !feedPosts?.pagination?.hasMore}">
+        <div class="relative">
+            <CreatePostTrigger @onClick="goToComposer('feed')" />
+        </div>
+        <div v-if="loadingFeedPosts" class="px-4">
+            <PostSkeleton v-for="n in 3" :key="n" />
+        </div>
+    >
         <div class="relative">
             <PostUploadIndicator />
         </div>
@@ -11,7 +19,7 @@
                 @on-refresh="handleRefresh" />
 
             <!-- BOTÃO FLUTUANTE DO TELEGRAM -->
-            <FloatingActionButton @onPress="goToComposer('feed')">
+            <FloatingActionButton :show="showFab" @onPress="goToComposer('feed')">
                 <template #icon>
                     <svg viewBox="0 0 24 24" aria-hidden="true" class="w-[26px] h-[26px] text-inherit">
                         <g>
@@ -55,6 +63,11 @@ const query = ref({
 const module = ref('feed')
 const feedView = ref(null)
 
+// --- controle do FAB (mostrar/esconder por direção do scroll) ---
+const showFab = ref(true)
+let lastScrollTop = 0
+const SCROLL_THRESHOLD = 5
+
 const feedPosts = computed(() => {
     const modules = store.getters.modulePosts
     if (modules.length) {
@@ -75,6 +88,24 @@ const resetQuery = () => {
 
 const setScrollTopFromCache = (event) => {
     const scrollTop = event.target.scrollTop
+
+    // --- lógica de direção do scroll pro FAB ---
+    const diff = scrollTop - lastScrollTop
+
+    if (Math.abs(diff) >= SCROLL_THRESHOLD) {
+        if (scrollTop <= 50) {
+            showFab.value = true
+            store.commit("SET_SHOW_BOTTOM_NAV", true)
+        } else if (diff > 0) {
+            showFab.value = false // rolando pra baixo
+            store.commit("SET_SHOW_BOTTOM_NAV", false)
+        } else if (diff < 0) {
+            showFab.value = true // rolando pra cima
+            store.commit("SET_SHOW_BOTTOM_NAV", true)
+        }
+        lastScrollTop = scrollTop
+    }
+
     store.commit("UPDATE_PAGINATION_POSTS_FROM_CACHE", {
         module: module.value,
         scrollTop
@@ -116,10 +147,7 @@ const handleRefresh = async (done) => {
     done() // libera o indicador de loading
 }
 
-// Handler para quando uma postagem é deletada
 const handlePostDeleted = (postId) => {
-    // Atualiza a lista localmente se necessário
-    // O Vuex já vai atualizar automaticamente via mutation
     console.log('Postagem deletada:', postId);
 
     store.commit("REMOVE_POST_FROM_MODULE", {
@@ -144,8 +172,6 @@ onMounted(async () => {
     try {
         loadingFeedPosts.value = true
         await fetchFeedPosts()
-
-        // bannerAd({ adId: "ca-app-pub-3940256099942544/6300978111"})
     } catch (err) {
         console.error("Erro ao buscar posts do feed:", err?.response?.data?.message)
     } finally {
@@ -160,6 +186,7 @@ onActivated(() => {
         const { pagination } = feedPosts.value
 
         feedView.value.scrollTop = pagination?.scrollTop || 0
+        lastScrollTop = pagination?.scrollTop || 0
     }
 })
 </script>

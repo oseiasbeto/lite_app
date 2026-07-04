@@ -4,7 +4,7 @@
             <div>
                 <div class="flex justify-between items-center">
                     <div class="flex items-center gap-1">
-                        <div class="flex items-center">
+                        <div class="flex items-center mb-0.5">
                             <span @click.stop="goToProfile(author?._id)" :class="isParentPost ? 'font-normal' : 'font-bold'" class="text-sm text-inherit">{{
                                 author?.name }}
                             </span>

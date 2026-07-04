@@ -4,7 +4,7 @@ export default [
         name: 'Profile',
         meta: {
             requiresAuth: true,
-            rootPage: 'main',
+            rootPage: 'profiles',
             title: 'Perfil'
         },
         component: () => import('./views/Profile.vue')
