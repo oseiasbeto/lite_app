@@ -1,7 +1,7 @@
 <template>
     <div @click="goToViewMore" v-if="data?._id"
         class="flex flex-row dark:border-x-dark-border border-x-light-border bg-transparent"
-        :class="[!isParentPost ? 'border-b' : 'border-none', !showMore ? 'active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive' : '']">
+        :class="[!isParentPost ? 'border-b' : 'border-none']">
         <!--HEADER-->
         <div :class="isParentPost ? 'px-[10px] pb-1 pt-[12px]' : 'p-[10px]'">
             <div @click.stop @click="goToProfile(data?.author?._id)" class="relative shrink-0">
@@ -128,7 +128,8 @@ const handleUpvote = async () => {
     isReactingPost.value = true
     await store.dispatch('toggleUpvotePost', {
         postId: props?.data?._id,
-        module: props?.module
+        module: props?.module,
+        userId: props?.user?._id
     })
         .finally(() => {
             isReactingPost.value = false

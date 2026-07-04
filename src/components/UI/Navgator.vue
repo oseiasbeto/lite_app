@@ -32,7 +32,7 @@
                     </path>
                 </svg>
                 <span v-show="unreadNotificationsCount > 0"
-                    class="min-w-4 h-4 dark:shadow-[rgb(32,32,32),0px_0px_0px_2px] text-[10px] p-0.5 flex items-center justify-center rounded-3xl font-semibold absolute top-[10px] right-[12px] bg-[#f52936] text-[#fff]">
+                    class="min-w-4 h-4 dark:shadow-[rgb(32,32,32),0px_0px_0px_2px] text-[10px] p-0.5 flex items-center justify-center rounded-3xl font-semibold absolute top-[10px] right-[12px] bg-x-light-blue text-[#fff]">
 
                     <span>{{ unreadNotificationsCount }}</span>
 
@@ -70,7 +70,7 @@
                         d="M12,2a10,10,0,1,0,4.924,18.7l3.76,1.253A1.014,1.014,0,0,0,21,22a1,1,0,0,0,.948-1.316L20.7,16.924A9.988,9.988,0,0,0,12,2Zm6.653,15.121.766,2.3-2.3-.766a.994.994,0,0,0-.851.1,8.02,8.02,0,1,1,2.488-2.488A1,1,0,0,0,18.653,17.121ZM17,9.5a1,1,0,0,1-1,1H8a1,1,0,0,1,0-2h8A1,1,0,0,1,17,9.5Zm-4,5a1,1,0,0,1-1,1H8a1,1,0,0,1,0-2h4A1,1,0,0,1,13,14.5Z" />
                 </svg>
                 <span v-show="unreadMessagesCount > 0"
-                    class="min-w-4 h-4 dark:shadow-[rgb(32,32,32),0px_0px_0px_2px] text-[10px] p-0.5 flex items-center justify-center rounded-3xl font-semibold absolute top-[10px] right-[12px] bg-[#f52936] text-[#fff]">
+                    class="min-w-4 h-4 dark:shadow-[rgb(32,32,32),0px_0px_0px_2px] text-[10px] p-0.5 flex items-center justify-center rounded-3xl font-semibold absolute top-[10px] right-[12px] bg-x-light-blue text-[#fff]">
 
                     <span>{{ unreadMessagesCount }}</span>
 

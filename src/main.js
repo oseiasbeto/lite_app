@@ -9,19 +9,6 @@ import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import './assets/tailwind.css'
 import './assets/styles.css'
 
-// --- Suprime o warning inofensivo do ResizeObserver no overlay do dev server ---
-const resizeObserverErrHandler = (e) => {
-  if (
-    e.message === 'ResizeObserver loop completed with undelivered notifications.' ||
-    e.message === 'ResizeObserver loop limit exceeded'
-  ) {
-    e.stopImmediatePropagation();
-  }
-};
-
-window.addEventListener('error', resizeObserverErrHandler);
-// --------------------------------------------------------------------------
-
 const app = createApp(App)
 
 app.use(router)

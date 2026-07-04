@@ -6,9 +6,13 @@
 
         <div v-if="!loadingFetch">
             <div v-if="posts?.length">
-                <PostCard v-for="item in posts" :show-border-bottom="showBorderBottom" :show-btn-follow="showBtnFollow"
-                    :key="item?._id" :module="module" :data="item" :user="user || {}"
-                    @open-more-options-drawer="openMoreOptionsDrawer" />
+                <!-- Container com a altura TOTAL simulada, só os itens visíveis (+buffer) são montados -->
+                <div class="relative" :style="{ height: totalHeight + 'px' }">
+                    <VirtualizedPostItem v-for="{ post, top } in visiblePosts" :key="post._id" :data="post" :top="top"
+                        :module="module" :user="user || {}" :show-border-bottom="showBorderBottom"
+                        :show-btn-follow="showBtnFollow" @measure="onMeasure"
+                        @open-more-options-drawer="openMoreOptionsDrawer" />
+                </div>
 
                 <div ref="loadTrigger" v-if="hasMore || loadingLoadMore"
                     class="load-more-container py-3.5 flex justify-center">
@@ -34,10 +38,11 @@
 </template>
 
 <script setup>
-import { ref, computed, toRef } from 'vue';
+import { ref, reactive, computed, toRef } from 'vue';
 import { useStore } from 'vuex';
 import PostCard from './PostCard.vue';
-import { useIntersectionObserver } from "@vueuse/core";
+import VirtualizedPostItem from './VirtualizedPostItem.vue';
+import { useIntersectionObserver, useScroll, useElementSize } from "@vueuse/core";
 import PostSkeleton from './PostSkeleton.vue';
 import Spinner from '@/components/UI/Spinner.vue';
 import Drawer from '@/components/drawer/Drawer.vue';
@@ -137,6 +142,82 @@ const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
     }
 )
 
+// ============================================================
+// VIRTUALIZAÇÃO (renderiza só os posts próximos do viewport)
+// ============================================================
+
+const DEFAULT_ITEM_HEIGHT = 420   // estimativa até o item ser medido de verdade
+const BUFFER_PX = 900             // "colchão" acima/abaixo do viewport, evita flicker no scroll rápido
+
+// Alturas reais medidas por post (id -> px)
+const heights = reactive({})
+
+// Posição de scroll e altura do container reativas (com throttle p/ não travar em dispositivos fracos)
+const { y: scrollTop } = useScroll(scrollContainer, { throttle: 50 })
+const { height: containerHeight } = useElementSize(scrollContainer)
+
+// Offset (posição top) acumulado de cada post
+const offsets = computed(() => {
+    const arr = []
+    let acc = 0
+    for (const post of props.posts) {
+        arr.push(acc)
+        acc += heights[post._id] || DEFAULT_ITEM_HEIGHT
+    }
+    arr.push(acc)
+    return arr
+})
+
+const totalHeight = computed(() => offsets.value[offsets.value.length - 1] || 0)
+
+// Encontra por busca binária o range de índices visível (+ buffer)
+const visibleRange = computed(() => {
+    const list = props.posts
+    const off = offsets.value
+    const n = list.length
+
+    if (!n) return { start: 0, end: 0 }
+
+    const top = Math.max(0, scrollTop.value - BUFFER_PX)
+    const bottom = scrollTop.value + (containerHeight.value || 0) + BUFFER_PX
+
+    let lo = 0, hi = n - 1, start = 0
+    while (lo <= hi) {
+        const mid = (lo + hi) >> 1
+        if (off[mid] < top) lo = mid + 1
+        else hi = mid - 1
+    }
+    start = Math.max(0, lo - 1)
+
+    lo = 0; hi = n - 1
+    let end = n
+    while (lo <= hi) {
+        const mid = (lo + hi) >> 1
+        if (off[mid] < bottom) lo = mid + 1
+        else hi = mid - 1
+    }
+    end = Math.min(n, lo + 1)
+
+    return { start, end }
+})
+
+const visiblePosts = computed(() => {
+    const { start, end } = visibleRange.value
+    const off = offsets.value
+    return props.posts.slice(start, end).map((post, i) => ({
+        post,
+        top: off[start + i]
+    }))
+})
+
+const onMeasure = ({ id, height }) => {
+    if (!id) return
+    if (heights[id] !== height) {
+        heights[id] = height
+    }
+}
+
+// ============================================================
 
 const handleDeletePost = async (postId) => {
     if (!postId) return;

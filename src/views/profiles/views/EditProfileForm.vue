@@ -711,10 +711,10 @@ const setThemeColor = (theme) => {
 
     // Aplicar classe no HTML
     if (form.value.theme === 'dark') {
-        window?.WTN?.setNavigationBarColor({ color: "#262626" });
+        window?.WTN?.setNavigationBarColor({ color: "#000000" });
         window?.WTN.statusBar({
             style: 'light',
-            color: '262626',
+            color: '000000',
             overlay: false //Only for android
         });
         // Aplicar tema escuro  
@@ -723,10 +723,10 @@ const setThemeColor = (theme) => {
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
         if (isDark) {
-            window?.WTN?.setNavigationBarColor({ color: "#262626" });
+            window?.WTN?.setNavigationBarColor({ color: "#000000" });
             window?.WTN.statusBar({
                 style: 'light',
-                color: '262626',
+                color: '000000',
                 overlay: false //Only for android
             });
             

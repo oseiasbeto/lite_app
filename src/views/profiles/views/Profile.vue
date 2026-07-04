@@ -244,10 +244,11 @@ const openMoreOptionsDrawer = () => {
     })
 }
 
-const fetchProfilePosts = async (userId) => {
+const fetchProfilePosts = async (userId, isRefresh = false) => {
     await store.dispatch("getProfilePosts", {
         ...queryPosts.value,
-        userId
+        userId,
+        isRefresh
     })
 }
 
@@ -365,12 +366,12 @@ const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
 
 const emitRefreshAndWait = () => {
     return new Promise(async (resolve) => {
-        await loadProfile(userId.value)
+        await loadProfile(userId.value, true)
         resolve()
     })
 }
 
-const loadProfile = async (userId) => {
+const loadProfile = async (userId, isRefresh = false) => {
     await store.dispatch("getProfileByUserId", userId)
         .finally(async () => {
             loadingFetchProfile.value = false
@@ -378,7 +379,7 @@ const loadProfile = async (userId) => {
 
             queryPosts.value.isPush = false
 
-            await fetchProfilePosts(userId)
+            await fetchProfilePosts(userId, isRefresh)
                 .finally(() => {
                     loadingFetchProfilePosts.value = false
                 })

@@ -1,13 +1,86 @@
 import { logger } from '@/utils/logger';
 import api from '../../api'
+import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
+
+const CLOUD_NAME = 'daujoblcc';
+const UPLOAD_PRESET = 'social_media_upload';
+
+async function uploadSingleMedia(media, onProgress) {
+    const formData = new FormData();
+    formData.append('file', media.file);
+    formData.append('upload_preset', UPLOAD_PRESET);
+    formData.append('cloud_name', CLOUD_NAME);
+    formData.append('folder', media.type === 'video' ? 'videos' : 'images');
+
+    if (media.type === 'video') {
+        formData.append('resource_type', 'video');
+        formData.append('public_id', `video_${Date.now()}`);
+    }
+
+    const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/upload`,
+        formData,
+        {
+            onUploadProgress: (progressEvent) => {
+                const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                onProgress(progress);
+            },
+        }
+    );
+
+    if (!response.data) throw new Error('Erro ao carregar mídia');
+
+    const hlsUrl = media.type === 'video'
+        ? `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/sp_hd/${response.data.public_id}.m3u8`
+        : null;
+
+    const thumbnailUrl = media.type === 'video'
+        ? `https://res.cloudinary.com/${CLOUD_NAME}/video/upload/w_${response.data.width},h_${response.data.height},c_fill,q_auto,f_jpg,so_2/${response.data.public_id}.jpg`
+        : null;
+
+    return {
+        public_id: response.data.public_id,
+        url: media.type === 'video'
+            ? hlsUrl
+            : `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/f_auto,q_80,w_1200/${response.data.public_id}`,
+        thumbnail: thumbnailUrl,
+        type: media.type,
+        format: media.type === 'video' ? 'm3u8' : response.data.format,
+        width: response.data.width,
+        height: response.data.height,
+    }
+}
 
 export default {
     state: {
         posts: [],
         post: {},
-        parentPost: {}
+        parentPost: {},
+        uploadingPost: null,
     },
     mutations: {
+        START_BACKGROUND_POST(state, { id, hasMedia }) {
+            state.uploadingPost = {
+                id,
+                progress: hasMedia ? 0 : 100,
+                status: hasMedia ? 'uploading' : 'publishing',
+                error: null,
+            };
+        },
+        SET_BACKGROUND_POST_PROGRESS(state, { id, progress }) {
+            if (state.uploadingPost?.id !== id) return;
+            state.uploadingPost.progress = progress;
+        },
+        SET_BACKGROUND_POST_STATUS(state, { id, status, error = null }) {
+            if (state.uploadingPost?.id !== id) return;
+            state.uploadingPost.status = status;
+            state.uploadingPost.error = error;
+        },
+        CLEAR_BACKGROUND_POST(state, { id } = {}) {
+            if (id && state.uploadingPost?.id !== id) return;
+            state.uploadingPost = null;
+        },
         PUSH_MODULE_FROM_POSTS(state, payload) {
             const posts = state.posts;
 
@@ -82,7 +155,7 @@ export default {
                 });
             }
         },
-        
+
         // Nova mutation específica para remover de um módulo específico
         REMOVE_POST_FROM_MODULE(state, { moduleName, postId }) {
             if (!moduleName || !postId) return;
@@ -265,7 +338,7 @@ export default {
         },
         async getFeedPosts({ commit }, query) {
             try {
-                const { module, hasTotal, page: currentPage, limit } = query
+                const { isRefresh = false, module, hasTotal, page: currentPage, limit } = query
 
                 const response = await api.get('/posts/feed', {
                     params: {
@@ -280,6 +353,7 @@ export default {
                 const payload = {
                     module,
                     posts,
+                    isRefresh,
                     pagination: {
                         page,
                         total,
@@ -288,14 +362,19 @@ export default {
                     }
                 }
 
-                commit("PUSH_MODULE_FROM_POSTS", payload)
+                if (isRefresh) {
+                    commit("SET_POSTS_FROM_MODULE", payload)
+                } else {
+                    commit("PUSH_MODULE_FROM_POSTS", payload)
+                }
+
             } catch (error) {
                 logger.error(error);
             }
         },
         async getProfilePosts({ commit }, query) {
             try {
-                const { module, userId, isPush = true, type = 'post', hasTotal, page: currentPage, limit } = query
+                const { isRefresh = false, module, userId, isPush = true, type = 'post', hasTotal, page: currentPage, limit } = query
 
                 const response = await api.get('/posts/user/' + userId, {
                     params: {
@@ -311,6 +390,7 @@ export default {
                 const payload = {
                     module,
                     posts,
+                    isRefresh,
                     pagination: {
                         page,
                         total,
@@ -320,9 +400,8 @@ export default {
                 }
 
 
-                if (isPush && posts?.length) {
+                if (isPush && posts?.length && !isRefresh) {
                     commit("PUSH_MODULE_FROM_POSTS", payload)
-
                 } else {
                     commit("SET_POSTS_FROM_MODULE", payload)
                 }
@@ -332,32 +411,70 @@ export default {
                 throw err
             }
         },
-        async toggleUpvotePost({ commit }, { postId, module }) {
+        async toggleUpvotePost({ commit, state, rootState }, { postId, module, userId }) {
             try {
-                const response = await api.put(`/posts/${postId}/toggle-upvote`);
+                // 1. Buscar o post atual no estado (para ter a lista de upvotes atual)
+                const moduleEntry = state.posts.find(m => m.module === module);
+                const post = moduleEntry?.posts?.find(p => p._id === postId);
 
-                const { post } = response.data
-                const { upvotes, upvotes_count, downvotes, comments_count, shares_count, downvotes_count } = post
+                // Também pode estar em state.post (post individual)
+                const singlePost = state.post;
 
-                const payload = {
-                    post_id: post?._id,
-                    upvotes,
-                    upvotes_count,
-                    downvotes,
-                    comments_count,
-                    shares_count,
-                    downvotes_count
+                if (!post && !singlePost) {
+                    logger.warn("Post não encontrado no estado local");
+                    return;
                 }
 
+                // Usar o post encontrado (prioriza o da lista, mas se não houver usa o single)
+                const targetPost = post || singlePost;
+
+                // 2. Fazer o toggle com base no userId
+                let updatedUpvotes = [...(targetPost.upvotes || [])];
+                let updatedUpvotesCount = targetPost.upvotes_count || 0;
+
+                const userIndex = updatedUpvotes.indexOf(userId);
+                if (userIndex !== -1) {
+                    // Usuário já tinha votado: remover voto
+                    updatedUpvotes.splice(userIndex, 1);
+                    updatedUpvotesCount -= 1;
+                } else {
+                    // Usuário não votou: adicionar voto
+                    updatedUpvotes.push(userId);
+                    updatedUpvotesCount += 1;
+                }
+
+                // 3. Preparar o payload com todos os campos que a mutation espera,
+                //    mantendo os valores atuais para campos que não mudam (downvotes, etc.)
+                const payload = {
+                    post_id: targetPost._id,
+                    upvotes: updatedUpvotes,
+                    upvotes_count: updatedUpvotesCount,
+                    downvotes: targetPost.downvotes || [],
+                    downvotes_count: targetPost.downvotes_count || 0,
+                    comments_count: targetPost.comments_count || 0,
+                    shares_count: targetPost.shares_count || 0
+                };
+
+                // 4. Atualizar o estado local imediatamente (otimista)
                 commit("UPDATE_REACTIONS_POST", {
                     payload,
                     module
-                })
+                });
+
+                // 5. Chamar a API em segundo plano (não esperamos a resposta para atualizar o estado)
+                //    Usamos .catch para não quebrar a aplicação em caso de erro.
+                api.put(`/posts/${postId}/toggle-upvote`)
+                    .catch(error => {
+                        // Opcional: reverter a atualização local se a API falhar? 
+                        // Mas isso é outro nível de complexidade. Normalmente se deixa assim.
+                        logger.error("Erro ao persistir upvote na API:", error?.response?.message);
+                    });
+
             } catch (error) {
-                logger.error("Erro ao adicionar/remover voto positivo na postagem:", error?.response?.message);
+                logger.error("Erro ao processar toggle de upvote:", error?.message);
             }
         },
-        async toggleDownvotePost({ commit }, { postId, module }) {
+        async toggleDownvotePost({ commit }, { postId, module, userId }) {
             try {
                 const response = await api.put(`/posts/${postId}/toggle-downvote`);
 
@@ -382,10 +499,63 @@ export default {
                 logger.error("Erro ao adicionar/remover voto positivo na postagem:", error?.response?.message);
             }
         },
+        async submitPostWithMedia({ commit, dispatch }, payload) {
+            const { content, mediaFiles = [], sharedPost, isAnonymous, topics, audience, module } = payload;
+            const id = uuidv4();
+
+            commit('START_BACKGROUND_POST', { id, hasMedia: mediaFiles.length > 0 });
+
+            try {
+                const uploadedMedia = [];
+
+                for (let i = 0; i < mediaFiles.length; i++) {
+                    const media = mediaFiles[i];
+                    const uploaded = await uploadSingleMedia(media, (fileProgress) => {
+                        // progresso combinado: cada ficheiro vale uma fração igual do total
+                        const overall = Math.round(((i + fileProgress / 100) / mediaFiles.length) * 100);
+                        commit('SET_BACKGROUND_POST_PROGRESS', { id, progress: Math.min(overall, 99) });
+                    });
+                    uploadedMedia.push(uploaded);
+                }
+
+                commit('SET_BACKGROUND_POST_STATUS', { id, status: 'publishing' });
+
+                const postData = {
+                    content,
+                    media: uploadedMedia,
+                    sharedPost: sharedPost || null,
+                    isAnonymous,
+                    topics: topics || [],
+                    audience,
+                    module,
+                };
+
+                // Reaproveita a tua action existente de criação de post.
+                const newPost = await dispatch('createPost', postData);
+
+                commit('SET_BACKGROUND_POST_PROGRESS', { id, progress: 100 });
+                commit('SET_BACKGROUND_POST_STATUS', { id, status: 'success' });
+
+                // Some o indicador passado um curto período, para o utilizador ver o "concluído".
+                setTimeout(() => commit('CLEAR_BACKGROUND_POST', { id }), 2000);
+
+                return newPost;
+            } catch (err) {
+                commit('SET_BACKGROUND_POST_STATUS', {
+                    id,
+                    status: 'error',
+                    error: err?.message || 'Erro ao publicar o post.',
+                });
+                // Deixa o erro visível por mais tempo antes de limpar.
+                setTimeout(() => commit('CLEAR_BACKGROUND_POST', { id }), 5000);
+                throw err;
+            }
+        },
     },
     getters: {
         currentPost: (state) => state.post,
         parentPost: (state) => state.parentPost,
+        uploadingPost: (state) => state.uploadingPost,
         modulePosts: (state) => state.posts,
     }
 }

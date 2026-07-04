@@ -1,5 +1,5 @@
 <template>
-    <div :class="['px-3 py-3.5 cursor-pointer dark:active:bg-[rgba(255,255,255,0.04)] border-b dark:border-[#393839] transition-colors', costumClass]"
+    <div :class="['px-3 py-3.5 cursor-pointer active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive border-b border-x-light-border dark:border-x-dark-border transition-colors', costumClass]"
         @click="onPress">
         <div class="flex items-center">
             <!--icon-->
@@ -8,8 +8,8 @@
             </span>
 
             <div>
-                <p class="text-[15px] font-medium dark:text-white text-[rgb(40,40,41)]">{{ title }}  <span class="text-green-500 font-bold text-lg ml-0.5" v-if="isActive">✓</span></p>
-                <p v-show="description" class="text-[13px] mt-0.5 text-text-secondary">
+                <p class="text-[15px] font-medium text-inherit dark:text-white">{{ title }}  <span class="text-green-500 font-bold text-lg ml-0.5" v-if="isActive">✓</span></p>
+                <p v-show="description" class="text-[13px] mt-0.5 text-x-dark-textSecondary dark:text-x-dark-textSecondary">
                     {{ description }}
                 </p>
             </div>

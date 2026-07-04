@@ -6,7 +6,7 @@
 
     <Transition name="drawer-slide" @after-leave="onAfterLeave">
       <div v-if="isOpen" ref="drawerRef" :class="[
-        'fixed bottom-0 left-0 right-0 z-[9999] bg-white dark:bg-[#181818] rounded-t-2xl overflow-hidden',
+        'fixed bottom-0 left-0 right-0 z-[9999] bg-white dark:bg-x-dark-surface rounded-t-2xl overflow-hidden',
         'max-h-[85vh] flex flex-col',
         costumClass,
       ]" :style="dragStyle" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
@@ -17,7 +17,7 @@
         </div>
 
         <div v-show="title"
-          class="flex px-[16px] justify-center border-b dark:border-[#393839] shadow-[0_1px_1px_rgba(0,0,0,.15)] w-full h-12 shrink-0">
+          class="flex px-[16px] justify-center border-b border-x-light-border dark:border-x-dark-border w-full h-12 shrink-0">
           <div class="h-full w-full flex items-center">
             <span class="flex-1 dark:text-white text-[rgb(40,40,41)] text-base font-semibold text-center"> {{ title }}
             </span>

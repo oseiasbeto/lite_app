@@ -4,14 +4,14 @@
     <div
       v-if="distance > 0 || isRefreshing"
       class="left-1/2 z-30 -translate-x-1/2 flex items-center justify-center
-             w-10 h-10 rounded-full bg-white dark:bg-[#242526]
+             w-10 h-10 rounded-full bg-white dark:bg-black
              shadow-[0_1px_2px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.12)]
              ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
       :class="isRefreshing ? 'fixed' : 'absolute'"
       :style="indicatorStyle"
     >
       <!-- Spinner girando enquanto carrega: só o arco, sem trilho cinzento -->
-      <svg v-if="isRefreshing" class="text-x-light-blue dark:text-x-dark-blue" width="23" height="23" viewBox="0 0 24 24" fill="none">
+      <svg v-if="isRefreshing" class="text-x-light-blue dark:text-x-dark-blue fb-spin" width="23" height="23" viewBox="0 0 24 24" fill="none">
         <path
           d="M21.5 12a9.5 9.5 0 0 0-9.5-9.5"
           stroke="currentColor"

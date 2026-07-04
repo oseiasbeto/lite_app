@@ -48,7 +48,7 @@
             <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
                 <template v-if="drawer?.name === 'newComment'">
                     <div class="flex w-full gap-2.5 flex-col p-4">
-                        <div class="flex items-center gap-2" v-if="drawer?.metadata?.parent">
+                        <div class="flex text-x-light-textSecondary dark:text-x-dark-textSecondary items-center gap-2" v-if="drawer?.metadata?.parent">
                             <span>Respondendo:</span>
                             <div class="flex items-center flex-row gap-1.5">
                                 <Avatar
