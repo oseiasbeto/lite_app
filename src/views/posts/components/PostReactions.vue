@@ -1,5 +1,5 @@
 <template>
-    <div class="flex items-center " :class="{ 'pointer-events-none': loading }">
+    <div class="flex items-center" :class="{ 'pointer-events-none': loading }">
         <div class="flex gap-1 items-center flex-1 justify-between">
             <!--Botao de like-->
             <button @click="$emit('on-upvote')"
@@ -8,12 +8,8 @@
                 <span class="relative inline-flex items-center justify-center">
                     <!-- explosão de partículas, só aparece no momento do like -->
                     <span v-if="bursting" class="like-burst" aria-hidden="true">
-                        <span
-                            v-for="particle in particles"
-                            :key="particle.id"
-                            class="like-burst__particle"
-                            :style="particle.style"
-                        ></span>
+                        <span v-for="particle in particles" :key="particle.id" class="like-burst__particle"
+                            :style="particle.style"></span>
                     </span>
 
                     <svg v-if="!upvotes?.includes(userId)" aria-label="Gosto" role="img" viewBox="-0.5 0 25 24"
@@ -24,8 +20,7 @@
                             fill="currentColor"></path>
                     </svg>
                     <svg v-else aria-label="Não gosto" role="img" viewBox="-0.5 0 25 24" class="w-[18px] h-[18px]"
-                        :class="{ 'heart-pop': popping }"
-                        fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        :class="{ 'heart-pop': popping }" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <title>Não gosto</title>
                         <path
                             d="M16.4045 1.50879C14.785 1.50879 13.2185 2.16259 12 3.30764C10.7815 2.16259 9.215 1.50879 7.5955 1.50879C3.41766 1.50879 0.5 4.62796 0.5 9.09411C0.5 13.7857 4.70617 18.9703 11.2153 22.3022C11.4605 22.428 11.7298 22.4912 11.9995 22.4912C12.2692 22.4912 12.5395 22.428 12.7847 22.3022C19.2938 18.9703 23.5 13.7857 23.5 9.09411C23.5 4.62796 20.5823 1.50879 16.4045 1.50879Z"
@@ -44,6 +39,20 @@
                     <path clip-rule="evenodd"
                         d="M12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C13.414 21 14.7492 20.6747 15.9373 20.0956C16.1277 20.0028 16.3428 19.9728 16.5514 20.0101L20.7565 20.7619L19.9927 16.5927C19.954 16.3815 19.9843 16.1633 20.0792 15.9707C20.6685 14.7742 21 13.4273 21 12C21 7.02944 16.9706 3 12 3ZM1 12C1 5.92486 5.92488 1 12 1C18.0752 1 23 5.92488 23 12C23 13.6205 22.649 15.1615 22.018 16.549L22.9836 21.8198C23.0427 22.1423 22.94 22.4733 22.7086 22.7056C22.4773 22.938 22.1468 23.0421 21.824 22.9844L16.512 22.0348C15.1341 22.6553 13.6061 23 12 23C5.92488 23 1 18.0752 1 12Z"
                         fill="currentColor" fill-rule="evenodd"></path>
+                </svg>
+
+                <span v-show="commentsCount">
+                    <FlipNumber :value="commentsCount" />
+                </span>
+            </button>
+            <button @click="$emit('on-comment')"
+                class="flex gap-1 items-center h-[28px]  text-x-light-textSecondary dark:text-x-dark-textSecondary">
+                <svg aria-label="" role="img" viewBox="0 0 24 24"
+                    class="w-[16px] h-[16px]" fill="currentColor">
+                    <title></title>
+                    <path
+                        d="M11.5391 17.1123C11.8756 16.9374 12.2885 16.967 12.5996 17.2002L17.4004 20.7998C18.0596 21.294 19 20.824 19 20V5C19 3.89543 18.1046 3 17 3H7C5.89543 3 5 3.89543 5 5V20C5 20.824 5.94038 21.294 6.59961 20.7998L11.4004 17.2002L11.5391 17.1123ZM21 20C21 22.472 18.1779 23.8833 16.2002 22.4004L12 19.249L7.7998 22.4004C5.82211 23.8833 3 22.472 3 20V5C3 2.79086 4.79086 1 7 1H17C19.2091 1 21 2.79086 21 5V20Z">
+                    </path>
                 </svg>
 
                 <span v-show="commentsCount">
@@ -228,9 +237,11 @@ watch(isLiked, (likedNow, likedBefore) => {
         transform: translate(-50%, -50%) translate(0, 0) scale(0);
         opacity: 1;
     }
+
     30% {
         opacity: 1;
     }
+
     100% {
         transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1);
         opacity: 0;
@@ -245,15 +256,19 @@ watch(isLiked, (likedNow, likedBefore) => {
     0% {
         transform: scale(1);
     }
+
     30% {
         transform: scale(1.35);
     }
+
     50% {
         transform: scale(0.85);
     }
+
     75% {
         transform: scale(1.15);
     }
+
     100% {
         transform: scale(1);
     }

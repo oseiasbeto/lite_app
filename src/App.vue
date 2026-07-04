@@ -10,6 +10,8 @@ import { logger } from "./utils/logger";
 import generateSource from "./utils/generate-source";
 import LoadingComponent from "./components/UI/LoadingComponent.vue";
 import Navegator from "./components/UI/Navgator.vue";
+import NetworkStatusBanner from "./components/UI/NetworkStatusBanner.vue"
+import { useNetworkStatus } from "@/composables/useNetworkStatus";
 
 // Estado de loading do app
 const loading = ref(true)
@@ -30,6 +32,14 @@ const savedTheme = ref(Cookies.get("theme") || 'light')
 const node_env = process.env.NODE_ENV === 'production' ? 'prod' : 'dev'
 
 let socket;
+
+const networkBanner = ref(null)
+
+// --- NOVO: fonte real de verdade sobre conectividade ---
+const { isOnline: isReallyOnline } = useNetworkStatus()
+
+let wasReallyOffline = false
+let backgroundOfflineTime = null
 
 // Pega dados do usuário
 const user = computed(() => store.getters.currentUser)
@@ -141,7 +151,7 @@ const initializeSocket = () => {
 
       // ID da conversa atualmente aberta
       const currentConvId = route.params?.convId || route.query?.convId;
-      
+
       // Atualiza conversa na sidebar
       store.commit("ADD_OR_UPDATE_CONVERSATION", {
         conversation: msg.conversation, // pode estar incompleto  
@@ -497,6 +507,40 @@ watch(() => isNewSession.value, () => {
   store.dispatch("getTopicList")
 })
 
+watch(isReallyOnline, (online) => {
+  // mantém o store sincronizado (outros componentes que usam
+  // store.getters.networkStatus continuam funcionando igual)
+  store.commit("SET_NETWORK_STATUS", online ? 'online' : 'offline')
+
+  if (!online) {
+    logger.log('Sem conectividade real detectada (ping falhou)')
+    wasReallyOffline = true
+    backgroundOfflineTime = Date.now()
+    return
+  }
+
+  // online === true
+  if (wasReallyOffline) {
+    const offlineDuration = backgroundOfflineTime ? Date.now() - backgroundOfflineTime : 0
+    logger.log(`Conectividade restaurada após ${Math.round(offlineDuration / 1000)}s offline`)
+
+    wasReallyOffline = false
+    backgroundOfflineTime = null
+
+    // só recarrega/reconecta socket se ficou offline por tempo relevante,
+    // evita reload em flutuações rápidas de sinal
+    if (offlineDuration > BACKGROUND_RELOAD_TIME) {
+      reloadApp()
+    } else {
+      // reconexão leve, sem reload de página inteira
+      const socket = getSocket()
+      if (socket && !socket.connected) {
+        socket.connect()
+      }
+    }
+  }
+})
+
 onUnmounted(() => {
   const socket = getSocket();
   if (socket) {
@@ -521,6 +565,9 @@ onUnmounted(() => {
 
   <div
     class="font-primary text-[13px] dark:bg-x-dark-bg dark:text-x-dark-textPrimary bg-x-light-bg text-x-light-textPrimary relative w-screen text-sm h-screen overflow-x-hidden text-light-text-primary overflow-auto">
+    <!-- Banner de status de rede, sempre no topo, fora do keep-alive -->
+    <NetworkStatusBanner ref="networkBanner" />
+
     <!-- start main app area-->
     <div v-if="!loading">
       <!--start sidebar-->
