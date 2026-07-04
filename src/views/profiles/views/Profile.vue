@@ -400,7 +400,7 @@ const loadProfile = async (userId, isRefresh = false) => {
         })
 }
 
-// onMounted agora só cuida do fetch inicial (roda 1x, quando o componente é criado)
+// onMounted cuida só do carregamento inicial, quando o componente é criado do zero
 onMounted(async () => {
     if (profile.value?._id !== userId.value) {
         loadingFetchProfile.value = true
@@ -408,12 +408,12 @@ onMounted(async () => {
     }
 })
 
-// onActivated roda toda vez que a tela é (re)ativada via keep-alive,
-// inclusive na primeira montagem — igual ao padrão do Feed.vue
+// onActivated cuida de restaurar página/tab/scroll quando a tela reaparece
+// via keep-alive, MAS só quando o perfil em cache já é o mesmo que a rota pede
 onActivated(() => {
     if (profile.value?._id === userId.value) {
         const pagination = profilePosts.value?.pagination || null
-        
+
         if (pagination) {
             const { page, total } = pagination
             queryPosts.value.isPush = true
@@ -426,11 +426,38 @@ onActivated(() => {
         if (activeTab) {
             currentTab.value = activeTab
         }
-    }
 
-    const scrollTop = profile?.value?.scrollTop
-    if (scrollTop && profileView.value) {
-        profileView.value.scrollTop = scrollTop
+        const scrollTop = profile?.value?.scrollTop
+        if (scrollTop && profileView.value) {
+            profileView.value.scrollTop = scrollTop
+        }
+    }
+})
+
+// Reage à troca de perfil (navegação entre /profile/:id diferentes)
+// enquanto o componente está "vivo" dentro do keep-alive
+watch(userId, async (newId, oldId) => {
+    // só reage se a rota atual realmente for a de perfil — evita disparo
+    // quando o componente muda de "userId" por estar em outra rota (Feed, Chats, etc.)
+    // enquanto fica vivo em cache pelo keep-alive
+    if (route.name !== 'Profile') return
+    if (!newId || newId === oldId) return
+
+    // se o perfil pedido já é o que está salvo no store, não refaz a requisição
+    if (profile.value?._id === newId) return
+
+    // reseta tab e query pro perfil novo, senão a tab/paginação antiga "vaza" pro perfil novo
+    currentTab.value = 'posts'
+    resetQueryPosts()
+
+    loadingFetchProfile.value = true
+    hasError.value = { show: false, message: "" }
+
+    await loadProfile(newId)
+
+    // depois que o perfil novo carregar, sobe o scroll pro topo
+    if (profileView.value) {
+        profileView.value.scrollTop = 0
     }
 })
 
