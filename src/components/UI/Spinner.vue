@@ -9,11 +9,11 @@
   --color-1: #000;        /* padrão = preto */
   --size: 1px;
 
-  width: calc(48 * var(--size));
-  height: calc(48 * var(--size));
+  width: calc(38 * var(--size));
+  height: calc(38 * var(--size));
   border-radius: 50%;
   position: relative;
-  animation: rotate 1s linear infinite;
+  animation: rotate 0.8s linear infinite;
 }
 
 .loader::before {
@@ -22,7 +22,7 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: calc(5 * var(--size)) solid var(--color-1);
+  border: calc(4 * var(--size)) solid var(--color-1);
   animation: prixClipFix 2s linear infinite;
 }
 

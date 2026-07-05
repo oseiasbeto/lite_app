@@ -111,7 +111,6 @@ const handleLoadMore = async () => {
     const { hasMore, total } = pagination
 
     loadingLoadMore.value = true
-
     if (hasMore) {
         loadingLoadMore.value = true
         query.value.page += 1

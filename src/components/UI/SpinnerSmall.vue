@@ -9,14 +9,14 @@
 .loader {
   --color-1: #000;
   --size: 1px;
-  width: calc(28 * var(--size));
-  height: calc(28 * var(--size));
-  border: calc(3 * var(--size)) solid var(--color-1);
+  width: calc(24 * var(--size));
+  height: calc(24 * var(--size));
+  border: calc(2.5 * var(--size)) solid var(--color-1);
   border-bottom-color: transparent;
   border-radius: 50%;
   display: inline-block;
   box-sizing: border-box;
-  animation: rotation 1s linear infinite;
+  animation: rotation 0.5s linear infinite;
 }
 .dark .loader {
   --color-1: #fff !important;  /* branco */
