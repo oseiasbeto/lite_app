@@ -22,7 +22,7 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: calc(4 * var(--size)) solid var(--color-1);
+  border: calc(5 * var(--size)) solid var(--color-1);
   animation: prixClipFix 2s linear infinite;
 }
 
