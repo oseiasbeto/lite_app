@@ -16,7 +16,7 @@
 
                 <div ref="loadTrigger" v-if="hasMore || loadingLoadMore"
                     class="load-more-container py-3.5 flex justify-center">
-                    <Spinner />
+                    <SpinnerSmall />
                 </div>
             </div>
 
@@ -43,7 +43,7 @@ import { useStore } from 'vuex';
 import VirtualizedPostItem from './VirtualizedPostItem.vue';
 import { useIntersectionObserver, useScroll, useElementSize } from "@vueuse/core";
 import PostSkeleton from './PostSkeleton.vue';
-import Spinner from '@/components/UI/Spinner.vue';
+import SpinnerSmall from '@/components/UI/SpinnerSmall.vue';
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import PullToRefreshIndicator from '@/components/UI/PullToRefreshIndicator.vue';

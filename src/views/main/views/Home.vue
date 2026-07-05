@@ -1,6 +1,6 @@
 <template>
     <div @scroll="setScrollTopFromCache" class="relative h-screen overflow-x-hidden overflow-y-scroll" ref="feedView"
-        :class="{ 'pb-[40px]': !feedPosts?.pagination?.hasMore }">
+        :class="{ 'pb-[50px]': !feedPosts?.pagination?.hasMore }">
         <div class="relative">
             <PostUploadIndicator />
         </div>
