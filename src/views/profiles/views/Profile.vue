@@ -1,5 +1,6 @@
 <template>
-    <div @scroll="setScrollTopFromCache" ref="profileView" class="relative h-screen overflow-y-scroll" :class="{'pb-[40px]': !profilePosts?.pagination?.hasMore}">
+    <div @scroll="setScrollTopFromCache" ref="profileView" class="relative h-screen overflow-y-scroll"
+        :class="{ 'pb-[56px]': !profilePosts?.pagination?.hasMore }">
         <Navbar :loading="loadingFetchProfile" :title="profile?.name || 'Perfil'">
             <template v-if="!loadingFetchProfile" #right>
                 <button v-if="isSameUser" @click="router.push('/settings')"
@@ -227,8 +228,27 @@ const resetQueryPosts = () => {
     }
 }
 
+let lastScrollTop = 0
+const SCROLL_THRESHOLD = 5
+
 const setScrollTopFromCache = (event) => {
     const scrollTop = event.target.scrollTop
+    // --- lógica de direção do scroll pro FAB ---
+    const diff = scrollTop - lastScrollTop
+
+    if (Math.abs(diff) >= SCROLL_THRESHOLD) {
+        if (scrollTop <= 50) {
+            //showFab.value = true
+            store.commit("SET_SHOW_BOTTOM_NAV", true)
+        } else if (diff > 0) {
+            //showFab.value = false // rolando pra baixo
+            store.commit("SET_SHOW_BOTTOM_NAV", false)
+        } else if (diff < 0) {
+            //showFab.value = true // rolando pra cima
+            store.commit("SET_SHOW_BOTTOM_NAV", true)
+        }
+        lastScrollTop = scrollTop
+    }
     store.commit("UPDATE_PROFILE", {
         scrollTop
     })

@@ -7,7 +7,7 @@
     leave-to-class="transform translate-y-16 opacity-0 scale-75">
     <button v-if="show" 
       @click="$emit('onPress')" 
-      class="fixed bottom-20 right-6 z-50 flex items-center justify-center
+      class="fixed bottom-20 right-3.5 z-50 flex items-center justify-center
              w-14 h-14 
              bg-black text-white dark:bg-white dark:text-black
               rounded-full 
