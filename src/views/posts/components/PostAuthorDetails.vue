@@ -2,7 +2,7 @@
     <div>
         <div v-if="author?._id" class="flex items-center flex-row" :class="isParentPost ? 'gap-1' : 'gap-2.5'">
             <div class="w-full">
-                <div class="flex mb-0.5 flex-1 gap-1 justify-between items-center">
+                <div class="flex flex-1 gap-1 justify-between items-center">
                     <div class="flex items-center gap-1">
                         <div class="flex items-center">
 
@@ -27,13 +27,13 @@
                         </div>
                     </div>
 
-                    <div v-if="!isParentPost" class="text-x-light-textSecondary dark:text-x-dark-textSecondary text-[13px] leading-5 trunc">
+                    <div v-if="!isParentPost" class="text-x-light-textSecondary dark:text-x-dark-textSecondary text-[13px] leading-5 trunc mr-[5.5px]">
                         <span class="break-all break-words">{{ formattedDate(createdAt) }}</span>
                     </div>
                 </div>
 
                 <div @click.stop v-show="!isParentPost"
-                    class="flex text-sm text-x-light-textSecondary dark:text-x-dark-textSecondary  leading-4 items-center">
+                    class="flex mt-0.5 text-sm text-x-light-textSecondary dark:text-x-dark-textSecondary  leading-4 items-center">
                     <span class="trunc" v-show="author?.username || author?.credentials">
                         <span class="break-all break-words">
                             {{ author?.username ? '@' + author?.username : author?.credentials }}
