@@ -569,7 +569,7 @@ onUnmounted(() => {
     <NetworkStatusBanner ref="networkBanner" />
 
     <!-- start main app area-->
-    <div v-if="!!loading">
+    <div v-if="!loading">
       <!--start sidebar-->
       <Navegator :show-bottom-nav="isAuthenticated && route.meta.rootPage == 'main' && showBottomNav" />
 
