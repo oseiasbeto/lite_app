@@ -1,7 +1,7 @@
 <template>
-  <div class="w-screen h-screen flex justify-center items-center">
+  <div class="w-screen h-screen bg-x-light-bg dark:bg-x-dark-bg flex justify-center items-center">
     <!-- Spinner com entrada e saída -->
-    <div class="scale-[1.3]">
+    <div>
       <Spinner />
     </div>
 

@@ -19,13 +19,6 @@
                                 </g>
                             </svg>
                         </div>
-                        <span v-show="!isParentPost && showBtnFollow"
-                            class="text-x-light-textSecondary dark:text-x-dark-textSecondary text-[13px]"> · </span>
-                        <div v-show="!isParentPost && showBtnFollow">
-                            <button :disabled="isFollowingUser" @click="$emit('onFollow')"
-                                class="text-[13px] text-[#4894fd] disabled:text-gray-400 font-semibold"
-                                v-if="showBtnFollow">Seguir</button>
-                        </div>
                     </div>
                 </div>
 
