@@ -312,11 +312,11 @@ onBeforeUnmount(() => {
 
 
 .content a {
-  color: rgb(25, 95, 170);
+  color: #1D9BF0;
   word-break: break-all;
 }
 
 .dark .content a {
-  color: rgb(72, 148, 253);
+  color: #1D9BF0;
 }
 </style>
