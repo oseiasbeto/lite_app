@@ -94,7 +94,7 @@
 
         <!--STATS ROW (Retweets / Citações / Gostos) estilo X-->
         <div
-            class="px-4 py-3 flex items-center gap-4 text-[14px] border-b dark:border-x-dark-border border-x-light-border">
+            class="px-4 py-3 flex items-center gap-4 text-[15px] border-b dark:border-x-dark-border border-x-light-border">
             <button class="flex items-center gap-1 hover:underline" @click="goToShare">
                 <span class="font-bold dark:text-white text-black">
                     <Flipnumber :value="data?.shares_count" />

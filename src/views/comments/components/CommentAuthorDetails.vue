@@ -17,7 +17,7 @@
                         </g>
                     </svg>
                     <span
-                        class="flex items-center dark:text-x-dark-textSecondary text-x-light-textSecondary ml-1 shrink-0">
+                        class="flex items-center dark:text-x-dark-textSecondary text-x-light-textSecondary ml-0.5 shrink-0">
                         <span class="shrink-0"> · </span>
                         <span class="truncate">{{ formattedDate(createdAt) }}</span>
                     </span>
