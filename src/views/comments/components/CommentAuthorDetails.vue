@@ -1,7 +1,7 @@
 <template>
     <div>
         <div v-if="author?._id" class="flex gap-1 flex-row items-center min-w-0">
-            <div class="flex-1 text-[13px] min-w-0">
+            <div class="flex-1 text-sm min-w-0">
                 <div class="flex items-center min-w-0">
                     <span @click="goToProfile(author?._id)"
                         class="dark:text-white text-[rgb(40,40,41)] font-bold truncate min-w-0">{{
@@ -17,7 +17,7 @@
                         </g>
                     </svg>
                     <span
-                        class="flex items-center dark:text-x-dark-textSecondary text-x-light-textSecondary text-[12px] ml-1 shrink-0">
+                        class="flex items-center dark:text-x-dark-textSecondary text-x-light-textSecondary ml-1 shrink-0">
                         <span class="shrink-0"> · </span>
                         <span class="truncate">{{ formattedDate(createdAt) }}</span>
                     </span>

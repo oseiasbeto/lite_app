@@ -32,7 +32,7 @@
             </button>
 
             <button @click="$emit('on-reply')"
-                class="flex font-medium text-x-light-textSecondary dark:text-x-dark-textSecondary text-[13px] items-center h-[28px] px-0.5">
+                class="flex font-medium text-x-light-textSecondary dark:text-x-dark-textSecondary text-sm items-center h-[28px] px-0.5">
                 <p>Responder</p>
             </button>
         </div>
