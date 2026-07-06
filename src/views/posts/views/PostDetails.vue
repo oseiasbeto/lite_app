@@ -2,7 +2,7 @@
     <div class="relative">
         <Navbar title="Postagem" />
         <div @scroll="setScrollTopFromCache" ref="postView"
-            class="h-[calc(100vh-44px)] relative overflow-y-scroll mt-[44px]">
+            class="h-[calc(100vh-53px)] relative overflow-y-scroll mt-[44px]">
             <div v-if="!loadingFetchPost">
                 <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
                 <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"

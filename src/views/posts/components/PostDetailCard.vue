@@ -2,20 +2,22 @@
     <div v-if="data?._id" class="flex flex-col dark:border-x-dark-border border-x-light-border bg-transparent border-b">
 
         <!--HEADER: avatar + name/username inline + follow button (estilo X no detalhe do post)-->
-        <div class="flex items-start justify-between px-4 pt-3">
-            <div class="flex items-center gap-3">
+        <div class="flex items-start items-center justify-between px-4 pt-3">
+            <div class="flex items-center gap-3 min-w-0 flex-1">
                 <div @click="goToProfile(data?.author?._id)" class="relative shrink-0 cursor-pointer">
                     <Avatar size="md"
                         :url="data?.author?.profile_image?.thumbnails?.sm || data?.author?.profile_image?.url" />
                 </div>
 
-                <div class="flex flex-col leading-tight cursor-pointer" @click="goToProfile(data?.author?._id)">
-                    <span class="font-bold flex items-center text-[15px] dark:text-white text-black hover:underline">
-                        <span> {{ data?.author?.name }}</span>
+                <div class="flex flex-col leading-[22px] cursor-pointer min-w-0"
+                    @click="goToProfile(data?.author?._id)">
+                    <span
+                        class="font-bold flex items-center text-[15px] dark:text-white text-black hover:underline min-w-0">
+                        <span class="truncate">{{ data?.author?.name }}</span>
 
                         <svg v-if="data?.author?.is_verified" :class="{ 'w-[12px] h-[12px]': isParentPost }"
                             viewBox="0 0 22 22" aria-label="Verified account" role="img"
-                            class="w-[16px] h-[16px] text-x-light-blue ml-[3px]" fill="currentColor"
+                            class="w-[16px] h-[16px] text-x-light-blue ml-[3px] shrink-0" fill="currentColor"
                             xmlns="http://www.w3.org/2000/svg" data-testid="icon-verified">
                             <g>
                                 <path
@@ -24,7 +26,7 @@
                             </g>
                         </svg>
                     </span>
-                    <span class="text-[13px] text-x-light-textSecondary dark:text-x-dark-textSecondary">
+                    <span class="text-sm text-x-light-textSecondary dark:text-x-dark-textSecondary truncate">
                         @{{ data?.author?.username || data?.author?.name?.toLowerCase()?.replace(/\s+/g, '') }}
                     </span>
                 </div>
@@ -51,10 +53,8 @@
         </div>
 
         <!--CONTENT: fonte maior, igual ao tweet expandido do X-->
-        <div class="px-4 pt-3">
-            <p class="text-[20px] leading-[26px] dark:text-white text-black whitespace-pre-wrap break-words">
-                <PostContent :content="data?.content" :enable-truncate="false" />
-            </p>
+        <div v-if="data?.content?.length" class="px-4 mb-[-8px] pt-2">
+            <PostContent :content="data?.content" :enable-truncate="false" />
         </div>
 
         <!--MEDIA-->
@@ -90,7 +90,7 @@
             class="px-4 py-3 flex items-center gap-4 text-[14px] border-b dark:border-x-dark-border border-x-light-border">
             <button class="flex items-center gap-1 hover:underline" @click="goToShare">
                 <span class="font-bold dark:text-white text-black">{{ formattedCount(data?.shares_count) }}</span>
-                <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Reposts</span>
+                <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Partilhas</span>
             </button>
             <button class="flex items-center gap-1 hover:underline">
                 <span class="font-bold dark:text-white text-black">{{ formattedCount(data?.comments_count) }}</span>

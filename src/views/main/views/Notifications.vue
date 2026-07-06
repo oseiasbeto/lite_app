@@ -1,6 +1,6 @@
 <template>
-    <Navbar title="Notificações"/>
-    <div class="relative h-[calc(100vh-100px)] mt-[44px] overflow-y-scroll" ref="feedView">
+    <Navbar title="Actividades"/>
+    <div class="relative h-[calc(100vh-100px)] mt-[53px] overflow-y-scroll" ref="feedView">
         <NotificationList :notifications="notifications?.items || []" :pagination="notifications?.pagination || {}"
             @on-mark-read="handleMarkRead" @on-load-more="handleLoadMore" :loading-fetch="loadingFetching"
             :loading-load-more="loadingLoadMore" />
