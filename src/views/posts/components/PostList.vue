@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, toRef } from 'vue';
+import { ref, reactive, computed, toRef, watch } from 'vue';
 import { useStore } from 'vuex';
 import VirtualizedPostItem from './VirtualizedPostItem.vue';
 import { useIntersectionObserver, useScroll, useElementSize } from "@vueuse/core";
@@ -158,16 +158,41 @@ const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
 // ============================================================
 
 const DEFAULT_ITEM_HEIGHT = 420   // estimativa até o item ser medido de verdade
-const BUFFER_PX = 900             // "colchão" acima/abaixo do viewport, evita flicker no scroll rápido
+const BUFFER_PX = 900             // "colchão" base acima/abaixo do viewport, evita flicker no scroll normal
 
 // Alturas reais medidas por post (id -> px)
 const heights = reactive({})
 
-// Posição de scroll e altura do container reativas (com throttle p/ não travar em dispositivos fracos)
+// Posição de scroll e altura do container reativas.
 // IMPORTANTE: escuta scrollEl (o elemento que REALMENTE tem overflow/scroll),
 // não um div interno sem altura definida — senão scrollTop nunca muda.
-const { y: scrollTop } = useScroll(scrollEl, { throttle: 50 })
+// throttle baixo (~1 frame) em vez de 50ms: com 50ms, um fling rápido em mobile
+// pode se mover 150-300px entre duas atualizações do valor reativo — o suficiente
+// pra estourar o buffer fixo e deixar a área sem nenhum item montado ainda
+// (o "flash branco" do item, não da imagem).
+const { y: scrollTop } = useScroll(scrollEl, { throttle: 16 })
 const { height: containerHeight } = useElementSize(scrollEl)
+
+// --- buffer dinâmico: cresce com a velocidade do scroll ---
+// Cobre o atraso entre o scroll nativo (instantâneo) e o recalculo reativo do Vue,
+// montando itens fora da tela com antecedência quando detecta um fling rápido.
+let lastScrollSample = 0
+let lastScrollTime = performance.now()
+const dynamicBuffer = ref(BUFFER_PX)
+
+watch(scrollTop, (y) => {
+    const now = performance.now()
+    const dt = Math.max(now - lastScrollTime, 1)
+    const velocity = Math.abs(y - lastScrollSample) / dt // px/ms
+
+    // acima de ~1.5px/ms (~1500px/s) já consideramos fling rápido
+    dynamicBuffer.value = velocity > 1.5
+        ? Math.min(BUFFER_PX + velocity * 400, BUFFER_PX * 4)
+        : BUFFER_PX
+
+    lastScrollSample = y
+    lastScrollTime = now
+})
 
 // Offset (posição top) acumulado de cada post
 const offsets = computed(() => {
@@ -183,7 +208,7 @@ const offsets = computed(() => {
 
 const totalHeight = computed(() => offsets.value[offsets.value.length - 1] || 0)
 
-// Encontra por busca binária o range de índices visível (+ buffer)
+// Encontra por busca binária o range de índices visível (+ buffer dinâmico)
 const visibleRange = computed(() => {
     const list = props.posts
     const off = offsets.value
@@ -191,8 +216,9 @@ const visibleRange = computed(() => {
 
     if (!n) return { start: 0, end: 0 }
 
-    const top = Math.max(0, scrollTop.value - BUFFER_PX)
-    const bottom = scrollTop.value + (containerHeight.value || 0) + BUFFER_PX
+    const buffer = dynamicBuffer.value
+    const top = Math.max(0, scrollTop.value - buffer)
+    const bottom = scrollTop.value + (containerHeight.value || 0) + buffer
 
     let lo = 0, hi = n - 1, start = 0
     while (lo <= hi) {
