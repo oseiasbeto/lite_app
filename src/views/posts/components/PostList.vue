@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, toRef } from 'vue';
+import { ref, reactive, computed, toRef, watch, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import VirtualizedPostItem from './VirtualizedPostItem.vue';
 import { useIntersectionObserver, useScroll, useElementSize } from "@vueuse/core";
@@ -183,7 +183,41 @@ const offsets = computed(() => {
 
 const totalHeight = computed(() => offsets.value[offsets.value.length - 1] || 0)
 
-// Encontra por busca binária o range de índices visível (+ buffer)
+// ── Anti-flash em scroll rápido (mesmo princípio usado por feeds como
+// Facebook/Instagram/Twitter): ──────────────────────────────────────────
+// 1) Estica o buffer de renderização no sentido do scroll proporcionalmente
+//    à velocidade, para os itens já estarem montados/medidos ANTES de
+//    entrarem no ecrã (evita o "flash" de espaço vazio).
+// 2) A janela de itens montados cresce imediatamente (nunca atrasa quando
+//    é preciso mostrar mais), mas só encolhe (desmonta) depois do scroll
+//    assentar por um curto período — evita montar/desmontar repetidamente
+//    em scrolls rápidos de vai-e-vem, que é a outra causa comum de flicker.
+// Isto não altera nenhuma prop/emit nem o comportamento visual final —
+// só quando é que cada item é montado/desmontado.
+const MAX_EXTRA_BUFFER_PX = 1600   // limite do "extra" de buffer em scroll muito rápido
+const VELOCITY_BUFFER_SCALE = 250  // px extra de buffer por cada px/ms de velocidade
+const SHRINK_SETTLE_MS = 200       // tempo de scroll "parado" antes de desmontar itens fora da janela
+
+const scrollVelocity = ref(0) // px/ms; positivo = a descer, negativo = a subir
+let lastVelocityScrollTop = null
+let lastVelocityTime = performance.now()
+
+watch(scrollTop, (newVal) => {
+    const now = performance.now()
+    if (lastVelocityScrollTop !== null) {
+        const dt = now - lastVelocityTime
+        if (dt > 0) scrollVelocity.value = (newVal - lastVelocityScrollTop) / dt
+    }
+    lastVelocityScrollTop = newVal
+    lastVelocityTime = now
+})
+
+const dynamicExtraBuffer = computed(() =>
+    Math.min(MAX_EXTRA_BUFFER_PX, Math.abs(scrollVelocity.value) * VELOCITY_BUFFER_SCALE)
+)
+
+// Encontra por busca binária o range de índices visível (+ buffer, já com o
+// extra dinâmico aplicado no sentido do scroll)
 const visibleRange = computed(() => {
     const list = props.posts
     const off = offsets.value
@@ -191,8 +225,12 @@ const visibleRange = computed(() => {
 
     if (!n) return { start: 0, end: 0 }
 
-    const top = Math.max(0, scrollTop.value - BUFFER_PX)
-    const bottom = scrollTop.value + (containerHeight.value || 0) + BUFFER_PX
+    const extra = dynamicExtraBuffer.value
+    const topBuffer = scrollVelocity.value < 0 ? BUFFER_PX + extra : BUFFER_PX
+    const bottomBuffer = scrollVelocity.value > 0 ? BUFFER_PX + extra : BUFFER_PX
+
+    const top = Math.max(0, scrollTop.value - topBuffer)
+    const bottom = scrollTop.value + (containerHeight.value || 0) + bottomBuffer
 
     let lo = 0, hi = n - 1, start = 0
     while (lo <= hi) {
@@ -214,8 +252,44 @@ const visibleRange = computed(() => {
     return { start, end }
 })
 
+// Janela efetivamente renderizada: cresce de imediato, encolhe com atraso
+const committedRange = ref({ start: 0, end: 0 })
+let shrinkTimer = null
+
+watch(visibleRange, (newRange) => {
+    const current = committedRange.value
+    const needsGrow = newRange.start < current.start || newRange.end > current.end
+
+    if (needsGrow) {
+        committedRange.value = {
+            start: Math.min(current.start, newRange.start),
+            end: Math.max(current.end, newRange.end)
+        }
+    }
+
+    if (shrinkTimer) clearTimeout(shrinkTimer)
+    shrinkTimer = setTimeout(() => {
+        committedRange.value = newRange
+        shrinkTimer = null
+    }, SHRINK_SETTLE_MS)
+}, { immediate: true })
+
+// Sempre que a LISTA DE DADOS muda de tamanho (novo load, refresh, posts
+// eliminados, etc.) sincroniza a janela de imediato, ignorando a histerese —
+// esta só deve suavizar mudanças causadas por scroll, nunca esconder/mostrar
+// os posts errados por os índices ficarem desalinhados após um prepend
+// (ex.: pull-to-refresh a inserir posts novos no topo).
+watch(() => props.posts.length, () => {
+    committedRange.value = visibleRange.value
+    if (shrinkTimer) { clearTimeout(shrinkTimer); shrinkTimer = null }
+})
+
+onUnmounted(() => {
+    if (shrinkTimer) clearTimeout(shrinkTimer)
+})
+
 const visiblePosts = computed(() => {
-    const { start, end } = visibleRange.value
+    const { start, end } = committedRange.value
     const off = offsets.value
     return props.posts.slice(start, end).map((post, i) => ({
         post,
