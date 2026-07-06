@@ -40,7 +40,7 @@ const props = defineProps({
   isOpen: Boolean,
   overlayClass: {
     type: String,
-    default: "dark:bg-[rgba(36,36,36,.9)] bg-[rgba(36,36,36,0.9)]"
+    default: "bg-[rgba(0,0,0,0.7)] dark:bg-[rgba(0,0,0,0.65)]"
   },
   title: {
     type: String,
