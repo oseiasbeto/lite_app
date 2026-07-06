@@ -2,8 +2,8 @@
     <div v-if="data?._id" class="flex flex-col dark:border-x-dark-border border-x-light-border bg-transparent border-b">
 
         <!--HEADER: avatar + name/username inline + follow button (estilo X no detalhe do post)-->
-        <div class="flex items-start items-center justify-between px-4 pt-3">
-            <div class="flex items-center gap-3 min-w-0 flex-1">
+        <div class="flex items-start gap-1.5 justify-between px-4 pt-3">
+            <div class="flex items-center gap-2 min-w-0 flex-1">
                 <div @click="goToProfile(data?.author?._id)" class="relative shrink-0 cursor-pointer">
                     <Avatar size="md"
                         :url="data?.author?.profile_image?.thumbnails?.sm || data?.author?.profile_image?.url" />
@@ -76,10 +76,17 @@
 
         <!--TIMESTAMP-->
         <div
-            class="px-4 pt-4 pb-3 flex items-center gap-1 text-[15px] text-x-light-textSecondary dark:text-x-dark-textSecondary">
+            class="px-4 pt-3 pb-3 flex items-center gap-1 text-[15px] text-x-light-textSecondary dark:text-x-dark-textSecondary">
             <span>{{ formattedTime }}</span>
             <span>·</span>
             <span>{{ formattedDate }}</span>
+            <span v-if="data?.views_count">·</span>
+            <span v-if="data?.views_count" class="flex items-center gap-1">
+                <span class="font-bold dark:text-white text-black">
+                    <Flipnumber :value="data?.views_count" />
+                </span>
+                <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Visualizações</span>
+            </span>
         </div>
 
         <!--DIVIDER-->
@@ -89,15 +96,21 @@
         <div
             class="px-4 py-3 flex items-center gap-4 text-[14px] border-b dark:border-x-dark-border border-x-light-border">
             <button class="flex items-center gap-1 hover:underline" @click="goToShare">
-                <span class="font-bold dark:text-white text-black">{{ formattedCount(data?.shares_count) }}</span>
+                <span class="font-bold dark:text-white text-black">
+                    <Flipnumber :value="data?.shares_count" />
+                </span>
                 <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Partilhas</span>
             </button>
             <button class="flex items-center gap-1 hover:underline">
-                <span class="font-bold dark:text-white text-black">{{ formattedCount(data?.comments_count) }}</span>
+                <span class="font-bold dark:text-white text-black">
+                    <Flipnumber :value="data?.comments_count" />
+                </span>
                 <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Comentários</span>
             </button>
             <button class="flex items-center gap-1 hover:underline">
-                <span class="font-bold dark:text-white text-black">{{ formattedCount(data?.upvotes_count) }}</span>
+                <span class="font-bold dark:text-white text-black">
+                    <Flipnumber :value="data?.upvotes_count" />
+                </span>
                 <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Gostos</span>
             </button>
         </div>
@@ -107,8 +120,8 @@
             <PostDetailReactions :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
                 :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"
                 :comments-count="data?.comments_count" :shares-count="data?.shares_count" :user-id="user?._id"
-                @on-upvote="handleUpvote" @on-downvote="handleDownvote" @on-comment="goToComments"
-                @on-share="goToShare" />
+                @on-upvote="handleUpvote" @on-downvote="handleDownvote" @on-comment="goToComments" @on-share="goToShare"
+                @on-native-share="handleNativeShare" />
         </div>
     </div>
 </template>
@@ -122,8 +135,8 @@ import PostMediaImages from './PostMediaImages.vue';
 import PostMediaVideo from './PostMediaVideo.vue';
 import PostCard from './PostCard.vue';
 import PostDetailReactions from './PostDetailReactions.vue';
-import formattedCount from '@/utils/formatted-count';
 import PostContent from './PostContent.vue';
+import Flipnumber from '@/components/UI/Flipnumber.vue';
 
 const emit = defineEmits(['openNewCommentDrawer', 'openMoreOptionsDrawer']);
 
@@ -162,10 +175,20 @@ const hasFollowingUser = computed(() => {
     return !!props?.user?.following?.includes(props?.data?.author?._id);
 });
 
+const MONTHS_PT_ABBR = [
+    'jan.', 'fev.', 'mar.', 'abr.', 'mai.', 'jun.',
+    'jul.', 'ago.', 'set.', 'out.', 'nov.', 'dez.'
+];
+
 const formattedDate = computed(() => {
     if (!props?.data?.created_at) return '';
     const date = new Date(props.data.created_at);
-    return date.toLocaleDateString('pt-PT', { day: 'numeric', month: 'short', year: 'numeric' });
+
+    const day = date.getDate();
+    const month = MONTHS_PT_ABBR[date.getMonth()];
+    const year = date.getFullYear();
+
+    return `${day} de ${month} de ${year}`;
 });
 
 const formattedTime = computed(() => {
@@ -232,5 +255,21 @@ const setMedia = ({ selected, list, post, module }) => {
 const openVideo = (video) => {
     store.commit('SET_MEDIA', { selected: video, list: [video], post: props.data });
     router.push(`/media/${video._id}?module=${props.module}`);
+};
+
+const handleNativeShare = async () => {
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'Partilhar Postagem',
+                text: 'Baixe agora o App 1kolet e veja esta postagem!',
+                url: 'https://play.google.com/store/apps/details?id=com.wnapp.id1753308188170'
+            });
+        } catch (error) {
+            console.error('Erro ao partilhar:', error);
+        }
+    } else {
+        console.warn('Web Share API não suportada neste navegador.');
+    }
 };
 </script>

@@ -1,9 +1,9 @@
 <template>
     <div class="relative">
-        <Navbar title="Postagem" />
         <div @scroll="setScrollTopFromCache" ref="postView"
-            class="h-[calc(100vh-53px)] relative overflow-y-scroll mt-[44px]">
-            <div v-if="!loadingFetchPost">
+            class="h-[calc(100vh-60px)] relative overflow-y-scroll">
+            <Navbar title="Postagem" />
+            <div class="mt-[53px]" v-if="!loadingFetchPost">
                 <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
                 <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"
                     :is-refreshing="isRefreshing" :top-position="46" />
@@ -18,12 +18,15 @@
                 </div>
 
                 <!--COMMENTS FILTERS-->
-                <div v-if="cacheComments?.comments?.length" class="flex items-center justify-between py-3 px-3">
-                    <p class="text-sm font-semibold dark:text-white text-[rgb(40,40,41)]">Comentários</p>
+                <div v-if="cacheComments?.comments?.length" class="flex items-center justify-between py-3 px-4">
+                    <p class="text-sm font-medium dark:text-x-dark-textSecondary text-x-light-textSecondary">Comentários
+                    </p>
                     <button @click="openSortByFilterDrawer" class="flex items-center gap-1">
-                        <span class="font-semibold text-[13px]"> {{ sortByText }}</span>
-                        <span>
-                            <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <span class="font-medium text-sm dark:text-x-dark-textSecondary text-x-light-textSecondary"> {{
+                            sortByText }}</span>
+                        <span class="relative">
+                            <svg class="dark:text-x-dark-textSecondary text-x-light-textSecondary" width="16"
+                                height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="m5 8.5 7 7 7.005-7" class="icon_svg-stroke" stroke="currentColor"
                                     stroke-width="2" fill="none" stroke-linecap="round"></path>
                             </svg>
@@ -39,8 +42,8 @@
                     :active-comment="post?.sortCommentId" :postId="postId" @on-load-more="handleLoadMoreComments"
                     @on-reply="openNewCommentDrawer" @on-more="openMoreOptions" />
             </div>
-            <div v-else>
-                <LoadingScreen />
+            <div class="h-full w-full flex items-center justify-center" v-else>
+                <SpinnerSmall />
             </div>
 
             <!--DRWER-->
@@ -50,7 +53,7 @@
                         <div class="flex text-x-light-textSecondary dark:text-x-dark-textSecondary items-center gap-2"
                             v-if="drawer?.metadata?.parent">
                             <span>Respondendo:</span>
-                            <div class="flex items-center flex-row gap-1.5">
+                            <div v-if="drawer?.metadata?.replyTo?._id !== user?._id" class="flex items-center flex-row gap-1.5">
                                 <Avatar
                                     :url="drawer?.metadata?.replyTo?.profile_image?.thumbnails?.xs || drawer?.metadata?.replyTo?.profile_image?.url"
                                     :alt="drawer?.metadata?.replyTo?.name" size="xs" />
@@ -59,10 +62,13 @@
                                         drawer?.metadata?.replyTo }}
                                 </span>
                             </div>
+                            <span v-else class="text-sm dark:text-white text-black font-semibold">
+                                a si mesmo
+                            </span>
                         </div>
                         <textarea
                             class="w-full placeholder:dark:text-[rgb(177,179,182)] bg-transparent resize-none outline-none dark:text-white"
-                            v-model="commentContent" placeholder="Escreva o teu comentario"></textarea>
+                            v-model="commentContent" placeholder="Escreva o teu comentário"></textarea>
                         <div class="flex justify-end">
                             <button :disabled="!canComment"
                                 class="px-1.5 py-1 float-right w-min text-[#4894fd] font-semibold disabled:opacity-70 rounded-md disabled:text-gray-400"
@@ -103,10 +109,10 @@ import CreateCommentTrigger from '@/views/comments/components/CreateCommentTrigg
 import CommentList from '@/views/comments/components/CommentList.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
-import LoadingScreen from '@/components/UI/LoadingScreen.vue';
 import Navbar from '@/views/main/components/Navbar.vue';
 import PullToRefreshIndicator from '@/components/UI/PullToRefreshIndicator.vue';
 import { usePullToRefresh } from '@/composables/usePullToRefresh';
+import SpinnerSmall from '@/components/UI/SpinnerSmall.vue';
 
 const store = useStore()
 const route = useRoute()

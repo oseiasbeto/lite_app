@@ -12,17 +12,6 @@
             </svg>
         </button>
 
-        <!--Repost / partilhar-->
-        <button @click="$emit('on-share')"
-            class="group h-9 w-9 flex items-center justify-center rounded-full text-x-light-textSecondary dark:text-x-dark-textSecondary hover:text-[#00ba7c] hover:bg-[#00ba7c]/10 transition-colors">
-            <svg aria-label="Repostar" role="img" viewBox="0 0 24 24" class="w-[20px] h-[20px]" fill="currentColor">
-                <title>Repostar</title>
-                <path
-                    d="M4.5 3.88l4.03 4.03-1.06 1.06-2.22-2.22V16.5c0 1.38 1.12 2.5 2.5 2.5h3.75V17.5H7.75c-.55 0-1-.45-1-1V6.75L8.97 8.97l1.06-1.06L5.5 3.38l-1 .5zM19.5 20.12l-4.03-4.03 1.06-1.06 2.22 2.22V7.5c0-1.38-1.12-2.5-2.5-2.5h-3.75V6.5h3.75c.55 0 1 .45 1 1v9.69l-2.22-2.22-1.06 1.06 4.03 4.03 1-.5z">
-                </path>
-            </svg>
-        </button>
-
         <!--Gostar-->
         <button @click="$emit('on-upvote')"
             :class="upvotes?.includes(userId) ? 'text-[#f91880]' : 'text-x-light-textSecondary dark:text-x-dark-textSecondary'"
@@ -34,13 +23,13 @@
                 </span>
 
                 <svg v-if="!upvotes?.includes(userId)" aria-label="Gosto" role="img" viewBox="-0.5 0 25 24"
-                    class="w-[20px] h-[20px]" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    class="w-[22px] h-[22px]" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <title>Gosto</title>
                     <path
                         d="M16.5 2C14.8335 2 13.2217 2.70703 12 3.93652C10.7783 2.70704 9.1665 2 7.5 2C3.3785 2 0.5 5.08423 0.5 9.5C0.5 14.1284 4.84516 19.4619 11.311 22.7719C11.5267 22.8827 11.7633 22.9379 12 22.9379C12.2367 22.9379 12.4733 22.8827 12.689 22.7719C19.1548 19.4619 23.5 14.1284 23.5 9.5C23.5 5.08423 20.6217 2 16.5 2ZM12 20.8764C6.30767 17.8962 2.5 13.3467 2.5 9.5C2.5 6.15893 4.4625 4 7.5 4C9.5 4 11.25 5.75 12 7.5C12.75 5.75 14.5 4 16.5 4C19.5377 4 21.5 6.15893 21.5 9.5C21.5 13.3467 17.6923 17.8962 12 20.8764Z"
                         fill="currentColor"></path>
                 </svg>
-                <svg v-else aria-label="Não gosto" role="img" viewBox="-0.5 0 25 24" class="w-[20px] h-[20px]"
+                <svg v-else aria-label="Não gosto" role="img" viewBox="-0.5 0 25 24" class="w-[22px] h-[22px]"
                     :class="{ 'heart-pop': popping }" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                     <title>Não gosto</title>
                     <path
@@ -50,7 +39,7 @@
             </span>
         </button>
 
-        <!--Partilhar (share externo)-->
+        <!--Partilhar-->
         <button @click="$emit('on-share')"
             class="group h-9 w-9 flex items-center justify-center rounded-full text-x-light-textSecondary dark:text-x-dark-textSecondary hover:text-[#1d9bf0] hover:bg-[#1d9bf0]/10 transition-colors">
             <svg aria-label="Partilhar" role="img" viewBox="0 0 24 24" class="w-[20px] h-[20px]" fill="currentColor">
@@ -60,11 +49,37 @@
                     fill-rule="evenodd"></path>
             </svg>
         </button>
+
+        <!--Bookmark-->
+        <button @click="$emit('on-comment')"
+            class="group h-9 w-9 flex items-center justify-center rounded-full text-x-light-textSecondary dark:text-x-dark-textSecondary hover:text-[#1d9bf0] hover:bg-[#1d9bf0]/10 transition-colors">
+            <svg aria-label="" role="img" viewBox="0 0 24 24" class="w-[19px] h-[19px]" fill="currentColor">
+                <title></title>
+                <path
+                    d="M11.5391 17.1123C11.8756 16.9374 12.2885 16.967 12.5996 17.2002L17.4004 20.7998C18.0596 21.294 19 20.824 19 20V5C19 3.89543 18.1046 3 17 3H7C5.89543 3 5 3.89543 5 5V20C5 20.824 5.94038 21.294 6.59961 20.7998L11.4004 17.2002L11.5391 17.1123ZM21 20C21 22.472 18.1779 23.8833 16.2002 22.4004L12 19.249L7.7998 22.4004C5.82211 23.8833 3 22.472 3 20V5C3 2.79086 4.79086 1 7 1H17C19.2091 1 21 2.79086 21 5V20Z">
+                </path>
+            </svg>
+        </button>
+
+        <!--Partilhar (share externo)-->
+        <button @click="$emit('on-native-share')"
+            class="group h-9 w-9 flex items-center justify-center rounded-full text-x-light-textSecondary dark:text-x-dark-textSecondary hover:text-[#1d9bf0] hover:bg-[#1d9bf0]/10 transition-colors">
+            <svg viewBox="0 0 24 24" aria-hidden="true"
+                fill="currentColor" height="20px" width="20px" xmlns="http://www.w3.org/2000/svg">
+                >
+                <g>
+                    <path
+                        d="M12 2.59l5.7 5.7-1.41 1.42L13 6.41V16h-2V6.41l-3.3 3.3-1.41-1.42L12 2.59zM21 15l-.02 3.51c0 1.38-1.12 2.49-2.5 2.49H5.5C4.11 21 3 19.88 3 18.5V15h2v3.5c0 .28.22.5.5.5h12.98c.28 0 .5-.22.5-.5L19 15h2z">
+                    </path>
+                </g>
+            </svg>
+        </button>
     </div>
 </template>
 
 <script setup>
 import { computed, ref, watch } from 'vue';
+
 
 const props = defineProps({
     loading: {
@@ -101,7 +116,7 @@ const props = defineProps({
     }
 });
 
-defineEmits(['on-upvote', 'on-downvote', 'on-comment', 'on-share']);
+defineEmits(['on-upvote', 'on-downvote', 'on-comment', 'on-share', 'on-native-share']);
 
 const isLiked = computed(() => props.upvotes?.includes(props.userId));
 

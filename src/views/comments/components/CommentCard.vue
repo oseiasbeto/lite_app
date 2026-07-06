@@ -1,20 +1,34 @@
 <template>
-    <div  :class="['gap-2 flex pt-1.5 pb-0.5 flex-col dark:border-[rgb(57,56,57)]', isReply ? 'border-none px-0 !bg-transparent' : 'border-b px-[10px]', active ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'bg-transparent']">
-        <div class="flex flex-row gap-2">
+    <div
+        :class="['relative gap-2 flex pt-1.5 pb-0.5 flex-col border-x-light-border dark:border-x-dark-border', isReply ? 'border-none px-0 !bg-transparent' : 'border-b px-4', active ? 'dark:bg-x-dark-surfaceActive bg-x-light-surfaceActive' : 'bg-transparent']">
+
+        <!--TRUNK: linha vertical de ramificacao, do fundo do avatar ate as respostas.
+            Ajusta os valores de "top"/"left" caso o teu Avatar 'md'/'xs' nao sejam 40px/24px -->
+        <span v-if="data?.replies?.length" class="absolute bottom-0 w-[2px] z-0 bg-x-light-border dark:bg-x-dark-border"
+            :class="isReply ? 'top-[30px] left-[12px]' : 'top-[46px] left-[30px]'">
+        </span>
+
+        <div class="flex flex-row gap-2 relative z-[1]">
             <div @click="goToProfile(data?.author?._id || data?.user?._id)" class="shrink-0">
-                <Avatar :size="isReply ? 'xs' : 'md'"
-                    :url="isReply ? data?.author?.profile_image?.thumbnails?.xs || data?.author?.profile_image?.url : 
+                <Avatar :size="isReply ? 'xs' : 'md'" :url="isReply ? data?.author?.profile_image?.thumbnails?.xs || data?.author?.profile_image?.url :
                     data?.author?.profile_image?.thumbnails?.md || data?.author?.profile_image?.url" />
             </div>
-            <div class="flex-1">
+            <div class="flex-1 min-w-0">
                 <!--AUTHOR DETAILS-->
                 <CommentAuthorDetails :author="data?.author || data?.user || {}" :user-id="userId"
                     :created-at="data?.created_at" />
                 <!--BODY-->
                 <div>
                     <!--CONTENT-->
+                    <p v-if="isReply && data?.reply_to?._id !== data?.author?._id"
+                        class="mb-0.5 flex gap-1 items-center text-xs min-w-0">
+                        <span class="shrink-0 text-x-light-textSecondary dark:text-x-dark-textSecondary">Resposta para:
+                        </span>
+                        <router-link class="text-x-light-blue truncate" :to="`/profile/${data?.reply_to?._id}`">
+                            {{ '@' + data?.reply_to?.username }}
+                        </router-link>
+                    </p>
                     <CommentContent :content="data?.content || ''" />
-
                     <!--MEDIA-->
                 </div>
 
@@ -23,25 +37,30 @@
                     <CommentReactions :loading="isReactingComment" :upvotes="data?.upvotes"
                         :upvotes-count="data?.upvotes_count" :downvotes="data?.downvotes" :user-id="userId"
                         :downvotes-count="data?.downvotes_count" :replies-count="data?.replies_count"
-                        :shares-count="data?.shares_count" 
-                        @on-more="handleOneMore(data)"
-                        @on-upvote="handleUpvote" 
-                        @on-downvote="handleDownvote"
-                        @on-reply="onReply({
+                        :shares-count="data?.shares_count" @on-more="handleOneMore(data)" @on-upvote="handleUpvote"
+                        @on-downvote="handleDownvote" @on-reply="onReply({
                             parent: data,
                             replyTo: data?.author
                         })" />
                 </div>
 
-                <div v-if="data?.replies?.length">
-                    <CommentCard v-for="reply in data?.replies" :post-id="postId" :key="reply?._id" :user-id="userId"
-                        :data="reply" :is-reply="true" @on-reply="onReply({
+                <!--REPLIES-->
+                <div v-if="data?.replies?.length" class="relative z-[1]">
+                    <div v-for="reply in data?.replies" :key="reply?._id" class="relative">
+                        <!--CURVA: liga o tronco vertical ao avatar desta resposta especifica-->
+                        <span class="absolute top-0 h-[18px] border-l-2 border-b-2 rounded-bl-2xl z-0
+                            border-x-light-border dark:border-x-dark-border pointer-events-none"
+                            :class="isReply ? '-left-[20px] w-[20px]' : '-left-[28px] w-[28px]'">
+                        </span>
+
+                        <CommentCard :post-id="postId" :user-id="userId" :data="reply" :is-reply="true" @on-reply="onReply({
                             parent: reply?.parent,
                             replyTo: reply?.author
                         })" />
+                    </div>
 
                     <!--LOAD MORE-->
-                    <button class="text-[#4894fd] py-2 text-xs"
+                    <button class="text-x-light-textSecondary dark:text-x-dark-textSecondary py-2 text-xs"
                         @click="loadMoreReplies" v-if="queryReplies?.hasMore && !loadingLoadMoreReplies">
                         <span class="flex items-center gap-1">
                             <p class="font-semibold">Ver mais respostas</p>
@@ -52,7 +71,7 @@
                         </span>
                     </button>
                     <div v-if="loadingLoadMoreReplies" class="py-[13px] w-full flex justify-center">
-                        <Spinner />
+                        <SpinnerSmall />
                     </div>
                 </div>
             </div>
@@ -69,7 +88,7 @@ import CommentReactions from './CommentReactions.vue';
 import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import Avatar from '@/components/Utils/Avatar.vue';
-import Spinner from '@/components/UI/Spinner.vue';
+import SpinnerSmall from '@/components/UI/SpinnerSmall.vue';
 
 const store = useStore()
 const router = useRouter()
