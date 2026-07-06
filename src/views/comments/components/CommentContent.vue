@@ -1,6 +1,6 @@
 <template>
     <div>
-        <p class="text-[15px] font-normal pb-1 dark:text-white text-[rgb(40,40,41)] text-sm overflow-hidden break-words whitespace-pre-wrap" v-html="content"></p>
+        <p class="text-[15px] mt-0.5 font-normal pb-1 dark:text-white text-[rgb(40,40,41)] text-sm overflow-hidden break-words whitespace-pre-wrap" v-html="content"></p>
     </div>
 </template>
 

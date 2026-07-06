@@ -54,7 +54,6 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue';
-import formattedCount from '@/utils/formatted-count';
 import Flipnumber from '@/components/UI/Flipnumber.vue';
 
 const props = defineProps({

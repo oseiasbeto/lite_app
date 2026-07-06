@@ -52,6 +52,93 @@ async function uploadSingleMedia(media, onProgress) {
     }
 }
 
+const upvotePostQueues = new Map(); // key: `${module}:${postId}` -> { pendingCount, inFlight, timer }
+const UPVOTE_POST_DEBOUNCE_MS = 400;
+
+function getPostQueueEntry(key) {
+    if (!upvotePostQueues.has(key)) {
+        upvotePostQueues.set(key, { pendingCount: 0, inFlight: false, timer: null });
+    }
+    return upvotePostQueues.get(key);
+}
+
+// Localiza o post atual no estado (lista do módulo, com fallback pro post individual)
+function findTargetPost(state, postId, module) {
+    const moduleEntry = state.posts.find(m => m.module === module);
+    const post = moduleEntry?.posts?.find(p => p._id === postId);
+    const singlePost = state.post;
+
+    return post || singlePost || null;
+}
+
+// Aplica UM toggle local (otimista). Reusada tanto no clique quanto na reversão de erro.
+function applyLocalPostToggle({ commit, state }, { postId, module, userId }) {
+    const targetPost = findTargetPost(state, postId, module);
+    if (!targetPost) {
+        logger.warn("Post não encontrado no estado local");
+        return;
+    }
+
+    const updatedUpvotes = [...(targetPost.upvotes || [])];
+    let updatedUpvotesCount = targetPost.upvotes_count || 0;
+
+    const userIndex = updatedUpvotes.indexOf(userId);
+    if (userIndex !== -1) {
+        updatedUpvotes.splice(userIndex, 1);
+        updatedUpvotesCount -= 1;
+    } else {
+        updatedUpvotes.push(userId);
+        updatedUpvotesCount += 1;
+    }
+
+    commit("UPDATE_REACTIONS_POST", {
+        module,
+        payload: {
+            post_id: targetPost._id,
+            upvotes: updatedUpvotes,
+            upvotes_count: updatedUpvotesCount,
+            downvotes: targetPost.downvotes || [],
+            downvotes_count: targetPost.downvotes_count || 0,
+            comments_count: targetPost.comments_count || 0,
+            shares_count: targetPost.shares_count || 0
+        }
+    });
+}
+
+// Decide se envia a chamada de rede e encadeia a próxima verificação ao terminar.
+async function runPostFlush(ctx, args) {
+    const { postId, module } = args;
+    const key = `${module}:${postId}`;
+    const queue = getPostQueueEntry(key);
+
+    if (queue.inFlight) return;
+    if (queue.pendingCount === 0) return;
+
+    const isNetToggle = queue.pendingCount % 2 === 1;
+    queue.pendingCount = 0;
+
+    if (!isNetToggle) return; // cliques em par = estado líquido inalterado
+
+    queue.inFlight = true;
+    try {
+        await api.put(`/posts/${postId}/toggle-upvote`);
+    } catch (error) {
+        logger.error("Erro ao persistir upvote na API:", error?.response?.message);
+        // reverte exatamente o efeito líquido desta chamada, sobre o estado ATUAL
+        applyLocalPostToggle(ctx, args);
+    } finally {
+        queue.inFlight = false;
+        runPostFlush(ctx, args); // reavalia na hora, sem novo debounce
+    }
+}
+
+function schedulePostFlush(ctx, args) {
+    const key = `${args.module}:${args.postId}`;
+    const queue = getPostQueueEntry(key);
+    clearTimeout(queue.timer);
+    queue.timer = setTimeout(() => runPostFlush(ctx, args), UPVOTE_POST_DEBOUNCE_MS);
+}
+
 export default {
     state: {
         posts: [],
@@ -411,65 +498,18 @@ export default {
                 throw err
             }
         },
-        async toggleUpvotePost({ commit, state, rootState }, { postId, module, userId }) {
+        toggleUpvotePost(ctx, { postId, module, userId }) {
+            const args = { postId, module, userId };
+            const key = `${module}:${postId}`;
+            const queue = getPostQueueEntry(key);
+
             try {
-                // 1. Buscar o post atual no estado (para ter a lista de upvotes atual)
-                const moduleEntry = state.posts.find(m => m.module === module);
-                const post = moduleEntry?.posts?.find(p => p._id === postId);
+                // 1. UI: alterna na hora, sempre
+                applyLocalPostToggle(ctx, args);
 
-                // Também pode estar em state.post (post individual)
-                const singlePost = state.post;
-
-                if (!post && !singlePost) {
-                    logger.warn("Post não encontrado no estado local");
-                    return;
-                }
-
-                // Usar o post encontrado (prioriza o da lista, mas se não houver usa o single)
-                const targetPost = post || singlePost;
-
-                // 2. Fazer o toggle com base no userId
-                let updatedUpvotes = [...(targetPost.upvotes || [])];
-                let updatedUpvotesCount = targetPost.upvotes_count || 0;
-
-                const userIndex = updatedUpvotes.indexOf(userId);
-                if (userIndex !== -1) {
-                    // Usuário já tinha votado: remover voto
-                    updatedUpvotes.splice(userIndex, 1);
-                    updatedUpvotesCount -= 1;
-                } else {
-                    // Usuário não votou: adicionar voto
-                    updatedUpvotes.push(userId);
-                    updatedUpvotesCount += 1;
-                }
-
-                // 3. Preparar o payload com todos os campos que a mutation espera,
-                //    mantendo os valores atuais para campos que não mudam (downvotes, etc.)
-                const payload = {
-                    post_id: targetPost._id,
-                    upvotes: updatedUpvotes,
-                    upvotes_count: updatedUpvotesCount,
-                    downvotes: targetPost.downvotes || [],
-                    downvotes_count: targetPost.downvotes_count || 0,
-                    comments_count: targetPost.comments_count || 0,
-                    shares_count: targetPost.shares_count || 0
-                };
-
-                // 4. Atualizar o estado local imediatamente (otimista)
-                commit("UPDATE_REACTIONS_POST", {
-                    payload,
-                    module
-                });
-
-                // 5. Chamar a API em segundo plano (não esperamos a resposta para atualizar o estado)
-                //    Usamos .catch para não quebrar a aplicação em caso de erro.
-                api.put(`/posts/${postId}/toggle-upvote`)
-                    .catch(error => {
-                        // Opcional: reverter a atualização local se a API falhar? 
-                        // Mas isso é outro nível de complexidade. Normalmente se deixa assim.
-                        logger.error("Erro ao persistir upvote na API:", error?.response?.message);
-                    });
-
+                // 2. Conta o clique e (re)agenda a avaliação com debounce
+                queue.pendingCount++;
+                schedulePostFlush(ctx, args);
             } catch (error) {
                 logger.error("Erro ao processar toggle de upvote:", error?.message);
             }

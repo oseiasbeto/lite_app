@@ -53,6 +53,7 @@ watch(
     overflow: hidden;
     line-height: 1;
     vertical-align: middle;
+    letter-spacing: -1px;
 }
 
 .flip-number__track {

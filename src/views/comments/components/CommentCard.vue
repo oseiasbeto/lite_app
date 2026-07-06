@@ -1,6 +1,6 @@
 <template>
     <div
-        :class="['relative gap-2 flex pt-1.5 pb-0.5 flex-col border-x-light-border dark:border-x-dark-border', isReply ? 'border-none px-0 !bg-transparent' : 'border-b px-4', active ? 'dark:bg-x-dark-surfaceActive bg-x-light-surfaceActive' : 'bg-transparent']">
+        :class="['relative gap-2 mb-1.5 flex py-1.5 pb-0.5 flex-col border-x-light-border dark:border-x-dark-border', isReply ? 'border-none px-0 !bg-transparent' : 'border-b px-4', active ? 'dark:bg-x-dark-surfaceActive bg-x-light-surfaceActive' : 'bg-transparent']">
 
         <!--TRUNK: linha vertical de ramificacao, do fundo do avatar ate as respostas.
             Ajusta os valores de "top"/"left" caso o teu Avatar 'md'/'xs' nao sejam 40px/24px -->
@@ -60,7 +60,7 @@
                     </div>
 
                     <!--LOAD MORE-->
-                    <button class="text-x-light-textSecondary dark:text-x-dark-textSecondary py-2 text-xs"
+                    <button class="text-x-light-textSecondary dark:text-x-dark-textSecondary py-2 text-[13px]"
                         @click="loadMoreReplies" v-if="queryReplies?.hasMore && !loadingLoadMoreReplies">
                         <span class="flex items-center gap-1">
                             <p class="font-semibold">Ver mais respostas</p>
@@ -144,7 +144,8 @@ const handleUpvote = async () => {
 
     await store.dispatch('toggleUpvoteComment', {
         postId: props?.postId,
-        commentId: props?.data?._id
+        commentId: props?.data?._id,
+        userId: props?.userId
     })
         .finally(() => {
             isReactingComment.value = false

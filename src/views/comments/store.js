@@ -1,6 +1,104 @@
 import { logger } from '@/utils/logger';
 import api from '../../api'
 
+
+// --- Estado de coordenação da fila de upvotes (fora do Vuex; é só controle de fluxo) ---
+const upvoteQueues = new Map(); // key: `${postId}:${commentId}` -> { pendingCount, inFlight, timer }
+const UPVOTE_DEBOUNCE_MS = 400; // janela de "espera" pra agrupar cliques rápidos
+
+function getQueueEntry(key) {
+    if (!upvoteQueues.has(key)) {
+        upvoteQueues.set(key, { pendingCount: 0, inFlight: false, timer: null });
+    }
+    return upvoteQueues.get(key);
+}
+
+// Localiza comentário/reply no estado atual (igual ao original, extraído pra reuso)
+function findTargetComment(state, postId, commentId) {
+    const moduleComments = state.comments.find(m => m.postId === postId);
+    if (!moduleComments?.comments?.length) return null;
+
+    const mainComment = moduleComments.comments.find(c => c._id === commentId);
+    if (mainComment) return { targetComment: mainComment, parentComment: null };
+
+    for (const c of moduleComments.comments) {
+        const reply = c.replies?.find(r => r._id === commentId);
+        if (reply) return { targetComment: reply, parentComment: c };
+    }
+    return null;
+}
+
+// Aplica UM toggle local (otimista). Usada tanto no clique quanto na reversão de erro,
+// já que "aplicar de novo" desfaz exatamente o efeito líquido de uma chamada que falhou —
+// não importa quantos outros cliques aconteceram no meio.
+function applyLocalToggle({ commit, state }, { postId, commentId, userId }) {
+    const found = findTargetComment(state, postId, commentId);
+    if (!found) return;
+    const { targetComment, parentComment } = found;
+
+    const hasUpvoted = targetComment.upvotes?.some(id => id === userId) || false;
+
+    const newUpvotes = hasUpvoted
+        ? targetComment.upvotes.filter(id => id !== userId)
+        : [...(targetComment.upvotes || []), userId];
+
+    const newUpvotesCount = hasUpvoted
+        ? targetComment.upvotes_count - 1
+        : targetComment.upvotes_count + 1;
+
+    commit("UPDATE_REACTIONS_COMMENT", {
+        postId,
+        payload: {
+            comment_id: commentId,
+            parent_id: parentComment?._id || null,
+            upvotes: newUpvotes,
+            upvotes_count: newUpvotesCount,
+            downvotes: targetComment.downvotes,
+            downvotes_count: targetComment.downvotes_count,
+            replies_count: targetComment.replies_count,
+            user_id: userId
+        }
+    });
+}
+
+// Decide se envia (ou não) a chamada de rede, e encadeia a próxima verificação
+// assim que a chamada atual terminar.
+async function runFlush(ctx, args) {
+    const { postId, commentId } = args;
+    const key = `${postId}:${commentId}`;
+    const queue = getQueueEntry(key);
+
+    if (queue.inFlight) return; // já tem chamada em voo; o finally dela vai chamar runFlush de novo
+    if (queue.pendingCount === 0) return; // nada acumulado, nada a fazer
+
+    const isNetToggle = queue.pendingCount % 2 === 1;
+    queue.pendingCount = 0; // consome tudo que foi acumulado até aqui
+
+    if (!isNetToggle) return; // número par de cliques = estado líquido inalterado, sem chamada
+
+    queue.inFlight = true;
+    try {
+        await api.put(`/comments/${postId}/${commentId}/toggle-upvote`);
+        // sucesso: o estado local já está correto, nada a fazer
+    } catch (error) {
+        logger.error("Erro ao tentar dar upvote no comentário: ", error);
+        // reverte exatamente o efeito líquido desta chamada (1 toggle),
+        // aplicado sobre o estado ATUAL (que pode já ter novos cliques em cima)
+        applyLocalToggle(ctx, args);
+    } finally {
+        queue.inFlight = false;
+        runFlush(ctx, args); // reavalia na hora, sem novo debounce, se sobrou algo pendente
+    }
+}
+
+function scheduleFlush(ctx, args) {
+    const key = `${args.postId}:${args.commentId}`;
+    const queue = getQueueEntry(key);
+    clearTimeout(queue.timer);
+    queue.timer = setTimeout(() => runFlush(ctx, args), UPVOTE_DEBOUNCE_MS);
+}
+
+
 export default {
     state: {
         comments: [],
@@ -157,6 +255,7 @@ export default {
                 }
             }
         },
+        // Mantida exatamente como estava
         UPDATE_REACTIONS_COMMENT(state, { postId, payload }) {
             if (!postId || !payload) return
 
@@ -167,10 +266,9 @@ export default {
                 upvotes_count,
                 downvotes,
                 replies_count,
+                user_id,
                 downvotes_count
             } = payload
-
-
 
             const moduleComments = state.comments.find(m => m.postId === postId)
 
@@ -194,7 +292,6 @@ export default {
                     } else {
                         const reply = comment.replies.find(r => r._id === comment_id)
 
-
                         if (!reply) return
                         else {
                             reply.upvotes = upvotes
@@ -204,7 +301,6 @@ export default {
                             reply.replies_count = replies_count
                         }
                     }
-
                 }
             }
         },
@@ -253,60 +349,22 @@ export default {
                 logger.error("Erro ao tentar criar um novo comentario: ", error);
             }
         },
-        async toggleUpvoteComment({ commit }, { postId, commentId }) {
-            try {
+        toggleUpvoteComment(ctx, { postId, commentId, userId }) {
+            const args = { postId, commentId, userId };
+            const key = `${postId}:${commentId}`;
+            const queue = getQueueEntry(key);
 
-                const response = await api.put(`/comments/${postId}/${commentId}/toggle-upvote`);
+            // 1. UI: alterna na hora, sempre, sem exceção
+            applyLocalToggle(ctx, args);
 
-                const { comment } = response.data
-
-                const { upvotes, upvotes_count, downvotes, replies_count, downvotes_count } = comment
-
-                const payload = {
-                    comment_id: comment?._id,
-                    parent_id: comment?.parent,
-                    upvotes,
-                    upvotes_count,
-                    downvotes,
-                    replies_count,
-                    downvotes_count
-                }
-
-                commit("UPDATE_REACTIONS_COMMENT", { postId, payload })
-            } catch (error) {
-                logger.error("Erro ao adicionar/remover voto positivo no comentario:", error?.response?.message);
-            }
-        },
-        async toggleDownvoteComment({ commit }, { postId, commentId }) {
-            try {
-                const response = await api.put(`/comments/${postId}/${commentId}/toggle-downvote`);
-
-                const { comment } = response.data
-                const { upvotes, upvotes_count, downvotes, replies_count, downvotes_count } = comment
-
-
-
-                const payload = {
-                    comment_id: comment?._id,
-                    parent_id: comment?.parent,
-                    upvotes,
-                    upvotes_count,
-                    downvotes,
-                    replies_count,
-                    downvotes_count
-                }
-
-
-
-                commit("UPDATE_REACTIONS_COMMENT", { postId, payload })
-            } catch (error) {
-                logger.error("Erro ao adicionar/remover voto negativo no commentario:", error?.response?.data?.message || error);
-            }
+            // 2. Conta o clique e (re)agenda a avaliação com debounce
+            queue.pendingCount++;
+            scheduleFlush(ctx, args);
         },
         async getCommentsByPostId({ commit }, { query, postId }) {
             try {
                 const { hasTotal, sortCommentId, type = 'push', sortBy = 'recents', page: currentPage, limit } = query
-                
+
                 const response = await api.get('/comments/' + postId, {
                     params: {
                         page: currentPage,

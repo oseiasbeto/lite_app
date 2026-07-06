@@ -12,6 +12,7 @@ import LoadingComponent from "./components/UI/LoadingComponent.vue";
 import Navegator from "./components/UI/Navgator.vue";
 import NetworkStatusBanner from "./components/UI/NetworkStatusBanner.vue"
 import { useNetworkStatus } from "@/composables/useNetworkStatus";
+import ToastContainer from "./components/UI/ToastContainer.vue";
 
 // Estado de loading do app
 const loading = ref(true)
@@ -572,6 +573,9 @@ onUnmounted(() => {
     <div v-if="!loading">
       <!--start sidebar-->
       <Navegator :show-bottom-nav="isAuthenticated && route.meta.rootPage == 'main' && showBottomNav" />
+
+      <!--toast-->
+      <ToastContainer/>
 
       <!--start content-->
       <div class="overflow-hidden">

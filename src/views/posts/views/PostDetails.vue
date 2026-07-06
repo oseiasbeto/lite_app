@@ -4,7 +4,7 @@
             class="h-[calc(100vh-60px)] relative overflow-y-scroll">
             <Navbar title="Postagem" />
             <div class="mt-[53px]"
-            :class="{'pb-3' : !cacheComments?.pagination?.hasMore}"
+            :class="{'pb-4' : !cacheComments?.pagination?.hasMore}"
              v-if="!loadingFetchPost">
                 <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
                 <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"

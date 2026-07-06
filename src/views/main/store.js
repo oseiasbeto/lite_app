@@ -1,14 +1,16 @@
 import api from '../../api'
 import Cookies from "js-cookie";
 
-
+let uid = 0
+const timers = new Map()
 
 export default {
     state: {
         topicList: [],
         isLoadingComponent: false,
         showBottomNav: true,
-        theme: Cookies.get("theme")
+        theme: Cookies.get("theme"),
+        toasts: []
     },
     mutations: {
         SET_TOPICLIST(state, payload) {
@@ -23,7 +25,17 @@ export default {
         },
         SET_SHOW_BOTTOM_NAV(state, value) {
             state.showBottomNav = value
-        }
+        },
+        ADD_TOAST(state, toast) {
+      state.toasts.push(toast)
+    },
+    REMOVE_TOAST(state, id) {
+      state.toasts = state.toasts.filter((t) => t.id !== id)
+      if (timers.has(id)) {
+        clearTimeout(timers.get(id))
+        timers.delete(id)
+      }
+    },
     },
     actions: {
         async getTopicList({ commit }) {
@@ -36,11 +48,37 @@ export default {
                 console.error(error);
             }
         },
+        showToast({ commit }, {
+            message,
+            type = 'info',
+            duration = 4000,
+            onClick = null,
+            position = 'bottom',
+            offset = 24,
+        }) {
+            const id = ++uid
+
+            commit('ADD_TOAST', { id, message, type, onClick, position, offset })
+
+            if (duration > 0) {
+                const timeoutId = setTimeout(() => {
+                    commit('REMOVE_TOAST', id)
+                }, duration)
+                timers.set(id, timeoutId)
+            }
+
+            return id
+        },
+
+        removeToast({ commit }, id) {
+            commit('REMOVE_TOAST', id)
+        },
     },
     getters: {
         topicList: (state) => state.topicList,
         isLoadingComponent: (state) => state.isLoadingComponent,
         currentTheme: (state) => state.theme,
+        toasts: (state) => state.toasts,
         showBottomNav: (state) => state.showBottomNav
     }
 }

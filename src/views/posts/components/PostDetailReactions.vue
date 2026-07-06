@@ -3,7 +3,7 @@
 
         <!--Comentar-->
         <button @click="$emit('on-comment')"
-            class="group h-9 w-9 flex items-center justify-center rounded-full text-x-light-textSecondary dark:text-x-dark-textSecondary hover:text-[#1d9bf0] hover:bg-[#1d9bf0]/10 transition-colors">
+            class="group h-9 w-9 flex items-center justify-center rounded-full text-x-light-textSecondary dark:text-x-dark-textSecondary dark:hover:text-[#1d9bf0] hover:text-[#1d9bf0] hover:bg-[#1d9bf0]/10 transition-colors">
             <svg aria-label="Comentar" role="img" viewBox="0 0 24 24" class="w-[20px] h-[20px]" fill="currentColor">
                 <title>Comentar</title>
                 <path clip-rule="evenodd"
@@ -15,7 +15,7 @@
         <!--Gostar-->
         <button @click="$emit('on-upvote')"
             :class="upvotes?.includes(userId) ? 'text-[#f91880]' : 'text-x-light-textSecondary dark:text-x-dark-textSecondary'"
-            class="group h-9 w-9 flex items-center justify-center rounded-full hover:text-[#f91880] hover:bg-[#f91880]/10 transition-colors relative">
+            class="group h-9 w-9 flex items-center justify-center rounded-full dark:hover:text-[#f91880] hover:text-[#f91880] hover:bg-[#f91880]/10 transition-colors relative">
             <span class="relative inline-flex items-center justify-center">
                 <span v-if="bursting" class="like-burst" aria-hidden="true">
                     <span v-for="particle in particles" :key="particle.id" class="like-burst__particle"
@@ -52,7 +52,7 @@
 
         <!--Bookmark-->
         <button @click="$emit('on-comment')"
-            class="group h-9 w-9 flex items-center justify-center rounded-full text-x-light-textSecondary dark:text-x-dark-textSecondary hover:text-[#1d9bf0] hover:bg-[#1d9bf0]/10 transition-colors">
+            class="group h-9 w-9 flex items-center justify-center rounded-full text-x-light-textSecondary dark:text-x-dark-textSecondary dark:hover:text-[#1d9bf0] hover:text-[#1d9bf0] hover:bg-[#1d9bf0]/10 transition-colors">
             <svg aria-label="" role="img" viewBox="0 0 24 24" class="w-[19px] h-[19px]" fill="currentColor">
                 <title></title>
                 <path
@@ -63,7 +63,7 @@
 
         <!--Partilhar (share externo)-->
         <button @click="$emit('on-native-share')"
-            class="group h-9 w-9 flex items-center justify-center rounded-full text-x-light-textSecondary dark:text-x-dark-textSecondary hover:text-[#1d9bf0] hover:bg-[#1d9bf0]/10 transition-colors">
+            class="group h-9 w-9 flex items-center justify-center rounded-full text-x-light-textSecondary dark:text-x-dark-textSecondary dark:hover:text-[#1d9bf0] hover:text-[#1d9bf0] hover:bg-[#1d9bf0]/10 transition-colors">
             <svg viewBox="0 0 24 24" aria-hidden="true"
                 fill="currentColor" height="20px" width="20px" xmlns="http://www.w3.org/2000/svg">
                 >

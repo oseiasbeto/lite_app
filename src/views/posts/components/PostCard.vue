@@ -7,10 +7,10 @@
             <div @click.stop @click="goToProfile(data?.author?._id)" class="relative shrink-0">
                 <Avatar :size="isParentPost ? 's' : 'md'"
                     :url="isParentPost ? data?.author?.profile_image?.thumbnails?.xs || data?.author?.profile_image?.url : data?.author?.profile_image?.thumbnails?.sm || data?.author?.profile_image?.url" />
-                <span @click.stop="handleFollowUser(data?.author?._id)" 
-                v-if="canFollowUser && !isParentPost || hasFollowing"
+                <span @click.stop="handleFollowUser(data?.author?._id)"
+                    v-if="canFollowUser && !isParentPost || hasFollowing"
                     class="absolute bottom-0 text-white dark:text-black right-0 bg-x-dark-bg dark:bg-x-light-bg flex justify-center items-center h-[14px] w-[14px] rounded-full ring-[1.5px] ring-x-light-bg dark:ring-x-dark-bg">
-                    
+
                     <svg v-if="!hasFollowingUser" aria-label="Seguir" role="img" viewBox="0 0 10 9"
                         class="w-[10px] h-[10px] text-inherit" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <title>Seguir</title>
@@ -19,8 +19,8 @@
                         </path>
                     </svg>
 
-                    <svg v-else aria-label="Seguindo" role="img" viewBox="0 0 8 8"
-                        class="w-[8px] h-[8px] text-inherit" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <svg v-else aria-label="Seguindo" role="img" viewBox="0 0 8 8" class="w-[8px] h-[8px] text-inherit"
+                        fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <title>Seguindo</title>
                         <path
                             d="M3.19531 7.69141C2.97266 7.69141 2.80469 7.60938 2.65234 7.42578L0.632812 4.94531C0.511719 4.80469 0.464844 4.67188 0.464844 4.53125C0.464844 4.20703 0.703125 3.97266 1.03516 3.97266C1.23047 3.97266 1.36719 4.04688 1.5 4.20703L3.17969 6.32422L6.46875 1.12109C6.60547 0.902344 6.74219 0.824219 6.96875 0.824219C7.29688 0.824219 7.53125 1.05469 7.53125 1.375C7.53125 1.49609 7.49219 1.625 7.39844 1.76562L3.74219 7.40625C3.61328 7.59766 3.42969 7.69141 3.19531 7.69141Z">
@@ -180,6 +180,13 @@ const handleFollowUser = async (userId) => {
         .finally(() => {
             isFollowingUser.value = false
         })
+
+
+        /* 
+    store.dispatch('showToast', {
+        message: !hasFollowingUser.value ? 'Deixou de seguir o utilizador.' : 'Agora está a seguir o utilizador.',
+        type: 'info'
+    });*/
 }
 
 const goToComments = () => {
