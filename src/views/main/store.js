@@ -27,15 +27,15 @@ export default {
             state.showBottomNav = value
         },
         ADD_TOAST(state, toast) {
-      state.toasts.push(toast)
-    },
-    REMOVE_TOAST(state, id) {
-      state.toasts = state.toasts.filter((t) => t.id !== id)
-      if (timers.has(id)) {
-        clearTimeout(timers.get(id))
-        timers.delete(id)
-      }
-    },
+            state.toasts.push(toast)
+        },
+        REMOVE_TOAST(state, id) {
+            state.toasts = state.toasts.filter((t) => t.id !== id)
+            if (timers.has(id)) {
+                clearTimeout(timers.get(id))
+                timers.delete(id)
+            }
+        },
     },
     actions: {
         async getTopicList({ commit }) {

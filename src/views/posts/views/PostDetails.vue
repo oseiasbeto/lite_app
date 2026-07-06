@@ -4,7 +4,7 @@
             class="h-[calc(100vh-60px)] relative overflow-y-scroll">
             <Navbar title="Postagem" />
             <div class="mt-[53px]"
-            :class="{'pb-4' : !cacheComments?.pagination?.hasMore}"
+            :class="{'pb-2' : !cacheComments?.pagination?.hasMore}"
              v-if="!loadingFetchPost">
                 <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
                 <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"
@@ -21,7 +21,7 @@
 
                 <!--COMMENTS FILTERS-->
                 <div v-if="cacheComments?.comments?.length" class="flex items-center justify-between py-3 px-4">
-                    <p class="text-[15px] font-medium dark:text-x-dark-textSecondary text-x-light-textSecondary">Comentários
+                    <p class="text-[15.5px] font-medium dark:text-x-dark-textSecondary text-x-light-textSecondary">Comentários
                     </p>
                     <button @click="openSortByFilterDrawer" class="flex items-center gap-1">
                         <span class="font-medium text-sm dark:text-x-dark-textSecondary text-x-light-textSecondary"> {{
