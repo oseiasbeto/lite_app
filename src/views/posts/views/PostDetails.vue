@@ -1,11 +1,9 @@
 <template>
     <div class="relative">
-        <div @scroll="setScrollTopFromCache" ref="postView"
-            class="h-[calc(100vh-60px)] relative overflow-y-scroll">
+        <div @scroll="setScrollTopFromCache" ref="postView" class="h-[calc(100vh-60px)] relative overflow-y-scroll">
             <Navbar title="Postagem" />
-            <div class="mt-[53px]"
-            :class="{'pb-2' : !cacheComments?.pagination?.hasMore}"
-             v-if="!loadingFetchPost">
+            <div class="mt-[53px]" :class="{ 'pb-2': !cacheComments?.pagination?.hasMore }"
+                :style="{ paddingBottom: `${composerHeight}px` }" v-if="!loadingFetchPost">
                 <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
                 <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"
                     :is-refreshing="isRefreshing" :top-position="46" />
@@ -16,12 +14,15 @@
 
                 <div>
                     <!--CREATE COMMENT TRIGGER-->
-                    <CreateCommentTrigger @on-press="openNewCommentDrawer" :user="user" :type="post?.type" />
+                    <CreateCommentTrigger ref="commentTriggerRef" :user="user" :type="post?.type"
+                        :loading="loadingCreateComment" @on-submit="handleInlineComment"
+                        @on-height-change="handleComposerHeightChange" />
                 </div>
 
                 <!--COMMENTS FILTERS-->
                 <div v-if="cacheComments?.comments?.length" class="flex items-center justify-between py-3 px-4">
-                    <p class="text-[15.5px] font-medium dark:text-x-dark-textSecondary text-x-light-textSecondary">Comentários
+                    <p class="text-[15px] font-medium dark:text-x-dark-textSecondary text-x-light-textSecondary">
+                        Comentários
                     </p>
                     <button @click="openSortByFilterDrawer" class="flex items-center gap-1">
                         <span class="font-medium text-sm dark:text-x-dark-textSecondary text-x-light-textSecondary"> {{
@@ -55,7 +56,8 @@
                         <div class="flex text-x-light-textSecondary dark:text-x-dark-textSecondary items-center gap-2"
                             v-if="drawer?.metadata?.parent">
                             <span>Respondendo:</span>
-                            <div v-if="drawer?.metadata?.replyTo?._id !== user?._id" class="flex items-center flex-row gap-1.5">
+                            <div v-if="drawer?.metadata?.replyTo?._id !== user?._id"
+                                class="flex items-center flex-row gap-1.5">
                                 <Avatar
                                     :url="drawer?.metadata?.replyTo?.profile_image?.thumbnails?.xs || drawer?.metadata?.replyTo?.profile_image?.url"
                                     :alt="drawer?.metadata?.replyTo?.name" size="xs" />
@@ -123,6 +125,10 @@ const postId = ref(route.params.id || null)
 const postView = ref(null)
 const module = route.query.module || 'feed'
 
+const commentTriggerRef = ref(null)
+// altura do composer inline (usada como padding-bottom pra nada ficar escondido atrás dele)
+const composerHeight = ref(54)
+
 const post = computed(() => store.getters.currentPost)
 const user = computed(() => store.getters.currentUser)
 
@@ -130,6 +136,12 @@ const canComment = computed(() => {
     if (commentContent.value.trim().length && !loadingCreateComment.value) return true
     else return false
 })
+
+// altura do composer inline muda conforme a textarea cresce/diminui
+const handleComposerHeightChange = (height) => {
+    composerHeight.value = height
+}
+
 
 const sortByText = computed(() => {
     switch (queryComments?.value?.sortBy) {
@@ -357,6 +369,43 @@ const handleLoadMoreComments = async () => {
     }
 }
 
+// comentário principal, feito direto pelo composer inline (sem drawer)
+const handleInlineComment = async (content) => {
+    if (!content?.trim() || loadingCreateComment.value) return
+ 
+    loadingCreateComment.value = true
+    store.commit("SET_IS_LOADING_COMPONENT", true)
+ 
+    const data = {
+        content,
+        media: [],
+        postId: postId.value || route.params.id
+    }
+ 
+    await store.dispatch("createComment", data)
+        .then(() => {
+
+            commentTriggerRef.value?.reset()
+            //[TODO] coloque um toast dando a entender que ja se criou
+
+            setTimeout(() => {
+                store.dispatch("showToast", {
+                    position: "top",
+                    message: "Comentário postado com sucesso!",
+                    type: "success"
+                })
+            }, 200)
+        })
+        .catch(() => {
+           
+            //[TODO] coloque um toast que exiba o motivo do erro
+        })
+        .finally(() => {
+             store.commit("SET_IS_LOADING_COMPONENT", false)
+            loadingCreateComment.value = false
+        })
+}
+
 const handleComment = async () => {
     if (!canComment.value) return
 
@@ -418,6 +467,7 @@ const loadPost = async (postId) => {
 
 
 onMounted(async () => {
+    
     if (!post.value?._id) {
         loadingFetchPost.value = true
         await loadPost(postId.value)
@@ -454,6 +504,8 @@ onMounted(async () => {
 
 watch(() => route.params.id, async (newId, oldId) => {
     if (!newId || newId === oldId) return
+
+    commentTriggerRef.value?.reset()
 
     postId.value = newId
 

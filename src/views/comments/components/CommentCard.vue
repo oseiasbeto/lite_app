@@ -22,7 +22,7 @@
                     <!--CONTENT-->
                     <p v-if="isReply && data?.reply_to?._id !== data?.author?._id"
                         class="py-[3px] flex gap-1 items-center text-sm min-w-0">
-                        <span class="shrink-0 text-x-light-textSecondary dark:text-x-dark-textSecondary">Resposta para:
+                        <span class="shrink-0 text-x-light-textSecondary dark:text-x-dark-textSecondary">Em resposta a:
                         </span>
                         <router-link class="text-x-light-blue truncate" :to="`/profile/${data?.reply_to?._id}`">
                             {{ '@' + data?.reply_to?.username }}
