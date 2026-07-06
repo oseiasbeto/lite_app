@@ -8,10 +8,10 @@
             <div v-if="posts?.length">
                 <!-- Container com a altura TOTAL simulada, só os itens visíveis (+buffer) são montados -->
                 <div class="relative" :style="{ height: totalHeight + 'px' }">
-                    <VirtualizedPostItem v-for="{ post, top, estimatedHeight } in visiblePosts" :key="post._id"
-                        :data="post" :top="top" :estimated-height="estimatedHeight" :module="module"
-                        :user="user || {}" :show-border-bottom="showBorderBottom" :show-btn-follow="showBtnFollow"
-                        @measure="onMeasure" @open-more-options-drawer="openMoreOptionsDrawer" />
+                    <VirtualizedPostItem v-for="{ post, top } in visiblePosts" :key="post._id" :data="post" :top="top"
+                        :module="module" :user="user || {}" :show-border-bottom="showBorderBottom"
+                        :show-btn-follow="showBtnFollow" @measure="onMeasure"
+                        @open-more-options-drawer="openMoreOptionsDrawer" />
                 </div>
 
                 <div ref="loadTrigger" v-if="hasMore || loadingLoadMore"
@@ -38,10 +38,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, toRef, watch, onMounted, onBeforeUnmount } from 'vue';
+import { ref, reactive, computed, toRef } from 'vue';
 import { useStore } from 'vuex';
 import VirtualizedPostItem from './VirtualizedPostItem.vue';
-import { useIntersectionObserver, useElementSize } from "@vueuse/core";
+import { useIntersectionObserver, useScroll, useElementSize } from "@vueuse/core";
 import PostSkeleton from './PostSkeleton.vue';
 import SpinnerSmall from '@/components/UI/SpinnerSmall.vue';
 import Drawer from '@/components/drawer/Drawer.vue';
@@ -158,74 +158,16 @@ const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
 // ============================================================
 
 const DEFAULT_ITEM_HEIGHT = 420   // estimativa até o item ser medido de verdade
-const BUFFER_PX = 900             // "colchão" base acima/abaixo do viewport
+const BUFFER_PX = 900             // "colchão" acima/abaixo do viewport, evita flicker no scroll rápido
 
 // Alturas reais medidas por post (id -> px)
 const heights = reactive({})
 
-// --- scrollTop sincronizado via rAF, direto do DOM ---
-// Em vez de depender de um listener de evento de scroll (que passa pelo
-// agendamento de reatividade do Vue e sempre carrega pelo menos 1 tick de
-// atraso), lemos scrollEl.scrollTop a cada frame de animação. Isso elimina
-// a maior fonte do atraso entre "o navegador já rolou pra lá" e "o Vue decidiu
-// montar o item que devia estar lá" — que é a causa raiz do flash branco.
-const scrollTop = ref(0)
-let rafId = null
-
-const syncScrollTop = () => {
-    if (scrollEl.value) {
-        scrollTop.value = scrollEl.value.scrollTop
-    }
-    rafId = requestAnimationFrame(syncScrollTop)
-}
-
-onMounted(() => {
-    rafId = requestAnimationFrame(syncScrollTop)
-})
-
-onBeforeUnmount(() => {
-    if (rafId) cancelAnimationFrame(rafId)
-})
-
+// Posição de scroll e altura do container reativas (com throttle p/ não travar em dispositivos fracos)
+// IMPORTANTE: escuta scrollEl (o elemento que REALMENTE tem overflow/scroll),
+// não um div interno sem altura definida — senão scrollTop nunca muda.
+const { y: scrollTop } = useScroll(scrollEl, { throttle: 50 })
 const { height: containerHeight } = useElementSize(scrollEl)
-
-// --- buffer direcional e dinâmico ---
-// Cresce com a velocidade do scroll e estica mais no sentido pra onde o
-// usuário está indo (rolando pra baixo = mais buffer embaixo, e vice-versa).
-// Isso faz os itens já estarem montados e prontos antes de entrarem na tela,
-// mesmo em fling rápido — sem precisar limitar a velocidade real do scroll
-// (o que quebraria o momentum nativo, principalmente no iOS).
-let lastScrollSample = 0
-let lastScrollTime = performance.now()
-const bufferTop = ref(BUFFER_PX)
-const bufferBottom = ref(BUFFER_PX)
-
-watch(scrollTop, (y) => {
-    const now = performance.now()
-    const dt = Math.max(now - lastScrollTime, 1)
-    const rawVelocity = (y - lastScrollSample) / dt // px/ms, com sinal (+ desce, - sobe)
-    const speed = Math.abs(rawVelocity)
-
-    const extra = speed > 1.5
-        ? Math.min(speed * 500, BUFFER_PX * 3) // teto: até 4x o buffer base
-        : 0
-
-    if (rawVelocity > 0) {
-        // rolando pra baixo: estica o buffer de baixo, mantém o de cima na base
-        bufferBottom.value = BUFFER_PX + extra
-        bufferTop.value = BUFFER_PX
-    } else if (rawVelocity < 0) {
-        // rolando pra cima: estica o buffer de cima
-        bufferTop.value = BUFFER_PX + extra
-        bufferBottom.value = BUFFER_PX
-    } else {
-        bufferTop.value = BUFFER_PX
-        bufferBottom.value = BUFFER_PX
-    }
-
-    lastScrollSample = y
-    lastScrollTime = now
-})
 
 // Offset (posição top) acumulado de cada post
 const offsets = computed(() => {
@@ -241,7 +183,7 @@ const offsets = computed(() => {
 
 const totalHeight = computed(() => offsets.value[offsets.value.length - 1] || 0)
 
-// Encontra por busca binária o range de índices visível (+ buffer direcional)
+// Encontra por busca binária o range de índices visível (+ buffer)
 const visibleRange = computed(() => {
     const list = props.posts
     const off = offsets.value
@@ -249,8 +191,8 @@ const visibleRange = computed(() => {
 
     if (!n) return { start: 0, end: 0 }
 
-    const top = Math.max(0, scrollTop.value - bufferTop.value)
-    const bottom = scrollTop.value + (containerHeight.value || 0) + bufferBottom.value
+    const top = Math.max(0, scrollTop.value - BUFFER_PX)
+    const bottom = scrollTop.value + (containerHeight.value || 0) + BUFFER_PX
 
     let lo = 0, hi = n - 1, start = 0
     while (lo <= hi) {
@@ -277,8 +219,7 @@ const visiblePosts = computed(() => {
     const off = offsets.value
     return props.posts.slice(start, end).map((post, i) => ({
         post,
-        top: off[start + i],
-        estimatedHeight: heights[post._id] || DEFAULT_ITEM_HEIGHT
+        top: off[start + i]
     }))
 })
 
