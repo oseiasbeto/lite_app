@@ -9,8 +9,8 @@
                     :is-refreshing="isRefreshing" :top-position="46" />
 
 
-                <PostCard :module="module" :data="post" :show-more="true" :user="user" :enable-truncate="false"
-                    @open-new-comment-drawer="openNewCommentDrawer" />
+                <PostDetailCard :module="module" :data="post" :user="user"
+                    @open-new-comment-drawer="openNewCommentDrawer" @open-more-options-drawer="openMoreOptions" />
 
                 <div>
                     <!--CREATE COMMENT TRIGGER-->
@@ -18,8 +18,7 @@
                 </div>
 
                 <!--COMMENTS FILTERS-->
-                <div v-if="cacheComments?.comments?.length"
-                    class="flex items-center justify-between py-3 px-3">
+                <div v-if="cacheComments?.comments?.length" class="flex items-center justify-between py-3 px-3">
                     <p class="text-sm font-semibold dark:text-white text-[rgb(40,40,41)]">Comentários</p>
                     <button @click="openSortByFilterDrawer" class="flex items-center gap-1">
                         <span class="font-semibold text-[13px]"> {{ sortByText }}</span>
@@ -48,7 +47,8 @@
             <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
                 <template v-if="drawer?.name === 'newComment'">
                     <div class="flex w-full gap-2.5 flex-col p-4">
-                        <div class="flex text-x-light-textSecondary dark:text-x-dark-textSecondary items-center gap-2" v-if="drawer?.metadata?.parent">
+                        <div class="flex text-x-light-textSecondary dark:text-x-dark-textSecondary items-center gap-2"
+                            v-if="drawer?.metadata?.parent">
                             <span>Respondendo:</span>
                             <div class="flex items-center flex-row gap-1.5">
                                 <Avatar
@@ -79,7 +79,8 @@
                         parent: drawer?.metadata,
                         replyTo: drawer?.metadata?.author
                     })" title="Responder" :is-active="false" />
-                    <DrawerItem v-if="isCommentAuthor" :is-danger="true" @on-press="" title="Eliminar" :is-active="false" />
+                    <DrawerItem v-if="isCommentAuthor" :is-danger="true" @on-press="" title="Eliminar"
+                        :is-active="false" />
                 </template>
 
                 <template v-if="drawer?.name === 'sortByFilter'">
@@ -96,7 +97,7 @@
 import { computed, onMounted, watch, ref } from 'vue';
 import { useRoute, onBeforeRouteLeave } from 'vue-router';
 import { useStore } from 'vuex';
-import PostCard from '../components/PostCard.vue';
+import PostDetailCard from '../components/PostDetailCard.vue';
 import Drawer from '@/components/drawer/Drawer.vue';
 import CreateCommentTrigger from '@/views/comments/components/CreateCommentTrigger.vue';
 import CommentList from '@/views/comments/components/CommentList.vue';
@@ -193,18 +194,18 @@ const openDrawer = (data) => {
 const isCommentAuthor = computed(() => {
     // Verifica se o drawer está aberto com o nome 'commentMoreOptions'
     if (drawer.value?.name !== 'commentMoreOptions') return false
-    
+
     // Pega o autor do comentário do metadata
     const commentAuthor = drawer.value?.metadata?.author
-    
+
     // Se não tiver autor, retorna false
     if (!commentAuthor) return false
-    
+
     // Compara o ID do autor do comentário com o ID do usuário atual
     // Supondo que o author pode ser um objeto ou string ID
     const authorId = commentAuthor?._id || commentAuthor
     const currentUserId = user.value?._id
-    
+
     return authorId?.toString() === currentUserId?.toString()
 })
 
