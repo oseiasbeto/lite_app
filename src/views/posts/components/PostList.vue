@@ -8,10 +8,10 @@
             <div v-if="posts?.length">
                 <!-- Container com a altura TOTAL simulada, só os itens visíveis (+buffer) são montados -->
                 <div class="relative" :style="{ height: totalHeight + 'px' }">
-                    <VirtualizedPostItem v-for="{ post, top } in visiblePosts" :key="post._id" :data="post" :top="top"
-                        :module="module" :user="user || {}" :show-border-bottom="showBorderBottom"
-                        :show-btn-follow="showBtnFollow" @measure="onMeasure"
-                        @open-more-options-drawer="openMoreOptionsDrawer" />
+                    <VirtualizedPostItem v-for="{ post, top, estimatedHeight } in visiblePosts" :key="post._id"
+                        :data="post" :top="top" :estimated-height="estimatedHeight" :module="module"
+                        :user="user || {}" :show-border-bottom="showBorderBottom" :show-btn-follow="showBtnFollow"
+                        @measure="onMeasure" @open-more-options-drawer="openMoreOptionsDrawer" />
                 </div>
 
                 <div ref="loadTrigger" v-if="hasMore || loadingLoadMore"
@@ -38,10 +38,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, toRef, watch } from 'vue';
+import { ref, reactive, computed, toRef, watch, onMounted, onBeforeUnmount } from 'vue';
 import { useStore } from 'vuex';
 import VirtualizedPostItem from './VirtualizedPostItem.vue';
-import { useIntersectionObserver, useScroll, useElementSize } from "@vueuse/core";
+import { useIntersectionObserver, useElementSize } from "@vueuse/core";
 import PostSkeleton from './PostSkeleton.vue';
 import SpinnerSmall from '@/components/UI/SpinnerSmall.vue';
 import Drawer from '@/components/drawer/Drawer.vue';
@@ -158,37 +158,70 @@ const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
 // ============================================================
 
 const DEFAULT_ITEM_HEIGHT = 420   // estimativa até o item ser medido de verdade
-const BUFFER_PX = 900             // "colchão" base acima/abaixo do viewport, evita flicker no scroll normal
+const BUFFER_PX = 900             // "colchão" base acima/abaixo do viewport
 
 // Alturas reais medidas por post (id -> px)
 const heights = reactive({})
 
-// Posição de scroll e altura do container reativas.
-// IMPORTANTE: escuta scrollEl (o elemento que REALMENTE tem overflow/scroll),
-// não um div interno sem altura definida — senão scrollTop nunca muda.
-// throttle baixo (~1 frame) em vez de 50ms: com 50ms, um fling rápido em mobile
-// pode se mover 150-300px entre duas atualizações do valor reativo — o suficiente
-// pra estourar o buffer fixo e deixar a área sem nenhum item montado ainda
-// (o "flash branco" do item, não da imagem).
-const { y: scrollTop } = useScroll(scrollEl, { throttle: 16 })
+// --- scrollTop sincronizado via rAF, direto do DOM ---
+// Em vez de depender de um listener de evento de scroll (que passa pelo
+// agendamento de reatividade do Vue e sempre carrega pelo menos 1 tick de
+// atraso), lemos scrollEl.scrollTop a cada frame de animação. Isso elimina
+// a maior fonte do atraso entre "o navegador já rolou pra lá" e "o Vue decidiu
+// montar o item que devia estar lá" — que é a causa raiz do flash branco.
+const scrollTop = ref(0)
+let rafId = null
+
+const syncScrollTop = () => {
+    if (scrollEl.value) {
+        scrollTop.value = scrollEl.value.scrollTop
+    }
+    rafId = requestAnimationFrame(syncScrollTop)
+}
+
+onMounted(() => {
+    rafId = requestAnimationFrame(syncScrollTop)
+})
+
+onBeforeUnmount(() => {
+    if (rafId) cancelAnimationFrame(rafId)
+})
+
 const { height: containerHeight } = useElementSize(scrollEl)
 
-// --- buffer dinâmico: cresce com a velocidade do scroll ---
-// Cobre o atraso entre o scroll nativo (instantâneo) e o recalculo reativo do Vue,
-// montando itens fora da tela com antecedência quando detecta um fling rápido.
+// --- buffer direcional e dinâmico ---
+// Cresce com a velocidade do scroll e estica mais no sentido pra onde o
+// usuário está indo (rolando pra baixo = mais buffer embaixo, e vice-versa).
+// Isso faz os itens já estarem montados e prontos antes de entrarem na tela,
+// mesmo em fling rápido — sem precisar limitar a velocidade real do scroll
+// (o que quebraria o momentum nativo, principalmente no iOS).
 let lastScrollSample = 0
 let lastScrollTime = performance.now()
-const dynamicBuffer = ref(BUFFER_PX)
+const bufferTop = ref(BUFFER_PX)
+const bufferBottom = ref(BUFFER_PX)
 
 watch(scrollTop, (y) => {
     const now = performance.now()
     const dt = Math.max(now - lastScrollTime, 1)
-    const velocity = Math.abs(y - lastScrollSample) / dt // px/ms
+    const rawVelocity = (y - lastScrollSample) / dt // px/ms, com sinal (+ desce, - sobe)
+    const speed = Math.abs(rawVelocity)
 
-    // acima de ~1.5px/ms (~1500px/s) já consideramos fling rápido
-    dynamicBuffer.value = velocity > 1.5
-        ? Math.min(BUFFER_PX + velocity * 400, BUFFER_PX * 4)
-        : BUFFER_PX
+    const extra = speed > 1.5
+        ? Math.min(speed * 500, BUFFER_PX * 3) // teto: até 4x o buffer base
+        : 0
+
+    if (rawVelocity > 0) {
+        // rolando pra baixo: estica o buffer de baixo, mantém o de cima na base
+        bufferBottom.value = BUFFER_PX + extra
+        bufferTop.value = BUFFER_PX
+    } else if (rawVelocity < 0) {
+        // rolando pra cima: estica o buffer de cima
+        bufferTop.value = BUFFER_PX + extra
+        bufferBottom.value = BUFFER_PX
+    } else {
+        bufferTop.value = BUFFER_PX
+        bufferBottom.value = BUFFER_PX
+    }
 
     lastScrollSample = y
     lastScrollTime = now
@@ -208,7 +241,7 @@ const offsets = computed(() => {
 
 const totalHeight = computed(() => offsets.value[offsets.value.length - 1] || 0)
 
-// Encontra por busca binária o range de índices visível (+ buffer dinâmico)
+// Encontra por busca binária o range de índices visível (+ buffer direcional)
 const visibleRange = computed(() => {
     const list = props.posts
     const off = offsets.value
@@ -216,9 +249,8 @@ const visibleRange = computed(() => {
 
     if (!n) return { start: 0, end: 0 }
 
-    const buffer = dynamicBuffer.value
-    const top = Math.max(0, scrollTop.value - buffer)
-    const bottom = scrollTop.value + (containerHeight.value || 0) + buffer
+    const top = Math.max(0, scrollTop.value - bufferTop.value)
+    const bottom = scrollTop.value + (containerHeight.value || 0) + bufferBottom.value
 
     let lo = 0, hi = n - 1, start = 0
     while (lo <= hi) {
@@ -245,7 +277,8 @@ const visiblePosts = computed(() => {
     const off = offsets.value
     return props.posts.slice(start, end).map((post, i) => ({
         post,
-        top: off[start + i]
+        top: off[start + i],
+        estimatedHeight: heights[post._id] || DEFAULT_ITEM_HEIGHT
     }))
 })
 
