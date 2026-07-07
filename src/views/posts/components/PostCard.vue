@@ -182,11 +182,12 @@ const handleFollowUser = async (userId) => {
         })
 
 
-        /* 
+ 
     store.dispatch('showToast', {
-        message: !hasFollowingUser.value ? 'Deixou de seguir o utilizador.' : 'Agora está a seguir o utilizador.',
-        type: 'info'
-    });*/
+        message: hasFollowingUser.value ? 'Você está seguindo ' + props?.data?.author?.name : 'Você deixou de seguir ' + props?.data?.author?.name,
+        type: 'success',
+        position: 'top',
+    });
 }
 
 const goToComments = () => {
