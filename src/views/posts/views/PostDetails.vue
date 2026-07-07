@@ -56,18 +56,18 @@
                     <div class="flex w-full gap-2.5 flex-col p-4">
                         <div class="flex text-x-light-textSecondary dark:text-x-dark-textSecondary items-center gap-2"
                             v-if="drawer?.metadata?.parent">
-                            <span>Em resposta a:
+                            <span class="text-sm">Em resposta a:
                                 <span class="text-black dark:text-white">
-                                    <span class="text-x-light-blue"
-                                        v-if="drawer?.metadata?.replyTo?._id !== user?._id">{{ '@' +
-                                            drawer?.metadata?.replyTo?.username }}</span>
+                                    <span class="text-x-light-blue inline-block truncate max-w-[200px] align-bottom"
+                                        v-if="drawer?.metadata?.replyTo?._id !== user?._id">
+                                        {{ '@' + drawer?.metadata?.replyTo?.username }}
+                                    </span>
                                     <span v-else>si mesmo</span>
                                 </span>
                             </span>
 
                         </div>
-                        <textarea ref="drawerTextareaRef"
-                            :maxlength="300"
+                        <textarea ref="drawerTextareaRef" :maxlength="300"
                             class="w-full caret-x-light-blue placeholder:dark:text-[rgb(177,179,182)] bg-transparent resize-none outline-none dark:text-white"
                             v-model="commentContent" placeholder="Escreva o teu comentário"
                             @input="autoGrowDrawerTextarea" @touchmove.stop @scroll.stop @mousedown.stop>
@@ -285,7 +285,7 @@ function autoGrowDrawerTextarea() {
     if (!el) return
 
     el.style.height = 'auto'
-    const maxHeight = 160 // em px, ajuste conforme necessário
+    const maxHeight = 130 // em px, ajuste conforme necessário
     const newHeight = Math.min(el.scrollHeight, maxHeight)
     el.style.height = `${newHeight}px`
     el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden'
