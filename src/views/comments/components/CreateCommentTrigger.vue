@@ -2,13 +2,13 @@
     <!--FADE/BG atrás do composer: transparente no topo, sólido do meio pra baixo.
         A altura acompanha o tamanho do composer (cresce junto com a textarea).-->
     <div
-        class="fixed bottom-0 w-full z-[10] pointer-events-none bg-gradient-to-t from-x-light-bg dark:from-x-dark-bg from-40% to-transparent transition-[height] duration-150"
+        class="fixed bottom-0 w-full z-[10] pointer-events-none  transition-[height] duration-150"
         :style="{ height: `${fadeHeight}px` }">
     </div>
 
     <div ref="composerRef" class="fixed bottom-0 w-full z-[11] px-1.5 pb-[12px] pt-2">
         <div class="w-full bg-x-light-surface dark:bg-x-dark-surface border dark:border-x-dark-border border-x-light-border transition-[border-radius] px-3 py-2 duration-150"
-            :class="isExpanded ? 'rounded-[22px]' : 'rounded-[22px] h-[50px] flex items-center'">
+            :class="isExpanded ? 'rounded-[22px]' : 'rounded-[22px] h-[54px] flex items-center'">
 
             <!--ESTADO FECHADO: linha padrão de trigger-->
             <div v-if="!isExpanded" @click="expand" class="flex items-center w-full h-full cursor-text">
@@ -29,6 +29,7 @@
                 <textarea
                     ref="textareaRef"
                     v-model="content"
+                    :maxlength="300"
                     rows="1"
                     class="flex-1 resize-none bg-transparent outline-none text-[15px] leading-5 max-h-[160px] overflow-y-auto py-2 placeholder:text-x-light-textSecondary dark:placeholder:text-x-dark-textSecondary"
                     :placeholder="type == 'post' ? 'Escreva o seu comentário' : 'Escreva a sua resposta'"
@@ -85,11 +86,12 @@ const fadeHeight = ref(90)
 const canSubmit = computed(() => content.value.trim().length > 0 && !props.loading)
 
 function expand() {
-    if (isExpanded.value) return
+    if (!isExpanded.value) {
+        isExpanded.value = true
+        emit('on-expand')
+    }
 
-    isExpanded.value = true
-    emit('on-expand')
-
+    // Sempre foca e ajusta a altura, mesmo se já estiver expandido
     nextTick(() => {
         textareaRef.value?.focus()
         autoGrow()

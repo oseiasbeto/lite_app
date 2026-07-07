@@ -10,7 +10,8 @@
 
 
                 <PostDetailCard :module="module" :data="post" :user="user"
-                    @open-new-comment-drawer="openNewCommentDrawer" @open-more-options-drawer="openMoreOptions" />
+                    @open-new-comment-drawer="() => { triggerComposer() }"
+                    @open-more-options-drawer="openMoreOptions" />
 
                 <div>
                     <!--CREATE COMMENT TRIGGER-->
@@ -55,29 +56,27 @@
                     <div class="flex w-full gap-2.5 flex-col p-4">
                         <div class="flex text-x-light-textSecondary dark:text-x-dark-textSecondary items-center gap-2"
                             v-if="drawer?.metadata?.parent">
-                            <span>Respondendo:</span>
-                            <div v-if="drawer?.metadata?.replyTo?._id !== user?._id"
-                                class="flex items-center flex-row gap-1.5">
-                                <Avatar
-                                    :url="drawer?.metadata?.replyTo?.profile_image?.thumbnails?.xs || drawer?.metadata?.replyTo?.profile_image?.url"
-                                    :alt="drawer?.metadata?.replyTo?.name" size="xs" />
-                                <span class="text-[13px] dark:text-white text-black font-semibold">
-                                    {{ drawer?.metadata?.replyTo?.name ||
-                                        drawer?.metadata?.replyTo }}
+                            <span>Em resposta a:
+                                <span class="text-black dark:text-white">
+                                    <span class="text-x-light-blue"
+                                        v-if="drawer?.metadata?.replyTo?._id !== user?._id">{{ '@' +
+                                            drawer?.metadata?.replyTo?.username }}</span>
+                                    <span v-else>si mesmo</span>
                                 </span>
-                            </div>
-                            <span v-else class="text-sm dark:text-white text-black font-semibold">
-                                a si mesmo
                             </span>
+
                         </div>
-                        <textarea
-                            class="w-full placeholder:dark:text-[rgb(177,179,182)] bg-transparent resize-none outline-none dark:text-white"
-                            v-model="commentContent" placeholder="Escreva o teu comentário"></textarea>
+                        <textarea ref="drawerTextareaRef"
+                            :maxlength="300"
+                            class="w-full caret-x-light-blue placeholder:dark:text-[rgb(177,179,182)] bg-transparent resize-none outline-none dark:text-white"
+                            v-model="commentContent" placeholder="Escreva o teu comentário"
+                            @input="autoGrowDrawerTextarea" @touchmove.stop @scroll.stop @mousedown.stop>
+                        </textarea>
                         <div class="flex justify-end">
-                            <button :disabled="!canComment"
-                                class="px-1.5 py-1 float-right w-min text-[#4894fd] font-semibold disabled:opacity-70 rounded-md disabled:text-gray-400"
+                            <button :disabled="!canComment || loadingCreateComment"
+                                class="px-3 rounded-[30px] py-1.5 float-right w-min bg-x-light-blue text-white font-semibold disabled:opacity-70"
                                 @click="handleComment">
-                                {{ loadingCreateComment ? 'Postando...' : 'Postar' }}
+                                {{ loadingCreateComment ? 'Postando...' : 'Responder' }}
                             </button>
                         </div>
 
@@ -104,7 +103,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, watch, ref } from 'vue';
+import { computed, onMounted, watch, nextTick, ref } from 'vue';
 import { useRoute, onBeforeRouteLeave } from 'vue-router';
 import { useStore } from 'vuex';
 import PostDetailCard from '../components/PostDetailCard.vue';
@@ -112,7 +111,6 @@ import Drawer from '@/components/drawer/Drawer.vue';
 import CreateCommentTrigger from '@/views/comments/components/CreateCommentTrigger.vue';
 import CommentList from '@/views/comments/components/CommentList.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
-import Avatar from '@/components/Utils/Avatar.vue';
 import Navbar from '@/views/main/components/Navbar.vue';
 import PullToRefreshIndicator from '@/components/UI/PullToRefreshIndicator.vue';
 import { usePullToRefresh } from '@/composables/usePullToRefresh';
@@ -255,6 +253,7 @@ const closeDrawer = () => {
     }
 
     resetCommentForm()
+    resetDrawerTextarea()
 
     if (post.value?.showCommentFormDrawer) {
         store.commit("SET_POST", {
@@ -277,6 +276,32 @@ const resetQueryComments = () => {
         hasTotal: null
     }
 }
+
+const drawerTextareaRef = ref(null)
+
+// Função para ajustar altura automaticamente com limite máximo
+function autoGrowDrawerTextarea() {
+    const el = drawerTextareaRef.value
+    if (!el) return
+
+    el.style.height = 'auto'
+    const maxHeight = 160 // em px, ajuste conforme necessário
+    const newHeight = Math.min(el.scrollHeight, maxHeight)
+    el.style.height = `${newHeight}px`
+    el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden'
+}
+
+
+// Também precisamos resetar a altura quando fechar o drawer, opcional
+function resetDrawerTextarea() {
+    const el = drawerTextareaRef.value
+    if (el) {
+        el.style.height = 'auto'
+        el.style.overflowY = 'hidden'
+    }
+    commentContent.value = ''
+}
+
 
 const resetHasError = () => {
     hasError.value = {
@@ -369,19 +394,25 @@ const handleLoadMoreComments = async () => {
     }
 }
 
+function triggerComposer() {
+    if (commentTriggerRef.value) {
+        commentTriggerRef.value.expand(); // abre o composer e foca no textarea
+    }
+}
+
 // comentário principal, feito direto pelo composer inline (sem drawer)
 const handleInlineComment = async (content) => {
     if (!content?.trim() || loadingCreateComment.value) return
- 
+
     loadingCreateComment.value = true
     store.commit("SET_IS_LOADING_COMPONENT", true)
- 
+
     const data = {
         content,
         media: [],
         postId: postId.value || route.params.id
     }
- 
+
     await store.dispatch("createComment", data)
         .then(() => {
 
@@ -397,17 +428,19 @@ const handleInlineComment = async (content) => {
             }, 200)
         })
         .catch(() => {
-           
+
             //[TODO] coloque um toast que exiba o motivo do erro
         })
         .finally(() => {
-             store.commit("SET_IS_LOADING_COMPONENT", false)
+            store.commit("SET_IS_LOADING_COMPONENT", false)
             loadingCreateComment.value = false
         })
 }
 
 const handleComment = async () => {
     if (!canComment.value) return
+
+    store.commit("SET_IS_LOADING_COMPONENT", true)
 
     loadingCreateComment.value = true
 
@@ -424,13 +457,22 @@ const handleComment = async () => {
     await store.dispatch("createComment", data)
         .then(() => {
             //[TODO] coloque um toast dando a entender que ja se criou
+            setTimeout(() => {
+                store.dispatch("showToast", {
+                    position: "top",
+                    message: "Resposta postada com sucesso!",
+                    type: "success"
+                })
+            }, 200)
         })
         .catch(() => {
             //[TODO] coloque um toast que exiba o motivo do erro
         })
         .finally(() => {
-            loadingCreateComment.value = false
             closeDrawer()
+            store.commit("SET_IS_LOADING_COMPONENT", false)
+            loadingCreateComment.value = false
+
         })
 }
 
@@ -467,7 +509,7 @@ const loadPost = async (postId) => {
 
 
 onMounted(async () => {
-    
+
     if (!post.value?._id) {
         loadingFetchPost.value = true
         await loadPost(postId.value)
@@ -475,7 +517,7 @@ onMounted(async () => {
     } else {
         if (post.value?.showCommentFormDrawer) {
             setTimeout(() => {
-                openNewCommentDrawer()
+                triggerComposer()
             }, 1000)
         }
 
@@ -549,7 +591,7 @@ watch(() => route.params.id, async (newId, oldId) => {
 
             if (post.value?.showCommentFormDrawer) {
                 setTimeout(() => {
-                    openNewCommentDrawer()
+                    triggerComposer()
                 }, 1000)
             }
         } else {
@@ -561,11 +603,25 @@ watch(() => route.params.id, async (newId, oldId) => {
                     loadingFetchComments.value = false
                     if (post.value?.showCommentFormDrawer) {
                         setTimeout(() => {
-                            openNewCommentDrawer()
+                            triggerComposer()
                         }, 1000)
                     }
                 })
         }
     }
 })
+
+// Watch para quando o drawer de novo comentário for aberto
+watch(() => drawer.value?.name, (newName) => {
+    if (newName === 'newComment') {
+        nextTick(() => {
+            const el = drawerTextareaRef.value
+            if (el) {
+                el.focus()
+                // Garantir que a altura seja ajustada após o foco
+                autoGrowDrawerTextarea()
+            }
+        })
+    }
+}, { immediate: true })
 </script>

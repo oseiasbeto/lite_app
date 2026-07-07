@@ -14,8 +14,8 @@
 
                 <!-- LOAD MORE -->
                 <div ref="loadTrigger" v-if="!loadingFetch && (pagination?.hasMore || loadingLoadMore)"
-                    class="load-more-container py-3.5 dark:bg-[#262626] bg-white flex justify-center">
-                    <Spinner/>
+                    class="load-more-container py-3.5 flex justify-center">
+                    <SpinnerSmall/>
                 </div>
             </div>
         </div>
@@ -32,7 +32,7 @@ import { useStore } from 'vuex';
 import CommentCard from './CommentCard.vue';
 import { useIntersectionObserver } from "@vueuse/core";
 import CommentSkeleton from './CommentSkeleton.vue';
-import Spinner from '@/components/UI/Spinner.vue';
+import SpinnerSmall from '@/components/UI/SpinnerSmall.vue';
 
 const store = useStore()
 

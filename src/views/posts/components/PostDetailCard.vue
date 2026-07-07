@@ -82,7 +82,7 @@
             <span>{{ formattedDate }}</span>
             <span v-if="data?.views_count">·</span>
             <span v-if="data?.views_count" class="flex items-center gap-1">
-                <span class="font-semibold dark:text-white text-black mt-[-1px]">
+                <span class="font-semibold dark:text-white text-black mt-[-2px]">
                     <Flipnumber :value="data?.views_count" />
                 </span>
                 <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Visualizações</span>
@@ -96,19 +96,19 @@
         <div
             class="px-4 py-3 flex items-center gap-4 text-[15px] border-b dark:border-x-dark-border border-x-light-border">
             <button class="flex items-center gap-1 hover:underline" @click="goToShare">
-                <span class="font-semibold dark:text-white text-black mt-[-1px]">
+                <span class="font-semibold dark:text-white text-black mt-[-2px]">
                     <Flipnumber :value="data?.shares_count" />
                 </span>
                 <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Partilhas</span>
             </button>
             <button class="flex items-center gap-1 hover:underline">
-                <span class="font-semibold dark:text-white text-black mt-[-1px]">
+                <span class="font-semibold dark:text-white text-black mt-[-2px]">
                     <Flipnumber :value="data?.comments_count" />
                 </span>
                 <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Comentários</span>
             </button>
             <button class="flex items-center gap-1 hover:underline">
-                <span class="font-semibold dark:text-white text-black mt-[-1px]">
+                <span class="font-semibold dark:text-white text-black mt-[-2px]">
                     <Flipnumber :value="data?.upvotes_count" />
                 </span>
                 <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Gostos</span>
@@ -256,6 +256,7 @@ const openVideo = (video) => {
     store.commit('SET_MEDIA', { selected: video, list: [video], post: props.data });
     router.push(`/media/${video._id}?module=${props.module}`);
 };
+
 
 const handleNativeShare = async () => {
     if (navigator.share) {
