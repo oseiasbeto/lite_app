@@ -285,7 +285,7 @@ function autoGrowDrawerTextarea() {
     if (!el) return
 
     el.style.height = 'auto'
-    const maxHeight = 130 // em px, ajuste conforme necessário
+    const maxHeight = 120 // em px, ajuste conforme necessário
     const newHeight = Math.min(el.scrollHeight, maxHeight)
     el.style.height = `${newHeight}px`
     el.style.overflowY = el.scrollHeight > maxHeight ? 'auto' : 'hidden'
