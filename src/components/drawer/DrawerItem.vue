@@ -1,15 +1,20 @@
 <template>
-    <div :class="['px-3 py-3.5 cursor-pointer active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive border-b border-x-light-border dark:border-x-dark-border transition-colors', costumClass]"
+    <div :class="['px-3 py-3.5 cursor-pointer active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive transition-colors', costumClass]"
         @click="onPress">
         <div class="flex items-center">
             <!--icon-->
-            <span class="ml-2">
+            <span class="ml-2 text-x-light-textSecondary dark:text-x-dark-textPrimary shrink-0 w-6 h-6 flex items-center justify-center [&>svg]:w-full [&>svg]:h-full [&>svg]:object-contain">
                 <slot name="icon"></slot>
             </span>
 
-            <div>
-                <p class="text-[15px] font-medium text-inherit dark:text-white">{{ title }}  <span class="text-green-500 font-bold text-lg ml-0.5" v-if="isActive">✓</span></p>
-                <p v-show="description" class="text-[13px] mt-0.5 text-x-dark-textSecondary dark:text-x-dark-textSecondary">
+            <div class="flex-1 min-w-0 ml-2">
+                <div class="flex items-center gap-1">
+                    <p class="text-base min-w-0 truncate font-medium text-x-light-textSecondary dark:text-x-dark-textPrimary">
+                        {{ title }}
+                    </p>
+                    <span class="text-green-500 font-bold text-lg shrink-0" v-if="isActive">✓</span>
+                </div>
+                <p v-show="description" class="text-[13px] mt-0.5 text-x-light-textTertiary dark:text-x-dark-textSecondary truncate">
                     {{ description }}
                 </p>
             </div>

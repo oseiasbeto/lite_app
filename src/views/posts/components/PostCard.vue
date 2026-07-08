@@ -69,11 +69,13 @@
 
             <!--FOOTER-->
             <div @click.stop v-if="!isParentPost" class="pt-1 pb-1">
-                <PostReactions :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
+                <PostReactions 
+                    :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
                     :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"
                     :comments-count="data?.comments_count" :shares-count="data?.shares_count" :user-id="user?._id"
                     @on-upvote="handleUpvote" @on-downvote="handleDownvote" @on-comment="goToComments"
-                    @on-share="goToShare" @on-more="openMoreOptions(data)" />
+                    @on-share="goToShare" 
+                    @on-more="openMoreOptions(data)" />
             </div>
         </div>
     </div>

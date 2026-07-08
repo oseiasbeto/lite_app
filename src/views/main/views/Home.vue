@@ -133,7 +133,7 @@ const handleRefresh = async (done) => {
     done() // libera o indicador de loading
 }
 
-const handlePostDeleted = (postId) => {
+const handlePostDeleted = async (postId) => {
     console.log('Postagem deletada:', postId);
 
     store.commit("REMOVE_POST_FROM_MODULE", {

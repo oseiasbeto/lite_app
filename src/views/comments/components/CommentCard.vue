@@ -37,9 +37,11 @@
                     <CommentReactions :loading="isReactingComment" :upvotes="data?.upvotes"
                         :upvotes-count="data?.upvotes_count" :downvotes="data?.downvotes" :user-id="userId"
                         :downvotes-count="data?.downvotes_count" :replies-count="data?.replies_count"
-                        :shares-count="data?.shares_count" @on-more="handleOneMore(data)" @on-upvote="handleUpvote"
+                        :shares-count="data?.shares_count"
+                        @on-more="handleOneMore(data)"
+                        @on-upvote="handleUpvote"
                         @on-downvote="handleDownvote" @on-reply="onReply({
-                            parent: data,
+                            parent: data?.parent || data,
                             replyTo: data?.author
                         })" />
                 </div>
@@ -53,10 +55,22 @@
                             :class="isReply ? '-left-[20px] w-[20px]' : '-left-[28px] w-[28px]'">
                         </span>
 
-                        <CommentCard :post-id="postId" :user-id="userId" :data="reply" :is-reply="true" @on-reply="onReply({
-                            parent: reply?.parent,
-                            replyTo: reply?.author
-                        })" />
+                        <!--
+                            🔒 CORREÇÃO DE SEGURANÇA:
+                            Antes: @on-more="handleOneMore(data)" -> enviava sempre o comentário PAI,
+                            mesmo estando dentro do loop de replies. Isso fazia o drawer "mais opções"
+                            abrir com o autor/ID errado (o do pai, não o da resposta clicada),
+                            permitindo editar/excluir/seguir a pessoa errada.
+                            Agora: repassamos a própria função como referência (pass-through), para
+                            que o payload emitido pelo CommentCard filho (que já é o "reply" certo,
+                            capturado no closure correto dele) seja propagado sem substituição.
+                        -->
+                        <CommentCard :post-id="postId"
+                            :user-id="userId" :data="reply"
+                            :is-reply="true"
+                            @on-more="handleOneMore"
+                            @on-reply="onReply"
+                            />
                     </div>
 
                     <!--LOAD MORE-->
@@ -129,8 +143,6 @@ const props = defineProps({
 const isReactingComment = ref(false)
 const loadingLoadMoreReplies = ref(false)
 
-
-
 const queryReplies = ref({
     page: 1,
     limit: 3,
@@ -190,7 +202,7 @@ const loadMoreReplies = async () => {
     }
 }
 
-const emit = defineEmits(['openNewCommentDrawer', 'on-reply'])
+const emit = defineEmits(['openNewCommentDrawer', 'on-more', 'on-reply'])
 
 const onReply = ({ parent, replyTo }) => {
     emit('on-reply', {

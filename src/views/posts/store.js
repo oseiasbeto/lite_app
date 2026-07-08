@@ -242,7 +242,13 @@ export default {
                 });
             }
         },
+        DEC_COMMENTS_COUNT_FROM_POST(state, postId) {
+            const post = state.post
 
+            if (post && post?._id === postId) {
+                post.comments_count = Math.max(0, (post.comments_count || 1) - 1)
+            }
+        },
         // Nova mutation específica para remover de um módulo específico
         REMOVE_POST_FROM_MODULE(state, { moduleName, postId }) {
             if (!moduleName || !postId) return;
@@ -390,36 +396,12 @@ export default {
                 throw err
             }
         },
-        async deletePost({ commit, state }, postId) {
+        async deletePost({ commit }, postId ) {
             try {
-                // Faz a requisição para deletar
                 const response = await api.delete(`/posts/${postId}`);
-
-                if (response.data.success) {
-                    // Commit das mutations para remover a postagem
-                    commit('DELETE_POST', postId);
-
-                    // Se tiver profile com posts, remove também
-                    if (state.profile && state.profile.posts) {
-                        state.profile.posts = state.profile.posts.filter(
-                            post => post._id !== postId
-                        );
-                        commit('UPDATE_PROFILE', {
-                            posts: state.profile.posts
-                        });
-                    }
-
-                    // Decrementa contador de posts do perfil se existir
-                    if (state.profile && state.profile.posts_count !== undefined) {
-                        commit('UPDATE_PROFILE', {
-                            posts_count: Math.max(0, state.profile.posts_count - 1)
-                        });
-                    }
-                }
-
                 return response.data;
             } catch (error) {
-                logger.error("Erro ao deletar postagem:", error?.response?.data?.message || error);
+                console.error("Erro ao excluir comentário:", error?.response?.data?.message || error);
                 throw error;
             }
         },

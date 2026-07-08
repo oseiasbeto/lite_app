@@ -255,6 +255,40 @@ export default {
                 }
             }
         },
+        REMOVE_COMMENT_FROM_CACHE(state, { postId, commentId, parentId }) {
+            const moduleEntry = state.comments.find(m => m?.postId === postId);
+            if (!moduleEntry) return;
+
+            if (!parentId) {
+                // comentário raiz
+                moduleEntry.comments = moduleEntry.comments.filter(c => c?._id !== commentId);
+                if (moduleEntry.pagination?.totalComments) {
+                    moduleEntry.pagination.totalComments = Math.max(0, moduleEntry.pagination.totalComments - 1);
+                }
+            } else {
+                // é uma reply — encontra o pai e remove do array de replies
+                const parent = moduleEntry.comments.find(c => c?._id === parentId);
+                if (parent) {
+                    parent.replies = (parent.replies || []).filter(r => r?._id !== commentId);
+                    parent.replies_count = Math.max(0, (parent.replies_count || 1) - 1);
+                }
+            }
+        },
+        UPDATE_COMMENT_CONTENT_FROM_CACHE(state, { postId, commentId, parentId, content }) {
+            const moduleEntry = state.comments.find(m => m?.postId === postId);
+            if (!moduleEntry) return;
+
+            const target = !parentId
+                ? moduleEntry.comments.find(c => c?._id === commentId)
+                : moduleEntry.comments
+                    .find(c => c?._id === parentId)
+                    ?.replies?.find(r => r?._id === commentId);
+
+            if (target) {
+                target.content = content;
+                target.edited = true;
+            }
+        },
         // Mantida exatamente como estava
         UPDATE_REACTIONS_COMMENT(state, { postId, payload }) {
             if (!postId || !payload) return
@@ -322,7 +356,7 @@ export default {
                     total: 0
                 }
             }
-        },
+        }
     },
     actions: {
         async createComment({ commit }, data) {
@@ -340,6 +374,7 @@ export default {
                     postId: new_comment?.post,
                     payload: new_comment
                 })
+
                 if (!new_comment?.parent?._id) {
                     commit("INC_COMMENTS_COUNT_FROM_POST", postId)
                 }
@@ -423,6 +458,43 @@ export default {
                 logger.error(error);
             }
         },
+        async deleteCommentSTX({ commit }, { postId, commentId, parentId }) {
+            try {
+                const response = await api.delete(`/comments/${commentId}`);
+
+                // otimista: some da tela na hora
+                commit("REMOVE_COMMENT_FROM_CACHE", { postId, commentId, parentId });
+
+                if (!parentId) {
+                    commit("DEC_COMMENTS_COUNT_FROM_POST", postId);
+                }
+
+                return response.data;
+            } catch (error) {
+                logger.error("Erro ao excluir comentário:", error?.response?.data?.message || error);
+                throw error;
+            }
+        },
+        async editComment({ commit }, { postId, commentId, parentId, content }) {
+            try {
+                const response = await api.put(`/comments/${commentId}`, { content });
+                commit("UPDATE_COMMENT_CONTENT_FROM_CACHE", { postId, commentId, parentId, content });
+                return response.data;
+            } catch (error) {
+                logger.error("Erro ao editar comentário:", error?.response?.data?.message || error);
+                throw error;
+            }
+        },
+        async editComment({ commit }, { postId, commentId, parentId, content }) {
+            try {
+                const response = await api.put(`/comments/${commentId}`, { content });
+                commit("UPDATE_COMMENT_CONTENT_FROM_CACHE", { postId, commentId, parentId, content });
+                return response.data;
+            } catch (error) {
+                logger.error("Erro ao editar comentário:", error?.response?.data?.message || error);
+                throw error;
+            }
+        }
     },
     getters: {
         comments: (state) => state.comments,

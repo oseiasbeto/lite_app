@@ -49,6 +49,7 @@ import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import PullToRefreshIndicator from '@/components/UI/PullToRefreshIndicator.vue';
 import { usePullToRefresh } from '@/composables/usePullToRefresh';
 import { useRouter } from 'vue-router';
+import { logger } from '@/utils/logger.js';
 
 const store = useStore()
 const router = useRouter()
@@ -309,6 +310,7 @@ const onMeasure = ({ id, height }) => {
 const handleDeletePost = async (postId) => {
     if (!postId) return;
 
+    console.log(postId)
     try {
         // Fecha o drawer antes de deletar
         closeDrawer();
