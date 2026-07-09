@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, toRef, watch, onUnmounted } from 'vue';
+import { ref, reactive, computed, toRef, watch, nextTick, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import VirtualizedPostItem from './VirtualizedPostItem.vue';
 import { useIntersectionObserver, useScroll, useElementSize } from "@vueuse/core";
