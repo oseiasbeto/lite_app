@@ -37,6 +37,7 @@
                         </svg>
                     </router-link>
                 </div>
+                
                 <!--TABS-->
                 <Tabs :tabs="tabs" v-model="currentTab" />
             </div>
