@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, toRef, watch, onUnmounted } from 'vue';
+import { ref, reactive, computed, toRef, watch, nextTick, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import VirtualizedPostItem from './VirtualizedPostItem.vue';
 import { useIntersectionObserver, useScroll, useElementSize } from "@vueuse/core";
@@ -300,8 +300,42 @@ const visiblePosts = computed(() => {
 
 const onMeasure = ({ id, height }) => {
     if (!id) return
-    if (heights[id] !== height) {
+
+    const oldHeight = heights[id] ?? DEFAULT_ITEM_HEIGHT
+    if (oldHeight === height) return // nada mudou, não faz nada
+
+    const index = props.posts.findIndex(p => p._id === id)
+    if (index === -1) {
+        // post não está mais na lista atual (ex.: já foi removido) — só regista a altura
         heights[id] = height
+        return
+    }
+
+    // Offset (posição top) do item ANTES de aplicarmos a nova altura.
+    // offsets.value ainda reflete o heights antigo neste ponto.
+    const itemTop = offsets.value[index]
+    const delta = height - oldHeight
+
+    heights[id] = height // aplica a altura real medida (dispara recompute de offsets/totalHeight)
+
+    // === SCROLL ANCHORING MANUAL ===
+    // Só compensa quando o item que mudou de altura está ACIMA do ponto de
+    // scroll atual (já "passou" pelo usuário). É o único caso em que a
+    // mudança de altura desloca visualmente o conteúdo que a pessoa está a
+    // ver — por exemplo, uma imagem/vídeo que termina de carregar num post
+    // que já ficou acima do viewport, empurrando tudo o que está visível
+    // agora para cima ou para baixo.
+    //
+    // Se o item estiver dentro/abaixo do viewport, NÃO compensamos: nesse
+    // caso é normal e esperado que o conteúdo abaixo dele se ajuste (é
+    // exatamente como o scroll anchoring nativo do browser se comporta em
+    // páginas normais).
+    if (itemTop < scrollTop.value && scrollEl.value) {
+        nextTick(() => {
+            // ajusta o scroll na mesma medida da mudança, para o conteúdo
+            // visível permanecer estável — sem "pulo" nem "salto" na tela
+            scrollEl.value.scrollTop += delta
+        })
     }
 }
 
