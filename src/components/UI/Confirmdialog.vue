@@ -1,7 +1,6 @@
 <template>
-  <TransitionRoot appear :show="modelValue" as="template">
-    <Dialog as="div" class="relative z-50" @close="onCancel">
-
+  <TransitionRoot appear :show="state.visible" as="template">
+    <Dialog as="div" class="relative z-50" @close="close">
       <!-- Backdrop -->
       <TransitionChild
         as="template"
@@ -26,43 +25,37 @@
           leave-from="opacity-100 scale-100"
           leave-to="opacity-0 scale-95"
         >
-          <DialogPanel class="w-full max-w-sm bg-white dark:bg-[#181818] rounded-2xl shadow-xl overflow-hidden">
-
-            <!-- Text -->
+          <DialogPanel class="w-full max-w-sm bg-white dark:bg-x-dark-surface rounded-2xl shadow-xl overflow-hidden">
             <div class="px-6 pt-6 pb-5 text-center space-y-2">
-              <DialogTitle class="text-base font-bold text-inherit dark:text-white text-[rgb(40,40,41)] leading-snug">
-                {{ title }}
+              <DialogTitle class="text-base font-bold text-inherit dark:text-white leading-snug">
+                {{ state.title }}
               </DialogTitle>
-              <DialogDescription class="text-sm text-inherit dark:text-[#b0b3b8] leading-relaxed">
-                {{ message }}
+              <DialogDescription class="text-sm text-x-light-textSecondary dark:text-x-dark-textSecondary leading-relaxed">
+                {{ state.message }}
               </DialogDescription>
             </div>
 
-            <!-- Divider -->
-            <div class="h-px bg-[rgb(222,224,225)] dark:bg-[rgb(57,56,57)]" />
+            <div class="h-px bg-x-light-border dark:bg-x-dark-border" />
 
-            <!-- Actions -->
-            <div class="flex" :class="showCancel ? 'divide-x divide-gray-100 dark:divide-[rgb(57,56,57)]' : ''">
+            <div class="flex" :class="state.showCancel ? 'divide-x divide-x-light-border dark:divide-x-dark-border' : ''">
               <button
-                v-if="showCancel"
-                class="flex-1 py-4 text-sm font-semibold text-gray-500 tapHighlight transition-colors focus-visible:outline-none focus-visible:ring-inset focus-visible:ring-2 focus-visible:ring-gray-300"
-                @click="onCancel"
+                v-if="state.showCancel"
+                class="flex-1 py-4 text-sm active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive font-semibold text-x-light-textSecondary dark:text-x-dark-textSecondary transition-colors focus-visible:outline-none focus-visible:ring-inset focus-visible:ring-2 focus-visible:ring-gray-300"
+                @click="cancel"
               >
-                {{ cancelLabel }}
+                {{ state.cancelLabel }}
               </button>
               <button
-                class="flex-1 py-4 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-inset focus-visible:ring-2"
+                class="flex-1 py-4 text-sm active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive font-bold"
                 :class="confirmButtonClass"
-                @click="onConfirm"
+                @click="confirm"
               >
-                {{ confirmLabel }}
+                {{ state.confirmLabel }}
               </button>
             </div>
-
           </DialogPanel>
         </TransitionChild>
       </div>
-
     </Dialog>
   </TransitionRoot>
 </template>
@@ -77,33 +70,14 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@headlessui/vue'
+import { useConfirmModal } from '@/composables/useConfirmModal'
 
-const props = defineProps({
-  modelValue:   { type: Boolean, required: true },
-  title:        { type: String,  required: true },
-  message:      { type: String,  required: true },
-  variant:      { type: String,  default: 'default', validator: (v) => ['default', 'danger', 'warning', 'success'].includes(v) },
-  confirmLabel: { type: String,  default: 'Confirmar' },
-  cancelLabel:  { type: String,  default: 'Cancelar' },
-  showCancel:   { type: Boolean, default: true },
-})
-
-const emit = defineEmits(['update:modelValue', 'confirm', 'cancel'])
-
-function onConfirm() {
-  emit('confirm')
-  emit('update:modelValue', false)
-}
-
-function onCancel() {
-  emit('cancel')
-  emit('update:modelValue', false)
-}
+const { state, confirm, cancel, close } = useConfirmModal()
 
 const confirmButtonClass = computed(() => ({
-  'text-blue-600 tapHighlight focus-visible:ring-blue-400':   props.variant === 'default',
-  'text-red-600 tapHighlight focus-visible:ring-red-400':      props.variant === 'danger',
-  'text-amber-600 tapHighlight focus-visible:ring-amber-400': props.variant === 'warning',
-  'text-green-600 tapHighlight focus-visible:ring-green-400': props.variant === 'success',
+  'text-blue-600 focus-visible:ring-blue-400':   state.value.variant === 'default',
+  'text-red-600 focus-visible:ring-red-400':      state.value.variant === 'danger',
+  'text-amber-600 focus-visible:ring-amber-400': state.value.variant === 'warning',
+  'text-green-600 focus-visible:ring-green-400': state.value.variant === 'success',
 }))
 </script>

@@ -13,6 +13,8 @@ import Navegator from "./components/UI/Navgator.vue";
 import NetworkStatusBanner from "./components/UI/NetworkStatusBanner.vue"
 import { useNetworkStatus } from "@/composables/useNetworkStatus";
 import ToastContainer from "./components/UI/ToastContainer.vue";
+import Confirmdialog from "./components/UI/Confirmdialog.vue";
+
 
 // Estado de loading do app
 const loading = ref(true)
@@ -574,8 +576,10 @@ onUnmounted(() => {
       <!--start sidebar-->
       <Navegator :show-bottom-nav="isAuthenticated && route.meta.rootPage == 'main' && showBottomNav" />
 
+      <Confirmdialog />
+
       <!--toast-->
-      <ToastContainer/>
+      <ToastContainer />
 
       <!--start content-->
       <div class="overflow-hidden">

@@ -279,62 +279,28 @@ export default {
                 downvotes_count
             } = payload
 
-            const modulePosts = state.posts.find(m => m.module === module)
-
-            if (modulePosts?.posts?.length) {
-                const post = modulePosts.posts.find(p => p?._id === post_id)
-
-                if (post) {
-                    post.upvotes = upvotes
-                    post.upvotes_count = upvotes_count
-                    post.downvotes = downvotes
-                    post.downvotes_count = downvotes_count
-                    post.comments_count = comments_count
-                    post.shares_count = shares_count
-                }
-
-                if (module !== 'feed') {
-                    const moduleFeedPosts = state.posts.find(m => m.module === 'feed')
-
-                    if (moduleFeedPosts?.posts?.length) {
-                        const post = moduleFeedPosts.posts.find(p => p?._id === post_id)
-
-                        if (post) {
-                            post.upvotes = upvotes
-                            post.upvotes_count = upvotes_count
-                            post.downvotes = downvotes
-                            post.downvotes_count = downvotes_count
-                            post.comments_count = comments_count
-                            post.shares_count = shares_count
-                        }
-                    }
-                } else if (module !== 'profile') {
-                    const moduleProfilePosts = state.posts.find(m => m.module === 'profile')
-
-                    if (moduleProfilePosts?.posts?.length) {
-                        const post = moduleProfilePosts.posts.find(p => p?._id === post_id)
-
-                        if (post) {
-                            post.upvotes = upvotes
-                            post.upvotes_count = upvotes_count
-                            post.downvotes = downvotes
-                            post.downvotes_count = downvotes_count
-                            post.comments_count = comments_count
-                            post.shares_count = shares_count
-                        }
-                    }
-                }
-            }
-
-            const post = state.post
-
-            if (post?._id === post_id) {
+            const applyToPost = (post) => {
                 post.upvotes = upvotes
                 post.upvotes_count = upvotes_count
                 post.downvotes = downvotes
                 post.downvotes_count = downvotes_count
                 post.comments_count = comments_count
                 post.shares_count = shares_count
+            }
+
+            // Sincroniza a reação em QUALQUER módulo cacheado (feed, following,
+            // profile, etc.) onde a postagem apareça — sem hardcode de nomes de
+            // módulo, então funciona automaticamente pra abas novas (foryou/following)
+            // e continua funcionando pro caso feed<->profile de antes.
+            state.posts.forEach((moduleEntry) => {
+                const post = moduleEntry?.posts?.find(p => p?._id === post_id)
+                if (post) applyToPost(post)
+            })
+
+            const post = state.post
+
+            if (post?._id === post_id) {
+                applyToPost(post)
             }
         },
         UPDATE_PAGINATION_POSTS_FROM_CACHE(state, payload) {
@@ -407,13 +373,17 @@ export default {
         },
         async getFeedPosts({ commit }, query) {
             try {
-                const { isRefresh = false, module, hasTotal, page: currentPage, limit } = query
+                const { isRefresh = false, module, feedType, hasTotal, page: currentPage, limit } = query
 
                 const response = await api.get('/posts/feed', {
                     params: {
                         page: currentPage,
                         total: hasTotal,
-                        limit: limit
+                        limit: limit,
+                        // 'foryou' | 'following' — diz ao backend qual variante
+                        // do feed retornar. Se o teu endpoint for outra rota
+                        // (ex: /posts/feed/following), troca aqui pela URL certa.
+                        type: feedType || 'foryou'
                     }
                 });
 
@@ -438,6 +408,7 @@ export default {
                 }
 
             } catch (error) {
+                console.log(error, "aki")
                 logger.error(error);
             }
         },

@@ -49,28 +49,26 @@
                 </button>
             </li>
 
-            <li class="flex-1 h-full active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
-                <router-link class="flex outline-none !text-inherit items-center h-full"
-                    :class="{ '!text-primary': route.name == 'Search' }" to="/search">
-                    <svg fill="none" v-if="route.name === 'Search'" width="28" viewBox="0 0 24 24" height="28"
-                        aria-hidden="true" class="mx-auto">
-                        <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
-                            d="M5 11a6 6 0 1 1 12 0 6 6 0 0 1-12 0Zm6-8a8 8 0 1 0 4.906 14.32l3.387 3.387a1 1 0 0 0 1.414-1.414l-3.387-3.387A8 8 0 0 0 11 3Zm4 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z">
-                        </path>
+            <li
+                class="flex-1 flex justify-center items-center h-full">
+                <button
+                @click="goToComposer('feed')"
+                    class="w-[44px] h-[40px] rounded-[12px] bg-x-light-surface dark:bg-x-dark-surface text-x-light-textSecondary flex justify-center items-center dark:text-x-dark-textSecondary">
+                    <svg aria-label="Criar" role="img" viewBox="0 0 24 24"
+                        class="w-[24px] h-[24px] text-inherit"
+                       >
+                        <title>Criar</title>
+                        <path
+                            d="M13.25 3.00001C13.25 2.30965 12.6904 1.75001 12 1.75001C11.3096 1.75001 10.75 2.30965 10.75 3.00001V10.75H3C2.30964 10.75 1.75 11.3097 1.75 12C1.75 12.6904 2.30964 13.25 3 13.25H10.75V21C10.75 21.6904 11.3096 22.25 12 22.25C12.6904 22.25 13.25 21.6904 13.25 21V13.25H21C21.6904 13.25 22.25 12.6904 22.25 12C22.25 11.3097 21.6904 10.75 21 10.75H13.25V3.00001Z"
+                            fill="currentColor" stroke-width="1.5"></path>
                     </svg>
-                    <svg v-else fill="none" class="mx-auto" width="28" viewBox="0 0 24 24" height="28"
-                        aria-hidden="true">
-                        <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
-                            d="M11 5a6 6 0 1 0 0 12 6 6 0 0 0 0-12Zm-8 6a8 8 0 1 1 14.32 4.906l3.387 3.387a1 1 0 0 1-1.414 1.414l-3.387-3.387A8 8 0 0 1 3 11Z">
-                        </path>
-                    </svg>
-                </router-link>
+                </button>
             </li>
 
             <li class="flex-1 h-full active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
                 <router-link class="flex outline-none text-inherit relative items-center h-full"
                     :class="{ 'text-primary': route.name == 'Chats' }" to="/chats">
-                   
+
                     <svg v-if="route.name === 'Chats'" xmlns="http://www.w3.org/2000/svg"
                         class="w-[24px] h-[24px] mx-auto" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
                         <g id="style=fill">
@@ -152,6 +150,18 @@ defineProps({
         default: true
     }
 })
+
+const goToComposer = (module, postType) => {
+    router.push({
+        path: '/composer',
+        query: {
+            module: module,
+            ...(postType && {
+                post_type: postType
+            })
+        }
+    })
+}
 
 const goToProfile = (u) => {
     if (route?.params?.user_id !== u?._id) {

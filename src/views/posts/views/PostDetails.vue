@@ -49,9 +49,6 @@
                 <SpinnerSmall />
             </div>
 
-            <!--modal-->
-            <Confirmdialog v-model="modalConfirm.isOpen" :title="modalConfirm.title" :message="modalConfirm.message"
-                variant="danger" @confirm="handleDeleteComment" @cancel="closeModalConfirm" />
 
             <!--DRWER-->
             <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
@@ -127,20 +124,6 @@
                         </template>
                     </DrawerItem>
 
-                    <DrawerItem @on-press="() => {
-                        openGoogleTranslate(drawer?.metadata?.content)
-                        closeDrawer()
-                    }" title="Traduzir" :is-active="false">
-                        <template #icon>
-                            <svg fill="none" viewBox="0 0 24 24" width="20" height="20">
-                                <path fill="currentColor" stroke="none" stroke-width="0" stroke-linecap="butt"
-                                    stroke-linejoin="miter" fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M5.002 17.036V5h14v12.036h-3.986a1 1 0 0 0-.639.23l-2.375 1.968-2.344-1.965a1 1 0 0 0-.643-.233H5.002ZM20.002 3h-16a1 1 0 0 0-1 1v14.036a1 1 0 0 0 1 1h4.65l2.704 2.266a1 1 0 0 0 1.28.004l2.74-2.27h4.626a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1Zm-7.878 3.663c-1.39 0-2.5 1.135-2.5 2.515a1 1 0 0 0 2 0c0-.294.232-.515.5-.515a.507.507 0 0 1 .489.6.174.174 0 0 1-.027.048 1.1 1.1 0 0 1-.267.226c-.508.345-1.128.923-1.286 1.978a1 1 0 1 0 1.978.297.762.762 0 0 1 .14-.359c.063-.086.155-.169.293-.262.436-.297 1.18-.885 1.18-2.013 0-1.38-1.11-2.515-2.5-2.515ZM12 15.75a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Z">
-                                </path>
-                            </svg>
-                        </template>
-                    </DrawerItem>
-
                     <DrawerItem @on-press="openNewCommentDrawer({
                         parent: drawer?.metadata?.parent || drawer?.metadata,
                         replyTo: drawer?.metadata?.author
@@ -190,15 +173,22 @@
                         </template>
                     </DrawerItem>
 
-                    <DrawerItem v-if="isCommentAuthor" :is-danger="true" @on-press="
-                        setModalConfirm({
-                            isOpen: true,
-                            title: 'Excluir comentário',
-                            message: 'Tem certeza que deseja excluir este comentário? Esta ação não pode ser desfeita.',
-                            confirmText: 'Eliminar',
-                            data: { metadata: drawer?.metadata },
-                            actionType: 'deleteComment'
-                        })" title="Excluir comentário" :is-active="false">
+                    <DrawerItem @on-press="() => {
+                        openGoogleTranslate(drawer?.metadata?.content)
+                        closeDrawer()
+                    }" title="Traduzir" :is-active="false">
+                        <template #icon>
+                            <svg fill="none" viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="currentColor" stroke="none" stroke-width="0" stroke-linecap="butt"
+                                    stroke-linejoin="miter" fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M5.002 17.036V5h14v12.036h-3.986a1 1 0 0 0-.639.23l-2.375 1.968-2.344-1.965a1 1 0 0 0-.643-.233H5.002ZM20.002 3h-16a1 1 0 0 0-1 1v14.036a1 1 0 0 0 1 1h4.65l2.704 2.266a1 1 0 0 0 1.28.004l2.74-2.27h4.626a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1Zm-7.878 3.663c-1.39 0-2.5 1.135-2.5 2.515a1 1 0 0 0 2 0c0-.294.232-.515.5-.515a.507.507 0 0 1 .489.6.174.174 0 0 1-.027.048 1.1 1.1 0 0 1-.267.226c-.508.345-1.128.923-1.286 1.978a1 1 0 1 0 1.978.297.762.762 0 0 1 .14-.359c.063-.086.155-.169.293-.262.436-.297 1.18-.885 1.18-2.013 0-1.38-1.11-2.515-2.5-2.515ZM12 15.75a1.25 1.25 0 1 1 0-2.5 1.25 1.25 0 0 1 0 2.5Z">
+                                </path>
+                            </svg>
+                        </template>
+                    </DrawerItem>
+
+                    <DrawerItem v-if="isCommentAuthor" :is-danger="true" @on-press="handleDelete(drawer?.metadata)"
+                        title="Excluir comentário" :is-active="false">
                         <template #icon>
                             <svg fill="none" viewBox="0 0 24 24" width="20" height="20">
                                 <path fill="currentColor" stroke="none" stroke-width="0" stroke-linecap="butt"
@@ -233,10 +223,12 @@ import Navbar from '@/views/main/components/Navbar.vue';
 import PullToRefreshIndicator from '@/components/UI/PullToRefreshIndicator.vue';
 import { usePullToRefresh } from '@/composables/usePullToRefresh';
 import SpinnerSmall from '@/components/UI/SpinnerSmall.vue';
-import Confirmdialog from '@/components/UI/Confirmdialog.vue';
+import { useConfirmModal } from '@/composables/useConfirmModal'
+
 
 const store = useStore()
 const route = useRoute()
+const { showConfirm, state, close } = useConfirmModal()
 
 const postId = ref(route.params.id || null)
 const postView = ref(null)
@@ -337,6 +329,29 @@ const openDrawer = (data) => {
         show,
         name,
         metadata
+    }
+}
+
+async function handleDelete(metadata) {
+    closeDrawer()
+    try {
+        const confirmed = await showConfirm({
+            title: 'Excluir comentário',
+            message: 'Tem certeza que deseja excluir este comentário? Esta ação não pode ser desfeita.',
+            variant: 'danger',
+            confirmLabel: 'Excluir',
+            cancelLabel: 'Cancelar',
+        })
+        if (confirmed) {
+            store.commit("SET_IS_LOADING_COMPONENT", true)
+            close()
+            await handleDeleteComment(metadata)
+        } else {
+            console.log('Operação cancelada')
+        }
+    } catch (error) {
+        // Se o modal for fechado sem interação (ex: clicar fora)
+        console.log('Modal fechado sem confirmação')
     }
 }
 
@@ -725,6 +740,9 @@ onBeforeRouteLeave((to, from, next) => {
     if (drawer.value?.show) {
         closeDrawer()
         next(false)
+    } else if (state.value.visible) {
+        close()
+        next(false)
     } else {
         next();
     }
@@ -750,15 +768,9 @@ function copyTextClipboard(texto) {
     }
 }
 
-const setModalConfirm = (data) => {
-    modalConfirm.value = data
-    if (drawer.value.show) closeDrawer()
-}
-
 // ============ EXCLUIR ============
-const handleDeleteComment = async () => {
+const handleDeleteComment = async (metadata) => {
 
-    const metadata = modalConfirm.value?.data?.metadata
     if (!metadata?._id || loadingDeleteComment.value) return
 
     loadingDeleteComment.value = true
@@ -783,8 +795,8 @@ const handleDeleteComment = async () => {
             })
         })
         .finally(() => {
-            closeDrawer()
             loadingDeleteComment.value = false
+            store.commit("SET_IS_LOADING_COMPONENT", false)
         })
     console.log("eliminando commentario")
 }
