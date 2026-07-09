@@ -38,7 +38,7 @@
 </template>
 
 <script setup>
-import { ref, reactive, computed, toRef, watch, nextTick, onUnmounted } from 'vue';
+import { ref, reactive, computed, toRef, watch, onUnmounted } from 'vue';
 import { useStore } from 'vuex';
 import VirtualizedPostItem from './VirtualizedPostItem.vue';
 import { useIntersectionObserver, useScroll, useElementSize } from "@vueuse/core";
@@ -159,7 +159,7 @@ const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
 // ============================================================
 
 const DEFAULT_ITEM_HEIGHT = 420   // estimativa até o item ser medido de verdade
-const BUFFER_PX = 1400             // "colchão" acima/abaixo do viewport, evita flicker no scroll rápido
+const BUFFER_PX = 900             // "colchão" acima/abaixo do viewport, evita flicker no scroll rápido
 
 // Alturas reais medidas por post (id -> px)
 const heights = reactive({})
@@ -167,7 +167,7 @@ const heights = reactive({})
 // Posição de scroll e altura do container reativas (com throttle p/ não travar em dispositivos fracos)
 // IMPORTANTE: escuta scrollEl (o elemento que REALMENTE tem overflow/scroll),
 // não um div interno sem altura definida — senão scrollTop nunca muda.
-const { y: scrollTop } = useScroll(scrollEl, { throttle: 16 })
+const { y: scrollTop } = useScroll(scrollEl, { throttle: 50 })
 const { height: containerHeight } = useElementSize(scrollEl)
 
 // Offset (posição top) acumulado de cada post
@@ -197,7 +197,7 @@ const totalHeight = computed(() => offsets.value[offsets.value.length - 1] || 0)
 // só quando é que cada item é montado/desmontado.
 const MAX_EXTRA_BUFFER_PX = 1600   // limite do "extra" de buffer em scroll muito rápido
 const VELOCITY_BUFFER_SCALE = 250  // px extra de buffer por cada px/ms de velocidade
-const SHRINK_SETTLE_MS = 500       // tempo de scroll "parado" antes de desmontar itens fora da janela
+const SHRINK_SETTLE_MS = 200       // tempo de scroll "parado" antes de desmontar itens fora da janela
 
 const scrollVelocity = ref(0) // px/ms; positivo = a descer, negativo = a subir
 let lastVelocityScrollTop = null

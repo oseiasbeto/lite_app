@@ -42,7 +42,7 @@
                 </div>
 
                 <!--CONTENT-->
-                <div>
+                <div :class="{'mb-1.5': data?.media?.length}">
                     <PostContent :enable-truncate="enableTruncate" :is-parent-post="isParentPost" :show-more="showMore"
                         @on-press="goToViewMore" :content="data.content" />
                 </div>
