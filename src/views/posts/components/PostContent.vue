@@ -12,9 +12,10 @@ const props = defineProps({
     type: Boolean,
     default: false
   },
+  
   custom: {
     type: String,
-    default: "text-base leading-[20px] select-none"
+    default: "text-[15px] leading-[16px] select-none"
   },
   maxLines: {
     type: Number,
@@ -205,7 +206,7 @@ onBeforeUnmount(() => {
     <!-- Conteúdo com truncamento condicional -->
     <div ref="contentRef" @click="handleContentClick" :class="[
       custom,
-      'font-normal mb-0.5 content dark:text-[inherit] text-[rgb(40,40,41)] text-[14.55px] overflow-hidden break-words whitespace-pre-wrap',
+      'font-normal mb-0.5 content dark:text-[inherit] text-[rgb(40,40,41)] overflow-hidden break-words whitespace-pre-wrap',
       enableTruncate ? 'line-clamp' : ''
     ]" :style="enableTruncate ? {
         'display': '-webkit-box',
