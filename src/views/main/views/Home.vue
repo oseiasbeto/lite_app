@@ -47,10 +47,12 @@
           não há remedição de itens, e não precisamos setar scrollTop manualmente.
         -->
         <div v-for="tab in tabs" :key="tab.value" v-show="currentTab === tab.value" class="absolute inset-0 top-0">
+            <!-- 
             <div v-if="settling[tab.value]"
                 class="absolute inset-0 top-[113px] z-20 bg-white dark:bg-x-dark-bg flex flex-col items-center gap-3">
                 <PostSkeleton v-for="n in 8" :key="n" />
             </div>
+            -->
 
             <div :ref="el => setScrollRef(tab.value, el)" @scroll="(e) => onScroll(tab.value, e)"
                 class="h-screen overflow-x-hidden overflow-y-scroll"
