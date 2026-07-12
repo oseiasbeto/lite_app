@@ -38,9 +38,15 @@
             <Tabs :tabs="tabs" v-model="currentTab" />
         </div>
 
-        
-        <div v-for="tab in tabs" :key="tab.value" v-show="currentTab === tab.value"
-            class="absolute inset-0 top-0">
+        <!--
+          Uma instância de PostList POR ABA, sempre montada.
+          v-show (não v-if) preserva:
+            - o DOM da lista virtualizada e o cache de alturas medidas
+            - o scrollTop nativo de cada container (o navegador cuida disso sozinho)
+          Isso elimina o flash branco: ao trocar de aba não há remount,
+          não há remedição de itens, e não precisamos setar scrollTop manualmente.
+        -->
+        <div v-for="tab in tabs" :key="tab.value" v-show="currentTab === tab.value" class="absolute inset-0 top-0 w-full">
             <div :ref="el => setScrollRef(tab.value, el)" @scroll="(e) => onScroll(tab.value, e)"
                 class="h-screen overflow-x-hidden overflow-y-scroll"
                 :class="{ 'pb-[50px]': !getPagination(TAB_MODULE_MAP[tab.value])?.hasMore }">
@@ -50,17 +56,35 @@
                     :has-more="getPagination(TAB_MODULE_MAP[tab.value])?.hasMore || false"
                     :loading-fetch="loadingByModule[TAB_MODULE_MAP[tab.value]]"
                     :loading-load-more="loadingLoadMoreByModule[TAB_MODULE_MAP[tab.value]]" :show-btn-follow="true"
-                    :module="TAB_MODULE_MAP[tab.value]" @post-deleted="(id) => handlePostDeleted(id, TAB_MODULE_MAP[tab.value])"
+                    :module="TAB_MODULE_MAP[tab.value]"
+                    @post-deleted="(id) => handlePostDeleted(id, TAB_MODULE_MAP[tab.value])"
                     @on-load-more="() => handleLoadMore(TAB_MODULE_MAP[tab.value])"
                     @on-refresh="(done) => handleRefresh(TAB_MODULE_MAP[tab.value], done)" />
+            </div>
+
+            <!--
+              Overlay de "settling": cobre a lista por uma janela curta logo
+              após trocar de aba, quando já existem posts em cache mas a
+              lista virtualizada ainda está remedindo/posicionando os itens
+              (ex: veio de display:none com o scroll rolado bem pra baixo).
+              Em vez de deixar a área em branco nesse intervalo, mostramos
+              um skeleton/spinner por cima — é assim que feeds grandes
+              escondem esse tipo de recálculo.
+            -->
+            <div v-if="settling[tab.value]"
+                class="absolute inset-0 top-[113px] z-20 bg-white dark:bg-x-dark-bg flex flex-col items-center w-full gap-3">
+                <PostSkeleton v-for="n in 8" :key="n" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
+import Tabs from '@/components/UI/Tabs.vue';
+import Avatar from '@/components/Utils/Avatar.vue';
 import PostList from '@/views/posts/components/PostList.vue';
-import { ref, reactive, onMounted, onActivated, computed } from 'vue';
+import PostSkeleton from '@/views/posts/components/PostSkeleton.vue';
+import { ref, reactive, onMounted, onActivated, computed, watch, nextTick } from 'vue';
 import { useStore } from 'vuex';
 
 const store = useStore()
@@ -219,12 +243,40 @@ const fetchIfNeeded = async (mod) => {
     }
 }
 
-import { watch } from 'vue'
-import Tabs from '@/components/UI/Tabs.vue';
-import Avatar from '@/components/Utils/Avatar.vue';
-watch(currentTab, (newTab) => {
+// --- overlay que cobre o flash branco ao trocar de aba ---
+const settling = reactive({ foryou: false, following: false })
+
+// Ajuste esse valor se ainda restar um pedacinho de branco antes do overlay
+// sumir, ou se ele estiver ficando visível por mais tempo que o necessário.
+// É uma máscara de tempo, não uma medição exata de quando a lista
+// terminou de remedir — por isso o valor é intencionalmente uma folga.
+const SETTLE_DELAY_MS = 180
+
+watch(currentTab, async (newTab) => {
     const mod = TAB_MODULE_MAP[newTab]
-    fetchIfNeeded(mod)
+    const hasCachedPosts = postsByModule(mod).length > 0
+
+    if (hasCachedPosts) {
+        // já tem dado em cache — o branco não vem de fetch, vem da lista
+        // virtualizada remedindo itens ao voltar a ficar visível.
+        // Cobrimos com o skeleton por uma janela curta.
+        settling[newTab] = true
+
+        await nextTick()
+        // duplo rAF: espera o navegador aplicar o v-show e pintar pelo
+        // menos um frame antes de começar a contar o delay de segurança
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    settling[newTab] = false
+                }, SETTLE_DELAY_MS)
+            })
+        })
+    } else {
+        // sem cache: o loading já vem do fetch normal (loadingByModule),
+        // que o PostList já trata via :loading-fetch
+        fetchIfNeeded(mod)
+    }
 })
 
 onMounted(async () => {

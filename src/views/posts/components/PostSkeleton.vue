@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-row mb-1.5">
+  <div class="flex w-full flex-row mb-1.5">
     <!-- COLUNA DO AVATAR -->
     <div class="p-[10px] shrink-0">
       <div class="w-10 h-10 rounded-full skeleton-shimmer"></div>
