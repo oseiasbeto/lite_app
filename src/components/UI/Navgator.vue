@@ -24,46 +24,6 @@
                     </svg>
                 </button>
             </li>
-            <li class="flex-1 h-full active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
-                <button @click="goToNotification" class="flex relative items-center w-full h-full"
-                    :class="{ 'text-primary': route.name == 'Notifications' }">
-                    <svg v-if="route.name === 'Notifications'" aria-label="Notificações" role="img" viewBox="0 0 24 24"
-                        class="w-[24px] h-[24px] mx-auto" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <title>Notificações</title>
-                        <path
-                            d="M16.4045 1.50879C14.785 1.50879 13.2185 2.16259 12 3.30764C10.7815 2.16259 9.215 1.50879 7.5955 1.50879C3.41766 1.50879 0.5 4.62796 0.5 9.09411C0.5 13.7857 4.70617 18.9703 11.2153 22.3022C11.4605 22.428 11.7298 22.4912 11.9995 22.4912C12.2692 22.4912 12.5395 22.428 12.7847 22.3022C19.2938 18.9703 23.5 13.7857 23.5 9.09411C23.5 4.62796 20.5823 1.50879 16.4045 1.50879Z"
-                            fill="currentColor"></path>
-                    </svg>
-
-                    <svg v-else aria-label="Notificações" role="img" viewBox="0 0 24 24"
-                        class="w-[24px] h-[24px] mx-auto" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <title>Notificações</title>
-                        <path
-                            d="M16.4045 1.50879C14.785 1.50879 13.2185 2.16259 12 3.30764C10.7815 2.16259 9.215 1.50879 7.5955 1.50879C3.41766 1.50879 0.5 4.62796 0.5 9.09411C0.5 13.7857 4.70617 18.9703 11.2153 22.3022C11.4605 22.428 11.7298 22.4912 11.9995 22.4912C11.9993 22.4912 11.9997 22.4912 11.9995 22.4912C12.2692 22.4912 12.5395 22.428 12.7847 22.3022C19.2938 18.9703 23.5 13.7857 23.5 9.09411C23.5 4.62796 20.5823 1.50879 16.4045 1.50879ZM12 19.9518C6.65166 17.1137 2.94684 12.6864 2.94684 9.09411C2.94684 5.97251 4.77133 3.95556 7.5955 3.95556C9.825 3.95556 11.0773 5.80961 12 7.26504C12.9227 5.80961 14.175 3.95556 16.4045 3.95556C19.2287 3.95556 21.0532 5.97251 21.0532 9.09411C21.0532 12.6864 17.3483 17.1137 12 19.9518Z"
-                            fill="currentColor"></path>
-                    </svg>
-                    <span v-show="unreadNotificationsCount > 0"
-                        class="min-w-4 h-4 dark:shadow-[rgb(32,32,32),0px_0px_0px_2px] text-[10px] p-0.5 flex items-center justify-center rounded-3xl font-semibold absolute top-[10px] right-[12px] bg-x-light-blue text-[#fff]">
-                        <span>{{ unreadNotificationsCount }}</span>
-                    </span>
-                </button>
-            </li>
-
-            <li
-                class="flex-1 flex justify-center items-center h-full">
-                <button
-                @click="goToComposer('feed')"
-                    class="w-[44px] h-[40px] rounded-[12px] bg-x-light-surface dark:bg-x-dark-surface text-x-light-textSecondary flex justify-center items-center dark:text-x-dark-textSecondary">
-                    <svg aria-label="Criar" role="img" viewBox="0 0 24 24"
-                        class="w-[24px] h-[24px] text-inherit"
-                       >
-                        <title>Criar</title>
-                        <path
-                            d="M13.25 3.00001C13.25 2.30965 12.6904 1.75001 12 1.75001C11.3096 1.75001 10.75 2.30965 10.75 3.00001V10.75H3C2.30964 10.75 1.75 11.3097 1.75 12C1.75 12.6904 2.30964 13.25 3 13.25H10.75V21C10.75 21.6904 11.3096 22.25 12 22.25C12.6904 22.25 13.25 21.6904 13.25 21V13.25H21C21.6904 13.25 22.25 12.6904 22.25 12C22.25 11.3097 21.6904 10.75 21 10.75H13.25V3.00001Z"
-                            fill="currentColor" stroke-width="1.5"></path>
-                    </svg>
-                </button>
-            </li>
 
             <li class="flex-1 h-full active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
                 <router-link class="flex outline-none text-inherit relative items-center h-full"
@@ -95,6 +55,50 @@
                         <span>{{ unreadMessagesCount }}</span>
                     </span>
                 </router-link>
+            </li>
+            
+
+            <li
+                class="flex-1 flex justify-center items-center h-full">
+                <button
+                @click="goToComposer('feed')"
+                    class="w-[44px] h-[40px] rounded-[12px] bg-x-light-surface dark:bg-x-dark-surface text-x-light-textSecondary flex justify-center items-center dark:text-x-dark-textSecondary">
+                    <svg aria-label="Criar" role="img" viewBox="0 0 24 24"
+                        class="w-[24px] h-[24px] text-inherit"
+                       >
+                        <title>Criar</title>
+                        <path
+                            d="M13.25 3.00001C13.25 2.30965 12.6904 1.75001 12 1.75001C11.3096 1.75001 10.75 2.30965 10.75 3.00001V10.75H3C2.30964 10.75 1.75 11.3097 1.75 12C1.75 12.6904 2.30964 13.25 3 13.25H10.75V21C10.75 21.6904 11.3096 22.25 12 22.25C12.6904 22.25 13.25 21.6904 13.25 21V13.25H21C21.6904 13.25 22.25 12.6904 22.25 12C22.25 11.3097 21.6904 10.75 21 10.75H13.25V3.00001Z"
+                            fill="currentColor" stroke-width="1.5"></path>
+                    </svg>
+                </button>
+            </li>
+
+            
+
+            <li class="flex-1 h-full active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
+                <button @click="goToNotification" class="flex relative items-center w-full h-full"
+                    :class="{ 'text-primary': route.name == 'Notifications' }">
+                    <svg v-if="route.name === 'Notifications'" aria-label="Notificações" role="img" viewBox="0 0 24 24"
+                        class="w-[24px] h-[24px] mx-auto" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <title>Notificações</title>
+                        <path
+                            d="M16.4045 1.50879C14.785 1.50879 13.2185 2.16259 12 3.30764C10.7815 2.16259 9.215 1.50879 7.5955 1.50879C3.41766 1.50879 0.5 4.62796 0.5 9.09411C0.5 13.7857 4.70617 18.9703 11.2153 22.3022C11.4605 22.428 11.7298 22.4912 11.9995 22.4912C12.2692 22.4912 12.5395 22.428 12.7847 22.3022C19.2938 18.9703 23.5 13.7857 23.5 9.09411C23.5 4.62796 20.5823 1.50879 16.4045 1.50879Z"
+                            fill="currentColor"></path>
+                    </svg>
+
+                    <svg v-else aria-label="Notificações" role="img" viewBox="0 0 24 24"
+                        class="w-[24px] h-[24px] mx-auto" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <title>Notificações</title>
+                        <path
+                            d="M16.4045 1.50879C14.785 1.50879 13.2185 2.16259 12 3.30764C10.7815 2.16259 9.215 1.50879 7.5955 1.50879C3.41766 1.50879 0.5 4.62796 0.5 9.09411C0.5 13.7857 4.70617 18.9703 11.2153 22.3022C11.4605 22.428 11.7298 22.4912 11.9995 22.4912C11.9993 22.4912 11.9997 22.4912 11.9995 22.4912C12.2692 22.4912 12.5395 22.428 12.7847 22.3022C19.2938 18.9703 23.5 13.7857 23.5 9.09411C23.5 4.62796 20.5823 1.50879 16.4045 1.50879ZM12 19.9518C6.65166 17.1137 2.94684 12.6864 2.94684 9.09411C2.94684 5.97251 4.77133 3.95556 7.5955 3.95556C9.825 3.95556 11.0773 5.80961 12 7.26504C12.9227 5.80961 14.175 3.95556 16.4045 3.95556C19.2287 3.95556 21.0532 5.97251 21.0532 9.09411C21.0532 12.6864 17.3483 17.1137 12 19.9518Z"
+                            fill="currentColor"></path>
+                    </svg>
+                    <span v-show="unreadNotificationsCount > 0"
+                        class="min-w-4 h-4 dark:shadow-[rgb(32,32,32),0px_0px_0px_2px] text-[10px] p-0.5 flex items-center justify-center rounded-3xl font-semibold absolute top-[10px] right-[12px] bg-x-light-blue text-[#fff]">
+                        <span>{{ unreadNotificationsCount }}</span>
+                    </span>
+                </button>
             </li>
 
             <li class="flex-1 h-full active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
