@@ -46,7 +46,8 @@
           Isso elimina o flash branco: ao trocar de aba não há remount,
           não há remedição de itens, e não precisamos setar scrollTop manualmente.
         -->
-        <div v-for="tab in tabs" :key="tab.value" v-show="currentTab === tab.value" class="absolute inset-0 top-0 w-full">
+        <div v-for="tab in tabs" :key="tab.value" v-show="currentTab === tab.value"
+            class="absolute inset-0 top-0">
             <div :ref="el => setScrollRef(tab.value, el)" @scroll="(e) => onScroll(tab.value, e)"
                 class="h-screen overflow-x-hidden overflow-y-scroll"
                 :class="{ 'pb-[50px]': !getPagination(TAB_MODULE_MAP[tab.value])?.hasMore }">
@@ -56,8 +57,7 @@
                     :has-more="getPagination(TAB_MODULE_MAP[tab.value])?.hasMore || false"
                     :loading-fetch="loadingByModule[TAB_MODULE_MAP[tab.value]]"
                     :loading-load-more="loadingLoadMoreByModule[TAB_MODULE_MAP[tab.value]]" :show-btn-follow="true"
-                    :module="TAB_MODULE_MAP[tab.value]"
-                    @post-deleted="(id) => handlePostDeleted(id, TAB_MODULE_MAP[tab.value])"
+                    :module="TAB_MODULE_MAP[tab.value]" @post-deleted="(id) => handlePostDeleted(id, TAB_MODULE_MAP[tab.value])"
                     @on-load-more="() => handleLoadMore(TAB_MODULE_MAP[tab.value])"
                     @on-refresh="(done) => handleRefresh(TAB_MODULE_MAP[tab.value], done)" />
             </div>
@@ -72,8 +72,8 @@
               escondem esse tipo de recálculo.
             -->
             <div v-if="settling[tab.value]"
-                class="absolute inset-0 top-[113px] z-20 bg-white dark:bg-x-dark-bg flex flex-col items-center w-full gap-3">
-                <PostSkeleton v-for="n in 8" :key="n" />
+                class="absolute inset-0 top-[112px] z-20 bg-white dark:bg-x-dark-bg flex flex-col items-center pt-[5px] gap-3">
+                 <PostSkeleton v-for="n in 8" :key="n"/>
             </div>
         </div>
     </div>
@@ -252,6 +252,25 @@ const settling = reactive({ foryou: false, following: false })
 // terminou de remedir — por isso o valor é intencionalmente uma folga.
 const SETTLE_DELAY_MS = 180
 
+// A lista fica dentro de uma aba com v-show. Enquanto a aba está inativa,
+// o container fica com display:none, ou seja, altura (clientHeight) zero.
+// O virtualizador mede essa altura quando é montado/inicializado, e boa
+// parte deles NÃO reage sozinho quando o container volta a ficar visível
+// (display:block) — só recalcula quando recebe um evento de "scroll".
+// Por isso, às vezes a lista fica em branco até o usuário rolar manualmente.
+// Esse "nudge" simula um scroll de 1px pra forçar esse recálculo assim que
+// a aba se torna visível, sem que o usuário perceba o movimento.
+const nudgeScroll = (tabValue) => {
+    const el = scrollRefs[tabValue]
+    if (!el) return
+
+    const original = el.scrollTop
+    el.scrollTop = original + 1
+    requestAnimationFrame(() => {
+        el.scrollTop = original
+    })
+}
+
 watch(currentTab, async (newTab) => {
     const mod = TAB_MODULE_MAP[newTab]
     const hasCachedPosts = postsByModule(mod).length > 0
@@ -261,27 +280,40 @@ watch(currentTab, async (newTab) => {
         // virtualizada remedindo itens ao voltar a ficar visível.
         // Cobrimos com o skeleton por uma janela curta.
         settling[newTab] = true
-
-        await nextTick()
-        // duplo rAF: espera o navegador aplicar o v-show e pintar pelo
-        // menos um frame antes de começar a contar o delay de segurança
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-                setTimeout(() => {
-                    settling[newTab] = false
-                }, SETTLE_DELAY_MS)
-            })
-        })
-    } else {
-        // sem cache: o loading já vem do fetch normal (loadingByModule),
-        // que o PostList já trata via :loading-fetch
-        fetchIfNeeded(mod)
     }
+
+    // espera o Vue aplicar o v-show (container passa a display:block)
+    await nextTick()
+
+    if (!hasCachedPosts) {
+        // sem cache: dispara o fetch. O PostList já mostra seu próprio
+        // loading via :loading-fetch enquanto isso.
+        await fetchIfNeeded(mod)
+        await nextTick()
+    }
+
+    // duplo rAF: garante que o navegador já pintou o container com a
+    // altura real antes de mexer no scroll
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            nudgeScroll(newTab)
+            setTimeout(() => {
+                settling[newTab] = false
+            }, SETTLE_DELAY_MS)
+        })
+    })
 })
 
 onMounted(async () => {
     await fetchIfNeeded(TAB_MODULE_MAP[currentTab.value])
     enablePullToRefresh.value = true
+
+    await nextTick()
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            nudgeScroll(currentTab.value)
+        })
+    })
 })
 
 // Fallback: se esta view inteira for desmontada/remontada por fora
@@ -296,5 +328,11 @@ onActivated(() => {
         el.scrollTop = top
         lastScrollTopByModule[mod] = top
     }
+
+    requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+            nudgeScroll(currentTab.value)
+        })
+    })
 })
 </script>
