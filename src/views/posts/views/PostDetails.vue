@@ -224,7 +224,7 @@ import PullToRefreshIndicator from '@/components/UI/PullToRefreshIndicator.vue';
 import { usePullToRefresh } from '@/composables/usePullToRefresh';
 import SpinnerSmall from '@/components/UI/SpinnerSmall.vue';
 import { useConfirmModal } from '@/composables/useConfirmModal'
-import { bannerAd } from "webtonative/AdMob";
+//import { bannerAd } from "webtonative/AdMob";
 
 //ola
 const store = useStore()
@@ -855,9 +855,10 @@ const loadPost = async (postId) => {
 
 
 onMounted(async () => {
+    /* 
     bannerAd({
         adId: "ca-app-pub-3380403461494786/3274916045"
-    })
+    })*/
 
     if (!post.value?._id) {
         loadingFetchPost.value = true
@@ -897,10 +898,10 @@ watch(() => route.params.id, async (newId, oldId) => {
     if (!newId || newId === oldId) return
 
     commentTriggerRef.value?.reset()
-    
+    /* 
     bannerAd({
         adId: "ca-app-pub-3380403461494786/3274916045"
-    })
+    })*/
 
     postId.value = newId
 
