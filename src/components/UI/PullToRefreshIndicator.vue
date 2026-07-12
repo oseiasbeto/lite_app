@@ -6,7 +6,7 @@
       class="left-1/2 z-30 -translate-x-1/2 flex items-center justify-center
              w-10 h-10 rounded-full bg-white dark:bg-black
              shadow-[0_1px_2px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.12)]
-             ring-1 ring-black/[0.04] dark:ring-white/[0.06]"
+             ring-1 ring-black/[0.04] dark:ring-white/[0.1]"
       :class="isRefreshing ? 'fixed' : 'absolute'"
       :style="indicatorStyle"
     >

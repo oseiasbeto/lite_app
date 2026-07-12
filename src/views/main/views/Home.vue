@@ -46,8 +46,12 @@
           Isso elimina o flash branco: ao trocar de aba não há remount,
           não há remedição de itens, e não precisamos setar scrollTop manualmente.
         -->
-        <div v-for="tab in tabs" :key="tab.value" v-show="currentTab === tab.value"
-            class="absolute inset-0 top-0">
+        <div v-for="tab in tabs" :key="tab.value" v-show="currentTab === tab.value" class="absolute inset-0 top-0">
+            <div v-if="settling[tab.value]"
+                class="absolute inset-0 top-[113px] z-20 bg-white dark:bg-x-dark-bg flex flex-col items-center gap-3">
+                <PostSkeleton v-for="n in 8" :key="n" />
+            </div>
+
             <div :ref="el => setScrollRef(tab.value, el)" @scroll="(e) => onScroll(tab.value, e)"
                 class="h-screen overflow-x-hidden overflow-y-scroll"
                 :class="{ 'pb-[50px]': !getPagination(TAB_MODULE_MAP[tab.value])?.hasMore }">
@@ -57,23 +61,12 @@
                     :has-more="getPagination(TAB_MODULE_MAP[tab.value])?.hasMore || false"
                     :loading-fetch="loadingByModule[TAB_MODULE_MAP[tab.value]]"
                     :loading-load-more="loadingLoadMoreByModule[TAB_MODULE_MAP[tab.value]]" :show-btn-follow="true"
-                    :module="TAB_MODULE_MAP[tab.value]" @post-deleted="(id) => handlePostDeleted(id, TAB_MODULE_MAP[tab.value])"
+                    :top-postion-pull-to-refresh="14"
+                    :refreshing-top-position="140"
+                    :module="TAB_MODULE_MAP[tab.value]"
+                    @post-deleted="(id) => handlePostDeleted(id, TAB_MODULE_MAP[tab.value])"
                     @on-load-more="() => handleLoadMore(TAB_MODULE_MAP[tab.value])"
                     @on-refresh="(done) => handleRefresh(TAB_MODULE_MAP[tab.value], done)" />
-            </div>
-
-            <!--
-              Overlay de "settling": cobre a lista por uma janela curta logo
-              após trocar de aba, quando já existem posts em cache mas a
-              lista virtualizada ainda está remedindo/posicionando os itens
-              (ex: veio de display:none com o scroll rolado bem pra baixo).
-              Em vez de deixar a área em branco nesse intervalo, mostramos
-              um skeleton/spinner por cima — é assim que feeds grandes
-              escondem esse tipo de recálculo.
-            -->
-            <div v-if="settling[tab.value]"
-                class="absolute inset-0 top-[112px] z-20 bg-white dark:bg-x-dark-bg flex flex-col items-center pt-[5px] gap-3">
-                 <PostSkeleton v-for="n in 8" :key="n"/>
             </div>
         </div>
     </div>

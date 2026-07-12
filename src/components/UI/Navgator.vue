@@ -8,19 +8,18 @@
             <li class="flex-1 h-full active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
                 <button @click="router.replace('/home')" :class="{ 'text-primary': route.name == 'Home' }"
                     class="flex relative items-center w-full h-full" to="/feed">
-
-                    <svg v-if="route.name === 'Home'" fill="none" class="mx-auto" width="27" viewBox="0 0 24 24"
-                        height="27" aria-hidden="true">
-                        <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
-                            d="M12.63 1.724a1 1 0 0 0-1.26 0l-8 6.5A1 1 0 0 0 3 9v11a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1v-6h4v6a1 1 0 0 0 1 1h5a1 1 0 0 0 1-1V9a1 1 0 0 0-.37-.776l-8-6.5Z">
-                        </path>
+                    <svg class="mx-auto" v-if="route.name === 'Home'" xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24"
+                        fill="none">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                            d="M20.479 7.57827L15.093 3.12502C13.2787 1.62499 10.7213 1.62499 8.90703 3.12502L3.52097 7.57827C2.55059 8.38059 2 9.59705 2 10.8663V17.8109C2 20.066 3.73415 22 6 22H8C9.10457 22 10 21.1046 10 20V16.7478C10 15.4803 10.9521 14.5587 12 14.5587C13.0479 14.5587 14 15.4803 14 16.7478V20C14 21.1046 14.8954 22 16 22H18C20.2659 22 22 20.066 22 17.8109V10.8663C22 9.59706 21.4494 8.38059 20.479 7.57827Z"
+                            fill="currentColor" />
                     </svg>
-
-                    <svg v-else fill="none" width="27" viewBox="0 0 24 24" height="27" aria-hidden="true"
-                        class="mx-auto">
-                        <path fill="currentColor" fill-rule="evenodd" clip-rule="evenodd"
-                            d="M11.37 1.724a1 1 0 0 1 1.26 0l8 6.5A1 1 0 0 1 21 9v11a1 1 0 0 1-1 1h-6a1 1 0 0 1-1-1v-5h-2v5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 .37-.776l8-6.5ZM5 9.476V19h4v-5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v5h4V9.476l-7-5.688-7 5.688Z">
-                        </path>
+                  
+                    <svg class="mx-auto" v-else xmlns="http://www.w3.org/2000/svg" width="27" height="27"
+                        viewBox="0 0 24 24" fill="none">
+                        <path
+                            d="M21 17.8109V10.8663C21 9.88216 20.5726 8.95316 19.8418 8.34896L14.4558 3.89571C13.0113 2.70143 10.9887 2.70143 9.54424 3.89571L4.15818 8.34896C3.42742 8.95316 3 9.88216 3 10.8663V17.8109C3 19.5722 4.34315 21 6 21H8C8.55228 21 9 20.5523 9 20V16.7478C9 14.9865 10.3431 13.5587 12 13.5587C13.6569 13.5587 15 14.9865 15 16.7478V20C15 20.5523 15.4477 21 16 21H18C19.6569 21 21 19.5722 21 17.8109Z"
+                            stroke="currentColor" stroke-width="2" />
                     </svg>
                 </button>
             </li>
@@ -56,16 +55,12 @@
                     </span>
                 </router-link>
             </li>
-            
 
-            <li
-                class="flex-1 flex justify-center items-center h-full">
-                <button
-                @click="goToComposer('feed')"
+
+            <li class="flex-1 flex justify-center items-center h-full">
+                <button @click="goToComposer('feed')"
                     class="w-[44px] h-[40px] rounded-[12px] bg-x-light-surface dark:bg-x-dark-surface text-x-light-textSecondary flex justify-center items-center dark:text-x-dark-textSecondary">
-                    <svg aria-label="Criar" role="img" viewBox="0 0 24 24"
-                        class="w-[24px] h-[24px] text-inherit"
-                       >
+                    <svg aria-label="Criar" role="img" viewBox="0 0 24 24" class="w-[24px] h-[24px] text-inherit">
                         <title>Criar</title>
                         <path
                             d="M13.25 3.00001C13.25 2.30965 12.6904 1.75001 12 1.75001C11.3096 1.75001 10.75 2.30965 10.75 3.00001V10.75H3C2.30964 10.75 1.75 11.3097 1.75 12C1.75 12.6904 2.30964 13.25 3 13.25H10.75V21C10.75 21.6904 11.3096 22.25 12 22.25C12.6904 22.25 13.25 21.6904 13.25 21V13.25H21C21.6904 13.25 22.25 12.6904 22.25 12C22.25 11.3097 21.6904 10.75 21 10.75H13.25V3.00001Z"
@@ -74,7 +69,7 @@
                 </button>
             </li>
 
-            
+
 
             <li class="flex-1 h-full active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
                 <button @click="goToNotification" class="flex relative items-center w-full h-full"

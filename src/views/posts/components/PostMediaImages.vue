@@ -5,9 +5,12 @@
         <template v-if="images.length === 1">
             <div class="media-cell w-full rounded-2xl overflow-hidden"
                 :style="{ aspectRatio: getRatio(images[0]), maxHeight: MAX_SINGLE_HEIGHT + 'px' }">
-                <img v-lazy="imgSrc(images[0])" loading="lazy" decoding="async"
+                <img v-lazy="imgSrc(images[0])" :loading="isCached(images[0]) ? 'eager' : 'lazy'"
+                    :decoding="isCached(images[0]) ? 'sync' : 'async'"
+                    :fetchpriority="isCached(images[0]) ? 'high' : 'auto'"
                     class="w-full h-full object-cover cursor-pointer block"
-                    @click="open(images[0])" />
+                    :class="{ 'is-cached': isCached(images[0]) }"
+                    @load="markLoaded(images[0])" @click="open(images[0])" />
             </div>
         </template>
 
@@ -17,8 +20,10 @@
                 :style="{ maxHeight: MAX_GRID_ROW_HEIGHT + 'px' }">
                 <div v-for="(img, i) in images" :key="img.url" class="media-cell"
                     :class="i === 0 ? 'rounded-l-2xl' : 'rounded-r-2xl'">
-                    <img v-lazy="imgSrc(img)" loading="lazy" decoding="async"
-                        class="w-full h-full object-cover cursor-pointer" @click="open(img)" />
+                    <img v-lazy="imgSrc(img)" :loading="isCached(img) ? 'eager' : 'lazy'"
+                        :decoding="isCached(img) ? 'sync' : 'async'"
+                        class="w-full h-full object-cover cursor-pointer" :class="{ 'is-cached': isCached(img) }"
+                        @load="markLoaded(img)" @click="open(img)" />
                 </div>
             </div>
         </template>
@@ -28,13 +33,17 @@
             <div class="grid grid-cols-2 gap-[2px] rounded-2xl overflow-hidden aspect-[16/9]"
                 style="grid-template-rows: 1fr 1fr;" :style="{ maxHeight: MAX_GRID_ROW_HEIGHT + 'px' }">
                 <div class="media-cell row-span-2 rounded-l-2xl">
-                    <img v-lazy="imgSrc(images[0])" loading="lazy" decoding="async"
-                        class="w-full h-full object-cover cursor-pointer" @click="open(images[0])" />
+                    <img v-lazy="imgSrc(images[0])" :loading="isCached(images[0]) ? 'eager' : 'lazy'"
+                        :decoding="isCached(images[0]) ? 'sync' : 'async'"
+                        class="w-full h-full object-cover cursor-pointer" :class="{ 'is-cached': isCached(images[0]) }"
+                        @load="markLoaded(images[0])" @click="open(images[0])" />
                 </div>
                 <div v-for="(img, i) in images.slice(1)" :key="img.url" class="media-cell"
                     :class="i === 0 ? 'rounded-tr-2xl' : 'rounded-br-2xl'">
-                    <img v-lazy="imgSrc(img)" loading="lazy" decoding="async"
-                        class="w-full h-full object-cover cursor-pointer" @click="open(img)" />
+                    <img v-lazy="imgSrc(img)" :loading="isCached(img) ? 'eager' : 'lazy'"
+                        :decoding="isCached(img) ? 'sync' : 'async'"
+                        class="w-full h-full object-cover cursor-pointer" :class="{ 'is-cached': isCached(img) }"
+                        @load="markLoaded(img)" @click="open(img)" />
                 </div>
             </div>
         </template>
@@ -44,8 +53,10 @@
             <div class="grid grid-cols-2 grid-rows-2 gap-[2px] rounded-2xl overflow-hidden aspect-[16/9]"
                 :style="{ maxHeight: MAX_GRID_ROW_HEIGHT + 'px' }">
                 <div v-for="(img, i) in images" :key="img.url" class="media-cell" :class="cornerClass4(i)">
-                    <img v-lazy="imgSrc(img)" loading="lazy" decoding="async"
-                        class="w-full h-full object-cover cursor-pointer" @click="open(img)" />
+                    <img v-lazy="imgSrc(img)" :loading="isCached(img) ? 'eager' : 'lazy'"
+                        :decoding="isCached(img) ? 'sync' : 'async'"
+                        class="w-full h-full object-cover cursor-pointer" :class="{ 'is-cached': isCached(img) }"
+                        @load="markLoaded(img)" @click="open(img)" />
                 </div>
             </div>
         </template>
@@ -57,16 +68,20 @@
                     :style="{ maxHeight: MAX_GRID_ROW_HEIGHT + 'px' }">
                     <div v-for="(img, i) in images.slice(0, 2)" :key="img.url" class="media-cell"
                         :class="i === 0 ? 'rounded-tl-2xl' : 'rounded-tr-2xl'">
-                        <img v-lazy="imgSrc(img)" loading="lazy" decoding="async"
-                            class="w-full h-full object-cover cursor-pointer" @click="open(img)" />
+                        <img v-lazy="imgSrc(img)" :loading="isCached(img) ? 'eager' : 'lazy'"
+                            :decoding="isCached(img) ? 'sync' : 'async'"
+                            class="w-full h-full object-cover cursor-pointer" :class="{ 'is-cached': isCached(img) }"
+                            @load="markLoaded(img)" @click="open(img)" />
                     </div>
                 </div>
                 <div class="grid grid-cols-3 gap-[2px] aspect-[24/9]"
                     :style="{ maxHeight: MAX_GRID_ROW_HEIGHT_SM + 'px' }">
                     <div v-for="(img, i) in images.slice(2, 5)" :key="img.url" class="media-cell relative"
                         :class="i === 0 ? 'rounded-bl-2xl' : i === 2 ? 'rounded-br-2xl' : ''">
-                        <img v-lazy="imgSrc(img)" loading="lazy" decoding="async"
-                            class="w-full h-full object-cover cursor-pointer" @click="open(img)" />
+                        <img v-lazy="imgSrc(img)" :loading="isCached(img) ? 'eager' : 'lazy'"
+                            :decoding="isCached(img) ? 'sync' : 'async'"
+                            class="w-full h-full object-cover cursor-pointer" :class="{ 'is-cached': isCached(img) }"
+                            @load="markLoaded(img)" @click="open(img)" />
                         <div v-if="i === 2 && images.length > 5"
                             class="absolute inset-0 bg-black/55 hover:bg-black/60 flex items-center justify-center cursor-pointer transition-colors"
                             @click="open(images[4])">
@@ -142,6 +157,28 @@ const getRatio = (img) => {
 // redes lentas e reduz o tamanho da imagem a descodificar); cai sempre
 // para o url original se não houver thumbnails, sem alterar o comportamento.
 const imgSrc = (img) => img?.thumbnails?.md || img?.thumbnails?.url || img?.url;
+
+// ── Cache "estilo X/Facebook" ───────────────────────────────────────────
+// Este Set vive em ESCOPO DE MÓDULO, fora do setup() do componente. Como
+// módulos ES são singletons (só são avaliados uma vez por toda a app), o
+// Set continua existindo mesmo quando a virtualização da lista destrói e
+// recria este componente ao rolar o feed pra cima/baixo. É isso que dá a
+// sensação de "já estava salvo": na primeira vez a imagem carrega normal
+// (com o fade/placeholder do v-lazy); da segunda vez em diante, o
+// componente já sabe que aquela URL foi vista e pula o placeholder,
+// mostrando a imagem opaca de imediato.
+//
+// O download em si já não se repete por causa do cache HTTP do navegador
+// (por isso o <img> nem chega a re-baixar) — isto aqui só evita que a
+// ANIMAÇÃO de carregamento rode de novo por cima de uma imagem que já
+// está pronta, que é o que gera a sensação de "recarregou".
+const seenImages = new Set();
+
+const isCached = (img) => seenImages.has(imgSrc(img));
+
+const markLoaded = (img) => {
+    seenImages.add(imgSrc(img));
+};
 </script>
 
 <style scoped>
@@ -176,6 +213,17 @@ const imgSrc = (img) => img?.thumbnails?.md || img?.thumbnails?.url || img?.url;
 }
 
 .media-cell img[lazy="loaded"] {
+    opacity: 1;
+}
+
+/* Imagem já vista nesta sessão (Set em escopo de módulo): pula o estado
+   "loading" do v-lazy e qualquer transição de fade, aparecendo opaca de
+   imediato, mesmo que a virtualização tenha acabado de remontar o <img>. */
+.media-cell img.is-cached {
+    transition: none;
+}
+
+.media-cell img.is-cached[lazy="loading"] {
     opacity: 1;
 }
 </style>

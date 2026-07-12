@@ -2,7 +2,9 @@
     <div ref="scrollContainer" class="relative">
         <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
         <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"
-            :is-refreshing="isRefreshing" />
+            :is-refreshing="isRefreshing" :top-position="topPostionPullToRefresh" 
+            :refreshing-top-position="refreshingTopPosition"
+            />
 
         <div v-if="!loadingFetch">
             <div v-if="posts?.length">
@@ -82,6 +84,14 @@ const props = defineProps({
         type: Boolean,
         default: false
     },
+    topPostionPullToRefresh: {
+        type: Boolean,
+        default: 14
+    },
+    refreshingTopPosition: {
+        type: Boolean,
+        default: 140
+    },
     enablePullToRefresh: {
         type: Boolean,
         default: false
@@ -148,7 +158,7 @@ const { pullDistance, isRefreshing, threshold } = usePullToRefresh(
     scrollEl,
     () => emitRefreshAndWait(),
     {
-        threshold: 70,
+        threshold: 40,
         maxPull: 90,
         enabled: toRef(props, 'enablePullToRefresh')
     }
