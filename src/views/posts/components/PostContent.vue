@@ -15,7 +15,7 @@ const props = defineProps({
   
   custom: {
     type: String,
-    default: "text-[15px] leading-[16px] select-none"
+    default: "text-[15.5px] !leading-[14px] select-none"
   },
   maxLines: {
     type: Number,

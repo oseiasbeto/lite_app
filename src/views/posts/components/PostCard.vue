@@ -50,11 +50,11 @@
 
                 <!--MEDIA-->
                 <div @click.stop>
-                    <PostMediaImages v-if="data?.media?.length" :images="data.media.filter(m => m.type === 'image')"
+                    <PostMediaImages v-if="data?.media?.length" :images="postImages"
                         :post="data" :module="module" :is-parent-post="isParentPost" @open="setMedia" />
 
-                    <PostMediaVideo v-if="data?.media?.find(m => m.type === 'video')"
-                        :video="data.media.find(m => m.type === 'video')" :is-parent-post="isParentPost"
+                    <PostMediaVideo v-if="postVideo"
+                        :video="postVideo" :is-parent-post="isParentPost"
                         @open="openVideo" />
                 </div>
 
@@ -150,6 +150,18 @@ const canFollowUser = computed(() => {
 const hasFollowingUser = computed(() => {
     if (props?.user?.following?.includes(props?.data?.author?._id)) return true
     else return false
+})
+
+// Media derivada de data.media, calculada uma única vez e cacheada pelo
+// Vue — antes o filter/find rodavam soltos no template e eram
+// reexecutados em TODO re-render do card (o find de vídeo, inclusive,
+// era chamado duas vezes por render: uma no v-if, outra na prop).
+const postImages = computed(() => {
+    return props.data?.media?.filter(m => m.type === 'image') || []
+})
+
+const postVideo = computed(() => {
+    return props.data?.media?.find(m => m.type === 'video') || null
 })
 
 const handleUpvote = async () => {
