@@ -15,33 +15,14 @@
                                     stroke-width="1.8" fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
                             </svg>
                         </button>
-                        <button
-                            class="flex text-inherit items-center gap-1 rounded-full border border-[rgb(207,217,222)] dark:border-[rgb(83,100,113)] px-2.5 py-0.5 text-x-light-blue"
-                            @click="openPostAudienceDrawer">
-                            <svg v-if="postAudience === 'everyone'" width="16" height="16" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <g class="icon_svg-stroke" transform="translate(4 4)" stroke="currentColor"
-                                    stroke-width="1.8" fill="none" fill-rule="evenodd">
-                                    <path d="M10 15.5a5 5 0 0 0-10 0m17 0a5 5 0 0 0-7.032-4.57"></path>
-                                    <circle cx="5" cy="4" r="4"></circle>
-                                    <path d="M9.678 7.258A4 4 0 1 0 9.791.665"></path>
-                                </g>
-                            </svg>
-                            <svg v-else width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <g class="icon_svg-stroke" transform="translate(6 3)" stroke="currentColor"
-                                    stroke-width="1.8" fill="none" fill-rule="evenodd">
-                                    <path d="M13 18c0-3.314-2.91-6-6.5-6S0 14.686 0 18"></path>
-                                    <circle cx="6.5" cy="5" r="4.5"></circle>
-                                </g>
-                            </svg>
-                            <span class="text-[13px] font-bold">{{ audienceText }}</span>
-                        </button>
+
+                        <h1 class="text-base font-semibold">Criar publicação</h1>
                     </div>
                     <div class="shrink-0 pr-3">
                         <button
-                            class="rounded-full font-bold text-[15px] px-4 py-1.5 bg-x-light-blue text-white disabled:bg-[#1d9bf0]/50 disabled:text-white/80 transition-colors"
+                            class="rounded-full font-semibold text-[15px] px-4 py-2 bg-black text-white dark:bg-white dark:text-black disabled:opacity-50 transition-colors"
                             :disabled="!canPost || selectFileLoading" @click="handleSubmit">
-                            Postar
+                            Publicar
                         </button>
                     </div>
                 </div>
@@ -77,10 +58,39 @@
                     <!--end error alert-->
 
                     <!--start author + editor row (side by side, like X)-->
-                    <div class="flex gap-3">
-                        <div class="shrink-0">
-                            <Avatar size="lg" :url="user?.profile_image?.url" />
+                    <div class="flex flex-col gap-0.5">
+                        <div class="flex items-center gap-2">
+                            <div class="shrink-0">
+                                <Avatar size="md" :url="user?.profile_image?.url" />
+                            </div>
+
+                            <div>
+                                <p class="text-sm">{{ user?.name }}</p>
+                                <button
+                                    class="flex text-inherit items-center gap-1 rounded-full border border-[rgb(207,217,222)] dark:border-[rgb(83,100,113)] px-2.5 py-0.5 text-inherit"
+                                    @click="openPostAudienceDrawer">
+                                    <svg v-if="postAudience === 'everyone'" width="16" height="16" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <g class="icon_svg-stroke" transform="translate(4 4)" stroke="currentColor"
+                                            stroke-width="1.8" fill="none" fill-rule="evenodd">
+                                            <path d="M10 15.5a5 5 0 0 0-10 0m17 0a5 5 0 0 0-7.032-4.57"></path>
+                                            <circle cx="5" cy="4" r="4"></circle>
+                                            <path d="M9.678 7.258A4 4 0 1 0 9.791.665"></path>
+                                        </g>
+                                    </svg>
+                                    <svg v-else width="16" height="16" viewBox="0 0 24 24"
+                                        xmlns="http://www.w3.org/2000/svg">
+                                        <g class="icon_svg-stroke" transform="translate(6 3)" stroke="currentColor"
+                                            stroke-width="1.8" fill="none" fill-rule="evenodd">
+                                            <path d="M13 18c0-3.314-2.91-6-6.5-6S0 14.686 0 18"></path>
+                                            <circle cx="6.5" cy="5" r="4.5"></circle>
+                                        </g>
+                                    </svg>
+                                    <span class="text-[13px] font-bold">{{ audienceText }}</span>
+                                </button>
+                            </div>
                         </div>
+
 
                         <div class="flex-1 min-w-0">
                             <!--start editor-->
@@ -166,14 +176,14 @@
             class="fixed bg-white flex items-center justify-between pl-[15px] px-4 bottom-0 dark:bg-black border-t border-[rgb(239,243,244)] dark:border-[rgb(47,51,54)] h-14 w-full">
             <!--start toolbar -->
             <div class="flex py-2 h-full flex-row items-center overflow-hidden">
-                <button @click="toggleToolbar" class="bg-transparent text-x-light-blue border-none mr-2"
+                <button @click="toggleToolbar" class="bg-transparent text-inherit border-none mr-2"
                     :title="showToolbar ? 'Ocultar formatação' : 'Mostrar formatação'">
                     <svg v-if="showToolbar" width="22" height="22" viewBox="0 0 24 24"
                         xmlns="http://www.w3.org/2000/svg">
                         <path d="m5 8.5 7 7 7.005-7" class="icon_svg-stroke" stroke="currentColor" stroke-width="1.8"
                             fill="none" stroke-linecap="round"></path>
                     </svg>
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24">
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
                         <path class="icon_svg-fill_as_stroke"
                             d="m10.526 17.352-1.002-3.031H5.162l-1.018 3.031H2L6.205 5.5h2.382l4.214 11.852h-2.275zM7.281 7.759l-1.626 4.887h3.376l-1.61-4.887h-.14zm10.415 8.14c1.232 0 2.152-.797 2.152-1.84v-.715l-2.029.131c-1.142.074-1.676.485-1.676 1.216 0 .756.649 1.207 1.552 1.207zm-.6 1.602c-1.733 0-2.973-1.051-2.973-2.694 0-1.626 1.224-2.563 3.409-2.694l2.316-.14v-.756c0-.879-.591-1.372-1.692-1.372-.936 0-1.577.329-1.766.936h-1.922c.164-1.585 1.651-2.595 3.786-2.595 2.308 0 3.606 1.125 3.606 3.031v6.136h-1.963V16.12h-.14c-.501.871-1.487 1.38-2.661 1.38z"
                             fill="currentColor" fill-rule="evenodd"></path>
@@ -182,9 +192,9 @@
 
                 <div class="flex items-center" v-if="!showToolbar">
                     <button :disabled="disableUploadImage" @click="imageInput?.click()"
-                        class="bg-transparent text-x-light-blue disabled:opacity-40 border-none ml-1 mr-1.5"
+                        class="bg-transparent text-inherit disabled:opacity-40 border-none ml-1 mr-1.5"
                         title="Adicionar imagem">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
                             <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z"
                                 stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
                                 stroke-linejoin="round" />
@@ -199,10 +209,10 @@
                         </svg>
                     </button>
                     <button :disabled="disableUploadVideo" @click="videoInput?.click()"
-                        class="bg-transparent text-x-light-blue disabled:opacity-40 border-none ml-1 mr-2"
+                        class="bg-transparent text-inherit disabled:opacity-40 border-none ml-1 mr-2"
                         title="Adicionar vídeo">
 
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
                             <path d="M22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22H15C20 22 22 20 22 15Z"
                                 stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
                                 stroke-linejoin="round" />
@@ -226,7 +236,7 @@
                     class="flex scrollbar-hide  flex-nowrap overflow-x-auto gap-1 px-2 pt-0">
                     <button @click="richTextEditorRef?.editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="[
                         'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('heading', { level: 1 }) ? 'text-x-light-blue' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
+                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('heading', { level: 1 }) ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
                     ]" title="Título H1">
                         <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -237,7 +247,7 @@
 
                     <button @click="richTextEditorRef?.editor.chain().focus().toggleBold().run()" :class="[
                         'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('bold') ? 'text-x-light-blue' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
+                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('bold') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
                     ]" title="Negrito (Ctrl+B)">
                         <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -248,7 +258,7 @@
 
                     <button @click="richTextEditorRef?.editor.chain().focus().toggleItalic().run()" :class="[
                         'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('italic') ? 'text-x-light-blue' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
+                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('italic') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
                     ]" title="Itálico (Ctrl+I)">
                         <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -259,7 +269,7 @@
 
                     <button @click="richTextEditorRef?.editor.chain().focus().toggleOrderedList().run()" :class="[
                         'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('orderedList') ? 'text-x-light-blue' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
+                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('orderedList') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
                     ]" title="Lista numerada">
                         <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -270,7 +280,7 @@
 
                     <button @click="richTextEditorRef?.editor.chain().focus().toggleBulletList().run()" :class="[
                         'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('bulletList') ? 'text-x-light-blue' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
+                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('bulletList') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
                     ]" title="Lista com marcadores">
                         <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -281,7 +291,7 @@
 
                     <button @click="richTextEditorRef?.editor.chain().focus().toggleBlockquote().run()" :class="[
                         'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('blockquote') ? 'text-x-light-blue' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
+                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('blockquote') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
                     ]" title="Citação">
                         <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
                             fill="currentColor">
@@ -302,7 +312,7 @@
            a14.5 14.5 0 0 1 0 -29" stroke-linecap="butt" stroke-width="1"
                         class="text-[rgb(222,224,225)] dark:text-[rgb(57,56,57)]" stroke="currentColor" />
                     <path
-                        :class="remainingChars < 0 ? 'text-[#f4212e]' : remainingChars <= 10 ? 'text-[#ffd400]' : 'text-x-light-blue'"
+                        :class="remainingChars < 0 ? 'text-[#f4212e]' : remainingChars <= 10 ? 'text-[#ffd400]' : 'text-inherit'"
                         :stroke-dasharray="dashArrayCharCount" d="M15 2.5
            a12.5 12.5 0 0 1 0 25
            a12.5 12.5 0 0 1 0 -25" stroke-linecap="butt" stroke-width="3" stroke="currentColor" />
@@ -315,6 +325,13 @@
             <!--end char count ring-->
         </div>
         <!--end footer-->
+
+        <!--
+            O indicador de estado da publicação (estilo Threads/YouTube) é global
+            e fica registado uma única vez em App.vue — ele reflete o estado
+            `uploadingPost` da store enquanto este ecrã já foi fechado (router.back()
+            acontece logo após o dispatch em handleSubmit). Ver PostUploadIndicator.vue.
+        -->
     </div>
 </template>
 
@@ -462,6 +479,8 @@ const removeParentPost = () => {
 };
 
 // ── Validação de integridade do vídeo ──
+// Aproveita os metadados já carregados aqui para devolver também a duração
+// (em segundos), evitando ter de abrir o vídeo uma segunda vez só para isso.
 const validateVideoIntegrity = (file) => {
     return new Promise((resolve, reject) => {
         const video = document.createElement('video');
@@ -472,8 +491,9 @@ const validateVideoIntegrity = (file) => {
                 URL.revokeObjectURL(video.src);
                 reject(new Error('Vídeo corrompido ou inválido.'));
             } else {
+                const duration = video.duration; // NOVO
                 URL.revokeObjectURL(video.src);
-                resolve(true);
+                resolve(duration); // NOVO — antes resolvia `true`, agora devolve a duração em segundos
             }
         };
         video.onerror = () => {
@@ -552,7 +572,7 @@ const handleVideoUpload = async (e) => {
     selectFileLoading.value = true;
 
     try {
-        await validateVideoIntegrity(file);
+        const duration = await validateVideoIntegrity(file); // NOVO — vem do onloadedmetadata
 
         const id = uuidv4();
         const media = {
@@ -561,6 +581,7 @@ const handleVideoUpload = async (e) => {
             type: 'video',
             format: file.type.split('/')[1],
             file,
+            duration, // NOVO — em segundos; segue até ao submit e serve de fallback no upload
         };
         mediaPreviews.value = [media]; // vídeo substitui tudo
 
@@ -615,6 +636,7 @@ const handleSubmit = async () => {
         file: m.file,
         type: m.type,
         format: m.format,
+        duration: m.duration, // NOVO — indefinido para imagens, em segundos para vídeo
     }));
 
     const payload = {

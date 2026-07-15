@@ -49,6 +49,12 @@ async function uploadSingleMedia(media, onProgress) {
         format: media.type === 'video' ? 'm3u8' : response.data.format,
         width: response.data.width,
         height: response.data.height,
+        // NOVO — duração em segundos, só para vídeo. Prioriza a duração que a
+        // Cloudinary devolve (mais fiável, já pós-processamento), com fallback
+        // para a duração lida no browser durante a validação de integridade.
+        duration: media.type === 'video'
+            ? (response.data.duration ?? media.duration ?? null)
+            : undefined,
     }
 }
 
@@ -153,6 +159,7 @@ export default {
                 progress: hasMedia ? 0 : 100,
                 status: hasMedia ? 'uploading' : 'publishing',
                 error: null,
+                postId: null, // NOVO — preenchido quando o post é criado, usado pelo botão "Ver" do indicador
             };
         },
         SET_BACKGROUND_POST_PROGRESS(state, { id, progress }) {
@@ -163,6 +170,12 @@ export default {
             if (state.uploadingPost?.id !== id) return;
             state.uploadingPost.status = status;
             state.uploadingPost.error = error;
+        },
+        // NOVO — guarda o _id do post criado assim que a API responde, para o
+        // indicador de rodapé poder navegar até ele quando o utilizador tocar em "Ver".
+        SET_BACKGROUND_POST_RESULT(state, { id, postId }) {
+            if (state.uploadingPost?.id !== id) return;
+            state.uploadingPost.postId = postId;
         },
         CLEAR_BACKGROUND_POST(state, { id } = {}) {
             if (id && state.uploadingPost?.id !== id) return;
@@ -329,6 +342,22 @@ export default {
             if (post && post?._id === postId) {
                 post.comments_count += 1
             }
+        },
+        // NOVO — insere um post recém-criado no topo de um módulo de perfil já
+        // cacheado. Usada pelo push automático quando o autor é o próprio user.
+        PUSH_POST_TO_MODULE(state, { moduleName, post }) {
+            if (!moduleName || !post?._id) return;
+
+            const moduleEntry = state.posts.find(m => m.module === moduleName);
+            if (!moduleEntry) return;
+
+            const alreadyExists = moduleEntry.posts?.some(p => p._id === post._id);
+            if (alreadyExists) return;
+
+            moduleEntry.posts = [post, ...(moduleEntry.posts || [])];
+            if (moduleEntry.pagination) {
+                moduleEntry.pagination.total = (moduleEntry.pagination.total || 0) + 1;
+            }
         }
     },
     actions: {
@@ -492,6 +521,32 @@ export default {
                 logger.error("Erro ao adicionar/remover voto positivo na postagem:", error?.response?.message);
             }
         },
+        // NOVO — se o post criado for do próprio utilizador autenticado, injeta-o
+        // no topo de qualquer módulo de perfil dele que já esteja em cache, para
+        // aparecer imediatamente na aba de perfil sem precisar de refresh manual.
+        //
+        // ⚠️ Ajusta o `isOwnProfileModule` abaixo para a convenção real dos teus
+        // nomes de módulo de perfil (ex.: 'profile', `profile-${userId}`, etc.).
+        // Não tinha acesso ao componente de Perfil para confirmar essa chave.
+        pushPostToOwnProfileModule({ commit, state, rootGetters }, newPost) {
+            if (!newPost?._id) return;
+
+            const currentUser = rootGetters.currentUser;
+            if (!currentUser?._id) return;
+
+            const authorId = newPost?.author?._id || newPost?.author || newPost?.user?._id || newPost?.user;
+            if (String(authorId) !== String(currentUser._id)) return;
+
+            state.posts.forEach((moduleEntry) => {
+                const moduleName = moduleEntry?.module || '';
+                const isOwnProfileModule =
+                    moduleName.includes('profile') && moduleName.includes(String(currentUser._id));
+
+                if (isOwnProfileModule) {
+                    commit('PUSH_POST_TO_MODULE', { moduleName, post: newPost });
+                }
+            });
+        },
         async submitPostWithMedia({ commit, dispatch }, payload) {
             const { content, mediaFiles = [], sharedPost, isAnonymous, topics, audience, module } = payload;
             const id = uuidv4();
@@ -526,8 +581,15 @@ export default {
                 // Reaproveita a tua action existente de criação de post.
                 const newPost = await dispatch('createPost', postData);
 
+                // NOVO — guarda o postId para o botão "Ver" do indicador de rodapé
+                commit('SET_BACKGROUND_POST_RESULT', { id, postId: newPost?._id });
+
                 commit('SET_BACKGROUND_POST_PROGRESS', { id, progress: 100 });
                 commit('SET_BACKGROUND_POST_STATUS', { id, status: 'success' });
+
+                // NOVO — se for o perfil do próprio utilizador, injeta o post no
+                // cache do módulo de perfil imediatamente (sem esperar refresh).
+                dispatch('pushPostToOwnProfileModule', newPost);
 
                 // Some o indicador passado um curto período, para o utilizador ver o "concluído".
                 setTimeout(() => commit('CLEAR_BACKGROUND_POST', { id }), 2000);

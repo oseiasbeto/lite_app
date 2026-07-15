@@ -2,6 +2,7 @@
     <div class="relative h-screen overflow-hidden">
         <!--Header (fixo, compartilhado pelas duas abas)-->
         <div class="w-full h-[113px] relative"></div>
+
         <div class="fixed top-0 z-[11] w-full bg-white dark:bg-x-dark-bg transition-transform duration-300 ease-in-out will-change-transform"
             :class="showHeader ? 'translate-y-0' : '-translate-y-full'">
             <div class="px-[10px] flex justify-between items-center">
@@ -58,7 +59,8 @@
                 class="h-screen overflow-x-hidden overflow-y-scroll"
                 :class="{ 'pb-[50px]': !getPagination(TAB_MODULE_MAP[tab.value])?.hasMore }">
                 <div class="w-full h-[113px] relative"></div>
-                <PostList :scroll-target="scrollRefs[tab.value]" :enable-pull-to-refresh="enablePullToRefresh"
+                <PostList 
+                    :scroll-target="scrollRefs[tab.value]" :enable-pull-to-refresh="enablePullToRefresh"
                     :posts="postsByModule(TAB_MODULE_MAP[tab.value])"
                     :has-more="getPagination(TAB_MODULE_MAP[tab.value])?.hasMore || false"
                     :loading-fetch="loadingByModule[TAB_MODULE_MAP[tab.value]]"
@@ -71,6 +73,8 @@
                     @on-refresh="(done) => handleRefresh(TAB_MODULE_MAP[tab.value], done)" />
             </div>
         </div>
+
+        <PostUploadIndicator/>
     </div>
 </template>
 
@@ -79,6 +83,7 @@ import Tabs from '@/components/UI/Tabs.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
 import PostList from '@/views/posts/components/PostList.vue';
 import PostSkeleton from '@/views/posts/components/PostSkeleton.vue';
+import PostUploadIndicator from '@/views/posts/components/PostUploadIndicator.vue';
 import { ref, reactive, onMounted, onActivated, computed, watch, nextTick } from 'vue';
 import { useStore } from 'vuex';
 

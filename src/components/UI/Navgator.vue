@@ -8,13 +8,13 @@
             <li class="flex-1 h-full active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
                 <button @click="router.replace('/home')" :class="{ 'text-primary': route.name == 'Home' }"
                     class="flex relative items-center w-full h-full" to="/feed">
-                    <svg class="mx-auto" v-if="route.name === 'Home'" xmlns="http://www.w3.org/2000/svg" width="27" height="27" viewBox="0 0 24 24"
-                        fill="none">
+                    <svg class="mx-auto" v-if="route.name === 'Home'" xmlns="http://www.w3.org/2000/svg" width="27"
+                        height="27" viewBox="0 0 24 24" fill="none">
                         <path fill-rule="evenodd" clip-rule="evenodd"
                             d="M20.479 7.57827L15.093 3.12502C13.2787 1.62499 10.7213 1.62499 8.90703 3.12502L3.52097 7.57827C2.55059 8.38059 2 9.59705 2 10.8663V17.8109C2 20.066 3.73415 22 6 22H8C9.10457 22 10 21.1046 10 20V16.7478C10 15.4803 10.9521 14.5587 12 14.5587C13.0479 14.5587 14 15.4803 14 16.7478V20C14 21.1046 14.8954 22 16 22H18C20.2659 22 22 20.066 22 17.8109V10.8663C22 9.59706 21.4494 8.38059 20.479 7.57827Z"
                             fill="currentColor" />
                     </svg>
-                  
+
                     <svg class="mx-auto" v-else xmlns="http://www.w3.org/2000/svg" width="27" height="27"
                         viewBox="0 0 24 24" fill="none">
                         <path
@@ -27,27 +27,20 @@
             <li class="flex-1 h-full active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive">
                 <router-link class="flex outline-none text-inherit relative items-center h-full"
                     :class="{ 'text-primary': route.name == 'Chats' }" to="/chats">
-
-                    <svg v-if="route.name === 'Chats'" xmlns="http://www.w3.org/2000/svg"
-                        class="w-[24px] h-[24px] mx-auto" width="100%" height="100%" viewBox="0 0 24 24" fill="none">
-                        <g id="style=fill">
-                            <g id="message">
-                                <path id="Subtract" fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M22.5618 6.62281C23.5345 3.43985 20.5863 0.43971 17.3938 1.44593L17.3918 1.44656L4.13385 5.55475C0.321194 6.75095 0.276533 12.1486 4.07556 13.422L7.70072 14.6431L7.70334 14.644C8.48677 14.9047 9.10562 15.5095 9.36293 16.2972L9.36535 16.3045L10.5881 19.9219L10.5884 19.923C11.8679 23.7517 17.2516 23.6582 18.4449 19.8408L22.5618 6.62281ZM6.07438 11.4215C5.68183 11.2893 5.47081 10.8639 5.60304 10.4714C5.73527 10.0788 6.16068 9.86779 6.55322 10L10.1769 11.2207L10.1782 11.2211C10.5695 11.3515 10.9363 11.5378 11.2677 11.7723C11.4809 11.9232 11.6795 12.0941 11.8604 12.2829C12.2734 12.7139 12.5941 13.2376 12.7874 13.8276L14.0099 17.4441C14.1425 17.8365 13.9319 18.2622 13.5395 18.3948C13.1471 18.5274 12.7215 18.3169 12.5888 17.9245L11.3652 14.3045L11.3628 14.2972C11.241 13.9242 11.0389 13.5936 10.7774 13.3208C10.6629 13.2013 10.5369 13.0928 10.4011 12.9967C10.1898 12.8471 9.95495 12.7277 9.70325 12.6439L6.07438 11.4215Z"
-                                    fill="currentColor" />
-                            </g>
-                        </g>
+                    <svg v-if="route.name === 'Chats'" aria-label="Mensagens" role="img" viewBox="0 0 22 22"
+                        class="w-[23px] h-[23px] mx-auto">
+                        <title>Mensagens</title>
+                        <path
+                            d="M5.85195 21.4694L19.3245 14.0577C20.3799 13.477 21.1437 12.4247 21.2273 11.2231C21.3235 9.84073 20.6427 8.59809 19.4491 7.94169L5.99304 0.539493C4.62004 -0.215795 2.90086 -0.199435 1.63504 0.724303C0.58005 1.49419 0 2.65449 0 3.88663C0 4.24341 0.0481501 4.60548 0.1483 4.96612L1.33112 9.25543C1.44906 9.68303 1.83808 9.97933 2.28172 9.97933H14.3338C14.8788 9.97933 15.3199 10.4208 15.3199 10.9654C15.3199 11.5099 14.8788 11.9515 14.3338 11.9515H2.28172C1.83808 11.9515 1.44906 12.2477 1.33112 12.6754L0.19476 16.7962C-0.22893 18.3326 0.20275 20.0322 1.43072 21.0482C2.70569 22.103 4.40849 22.2628 5.85195 21.4694Z"
+                            fill="currentColor"></path>
                     </svg>
-                    <svg v-else class="w-[24px] h-[24px] mx-auto" xmlns="http://www.w3.org/2000/svg" width="100%"
-                        height="100%" viewBox="0 0 24 24" fill="none">
-                        <g id="style=linear">
-                            <g id="message">
-                                <path id="vector"
-                                    d="M4.31393 12.711L7.94019 13.9325C8.26194 14.0395 8.56301 14.1925 8.83454 14.3847C9.00903 14.5082 9.17132 14.6479 9.31906 14.8021C9.65673 15.1544 9.91837 15.5822 10.0759 16.0645L11.2995 19.6845C12.3451 22.8159 16.75 22.7493 17.7289 19.6179L21.8446 6.40374C22.2437 5.09764 21.8416 3.83567 21.0155 3C20.1841 2.15896 18.9233 1.74972 17.6176 2.1619L4.35842 6.2705C1.24384 7.24767 1.19935 11.6672 4.31393 12.711Z"
-                                    stroke="currentColor" stroke-width="2.3" stroke-linecap="round"
-                                    stroke-linejoin="round" />
-                            </g>
-                        </g>
+
+                    <svg v-else aria-label="Mensagens" role="img" viewBox="0 0 24 24" class="w-[23px] h-[23px] mx-auto"
+                        style="">
+                        <title>Mensagens</title>
+                        <path clip-rule="evenodd"
+                            d="M1.28991 6.08111C0.300992 2.49678 4.11016 -0.512612 7.36803 1.27936L20.9452 8.74811C23.5084 10.1583 23.5084 13.8418 20.9452 15.252L7.36803 22.7208C4.11015 24.5127 0.30101 21.5033 1.28991 17.919L2.92272 12.0001L1.28991 6.08111ZM5.17174 13.2501L3.70006 18.584C3.29928 20.0367 4.84259 21.2564 6.16295 20.5303L19.3973 13.2501H5.17174ZM6.16295 3.46979C4.84258 2.74374 3.29928 3.96344 3.70006 5.41607L5.17174 10.7501H19.3973L6.16295 3.46979Z"
+                            fill="currentColor" fill-rule="evenodd"></path>
                     </svg>
                     <span v-show="unreadMessagesCount > 0"
                         class="min-w-4 h-4 dark:shadow-[rgb(32,32,32),0px_0px_0px_2px] text-[10px] p-0.5 flex items-center justify-center rounded-3xl font-semibold absolute top-[10px] right-[12px] bg-x-light-blue text-[#fff]">
