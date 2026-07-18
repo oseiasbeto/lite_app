@@ -1,6 +1,6 @@
 <template>
     <div class="relative h-screen overflow-hidden">
-        <!--Header (fixo, compartilhado pelas duas abas)-->
+        <!--Header (fixo, compartilhado pelas abas)-->
         <div class="w-full h-[113px] relative"></div>
 
         <div class="fixed top-0 z-[11] w-full bg-white dark:bg-x-dark-bg transition-transform duration-300 ease-in-out will-change-transform"
@@ -8,8 +8,8 @@
             <div class="px-[10px] flex justify-between items-center">
                 <Avatar size="sm" :url="user?.profile_image?.thumbnails?.md || user?.profile_image?.url" />
                 <!--LOGO-->
-                <div class="text-inherit">
-                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="60px"
+                <div class="text-inherit ml-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="56px"
                         viewBox="0 0 1024.000000 1024.000000" preserveAspectRatio="xMidYMid meet">
                         <g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)" fill="currentColor"
                             stroke="none">
@@ -48,33 +48,54 @@
           não há remedição de itens, e não precisamos setar scrollTop manualmente.
         -->
         <div v-for="tab in tabs" :key="tab.value" v-show="currentTab === tab.value" class="absolute inset-0 top-0">
-            <!-- 
             <div v-if="settling[tab.value]"
-                class="absolute inset-0 top-[113px] z-20 bg-white dark:bg-x-dark-bg flex flex-col items-center gap-3">
-                <PostSkeleton v-for="n in 8" :key="n" />
+                class="absolute inset-0 top-[113px] z-20 bg-white dark:bg-x-dark-bg overflow-hidden">
+                <div v-for="n in 6" :key="n"
+                    class="animate-pulse flex gap-3 px-4 py-3 border-b border-x-light-border dark:border-x-dark-border">
+                    <!-- Avatar -->
+                    <div class="w-[40px] h-[40px] rounded-full bg-x-light-hover dark:bg-x-dark-hover shrink-0"></div>
+
+                    <div class="flex-1 flex flex-col gap-2">
+                        <!-- Nome + username -->
+                        <div class="flex items-center gap-2">
+                            <div class="h-3 w-24 rounded bg-x-light-hover dark:bg-x-dark-hover"></div>
+                            <div class="h-3 w-16 rounded bg-x-light-hover dark:bg-x-dark-hover"></div>
+                        </div>
+
+                        <!-- Linhas de texto -->
+                        <div class="h-3 w-full rounded bg-x-light-hover dark:bg-x-dark-hover"></div>
+                        <div class="h-3 w-4/5 rounded bg-x-light-hover dark:bg-x-dark-hover"></div>
+
+                        <!-- Placeholder de imagem (alternado) -->
+                        <div v-if="n % 2 === 0" class="h-40 w-full rounded-lg bg-x-light-hover dark:bg-x-dark-hover mt-1"></div>
+
+                        <!-- Ações -->
+                        <div class="flex gap-8 mt-1">
+                            <div class="h-3 w-8 rounded bg-x-light-hover dark:bg-x-dark-hover"></div>
+                            <div class="h-3 w-8 rounded bg-x-light-hover dark:bg-x-dark-hover"></div>
+                            <div class="h-3 w-8 rounded bg-x-light-hover dark:bg-x-dark-hover"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            -->
 
             <div :ref="el => setScrollRef(tab.value, el)" @scroll="(e) => onScroll(tab.value, e)"
                 class="h-screen overflow-x-hidden overflow-y-scroll"
                 :class="{ 'pb-[50px]': !getPagination(TAB_MODULE_MAP[tab.value])?.hasMore }">
                 <div class="w-full h-[113px] relative"></div>
-                <PostList 
-                    :scroll-target="scrollRefs[tab.value]" :enable-pull-to-refresh="enablePullToRefresh"
+                <PostList :scroll-target="scrollRefs[tab.value]" :enable-pull-to-refresh="enablePullToRefresh"
                     :posts="postsByModule(TAB_MODULE_MAP[tab.value])"
                     :has-more="getPagination(TAB_MODULE_MAP[tab.value])?.hasMore || false"
                     :loading-fetch="loadingByModule[TAB_MODULE_MAP[tab.value]]"
                     :loading-load-more="loadingLoadMoreByModule[TAB_MODULE_MAP[tab.value]]" :show-btn-follow="true"
-                    :top-postion-pull-to-refresh="14"
-                    :refreshing-top-position="140"
-                    :module="TAB_MODULE_MAP[tab.value]"
+                    :top-postion-pull-to-refresh="14" :refreshing-top-position="140" :module="TAB_MODULE_MAP[tab.value]"
                     @post-deleted="(id) => handlePostDeleted(id, TAB_MODULE_MAP[tab.value])"
                     @on-load-more="() => handleLoadMore(TAB_MODULE_MAP[tab.value])"
                     @on-refresh="(done) => handleRefresh(TAB_MODULE_MAP[tab.value], done)" />
             </div>
         </div>
 
-        <PostUploadIndicator/>
+        <PostUploadIndicator />
     </div>
 </template>
 
@@ -82,7 +103,6 @@
 import Tabs from '@/components/UI/Tabs.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
 import PostList from '@/views/posts/components/PostList.vue';
-import PostSkeleton from '@/views/posts/components/PostSkeleton.vue';
 import PostUploadIndicator from '@/views/posts/components/PostUploadIndicator.vue';
 import { ref, reactive, onMounted, onActivated, computed, watch, nextTick } from 'vue';
 import { useStore } from 'vuex';
@@ -93,16 +113,21 @@ const enablePullToRefresh = ref(false)
 
 const TAB_MODULE_MAP = {
     foryou: 'feed',
-    following: 'following'
+    following: 'following',
+    trending: 'trending'
 }
 const MODULE_TAB_MAP = {
     feed: 'foryou',
-    following: 'following'
+    following: 'following',
+    trending: 'trending'
 }
+
+const warmedTabs = reactive({ foryou: false, following: false, trending: false })
 
 const tabs = ref([
     { label: 'Para você', value: 'foryou' },
-    { label: 'Seguindo', value: 'following' }
+    { label: 'Seguindo', value: 'following' },
+    { label: 'Tendências', value: 'trending' }
 ])
 
 const currentTab = ref('foryou')
@@ -122,19 +147,19 @@ const resetQueryFor = (mod) => {
     return queriesByModule[mod]
 }
 
-// --- loading POR módulo (as duas abas podem estar carregando de forma independente) ---
-const loadingByModule = reactive({ feed: false, following: false })
-const loadingLoadMoreByModule = reactive({ feed: false, following: false })
+// --- loading POR módulo (as três abas podem estar carregando de forma independente) ---
+const loadingByModule = reactive({ feed: false, following: false, trending: false })
+const loadingLoadMoreByModule = reactive({ feed: false, following: false, trending: false })
 
 // --- refs de scroll, um container por aba ---
-const scrollRefs = reactive({ foryou: null, following: null })
+const scrollRefs = reactive({ foryou: null, following: null, trending: null })
 const setScrollRef = (tabValue, el) => {
     scrollRefs[tabValue] = el
 }
 
 // --- controle do header (mostrar/esconder por direção do scroll) ---
 const showHeader = ref(true)
-const lastScrollTopByModule = reactive({ feed: 0, following: 0 })
+const lastScrollTopByModule = reactive({ feed: 0, following: 0, trending: 0 })
 const SCROLL_THRESHOLD = 15
 
 const onScroll = (tabValue, event) => {
@@ -226,8 +251,8 @@ const handlePostDeleted = (postId, mod) => {
     })
 }
 
-// Só busca a aba ativa no mount. A outra aba busca sob demanda,
-// na primeira vez que o usuário troca pra ela (ver watch abaixo).
+// Só busca a aba ativa no mount. As outras abas buscam sob demanda,
+// na primeira vez que o usuário troca pra elas (ver watch abaixo).
 const fetchIfNeeded = async (mod) => {
     const cached = modulePostsFor(mod)
     const needsFetch = !cached || !cached.posts?.length
@@ -243,8 +268,8 @@ const fetchIfNeeded = async (mod) => {
     }
 }
 
-// --- overlay que cobre o flash branco ao trocar de aba ---
-const settling = reactive({ foryou: false, following: false })
+// --- overlay que cobre o flash branco ao trocar de aba / remontar o componente ---
+const settling = reactive({ foryou: false, following: false, trending: false })
 
 // Ajuste esse valor se ainda restar um pedacinho de branco antes do overlay
 // sumir, ou se ele estiver ficando visível por mais tempo que o necessário.
@@ -274,11 +299,12 @@ const nudgeScroll = (tabValue) => {
 watch(currentTab, async (newTab) => {
     const mod = TAB_MODULE_MAP[newTab]
     const hasCachedPosts = postsByModule(mod).length > 0
+    // só cobre com skeleton se esta aba ainda não foi "aquecida"
+    // nesta instância do componente (evita mostrar skeleton em
+    // trocas de aba que já estão prontas/instantâneas)
+    const needsSettle = hasCachedPosts && !warmedTabs[newTab]
 
-    if (hasCachedPosts) {
-        // já tem dado em cache — o branco não vem de fetch, vem da lista
-        // virtualizada remedindo itens ao voltar a ficar visível.
-        // Cobrimos com o skeleton por uma janela curta.
+    if (needsSettle) {
         settling[newTab] = true
     }
 
@@ -297,21 +323,43 @@ watch(currentTab, async (newTab) => {
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             nudgeScroll(newTab)
-            setTimeout(() => {
-                settling[newTab] = false
-            }, SETTLE_DELAY_MS)
+            warmedTabs[newTab] = true
+
+            if (needsSettle) {
+                setTimeout(() => {
+                    settling[newTab] = false
+                }, SETTLE_DELAY_MS)
+            }
         })
     })
 })
 
 onMounted(async () => {
-    await fetchIfNeeded(TAB_MODULE_MAP[currentTab.value])
+    const mod = TAB_MODULE_MAP[currentTab.value]
+    const hasCachedPosts = postsByModule(mod).length > 0
+    // cobre o caso de remount do componente (ex: sair da Home e voltar)
+    // com dado já em cache no store: sem isso, a lista fica em branco
+    // por instantes até o virtualizador remedir os itens.
+    const needsSettle = hasCachedPosts && !warmedTabs[currentTab.value]
+
+    if (needsSettle) {
+        settling[currentTab.value] = true
+    }
+
+    await fetchIfNeeded(mod)
     enablePullToRefresh.value = true
 
     await nextTick()
     requestAnimationFrame(() => {
         requestAnimationFrame(() => {
             nudgeScroll(currentTab.value)
+            warmedTabs[currentTab.value] = true
+
+            if (needsSettle) {
+                setTimeout(() => {
+                    settling[currentTab.value] = false
+                }, SETTLE_DELAY_MS)
+            }
         })
     })
 })

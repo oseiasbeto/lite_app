@@ -65,9 +65,9 @@
                             </div>
 
                             <div>
-                                <p class="text-sm">{{ user?.name }}</p>
+                                <p class="text-sm font-bold">{{ user?.name }}</p>
                                 <button
-                                    class="flex text-inherit items-center gap-1 rounded-full border border-[rgb(207,217,222)] dark:border-[rgb(83,100,113)] px-2.5 py-0.5 text-inherit"
+                                    class="flex items-center gap-1 rounded-full bg-x-light-surface dark:bg-x-dark-surface px-2.5 py-0.5 text-inherit"
                                     @click="openPostAudienceDrawer">
                                     <svg v-if="postAudience === 'everyone'" width="16" height="16" viewBox="0 0 24 24"
                                         xmlns="http://www.w3.org/2000/svg">
@@ -86,7 +86,7 @@
                                             <circle cx="6.5" cy="5" r="4.5"></circle>
                                         </g>
                                     </svg>
-                                    <span class="text-[13px] font-bold">{{ audienceText }}</span>
+                                    <span class="text-[13px] font-semibold">{{ audienceText }}</span>
                                 </button>
                             </div>
                         </div>
