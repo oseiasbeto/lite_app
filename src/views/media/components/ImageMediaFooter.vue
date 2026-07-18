@@ -4,15 +4,6 @@
         <p class="line-clamp-2 text-[15px] mb-1 break-words" v-html="post?.content?.length > 0 ? post?.content : '...'">
         </p>
 
-        <button @click="goToViewMore"
-            class="flex gap-0.5 my-3 active:opacity-70 text-white font-bold text-[15px] bg-[rgba(245,245,245,0.25)] items-center justify-center rounded-full h-[38px] w-full">
-            <p>Continuar a ler</p>
-            <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="m9 5 7 7-7 7.005" class="icon_svg-stroke" stroke="#fff" stroke-width="1.8" fill="none"
-                    stroke-linecap="round"></path>
-            </svg>
-        </button>
-
         <PostReactions 
             :loading="isReactingPost" :upvotes="post?.upvotes" :upvotes-count="post?.upvotes_count"
             :is-darkoo="true"
