@@ -1,14 +1,17 @@
 <template>
   <div class="relative">
     <div ref="tabsContainer"
-      class="flex px-[10px] border-b gap-4 dark:bg-transparent bg-white border-x-light-border dark:border-x-dark-border overflow-x-auto scrollbar-hide whitespace-nowrap">
+   
+      class="flex px-[10px] border-b-[.5px] gap-4 dark:bg-transparent bg-white border-x-light-border dark:border-x-dark-border overflow-x-auto scrollbar-hide whitespace-nowrap"
+       
+      >
       <div v-for="(tab, index) in tabs" :key="index" class="relative flex-1">
         <button @click="selectTab(index, tab.value)"
           class="py-4 w-full font-semibold active:opacity-40 text-x-dark-textSecondary dark:text-x-dark-textSecondary text-sm"
           :class="{ '!text-inherit': activeTab === tab.value }">
           {{ tab.label }}
           <!-- Borda estática apenas na tab ativa -->
-          <div v-if="activeTab === tab.value" class="absolute rounded-tl-sm rounded-tr-sm bottom-0 left-0 right-0 h-[4px] z-[11] bg-x-light-blue"></div>
+          <div v-if="activeTab === tab.value" class="absolute rounded-full bottom-0 left-0 right-0 h-[4px] z-[111] bg-x-light-blue"></div>
         </button>
       </div>
     </div>
@@ -23,6 +26,10 @@ const props = defineProps({
     type: Array,
     required: true,
     validator: (value) => value.every(item => 'label' in item)
+  },
+  borderSmall: {
+    type: Boolean,
+    default: false
   },
   modelValue: {
     type: String,

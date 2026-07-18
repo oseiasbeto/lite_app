@@ -16,7 +16,9 @@
                     <!--CREATE COMMENT TRIGGER-->
                     <CreateCommentTrigger ref="commentTriggerRef" :user="user" :type="post?.type"
                         :loading="loadingCreateComment" @on-submit="handleInlineComment"
-                        @on-height-change="handleComposerHeightChange" />
+                        @on-height-change="handleComposerHeightChange" 
+                        @on-expand="openNewCommentDrawer(post)"
+                        />
                 </div>
 
                 <!--COMMENTS FILTERS-->

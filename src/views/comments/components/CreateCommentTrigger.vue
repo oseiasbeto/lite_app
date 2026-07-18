@@ -1,8 +1,7 @@
 <template>
     <!--FADE/BG atrás do composer: transparente no topo, sólido do meio pra baixo.
         A altura acompanha o tamanho do composer (cresce junto com a textarea).-->
-    <div
-        class="fixed bottom-0 w-full z-[10] pointer-events-none  transition-[height] duration-150"
+    <div class="fixed bottom-0 w-full z-[10] pointer-events-none  transition-[height] duration-150"
         :style="{ height: `${fadeHeight}px` }">
     </div>
 
@@ -11,13 +10,24 @@
             :class="isExpanded ? 'rounded-[22px]' : 'rounded-[22px] h-[54px] flex items-center'">
 
             <!--ESTADO FECHADO: linha padrão de trigger-->
-            <div v-if="!isExpanded" @click="expand" class="flex items-center w-full h-full cursor-text">
-                <div class="shrink-0">
-                    <Avatar size="md" :url="user?.profile_image?.thumbnails?.md || user?.profile_image?.url" />
+            <div v-if="!isExpanded" @click="expand" class="flex items-center w-full h-full cursor-text justify-between">
+
+                <div class="flex items-center flex-1">
+                    <div class="shrink-0">
+                        <Avatar size="md" :url="user?.profile_image?.thumbnails?.md || user?.profile_image?.url" />
+                    </div>
+                    <p class="text-[15px] ml-2 text-x-light-textSecondary dark:text-x-dark-textSecondary">
+                        Postar {{ type == 'post' ? ' o seu comentário' : 'a sua resposta' }}
+                    </p>
                 </div>
-                <p class="text-[15px] ml-2 text-x-light-textSecondary dark:text-x-dark-textSecondary">
-                    Postar {{ type == 'post' ? ' o seu comentário' : 'a sua resposta' }}
-                </p>
+
+                <button @click.stop="$emit('on-expand')"
+                    class="shrink-0 h-8 w-8 mb-[3px] rounded-full flex items-center justify-center transition-colors text-x-light-textSecondary dark:text-x-dark-textSecondary active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive disabled:opacity-50">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                        <path d="M14 10L21 3M21 3H16.5M21 3V7.5M10 14L3 21M3 21H7.5M3 21L3 16.5" stroke="currentColor"
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
             </div>
 
             <!--ESTADO ABERTO: avatar + textarea auto-expansível + botão enviar (seta)-->
@@ -26,30 +36,20 @@
                     <Avatar size="md" :url="user?.profile_image?.thumbnails?.md || user?.profile_image?.url" />
                 </div>
 
-                <textarea
-                    ref="textareaRef"
-                    v-model="content"
-                    :maxlength="300"
-                    rows="1"
+                <textarea ref="textareaRef" v-model="content" :maxlength="300" rows="1"
                     class="flex-1 resize-none bg-transparent outline-none text-[15px] leading-5 max-h-[160px] overflow-y-auto py-2 placeholder:text-x-light-textSecondary dark:placeholder:text-x-dark-textSecondary"
                     :placeholder="type == 'post' ? 'Escreva o seu comentário' : 'Escreva a sua resposta'"
-                    @input="autoGrow"
-                    @keydown.esc="collapse"
-                    @keydown.enter.ctrl="submit"
-                    @keydown.enter.meta="submit"
-                ></textarea>
+                    @input="autoGrow" @keydown.esc="collapse" @keydown.enter.ctrl="submit"
+                    @keydown.enter.meta="submit"></textarea>
 
-                <button
-                    v-if="content.trim().length > 0"
-                    @click="submit"
-                    :disabled="!canSubmit || loading"
-                    class="shrink-0 h-8 w-8 mb-[3px] rounded-full flex items-center justify-center transition-colors bg-black text-white dark:bg-white dark:text-black disabled:opacity-50"
-                >
+                <button v-if="content.trim().length > 0" @click="submit" :disabled="!canSubmit || loading"
+                    class="shrink-0 h-8 w-8 mb-[3px] rounded-full flex items-center justify-center transition-colors bg-black text-white dark:bg-white dark:text-black disabled:opacity-50">
                     <svg viewBox="0 0 24 24" class="h-[18px] w-[18px] text-inherit" fill="none">
-                        <path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.5"
-                            stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                            stroke-linejoin="round" />
                     </svg>
                 </button>
+                
             </div>
         </div>
     </div>
@@ -88,7 +88,7 @@ const canSubmit = computed(() => content.value.trim().length > 0 && !props.loadi
 function expand() {
     if (!isExpanded.value) {
         isExpanded.value = true
-        emit('on-expand')
+        //emit('on-expand')
     }
 
     // Sempre foca e ajusta a altura, mesmo se já estiver expandido
