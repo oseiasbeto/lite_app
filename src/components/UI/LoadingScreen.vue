@@ -1,8 +1,7 @@
 <template>
   <div class="flex h-screen w-full flex-col items-center justify-center bg-white relative">
     <!-- Logo -->
-    <div
-      class="flex h-[100px] w-[100px] items-center justify-center rounded-[26px] shadow-lg bg-white">
+    <div class="flex h-[100px] w-[100px] items-center justify-center rounded-[26px] shadow-lg bg-white">
       <div class="relative flex h-[88px] w-[88px] text-black items-center justify-center rounded-[22px]">
         <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="80px" viewBox="0 0 1024.000000 1024.000000"
           preserveAspectRatio="xMidYMid meet">
@@ -123,6 +122,12 @@ function handleConnectionChange() {
 }
 
 onMounted(() => {
+  window?.WTN.statusBar({
+    style: 'dark',
+    color: "FFFFFF",
+    overlay: false //Only for android
+  });
+  window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
   const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection
   if (conn) conn.addEventListener('change', handleConnectionChange)
   if (props.autoStart) start()

@@ -351,14 +351,6 @@ const handleRefreshToken = async () => {
 
       initializeSocket()
 
-      // setar com base no valor do corrente usuario
-      if (user.value) {
-        const userTheme = user?.value?.settings?.theme || 'light'
-        setThemeColor(userTheme)
-      } else {
-        setThemeColor('system')
-      }
-
       // Registrar OneSignal Player ID  
       if (node_env === 'prod') {
         getPlayerId().then(async function (playerId) {
@@ -480,9 +472,14 @@ onMounted(async () => {
       .then(async () => {
         await store.dispatch("getTopicList")
         splashRef.value.finish()
-
-        // Aplicar tema salvo
-        setThemeColor(savedTheme.value)
+        
+        // setar com base no valor do corrente usuario
+        if (user.value) {
+          const userTheme = user?.value?.settings?.theme || 'light'
+          setThemeColor(userTheme)
+        } else {
+          setThemeColor('system')
+        }
       })
   } else {
     loading.value = false
