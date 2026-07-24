@@ -472,7 +472,7 @@ onMounted(async () => {
       .then(async () => {
         await store.dispatch("getTopicList")
         splashRef.value.finish()
-        
+
         // setar com base no valor do corrente usuario
         if (user.value) {
           const userTheme = user?.value?.settings?.theme || 'light'
@@ -564,7 +564,7 @@ onUnmounted(() => {
   <div
     class="font-primary text-[13px] dark:bg-x-dark-bg dark:text-x-dark-textPrimary bg-x-light-bg text-x-light-textPrimary relative w-screen text-sm h-screen overflow-x-hidden text-light-text-primary overflow-auto">
     <!-- Banner de status de rede, sempre no topo, fora do keep-alive -->
-    <NetworkStatusBanner ref="networkBanner" />
+    <NetworkStatusBanner v-if="!loading" ref="networkBanner" />
 
     <!-- start main app area-->
     <div v-if="!loading">

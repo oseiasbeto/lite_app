@@ -127,7 +127,8 @@ onMounted(() => {
     color: "FFFFFF",
     overlay: false //Only for android
   });
-  window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+  window?.WTN?.setNavigationBarColor({ color: "#000000" });
+
   const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection
   if (conn) conn.addEventListener('change', handleConnectionChange)
   if (props.autoStart) start()
