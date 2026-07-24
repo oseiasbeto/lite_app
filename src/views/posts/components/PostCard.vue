@@ -42,9 +42,13 @@
                 </div>
 
                 <!--CONTENT-->
-                <div :class="{'mb-2': data?.media?.length}">
-                    <PostContent :enable-truncate="enableTruncate" :is-parent-post="isParentPost" :show-more="showMore"
-                        @on-press="goToViewMore" :content="data.content" />
+                <div @click.stop :class="{'mb-2': data?.media?.length}">
+                    <PostContent 
+                        :enable-truncate="enableTruncate" 
+                        :is-parent-post="isParentPost" :show-more="showMore"
+                        @on-press="goToViewMore" 
+                        :content="data.content" 
+                    />
                 </div>
 
 
@@ -223,6 +227,7 @@ const goToComments = () => {
 }
 
 const goToViewMore = () => {
+    console.log("aki")
     if (!props.showMore) {
         store.commit("SET_POST", props?.data)
         router.push({

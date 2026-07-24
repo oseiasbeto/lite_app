@@ -440,6 +440,7 @@ const handleConfirm = async () => {
 }
 
 const handleCopyText = (text) => {
+    console.log(text)
   // Verifica se a API moderna está disponível e o contexto é seguro (HTTPS ou localhost)
     if (navigator.clipboard && navigator.clipboard.writeText) {
         return navigator.clipboard.writeText(text)
