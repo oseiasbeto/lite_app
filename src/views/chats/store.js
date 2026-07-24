@@ -683,7 +683,8 @@ export default {
         },
 
         // Função para enviar mensagem
-        async sendMessage({ commit }, { convId, tempId, source, replyToId, content }) {
+        async sendMessage({ commit }, { convId, tempId, message_type = 'text', 
+            source, replyToId, file_url, content }) {
             try {
                 const response = await api.post("/messages/new-message", {
                     convId,
@@ -691,6 +692,10 @@ export default {
                     ...(replyToId && {
                         reply_to: replyToId
                     }),
+                    ...(file_url && {
+                        file_url
+                    }),
+                    message_type,
                     source
                 });
 

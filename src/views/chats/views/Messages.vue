@@ -566,8 +566,7 @@ const handleSendVoiceMessage = async ({ url, duration }) => {
         content: '', 
         message_type: 'voice', 
         file_url: url, 
-        file_duration: 
-        duration
+        file_duration: duration
     }))
 }
 
