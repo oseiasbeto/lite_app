@@ -470,14 +470,6 @@ onMounted(async () => {
     // Configurar listeners de conexão
     setupConnectionListeners();
 
-    // Aplicar tema salvo
-    setThemeColor(savedTheme.value)
-
-    /* */
-    setTimeout(() => {
-      setThemeColor(savedTheme.value)
-    }, 2000);
-
     const { appReview: AppReview } = window.WTN
     AppReview.prompt()
   }
@@ -488,6 +480,9 @@ onMounted(async () => {
       .then(async () => {
         await store.dispatch("getTopicList")
         splashRef.value.finish()
+
+        // Aplicar tema salvo
+        setThemeColor(savedTheme.value)
       })
   } else {
     loading.value = false

@@ -96,12 +96,10 @@
         </div>
 
         <PostUploadIndicator />
-        <FloatingActionButton/>
     </div>
 </template>
 
 <script setup>
-import FloatingActionButton from '@/components/buttons/FloatingActionButton.vue';
 import Tabs from '@/components/UI/Tabs.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
 import PostList from '@/views/posts/components/PostList.vue';

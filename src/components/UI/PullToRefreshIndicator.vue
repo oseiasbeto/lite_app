@@ -4,17 +4,16 @@
     <div
       v-if="distance > 0 || isRefreshing"
       class="left-1/2 z-30 -translate-x-1/2 flex items-center justify-center
-             w-10 h-10 rounded-full bg-white dark:bg-black
-             shadow-[0_1px_2px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.12)]
-             ring-1 ring-black/[0.04] dark:ring-white/[0.1]"
+             w-10 h-10 rounded-full bg-white dark:bg-neutral-800
+             shadow-[0_2px_6px_rgba(0,0,0,0.10),0_1px_3px_rgba(0,0,0,0.06)]"
       :class="isRefreshing ? 'fixed' : 'absolute'"
       :style="indicatorStyle"
     >
       <!-- Spinner girando enquanto carrega: só o arco, sem trilho cinzento -->
-      <svg v-if="isRefreshing" class="text-black dark:text-white fb-spin" width="23" height="23" viewBox="0 0 24 24" fill="none">
+      <svg v-if="isRefreshing" class="fb-spin" width="22" height="22" viewBox="0 0 24 24" fill="none">
         <path
           d="M21.5 12a9.5 9.5 0 0 0-9.5-9.5"
-          stroke="currentColor"
+          stroke="#1877F2"
           stroke-width="2.5"
           stroke-linecap="round"
         />
@@ -23,13 +22,12 @@
       <!-- Seta enquanto puxa: vira 180° quando passa do threshold (pronto pra soltar) -->
       <svg
         v-else
-        width="27" height="27" viewBox="0 0 24 24" fill="none"
-        class="text-black dark:text-white"
+        width="26" height="26" viewBox="0 0 24 24" fill="none"
         :style="{ transform: `rotate(${arrowRotation}deg)`, transition: 'transform 0.2s ease' }"
       >
         <path
           d="M12 4v13M12 17l-5.5-5.5M12 17l5.5-5.5"
-          :stroke="reachedThreshold ? 'currentColor' : '#8a8d91'"
+          :stroke="reachedThreshold ? '#1877F2' : '#c4c7cc'"
           stroke-width="2.2"
           stroke-linecap="round"
           stroke-linejoin="round"

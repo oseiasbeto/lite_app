@@ -454,7 +454,7 @@ const handleCopyText = (text) => {
             .catch(err => {
                 console.error('Falha ao copiar (API moderna):', err);
                 // Se falhar, tenta o fallback
-                return fallbackCopiarTexto(texto);
+                return fallbackCopiarTexto(text);
             });
     }
     onCloseDrawer()

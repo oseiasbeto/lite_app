@@ -159,7 +159,7 @@ watch(() => props.isOpen, (newValue) => {
       window.WTN.statusBar({
         style:"light",
         color:"00000000",
-        overlay:true
+        overlay:false
       });
     }
   } else {

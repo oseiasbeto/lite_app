@@ -20,7 +20,7 @@
         </div>
       </div>
       <div v-else>
-        <LoadingScreen/>
+        <SpinnerSmall/>
         <!-- <ChatSkeleton v-for="n in 8" :key="n" />-->
        
       </div>
@@ -33,7 +33,6 @@ import ChatListItem from './ChatListItem.vue';
 import ChatEmpty from './ChatEmpty.vue';
 import { ref } from 'vue';
 import SpinnerSmall from '@/components/UI/SpinnerSmall.vue';
-import LoadingScreen from '@/components/UI/LoadingScreen.vue';
 
 defineProps({
   conversations: Array,
