@@ -74,7 +74,7 @@
 
           <div :class="[
             'flex flex-col relative max-w-[75%] min-w-0',
-            isSent ? 'items-end ml-0' : 'items-start ml-2'
+            isSent ? 'items-end ml-0' : 'items-start ml-3'
           ]">
 
             <!-- Bloco de resposta -->
@@ -91,8 +91,8 @@
                 <span class="truncate">{{ replyLabel }}</span>
               </span>
               <button type="button" @click="scrollToReply" :class="[
-                'block max-w-full min-w-0 text-left rounded-[16px] px-3 py-[10px] text-[13px] leading-tight cursor-pointer transition-opacity opacity-90 hover:opacity-100',
-                isSent ? 'ml-auto bg-x-light-blue/40' : 'bg-[#e4e6eb] dark:bg-[#4a4a4a]'
+                'block max-w-full min-w-0 text-left rounded-[16px] px-3 py-[10px] text-[13px] leading-tight cursor-pointer transition-opacity dark:bg-[#181c21] dark:text-[rgb(245,245,245)] opacity-90 hover:opacity-100',
+                isSent ? 'ml-auto' : ''
               ]" :style="isSent ? 'border-radius: 16px 16px 4px 16px;' : 'border-radius: 16px 16px 16px 4px;'">
                 <span class="block truncate opacity-90"
                   :class="isSent ? 'text-white' : 'text-[rgb(40,40,41)] dark:text-white'">
@@ -107,8 +107,8 @@
                 'relative z-[1] text-left transition-transform active:scale-[0.99] max-w-full min-w-0',
                 !isEmojiOnly && message.status !== 'is_deleted'
                   ? (isSent
-                    ? 'bg-x-light-blue text-white p-[6px_12px]'
-                    : 'dark:bg-x-dark-surface dark:text-white text-[rgb(40,40,41)] bg-x-light-surface p-[6px_12px]')
+                    ? 'bg-[#0095f6] text-white p-[6px_12px]'
+                    : 'dark:bg-[#25292e] dark:text-white text-[rgb(40,40,41)] bg-[#f3f5f7] p-[8px_12px]')
                   : '',
                 message.status === 'is_deleted'
                   ? 'border border-[#b0b3b8] dark:border-[#555] rounded-[18px] px-3 py-[6px] bg-transparent italic opacity-80'
@@ -120,14 +120,14 @@
               ]">
 
               <!-- Mensagem eliminada -->
-              <p v-if="message.status === 'is_deleted'" class="text-[13px] text-grey dark:text-greyDark">
+              <p v-if="message.status === 'is_deleted'" class="text-base text-grey dark:text-greyDark">
                 Mensagem eliminada
               </p>
 
               <!-- Conteúdo normal -->
               <p v-else :class="[
                 'break-words [overflow-wrap:anywhere] whitespace-pre-wrap leading-snug min-w-0',
-                isEmojiOnly ? 'text-5xl' : 'text-base',
+                isEmojiOnly ? 'text-5xl' : 'text-lg',
                 isEmojiOnly && !isSent ? 'ml-6' : 'ml-0'
               ]">
                 {{ message.content }}

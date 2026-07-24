@@ -1,19 +1,23 @@
 <template>
   <header
-    class="flex h-[50px] items-center px-2 bg-x-light-bg dark:bg-x-dark-bg z-50">
+    class="flex h-[61px] border-b dark:border-x-dark-border items-center px-2 bg-x-light-bg dark:bg-[#0c1014] z-50">
     <button @click="$emit('goBack')"
-      class="p-1 dark:text-white text-[rgb(40,40,41)] mr-1 rounded-full transition-colors">
-      <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="m15 5-7 7 7 7.005" class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5" fill="none"
-          stroke-linecap="round"></path>
+      class="p-1 dark:text-white text-[rgb(40,40,41)] mr-3 rounded-full transition-colors">
+      <svg aria-label="Voltar" class="text-inherit" fill="currentColor" height="24" role="img" viewBox="0 0 24 24"
+        width="24">
+        <title>Voltar</title>
+        <line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          x1="2.909" x2="22.001" y1="12.004" y2="12.004"></line>
+        <polyline fill="none" points="9.276 4.726 2.001 12.004 9.276 19.274" stroke="currentColor"
+          stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline>
       </svg>
     </button>
 
     <div class="relative">
       <!-- Avatar com clique -->
       <Avatar @click="goToProfile(conversation)"
-        :url="conversation?.avatar?.thumbnails?.lg || conversation?.avatar?.url" size="xl"
-        class="flex-shrink-0 !w-7 !h-7" />
+        :url="conversation?.avatar?.thumbnails?.bg || conversation?.avatar?.url" size="xl"
+        class="flex-shrink-0 !w-[32px] !h-[32px]" />
 
       <!-- Bolinha de status (ativo) -->
       <span v-if="conversation?.is_online"
@@ -21,7 +25,7 @@
     </div>
 
     <!-- Informações do contato -->
-    <div class="ml-3 flex-1 min-w-0">
+    <div class="ml-2 flex-1 min-w-0">
       <!-- Nome -->
       <div @click="goToProfile(conversation)" class="w-full flex">
         <h2 class="text-base mb-0.5 font-semibold text-inherit truncate leading-tight">
@@ -46,8 +50,10 @@
         <span v-if="conversation?.is_typing" class="flex items-center gap-0.5">
           escrevendo
           <span class="flex ml-1 space-x-0.5">
-            <span class="w-1 h-1 bg-[#dee0e1] dark:bg-[#b0b3b8] rounded-full animate-bounce [animation-delay:-0.3s]"></span>
-            <span class="w-1 h-1 bg-[#dee0e1] dark:bg-[#b0b3b8] rounded-full animate-bounce [animation-delay:-0.15s]"></span>
+            <span
+              class="w-1 h-1 bg-[#dee0e1] dark:bg-[#b0b3b8] rounded-full animate-bounce [animation-delay:-0.3s]"></span>
+            <span
+              class="w-1 h-1 bg-[#dee0e1] dark:bg-[#b0b3b8] rounded-full animate-bounce [animation-delay:-0.15s]"></span>
             <span class="w-1 h-1 bg-[#dee0e1] dark:bg-[#b0b3b8] rounded-full animate-bounce"></span>
           </span>
         </span>
@@ -59,9 +65,16 @@
     <div class="flex items-center gap-3">
       <!-- Mais opções (3 pontinhos verticais) -->
       <button @click="goToProfile(conversation)" class="p-2 rounded-full dark:text-white">
-        <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path d="M5 14a2 2 0 1 1 0-4 2 2 0 0 1 0 4Zm7 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4Zm7 0a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z"
-            class="icon_svg-stroke" stroke-width="1.5" stroke="currentColor" fill="none"></path>
+        <svg aria-label="Informações da conversa" class="w-[20px] h-[20px] text-inherit" fill="currentColor" height="24"
+          role="img" viewBox="0 0 24 24" width="24">
+          <title>Informações da conversa</title>
+          <circle cx="12.001" cy="12.005" fill="none" r="10.5" stroke="currentColor" stroke-linecap="round"
+            stroke-linejoin="round" stroke-width="2"></circle>
+          <circle cx="11.819" cy="7.709" r="1.25"></circle>
+          <line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            x1="10.569" x2="13.432" y1="16.777" y2="16.777"></line>
+          <polyline fill="none" points="10.569 11.05 12 11.05 12 16.777" stroke="currentColor" stroke-linecap="round"
+            stroke-linejoin="round" stroke-width="2"></polyline>
         </svg>
       </button>
     </div>

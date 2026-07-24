@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col h-screen overflow-hidden">
+    <div class="flex flex-col dark:bg-[#0c1014] h-screen overflow-hidden">
         <div class="sticky z-50 top-0 w-full">
             <ChatHeader :status-text="statusText" @go-to-profile="goToProfile" @go-back="router.back()"
                 :user-id="user?._id" :loading="loading" :conversation="conversation" />
@@ -22,12 +22,12 @@
                         <p class="text-lg font-semibold dark:text-white text-[rgb(40,40,41)]">{{
                             conversation?.name
                             }}</p>
-                        <p class="dark:text-[#b0b3b8]">{{ statusText }}</p>
+                        <p class="dark:text-[#b0b3b8]">@{{ conversation.name }}</p>
                     </div>
 
                     <div class="flex my-2 justify-between items-center">
                         <button
-                            class="flex active:opacity-50 bg-black text-white dark:bg-white dark:text-black items-center font-bold gap-1 py-2 px-6 rounded-full"
+                            class="flex active:opacity-50 bg-black text-white dark:bg-white dark:text-black items-center font-bold gap-1 py-2 px-6 rounded-md"
                             @click="goToProfile(conversation)">
                             <p>Ir para este perfil</p>
                         </button>

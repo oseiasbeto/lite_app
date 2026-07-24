@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-white dark:bg-black" :class="{ 'shadow-[0px_-1px_0px_rgba(0,0,0,.08)]': showShadow }">
+  <div class="w-full bg-white dark:bg-[#0c1014]" :class="{ 'shadow-[0px_-1px_0px_rgba(0,0,0,.08)]': showShadow }">
     <reply-to-message-card v-if="replyTo?.show" :user-id="userId" :message="replyTo?.message"
       @on-close="closeReplyTo" />
 
@@ -7,36 +7,59 @@
     <div v-if="isRecording || audioBlob" class="px-3 py-2.5 flex items-center gap-3">
       <button @click="handleCancelRecording" type="button"
         class="w-9 h-9 flex items-center justify-center rounded-full text-[#8e8e8e] hover:bg-[#f0f0f0] dark:hover:bg-[#1a1a1a] active:opacity-60 transition-colors flex-shrink-0">
-        <svg aria-label="Clipe de voz" class="x1lliihq x1n2onr6 x5n08af" fill="currentColor" height="24" role="img"
-          viewBox="0 0 24 24" width="24">
-          <title>Clipe de voz</title>
-          <path d="M19.5 10.671v.897a7.5 7.5 0 0 1-15 0v-.897" fill="none" stroke="currentColor" stroke-linecap="round"
-            stroke-linejoin="round" stroke-width="2"></path>
-          <line fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" x1="12" x2="12" y1="19.068"
-            y2="22"></line>
-          <line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            x1="8.706" x2="15.104" y1="22" y2="22"></line>
-          <path d="M12 15.745a4 4 0 0 1-4-4V6a4 4 0 0 1 8 0v5.745a4 4 0 0 1-4 4Z" fill="none" stroke="currentColor"
-            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M6 6L18 18M6 18L18 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
         </svg>
       </button>
 
       <div
-        class="flex-1 flex items-center gap-2.5 h-10 px-4 rounded-full border border-[#dbdbdb] dark:border-[#363636] bg-white dark:bg-[#000]">
-        <div v-if="isRecording" class="w-2 h-2 rounded-full bg-[#ff3040] animate-pulse flex-shrink-0"></div>
-        <span class="text-[13px] font-medium tabular-nums text-[#262626] dark:text-[#f5f5f5] flex-shrink-0">
-          {{ formatTime(recordingTime) }}
-        </span>
-        <span class="text-[13px] text-[#8e8e8e] flex-shrink-0">/ {{ formatTime(maxDuration) }}</span>
+        class="flex-1 flex items-center gap-2.5 h-10 px-4 rounded-full border border-[#dbdbdb] dark:border-[#363636] bg-white dark:bg-[#000] min-w-0">
 
-        <!-- pseudo-waveform enquanto grava -->
-        <div v-if="isRecording" class="flex-1 flex items-center gap-[3px] justify-center overflow-hidden">
-          <span v-for="n in 18" :key="n" class="w-[2px] rounded-full animate-pulse bg-[#c7c7c7] dark:bg-[#4a4a4a]"
-            :style="{ height: (6 + ((n * 37) % 14)) + 'px', animationDelay: (n * 0.05) + 's' }"></span>
-        </div>
+        <!-- ===== Estado: gravando ===== -->
+        <template v-if="isRecording">
+          <div class="w-2 h-2 rounded-full bg-[#ff3040] animate-pulse flex-shrink-0"></div>
+          <span class="text-[13px] font-medium tabular-nums text-[#262626] dark:text-[#f5f5f5] flex-shrink-0">
+            {{ formatTime(recordingTime) }}
+          </span>
+          <span class="text-[13px] text-[#8e8e8e] flex-shrink-0">/ {{ formatTime(maxDuration) }}</span>
 
-        <!-- preview de áudio gravado, antes de enviar -->
-        <audio v-if="!isRecording && audioUrl" :src="audioUrl" controls class="h-8 flex-1 min-w-0"></audio>
+          <!-- pseudo-waveform ao vivo enquanto grava -->
+          <div class="flex-1 flex items-center gap-[3px] justify-center overflow-hidden">
+            <span v-for="n in 18" :key="n" class="w-[2px] rounded-full animate-pulse bg-[#c7c7c7] dark:bg-[#4a4a4a]"
+              :style="{ height: (6 + ((n * 37) % 14)) + 'px', animationDelay: (n * 0.05) + 's' }"></span>
+          </div>
+        </template>
+
+        <!-- ===== Estado: preview do áudio gravado (player custom estilo Instagram) ===== -->
+        <template v-else-if="audioUrl">
+          <!-- elemento de áudio real, invisível, controlado via JS -->
+          <audio ref="previewAudioRef" :src="audioUrl" preload="metadata" class="hidden"
+            @play="onPreviewPlay" @pause="onPreviewPause" @timeupdate="onPreviewTimeUpdate"
+            @loadedmetadata="onPreviewLoadedMetadata" @ended="onPreviewEnded"></audio>
+
+          <button @click="togglePreviewPlay" type="button"
+            class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-full bg-[#0095f6] text-white active:scale-90 transition-transform">
+            <svg v-if="!isPreviewPlaying" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="white">
+              <path d="M8 5v14l11-7L8 5z" />
+            </svg>
+            <svg v-else xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="white">
+              <rect x="6" y="5" width="4" height="14" rx="1" />
+              <rect x="14" y="5" width="4" height="14" rx="1" />
+            </svg>
+          </button>
+
+          <!-- waveform clicável para navegar no áudio -->
+          <div class="flex-1 flex items-center gap-[2px] h-7 min-w-0 cursor-pointer select-none"
+            @click="seekPreviewFromClick">
+            <span v-for="(h, n) in waveformBars" :key="n" class="flex-1 rounded-full transition-colors duration-75"
+              :class="n <= activeBarIndex ? 'bg-[#0095f6]' : 'bg-[#c7c7c7] dark:bg-[#4a4a4a]'"
+              :style="{ height: h + 'px' }"></span>
+          </div>
+
+          <span class="text-[12px] tabular-nums text-[#8e8e8e] flex-shrink-0">
+            {{ formatTime(Math.floor(isPreviewPlaying || previewCurrentTime ? previewCurrentTime : previewDuration)) }}
+          </span>
+        </template>
       </div>
 
       <!-- Enquanto grava: botão de parar -->
@@ -64,7 +87,7 @@
 
       <!-- Campo de texto em pill, com borda fina estilo Instagram -->
       <div class="flex-1 flex items-end min-h-[40px] rounded-[22px] border border-[#dbdbdb] dark:border-[#363636]
-                  bg-white dark:bg-[#000] focus-within:border-[#a8a8a8] dark:focus-within:border-[#5a5a5a]
+                  bg-white dark:bg-[#0c1014] focus-within:border-[#a8a8a8] dark:focus-within:border-[#5a5a5a]
                   transition-colors pl-4 pr-1.5 py-1">
         <textarea ref="textareaRef" v-model="inputMessage" @input="autoResize" @keydown.enter.shift.exact="allowNewLine"
           @focus="handleFocus" rows="1" placeholder="Enviar mensagem..." class="w-full caret-[#0095f6]
@@ -77,20 +100,13 @@
                  min-h-[24px]" style="line-height: 20px;" />
 
         <!-- Botão de microfone (só aparece sem texto digitado), dentro do campo estilo Instagram -->
-        <button v-if="!inputMessage.trim()" @click.prevent="handleStartRecording" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
+        <button v-if="!inputMessage.trim()" @click.prevent="handleStartRecording" type="button"
+          class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
                  text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#1a1a1a]
                  active:scale-90 transition-all">
-          <svg aria-label="Clipe de voz" class="w-[20px] h-[20px]" fill="currentColor" height="24" role="img"
-            viewBox="0 0 24 24" width="24">
-            <title>Clipe de voz</title>
-            <path d="M19.5 10.671v.897a7.5 7.5 0 0 1-15 0v-.897" fill="none" stroke="currentColor"
-              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-            <line fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" x1="12" x2="12" y1="19.068"
-              y2="22"></line>
-            <line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              x1="8.706" x2="15.104" y1="22" y2="22"></line>
-            <path d="M12 15.745a4 4 0 0 1-4-4V6a4 4 0 0 1 8 0v5.745a4 4 0 0 1-4 4Z" fill="none" stroke="currentColor"
-              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+            <path d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3z" stroke="currentColor" stroke-width="1.8" />
+            <path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
           </svg>
         </button>
       </div>
@@ -99,7 +115,8 @@
       <transition enter-active-class="transition ease-out duration-150" enter-from-class="opacity-0 scale-90"
         enter-to-class="opacity-100 scale-100" leave-active-class="transition ease-in duration-100"
         leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-90">
-        <button v-if="inputMessage.trim()" :disabled="!canSend" type="submit" class="h-10 px-1 flex items-center justify-center flex-shrink-0
+        <button v-if="inputMessage.trim()" :disabled="!canSend" type="submit"
+          class="h-10 px-1 flex items-center justify-center flex-shrink-0
                  text-[#0095f6] disabled:text-[#0095f6]/40 font-semibold text-[15px]
                  active:opacity-50 transition-opacity">
           Enviar
@@ -147,7 +164,12 @@ const autoResize = () => {
   const el = textareaRef.value
   if (!el) return
 
-  el.style.height = 'auto'
+  // Zera a altura e força um reflow síncrono ANTES de medir o scrollHeight.
+  // Sem isso, quando o texto é apagado de uma só vez (ex: Ctrl+A + Delete),
+  // alguns navegadores retornam o scrollHeight "preso" no valor anterior
+  // (mais alto), fazendo o textarea ficar uma linha maior do que deveria.
+  el.style.height = '0px'
+  void el.offsetHeight // força o reflow
   const scrollHeight = el.scrollHeight
 
   emit('auto-resize')
@@ -228,6 +250,103 @@ const {
 
 const isUploadingVoice = ref(false)
 
+// === Player customizado do preview de áudio (estilo Instagram) ===
+const previewAudioRef = ref(null)
+const isPreviewPlaying = ref(false)
+const previewCurrentTime = ref(0)
+const previewDuration = ref(0)
+const WAVEFORM_BARS = 28
+const waveformBars = ref([])
+
+// Gera uma "onda" com alturas pseudo-aleatórias, porém estáveis (não recalcula a cada render)
+const generateWaveform = () => {
+  const bars = []
+  for (let i = 0; i < WAVEFORM_BARS; i++) {
+    const seed = Math.sin(i * 12.9898 + 78.233) * 43758.5453
+    const frac = seed - Math.floor(seed)
+    bars.push(Math.round(6 + frac * 20)) // altura entre 6px e 26px
+  }
+  waveformBars.value = bars
+}
+
+const activeBarIndex = computed(() => {
+  if (!previewDuration.value) return -1
+  const ratio = previewCurrentTime.value / previewDuration.value
+  return Math.floor(ratio * WAVEFORM_BARS) - 1
+})
+
+const togglePreviewPlay = () => {
+  const el = previewAudioRef.value
+  if (!el) return
+  if (isPreviewPlaying.value) {
+    el.pause()
+  } else {
+    el.play().catch(() => {})
+  }
+}
+
+const onPreviewPlay = () => {
+  isPreviewPlaying.value = true
+}
+
+const onPreviewPause = () => {
+  isPreviewPlaying.value = false
+}
+
+const onPreviewTimeUpdate = () => {
+  const el = previewAudioRef.value
+  if (!el) return
+  previewCurrentTime.value = el.currentTime
+}
+
+const onPreviewEnded = () => {
+  isPreviewPlaying.value = false
+  previewCurrentTime.value = 0
+  if (previewAudioRef.value) previewAudioRef.value.currentTime = 0
+}
+
+// Corrige bug conhecido do Chrome/MediaRecorder: blobs webm/opus reportam
+// duration = Infinity até o áudio ser "buscado" uma vez até o fim.
+const onPreviewLoadedMetadata = () => {
+  const el = previewAudioRef.value
+  if (!el) return
+
+  if (el.duration === Infinity || Number.isNaN(el.duration)) {
+    const onTimeUpdateOnce = () => {
+      el.removeEventListener('timeupdate', onTimeUpdateOnce)
+      el.currentTime = 0
+      previewDuration.value = Number.isFinite(el.duration) ? el.duration : recordingTime.value
+    }
+    el.addEventListener('timeupdate', onTimeUpdateOnce)
+    el.currentTime = 1e101
+  } else {
+    previewDuration.value = el.duration
+  }
+}
+
+const seekPreviewFromClick = (event) => {
+  const el = previewAudioRef.value
+  if (!el || !previewDuration.value) return
+  const rect = event.currentTarget.getBoundingClientRect()
+  const ratio = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1)
+  el.currentTime = ratio * previewDuration.value
+  previewCurrentTime.value = el.currentTime
+}
+
+// Sempre que um novo áudio é gravado, prepara o player (waveform + estado zerado)
+watch(audioBlob, (val) => {
+  if (val) {
+    generateWaveform()
+    previewCurrentTime.value = 0
+    previewDuration.value = 0
+    isPreviewPlaying.value = false
+  }
+})
+
+onUnmounted(() => {
+  previewAudioRef.value?.pause()
+})
+
 const formatTime = (seconds) => {
   const m = Math.floor(seconds / 60).toString().padStart(2, '0')
   const s = (seconds % 60).toString().padStart(2, '0')
@@ -240,7 +359,19 @@ const handleStartRecording = () => {
 }
 
 const handleCancelRecording = () => {
-  cancelRecording()
+  // Ainda gravando: aborta a gravação em andamento
+  if (isRecording.value) {
+    cancelRecording()
+    return
+  }
+  // Já parou de gravar (tela de preview): descarta o áudio gravado
+  if (previewAudioRef.value) {
+    previewAudioRef.value.pause()
+  }
+  isPreviewPlaying.value = false
+  previewCurrentTime.value = 0
+  previewDuration.value = 0
+  reset()
 }
 
 const sendVoiceMessage = async () => {
