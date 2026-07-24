@@ -98,7 +98,7 @@
                   :class="isSent ? 'bg-white/25 text-white' : 'bg-black/10 dark:bg-white/15 text-[rgb(40,40,41)] dark:text-white'">
 
                   <!-- Loading (buffering) -->
-                  <svg v-if="isAudioLoading" class="animate-spin" width="13" height="13" viewBox="0 0 24 24"
+                  <svg v-if="isAudioLoading" class="animate-spin" width="16" height="16" viewBox="0 0 24 24"
                     fill="none">
                     <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"
                       fill="none" />
@@ -106,11 +106,11 @@
                       fill="none" />
                   </svg>
                   <!-- Play -->
-                  <svg v-else-if="!isPlaying" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                  <svg v-else-if="!isPlaying" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                   <!-- Pause -->
-                  <svg v-else width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                  <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
                     <rect x="6" y="5" width="4" height="14" />
                     <rect x="14" y="5" width="4" height="14" />
                   </svg>
@@ -125,7 +125,7 @@
                       : (isSent ? 'bg-white/35' : 'bg-black/15 dark:bg-white/20')" :style="{ height: h + 'px' }"></span>
                 </div>
 
-                <span class="text-[11px] tabular-nums flex-shrink-0"
+                <span class="text-sm tabular-nums flex-shrink-0"
                   :class="isSent ? 'text-white/85' : 'text-grey dark:text-greyDark'">
                   {{ formatAudioTime(isPlaying ? audioCurrentTime : audioDuration) }}
                 </span>
