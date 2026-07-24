@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-white dark:bg-[#0c1014]" :class="{ 'shadow-[0px_-1px_0px_rgba(0,0,0,.08)]': showShadow }">
+  <div class="w-full bg-white dark:bg-[#0c1014] " :class="{ 'shadow-[0px_-1px_0px_rgba(0,0,0,.08)]': showShadow }">
     <reply-to-message-card v-if="replyTo?.show" :user-id="userId" :message="replyTo?.message"
       @on-close="closeReplyTo" />
 
@@ -86,12 +86,12 @@
     <form v-else @submit.prevent="send" class="px-3 py-2.5 flex items-end gap-2">
 
       <!-- Campo de texto em pill, com borda fina estilo Instagram -->
-      <div class="flex-1 flex items-end min-h-[40px] rounded-[22px] border border-[#dbdbdb] dark:border-[#363636]
-                  bg-white dark:bg-[#0c1014] focus-within:border-[#a8a8a8] dark:focus-within:border-[#5a5a5a]
+      <div class="flex-1 flex items-end min-h-[40px] rounded-[22px]
+                  bg-x-light-surface dark:bg-x-dark-surface focus-within:border-[#a8a8a8] dark:focus-within:border-[#5a5a5a]
                   transition-colors pl-4 pr-1.5 py-1">
         <textarea ref="textareaRef" v-model="inputMessage" @input="autoResize" @keydown.enter.shift.exact="allowNewLine"
           @focus="handleFocus" rows="1" placeholder="Enviar mensagem..." class="w-full caret-[#0095f6]
-                resize-none text-[15px] overflow-hidden scroll-pt-4 bg-transparent
+                resize-none text-lg overflow-hidden scroll-pt-4 bg-transparent
                  py-1.5
                  leading-snug
                  placeholder-[#8e8e8e]

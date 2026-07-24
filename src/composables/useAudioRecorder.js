@@ -14,10 +14,12 @@ export function useAudioRecorder() {
   let chunks = []
   let stream = null
   let timer = null
+  let isCancelled = false // ← flag que evita o onstop "ressuscitar" o áudio após o cancelamento
 
   const startRecording = async () => {
     try {
       error.value = null
+      isCancelled = false
       stream = await navigator.mediaDevices.getUserMedia({ audio: true })
 
       const mimeType = MediaRecorder.isTypeSupported('audio/webm')
@@ -32,6 +34,12 @@ export function useAudioRecorder() {
       }
 
       mediaRecorder.onstop = () => {
+        // Se foi cancelado, o stop() é apenas para liberar o mediaRecorder/stream —
+        // não deve gerar blob nem URL (senão o áudio "reaparece" depois do X).
+        if (isCancelled) {
+          isCancelled = false
+          return
+        }
         audioBlob.value = new Blob(chunks, { type: mimeType })
         audioUrl.value = URL.createObjectURL(audioBlob.value)
         stream?.getTracks().forEach(t => t.stop())
@@ -61,13 +69,17 @@ export function useAudioRecorder() {
   }
 
   const cancelRecording = () => {
+    isCancelled = true
+
     if (mediaRecorder && mediaRecorder.state !== 'inactive') {
       mediaRecorder.stop()
     }
     stream?.getTracks().forEach(t => t.stop())
     clearInterval(timer)
+
     isRecording.value = false
     recordingTime.value = 0
+    chunks = []
     audioBlob.value = null
     if (audioUrl.value) URL.revokeObjectURL(audioUrl.value)
     audioUrl.value = null
