@@ -65,10 +65,10 @@
                 <span class="truncate">{{ replyLabel }}</span>
               </span>
               <button type="button" @click="scrollToReply" :class="[
-                'block max-w-full min-w-0 text-left rounded-[16px] px-3 py-[10px] text-[13px] leading-tight cursor-pointer transition-opacity dark:bg-[#181c21] dark:text-[rgb(245,245,245)] opacity-90 hover:opacity-100',
+                'block max-w-full min-w-0 text-left rounded-[16px] px-3 py-[10px] text-[13px] leading-tight cursor-pointer transition-opacity dark:bg-[#25292e] opacity-50 dark:text-[rgb(245,245,245)] hover:opacity-100',
                 isSent ? 'ml-auto' : ''
               ]" :style="isSent ? 'border-radius: 16px 16px 4px 16px;' : 'border-radius: 16px 16px 16px 4px;'">
-                <span class="block truncate opacity-90"
+                <span class="block text-sm truncate opacity-90"
                   :class="isSent ? 'text-white' : 'text-[rgb(40,40,41)] dark:text-white'">
                   {{ replyPreviewText }}
                 </span>

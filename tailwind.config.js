@@ -22,7 +22,7 @@ module.exports = {
             textSecondary: '#71767B',
             textTertiary: '#536471',
 
-            blue: '#1D9BF0',
+            blue: '#0095f6',
             blueHover: '#1A8CD8',
             blueActive: '#1878B9',
             blueFocus: '#1D9BF0',
@@ -34,7 +34,7 @@ module.exports = {
           // === LIGHT MODE ===
           light: {
             bg: '#FFFFFF',
-            surface: '#f3f4f6',
+            surface: '#25292F',
             surfaceHover: '#EFF3F4',
             surfaceActive: '#E6EAEB',
             border: '#CFD9DE',
@@ -44,7 +44,7 @@ module.exports = {
             textSecondary: '#536471',
             textTertiary: '#657786',
 
-            blue: '#00b8ff',
+            blue: '#0095f6',
             blueHover: '#33c6ff',
             blueActive: '#66d4ff',
             blueFocus: '#00b8ff4d',

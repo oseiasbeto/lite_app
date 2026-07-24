@@ -33,13 +33,14 @@
         <!-- ===== Estado: preview do áudio gravado (player custom estilo Instagram) ===== -->
         <template v-else-if="audioUrl">
           <!-- elemento de áudio real, invisível, controlado via JS -->
-          <audio ref="previewAudioRef" :src="audioUrl" preload="metadata" class="hidden"
-            @play="onPreviewPlay" @pause="onPreviewPause" @timeupdate="onPreviewTimeUpdate"
-            @loadedmetadata="onPreviewLoadedMetadata" @ended="onPreviewEnded"></audio>
+          <audio ref="previewAudioRef" :src="audioUrl" preload="metadata" class="hidden" @play="onPreviewPlay"
+            @pause="onPreviewPause" @timeupdate="onPreviewTimeUpdate" @loadedmetadata="onPreviewLoadedMetadata"
+            @ended="onPreviewEnded"></audio>
 
           <button @click="togglePreviewPlay" type="button"
             class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-full bg-[#0095f6] text-white active:scale-90 transition-transform">
-            <svg v-if="!isPreviewPlaying" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="white">
+            <svg v-if="!isPreviewPlaying" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+              fill="white">
               <path d="M8 5v14l11-7L8 5z" />
             </svg>
             <svg v-else xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="white">
@@ -86,7 +87,7 @@
     <form v-else @submit.prevent="send" class="px-3 py-2.5 flex items-center gap-2">
 
       <!-- Campo de texto em pill, com borda fina estilo Instagram, min-height 56px -->
-      <div class="flex-1 flex items-center min-h-[50px] rounded-[25px]
+      <div class="flex-1 flex items-center min-h-[48px] rounded-[25px]
                   bg-x-light-surface dark:bg-[rgb(36,39,44)] focus-within:border-[#a8a8a8] dark:focus-within:border-[#5a5a5a]
                   transition-colors pl-4 pr-1.5 py-1.5">
         <textarea ref="textareaRef" v-model="inputMessage" @input="autoResize" @keydown.enter.shift.exact="allowNewLine"
@@ -95,18 +96,26 @@
                  py-1.5
                  leading-snug
                  placeholder-[#8e8e8e]
+                 dark:placeholder-[rgb(168,171,178)]
                  focus:outline-none text-[#262626] dark:text-[#f5f5f5]
                  whitespace-pre-wrap break-words
                  min-h-[24px]" style="line-height: 20px;" />
 
         <!-- Botão de microfone (só aparece sem texto digitado), dentro do campo estilo Instagram -->
-        <button v-if="!inputMessage.trim()" @click.prevent="handleStartRecording" type="button"
-          class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
-                 text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#1a1a1a]
+        <button v-if="!inputMessage.trim()" @click.prevent="handleStartRecording" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
+                 text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
                  active:scale-90 transition-all">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
-            <path d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3z" stroke="currentColor" stroke-width="1.8" />
-            <path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+          <svg aria-label="Clipe de voz" class="x1lliihq x1n2onr6 x5n08af" fill="currentColor" height="24" role="img"
+            viewBox="0 0 24 24" width="24">
+            <title>Clipe de voz</title>
+            <path d="M19.5 10.671v.897a7.5 7.5 0 0 1-15 0v-.897" fill="none" stroke="currentColor"
+              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            <line fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" x1="12" x2="12" y1="19.068"
+              y2="22"></line>
+            <line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              x1="8.706" x2="15.104" y1="22" y2="22"></line>
+            <path d="M12 15.745a4 4 0 0 1-4-4V6a4 4 0 0 1 8 0v5.745a4 4 0 0 1-4 4Z" fill="none" stroke="currentColor"
+              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
           </svg>
         </button>
       </div>
@@ -115,8 +124,7 @@
       <transition enter-active-class="transition ease-out duration-150" enter-from-class="opacity-0 scale-90"
         enter-to-class="opacity-100 scale-100" leave-active-class="transition ease-in duration-100"
         leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-90">
-        <button v-if="inputMessage.trim()" :disabled="!canSend" type="submit"
-          class="h-10 px-1 flex items-center justify-center flex-shrink-0
+        <button v-if="inputMessage.trim()" :disabled="!canSend" type="submit" class="h-10 px-1 flex items-center justify-center flex-shrink-0
                  text-[#0095f6] disabled:text-[#0095f6]/40 font-semibold text-[15px]
                  active:opacity-50 transition-opacity">
           Enviar
@@ -281,7 +289,7 @@ const togglePreviewPlay = () => {
   if (isPreviewPlaying.value) {
     el.pause()
   } else {
-    el.play().catch(() => {})
+    el.play().catch(() => { })
   }
 }
 

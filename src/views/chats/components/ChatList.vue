@@ -20,7 +20,10 @@
         </div>
       </div>
       <div v-else>
-        <SpinnerSmall/>
+        <div class="w-full h-full flex justify-center items-center">
+           <SpinnerSmall/>
+        </div>
+       
         <!-- <ChatSkeleton v-for="n in 8" :key="n" />-->
        
       </div>
