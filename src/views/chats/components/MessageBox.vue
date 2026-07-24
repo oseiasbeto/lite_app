@@ -3,7 +3,7 @@
 
     <!-- Separador de data/hora estilo Messenger -->
     <div v-if="showDateSeparator" class="flex justify-center my-3">
-      <span class="text-[11px] font-medium text-x-light-textSecondary dark:text-x-dark-textSecondary  px-3">
+      <span class="text-sm font-medium text-x-light-textSecondary dark:text-x-dark-textSecondary  px-3">
         {{ dateSeparatorText }}
       </span>
     </div>
@@ -13,20 +13,14 @@
       Envolve apenas a linha do balão (avatar + bubble).
       translateX é aplicado ao conteúdo; o ícone de resposta aparece do lado oposto.
     -->
-    <div
-      class="swipe-row relative overflow-visible"
-      @touchstart.passive="onTouchStart"
-      @touchmove.passive="onTouchMove"
-      @touchend="onTouchEnd"
-    >
+    <div class="swipe-row relative overflow-visible" @touchstart.passive="onTouchStart" @touchmove.passive="onTouchMove"
+      @touchend="onTouchEnd">
       <!-- Ícone de reply (estilo Messenger), fixo, surge por detrás do balão conforme o swipe -->
-      <div
-        class="absolute inset-y-0 flex items-center pointer-events-none z-0"
-        :class="isSent ? 'right-2' : 'left-2'"
-        :style="{ opacity: replyIconOpacity, transform: `scale(${replyIconScale})` }"
-      >
+      <div class="absolute inset-y-0 flex items-center pointer-events-none z-0" :class="isSent ? 'right-2' : 'left-2'"
+        :style="{ opacity: replyIconOpacity, transform: `scale(${replyIconScale})` }">
         <div class="w-8 h-8 rounded-full bg-black/10 dark:bg-white/15 flex items-center justify-center">
-          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" class="text-grey dark:text-greyDark" aria-hidden="true">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" class="text-grey dark:text-greyDark"
+            aria-hidden="true">
             <path
               d="M6.497 1.035C7.593-.088 9.5.688 9.5 2.257V4.54c1.923.215 3.49 1.246 4.593 2.672C15.328 8.808 16 10.91 16 13v.305c0 .632-.465 1.017-.893 1.127-.422.11-.99.005-1.318-.493-.59-.894-1.2-1.482-1.951-1.859-.611-.307-1.359-.496-2.338-.558v2.23c0 1.57-1.908 2.346-3.003 1.222L.893 9.223a1.75 1.75 0 0 1 .001-2.444l5.603-5.744z">
             </path>
@@ -35,10 +29,8 @@
       </div>
 
       <!-- Conteúdo deslocado pelo swipe -->
-      <div
-        class="swipe-content relative z-10 px-4"
-        :style="{ transform: `translateX(${swipeOffset}px)`, transition: isSwipeActive ? 'none' : 'transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)' }"
-      >
+      <div class="swipe-content relative z-10 px-4"
+        :style="{ transform: `translateX(${swipeOffset}px)`, transition: isSwipeActive ? 'none' : 'transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)' }">
         <div class="flex items-end" :class="isSent ? 'justify-end' : 'justify-start'">
           <!-- Avatar: só no último balão do grupo recebido -->
           <div class="flex flex-col justify-end w-6 flex-shrink-0 mb-[1px]" v-if="!isSent && !isEmojiOnly">
@@ -52,9 +44,10 @@
           ]">
 
             <!-- Bloco de resposta -->
-            <div v-if="message.reply_to && !isEmojiOnly && message.status !== 'is_deleted'" class="w-full min-w-0 relative"
-              style="margin-bottom: -10px;">
-              <span class="flex items-center w-full text-[12px] mb-1 font-normal text-grey dark:text-x-dark-textSecondary"
+            <div v-if="message.reply_to && !isEmojiOnly && message.status !== 'is_deleted'"
+              class="w-full min-w-0 relative" style="margin-bottom: -10px;">
+              <span
+                class="flex items-center w-full text-[12px] mb-1 font-normal text-grey dark:text-x-dark-textSecondary"
                 :class="isSent ? 'justify-end' : 'justify-start'">
                 <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"
                   class="mr-1 flex-shrink-0">
@@ -103,9 +96,20 @@
                 <div @click.stop="toggleAudio"
                   class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer active:scale-90 transition-transform"
                   :class="isSent ? 'bg-white/25 text-white' : 'bg-black/10 dark:bg-white/15 text-[rgb(40,40,41)] dark:text-white'">
-                  <svg v-if="!isPlaying" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+
+                  <!-- Loading (buffering) -->
+                  <svg v-if="isAudioLoading" class="animate-spin" width="13" height="13" viewBox="0 0 24 24"
+                    fill="none">
+                    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"
+                      fill="none" />
+                    <path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="3" stroke-linecap="round"
+                      fill="none" />
+                  </svg>
+                  <!-- Play -->
+                  <svg v-else-if="!isPlaying" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M8 5v14l11-7z" />
                   </svg>
+                  <!-- Pause -->
                   <svg v-else width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
                     <rect x="6" y="5" width="4" height="14" />
                     <rect x="14" y="5" width="4" height="14" />
@@ -114,12 +118,11 @@
 
                 <!-- waveform clicável para navegar no áudio -->
                 <div class="flex-1 flex items-center gap-[2px] h-6 min-w-0 cursor-pointer select-none"
-                  @click.stop="seekAudioFromClick">
-                  <span v-for="(h, n) in audioWaveformBars" :key="n" class="flex-1 rounded-full transition-colors duration-75"
-                    :class="n <= activeAudioBarIndex
+                  :class="{ 'opacity-60 animate-pulse': !isWaveformReady }" @click.stop="seekAudioFromClick">
+                  <span v-for="(h, n) in audioWaveformBars" :key="n"
+                    class="flex-1 rounded-full transition-colors duration-75" :class="n <= activeAudioBarIndex
                       ? (isSent ? 'bg-white' : 'bg-[#0095f6]')
-                      : (isSent ? 'bg-white/35' : 'bg-black/15 dark:bg-white/20')"
-                    :style="{ height: h + 'px' }"></span>
+                      : (isSent ? 'bg-white/35' : 'bg-black/15 dark:bg-white/20')" :style="{ height: h + 'px' }"></span>
                 </div>
 
                 <span class="text-[11px] tabular-nums flex-shrink-0"
@@ -129,7 +132,9 @@
 
                 <!-- elemento de áudio real, invisível, controlado via JS -->
                 <audio ref="audioRef" :src="message.file_url" preload="metadata" class="hidden"
-                  @loadedmetadata="onAudioLoaded" @timeupdate="onAudioTimeUpdate" @ended="onAudioEnded"></audio>
+                  @loadedmetadata="onAudioLoaded" @timeupdate="onAudioTimeUpdate" @ended="onAudioEnded"
+                  @play="onAudioPlay" @pause="onAudioPause" @waiting="onAudioWaiting" @playing="onAudioPlaying"
+                  @canplay="onAudioCanPlay"></audio>
               </div>
 
               <!-- Conteúdo normal -->
@@ -155,22 +160,21 @@
                   <img v-if="getEmojiImage(r.emoji)" :src="'/img/emojis/' + getEmojiImage(r.emoji)" :alt="r.emoji"
                     class="w-[12px] h-[12px] object-contain" />
                   <span v-else>{{ r.emoji }}</span>
-                  <span v-if="r.count > 1" class="text-[10px] text-grey dark:text-greyDark font-medium">{{ r.count }}</span>
+                  <span v-if="r.count > 1" class="text-[10px] text-grey dark:text-greyDark font-medium">{{ r.count
+                    }}</span>
                 </span>
               </div>
             </button>
 
             <!-- Indicador "A enviar..." (estilo Messenger), por baixo do balão -->
-            <span v-if="message.status === 'sending'"
-              class="text-[11px] text-grey dark:text-greyDark mt-[2px] px-1">
+            <span v-if="message.status === 'sending'" class="text-[11px] text-grey dark:text-greyDark mt-[2px] px-1">
               A enviar...
             </span>
 
             <!-- Indicador "Entregue" na última mensagem enviada (estilo Messenger) -->
             <span v-else-if="message.status == 'sent' && isLastSentMessage && !isReadByOther"
               class="text-[11px] text-grey dark:text-greyDark mt-[2px] px-1"
-              :class="{'!mt-2.5': groupedReactions.length}"
-              >
+              :class="{ '!mt-2.5': groupedReactions.length }">
               Entregue
             </span>
           </div>
@@ -184,11 +188,12 @@
 <script setup>
 import Avatar from '@/components/Utils/Avatar.vue'
 import { computed, ref, nextTick } from 'vue'
+import { useActiveAudio } from '@/composables/useActiveAudio'
 
 const props = defineProps({
   message: { type: Object, required: true },
   userId: { type: String, required: true },
-  chatReadBy: {type: Array, default: []},
+  chatReadBy: { type: Array, default: [] },
   previousMessage: { type: Object, default: null },
   nextMessage: { type: Object, default: null }
 })
@@ -412,15 +417,15 @@ if (typeof window !== 'undefined') {
 // se o utilizador arrastar e voltar atrás antes de soltar, o reply é cancelado.
 
 const SWIPE_THRESHOLD = 60      // px para disparar o reply
-const SWIPE_MAX      = 72      // px máximo de deslocamento (elástico a partir daqui)
-const SWIPE_ELASTIC  = 0.3     // resistência após o threshold
+const SWIPE_MAX = 72      // px máximo de deslocamento (elástico a partir daqui)
+const SWIPE_ELASTIC = 0.3     // resistência após o threshold
 
-const swipeOffset     = ref(0)
-const isSwipeActive   = ref(false)
-const swipeTriggered  = ref(false)
-const touchStartX     = ref(0)
-const touchStartY     = ref(0)
-const isHorizontal    = ref(false) // evita interferir com scroll vertical
+const swipeOffset = ref(0)
+const isSwipeActive = ref(false)
+const swipeTriggered = ref(false)
+const touchStartX = ref(0)
+const touchStartY = ref(0)
+const isHorizontal = ref(false) // evita interferir com scroll vertical
 
 // Opacidade e escala do ícone de reply (0 → 1 conforme se arrasta)
 const replyIconOpacity = computed(() => {
@@ -507,26 +512,52 @@ const onTouchEnd = () => {
 }
 
 // ── Áudio ────────────────────────────────────────────────────────────────────
+const { setActive, clearActive } = useActiveAudio()
+
 const audioRef = ref(null)
 const isPlaying = ref(false)
+const isAudioLoading = ref(false)   // buffering / a carregar
+const isWaveformReady = ref(false)  // waveform real já calculada
 const audioDuration = ref(props.message.file_duration || 0)
 const audioCurrentTime = ref(0)
 
 const toggleAudio = () => {
   const el = audioRef.value
   if (!el) return
-  isPlaying.value ? el.pause() : el.play()
-  isPlaying.value = !isPlaying.value
+  if (el.paused) {
+    el.play().catch(() => {})
+  } else {
+    el.pause()
+  }
 }
+
+// isPlaying passa a ser controlado pelos eventos nativos do <audio>,
+// para se manter sincronizado mesmo quando é OUTRA instância a pausar este áudio.
+const onAudioPlay = () => {
+  isPlaying.value = true
+  setActive(props.message._id, audioRef.value) // pausa qualquer outro áudio a tocar
+}
+const onAudioPause = () => {
+  isPlaying.value = false
+  clearActive(props.message._id)
+}
+const onAudioWaiting = () => { isAudioLoading.value = true }
+const onAudioPlaying = () => { isAudioLoading.value = false }
+const onAudioCanPlay = () => { isAudioLoading.value = false }
 
 const onAudioLoaded = () => { if (audioRef.value?.duration && isFinite(audioRef.value.duration)) audioDuration.value = audioRef.value.duration }
 const onAudioTimeUpdate = () => { audioCurrentTime.value = audioRef.value?.currentTime || 0 }
-const onAudioEnded = () => { isPlaying.value = false; audioCurrentTime.value = 0 }
+const onAudioEnded = () => {
+  isPlaying.value = false
+  audioCurrentTime.value = 0
+  clearActive(props.message._id)
+}
 
-// Waveform decorativa (estilo Instagram), gerada uma única vez por mensagem
-// (não recalcula a cada render — é só pra ficar visualmente parecida com uma onda de voz)
+// Waveform: começa com a decorativa (fallback imediato) e é substituída
+// pela waveform real assim que o áudio for descodificado com sucesso.
 const AUDIO_WAVEFORM_BARS = 24
-const audioWaveformBars = (() => {
+
+const audioWaveformBars = ref((() => {
   const bars = []
   const seedBase = (props.message._id?.length || 1) * 7.13
   for (let i = 0; i < AUDIO_WAVEFORM_BARS; i++) {
@@ -535,7 +566,44 @@ const audioWaveformBars = (() => {
     bars.push(Math.round(5 + frac * 13)) // altura entre 5px e 18px
   }
   return bars
-})()
+})())
+
+const loadRealWaveform = async () => {
+  if (props.message.message_type !== 'voice' || !props.message.file_url) return
+  try {
+    const res = await fetch(props.message.file_url)
+    const arrayBuffer = await res.arrayBuffer()
+    const AudioCtx = window.AudioContext || window.webkitAudioContext
+    const ctx = new AudioCtx()
+    const decoded = await ctx.decodeAudioData(arrayBuffer)
+    const rawData = decoded.getChannelData(0)
+    const blockSize = Math.max(1, Math.floor(rawData.length / AUDIO_WAVEFORM_BARS))
+
+    const peaks = []
+    let max = 0
+    for (let i = 0; i < AUDIO_WAVEFORM_BARS; i++) {
+      const start = blockSize * i
+      let sum = 0
+      for (let j = 0; j < blockSize; j++) sum += Math.abs(rawData[start + j] || 0)
+      const avg = sum / blockSize
+      peaks.push(avg)
+      if (avg > max) max = avg
+    }
+
+    if (max > 0) {
+      audioWaveformBars.value = peaks.map(p => Math.round(5 + (p / max) * 13))
+      isWaveformReady.value = true
+    }
+    ctx.close?.()
+  } catch (err) {
+    // Falha (ex: CORS, formato não suportado) → mantém a waveform decorativa
+    console.warn('Waveform real indisponível, a usar fallback decorativo:', err)
+  }
+}
+
+if (props.message.message_type === 'voice') {
+  loadRealWaveform()
+}
 
 const activeAudioBarIndex = computed(() => {
   if (!audioDuration.value) return -1
@@ -543,7 +611,6 @@ const activeAudioBarIndex = computed(() => {
   return Math.floor(ratio * AUDIO_WAVEFORM_BARS) - 1
 })
 
-// Seek clicando na waveform (equivalente ao antigo <input type="range">)
 const seekAudioFromClick = (event) => {
   const el = audioRef.value
   if (!el || !audioDuration.value) return

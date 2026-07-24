@@ -94,7 +94,7 @@
           @focus="handleFocus" rows="1" placeholder="Enviar mensagem..." class="w-full caret-[#0095f6]
                 resize-none text-[20px] overflow-hidden scroll-pt-4 bg-transparent
                  py-1.5
-                 leading-snug
+                  leading-tight
                  placeholder-[#8e8e8e]
                  dark:placeholder-[rgb(168,171,178)]
                  focus:outline-none text-[#262626] dark:text-[#f5f5f5]

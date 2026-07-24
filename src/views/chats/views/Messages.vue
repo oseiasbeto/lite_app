@@ -21,7 +21,7 @@
                     <div class="mt-3 mb-3">
                         <p class="text-lg font-semibold dark:text-white text-[rgb(40,40,41)]">{{
                             conversation?.name
-                        }}</p>
+                            }}</p>
                         <p class="dark:text-[#b0b3b8]">@{{ conversation.name }}</p>
                     </div>
 
@@ -67,9 +67,26 @@
                     class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#287dff] text-white text-[11px] font-semibold flex items-center justify-center leading-none">
                     {{ unreadWhileScrolled > 9 ? '9+' : unreadWhileScrolled }}
                 </span>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round" class="text-[rgb(40,40,41)] dark:text-white">
-                    <path d="M12 4v16M6 14l6 6 6-6" />
+               
+                <svg class="text-[rgb(40,40,41)] dark:text-white" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16px"
+                    height="16px" viewBox="0 -4.5 20 20" version="1.1">
+
+                    <title>arrow_down [#339]</title>
+                    <desc>Created with Sketch.</desc>
+                    <defs>
+
+                    </defs>
+                    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+                        <g id="Dribbble-Light-Preview" transform="translate(-180.000000, -6684.000000)" fill="currentColor">
+                            <g id="icons" transform="translate(56.000000, 160.000000)">
+                                <path
+                                    d="M144,6525.39 L142.594,6524 L133.987,6532.261 L133.069,6531.38 L133.074,6531.385 L125.427,6524.045 L124,6525.414 C126.113,6527.443 132.014,6533.107 133.987,6535 C135.453,6533.594 134.024,6534.965 144,6525.39"
+                                    id="arrow_down-[#339]">
+
+                                </path>
+                            </g>
+                        </g>
+                    </g>
                 </svg>
             </button>
         </Transition>
