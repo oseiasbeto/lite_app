@@ -441,7 +441,7 @@ const handleConfirm = async () => {
 
 const handleCopyText = (text) => {
     onCloseDrawer()
-    
+
     // Verifica se a API moderna está disponível e o contexto é seguro (HTTPS ou localhost)
     if (navigator.clipboard && navigator.clipboard.writeText) {
         return navigator.clipboard.writeText(text)
@@ -556,7 +556,12 @@ const handleSendVoiceMessage = async ({ url, duration }) => {
     await store.dispatch("sendMessage", ({
         tempId, convId: conversation.value?._id,
         ...(newMessage?.reply_to && { replyToId: newMessage?.reply_to?._id || null }),
-        source: conversation?.value?.source, content: '', message_type: 'voice', file_url: url, file_duration: duration
+        source: conversation?.value?.source, 
+        content: '', 
+        message_type: 'voice', 
+        file_url: url, 
+        file_duration: 
+        duration
     }))
 }
 

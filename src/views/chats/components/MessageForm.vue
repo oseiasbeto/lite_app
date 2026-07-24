@@ -225,6 +225,7 @@ const sendVoiceMessage = async () => {
   isUploadingVoice.value = true
   try {
     const { url, duration } = await uploadVoiceMessage(audioBlob.value)
+    alert(url)
     emit('voice-message-sent', { url, duration: duration || recordingTime.value })
     reset()
   } catch (err) {
