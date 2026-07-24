@@ -526,7 +526,6 @@ const handleSendMessage = async (message) => {
 };
 
 const handleSendVoiceMessage = async ({ url, duration }) => {
-    alert(url)
     const tempId = Math.random().toString(36).substring(2, 10)
     const newMessage = {
         content: '', 
