@@ -526,10 +526,16 @@ const handleSendMessage = async (message) => {
 };
 
 const handleSendVoiceMessage = async ({ url, duration }) => {
+    alert(url)
     const tempId = Math.random().toString(36).substring(2, 10)
     const newMessage = {
-        content: '', conversation: conversation.value, created_at: Date.now(), read_by: [],
-        message_type: 'voice', file_url: url, file_duration: duration,
+        content: '', 
+        conversation: conversation.value, 
+        created_at: Date.now(), 
+        read_by: [],
+        message_type: 'voice', 
+        file_url: url, 
+        file_duration: duration,
         sender: {
             profile_image: user?.value?.profile_image,
             _id: user?.value?._id,
