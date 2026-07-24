@@ -45,7 +45,7 @@
 
       <!--subtitule-->
 
-      <p class="text-xs truncate text-x-light-textSecondary dark:text-x-dark-textSecondary mt-[-2px]">
+      <p class="text-sm truncate text-x-light-textSecondary dark:text-x-dark-textSecondary mt-[-2px]">
         <!-- Digitando com animação de 3 pontinhos -->
         <span v-if="conversation?.is_typing" class="flex items-center gap-0.5">
           escrevendo
