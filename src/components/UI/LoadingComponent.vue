@@ -1,7 +1,7 @@
 <template>
     <div
         class="fixed top-0 left-0 overflow-hidden z-[9999] bg-[rgba(0,0,0,0.5)] dark:bg-[rgba(0,0,0,0.65)] w-screen h-screen">
-        <span class="absolute w-full h-[3px] bg-x-light-surface dark:bg-x-dark-surface top-0 overflow-hidden">
+        <span class="absolute w-full h-[4px] bg-x-light-surface dark:bg-x-dark-surface top-0 overflow-hidden">
             <div
                 class="h-full transition-all duration-[0.5s] ease-in-out animate-gradient-move bg-[length:200%_100%]"
                 :style="{

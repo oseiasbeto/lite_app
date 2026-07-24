@@ -29,7 +29,7 @@ const module = ref(route.query?.module || 'feed')
 const setThemeColor = (theme) => {
     // Aplicar classe no HTML
     if (theme === 'dark') {
-        window?.WTN?.setNavigationBarColor({ color: "#000000" });
+        //window?.WTN?.setNavigationBarColor({ color: "#000000" });
         window?.WTN?.statusBar({
             style: 'light',
             color: '000000',
@@ -39,14 +39,14 @@ const setThemeColor = (theme) => {
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
         if (isDark) {
-            window?.WTN?.setNavigationBarColor({ color: "#000000" });
+            //window?.WTN?.setNavigationBarColor({ color: "#000000" });
             window?.WTN?.statusBar({
                 style: 'dark',
                 color: '000000',
                 overlay: false //Only for android
             });
         } else {
-            window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+            //window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
             window?.WTN.statusBar({
                 style: 'dark',
                 color: "FFFFFF",
@@ -54,7 +54,7 @@ const setThemeColor = (theme) => {
             });
         }
     } else {
-        window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+        //window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
         window?.WTN.statusBar({
             style: 'dark',
             color: "FFFFFF",

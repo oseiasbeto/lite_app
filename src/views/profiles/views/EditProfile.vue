@@ -183,41 +183,4 @@ onMounted(async () => {
             })
     }
 })
-
-// Watch que observa o editForm e aplica a cor adequada
-watch(
-    () => editForm.value,
-    (newVal) => {
-        // Se estiver na tela de edição (editForm existe)
-        if (newVal) {
-
-            console.log('adicionar')
-            // Bloco específico para o modo de edição (igual ao que você forneceu)
-            if (currentTheme.value === 'dark' || currentTheme.value === 'system') {
-                if (currentTheme.value === 'dark') {
-                    window?.WTN?.setNavigationBarColor({ color: '#181818' });
-                    window?.WTN?.statusBar({
-                        style: 'light',
-                        color: '181818',
-                        overlay: false
-                    });
-                } else if (currentTheme.value === 'system') {
-                    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    if (isDark) {
-                        window?.WTN?.setNavigationBarColor({ color: '#181818' });
-                        window?.WTN?.statusBar({
-                            style: 'light', // ou 'dark'? Verifique se deve ser 'light' ou 'dark' para o modo escuro
-                            color: '181818',
-                            overlay: false
-                        });
-                    }
-                }
-            }
-        } else {
-            // Caso contrário (voltou para a lista de opções), restaura a cor padrão
-            setThemeColor(currentTheme.value);
-        }
-    }
-);
-
 </script>
