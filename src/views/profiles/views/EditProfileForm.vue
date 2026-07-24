@@ -711,7 +711,7 @@ const setThemeColor = (theme) => {
 
     // Aplicar classe no HTML
     if (form.value.theme === 'dark') {
-        window?.WTN?.setNavigationBarColor({ color: "#000000" });
+        //window?.WTN?.setNavigationBarColor({ color: "#000000" });
         window?.WTN.statusBar({
             style: 'light',
             color: '000000',
@@ -723,7 +723,7 @@ const setThemeColor = (theme) => {
         const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
         if (isDark) {
-            window?.WTN?.setNavigationBarColor({ color: "#000000" });
+            //window?.WTN?.setNavigationBarColor({ color: "#000000" });
             window?.WTN.statusBar({
                 style: 'light',
                 color: '000000',
@@ -741,7 +741,7 @@ const setThemeColor = (theme) => {
             document.documentElement.classList.remove('dark');
         }
     } else {
-        window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
+        //window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
         window?.WTN.statusBar({
             style: 'dark',
             color: "FFFFFF",

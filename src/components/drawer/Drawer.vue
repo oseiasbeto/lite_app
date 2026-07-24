@@ -49,40 +49,6 @@ const props = defineProps({
   costumClass: String,
 })
 const store = useStore()
-const currentTheme = computed(() => store.getters.currentTheme)
-
-const setThemeColor = (theme) => {
-    // Aplicar classe no HTML
-    if (theme === 'dark') {
-        window?.WTN?.statusBar({
-            style: 'light',
-            color: '000000',
-            overlay: false //Only for android
-        });
-    } else if (theme === 'system') {
-        const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-        if (isDark) {
-            window?.WTN?.statusBar({
-                style: 'dark',
-                color: '0',
-                overlay: false //Only for android
-            });
-        } else {
-            window?.WTN.statusBar({
-                style: 'dark',
-                color: "FFFFFF",
-                overlay: false //Only for android
-            });
-        }
-    } else {
-        window?.WTN.statusBar({
-            style: 'dark',
-            color: "FFFFFF",
-            overlay: false //Only for android
-        })
-    }
-}
 
 const emit = defineEmits(['close'])
 
@@ -151,20 +117,6 @@ watch(() => props.isOpen, (newValue) => {
     document.body.style.overflow = 'hidden'
   } else {
     document.body.style.overflow = ''
-  }
-
-  if (newValue && currentTheme.value == 'light') {
-    // Quando o drawer abrir (isOpen = true), troca a cor
-    if (window?.WTN) {
-      window.WTN.statusBar({
-        style:"light",
-        color:"000000",
-        overlay:false
-      });
-    }
-  } else {
-    // Quando fechar, restaura a cor baseada no tema atual
-    setThemeColor(currentTheme.value);
   }
 })
 
