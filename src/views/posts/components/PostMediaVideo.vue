@@ -7,10 +7,7 @@
         <img v-if="video.thumbnail" :src="video.thumbnail" :alt="'Video thumbnail'"
             class="w-full h-full object-cover" />
         <div v-else class="w-full h-full bg-[rgb(30,30,30)] flex items-center justify-center">
-            <svg class="w-12 h-12 text-[rgb(120,120,120)]" fill="currentColor" viewBox="0 0 24 24">
-                <path
-                    d="M17 10.5V7a1 1 0 0 0-1-1H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-3.5l4 4v-11l-4 4z" />
-            </svg>
+          
         </div>
 
         <!-- Dark overlay sutil, escurece um pouco mais no hover (igual X) -->
@@ -19,8 +16,8 @@
         <!-- Play button estilo X: círculo escuro translúcido, cresce levemente no hover -->
         <div class="absolute inset-0 flex items-center justify-center">
             <div
-                class="w-12 h-12 rounded-full bg-black/65 flex items-center justify-center shadow-lg transition-transform duration-150 group-hover:scale-105 group-active:scale-95">
-                <svg viewBox="0 0 24 24" fill="white" width="28" height="28" class="ml-1">
+                class="w-12 h-12 rounded-full bg-black/65 flex items-center justify-center transition-transform duration-150 group-hover:scale-105 group-active:scale-95">
+                <svg viewBox="0 0 24 24" fill="white" width="28" height="28" class="w-11 h-11">
                     <path d="M8 5v14l11-7z" />
                 </svg>
             </div>
@@ -28,7 +25,7 @@
 
         <!-- Duration badge: canto inferior ESQUERDO, pill arredondado, igual X -->
         <div v-if="video.duration"
-            class="absolute bottom-2 left-2 bg-black/75 text-white text-xs font-semibold px-1.5 py-0.5 rounded-md leading-none">
+            class="absolute bottom-2 left-2 bg-black/75 text-white text-xs font-semibold px-1.5 py-1 rounded-md leading-none">
             {{ formatDuration(video.duration) }}
         </div>
     </div>

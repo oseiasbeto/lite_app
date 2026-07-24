@@ -44,10 +44,10 @@ module.exports = {
             textSecondary: '#536471',
             textTertiary: '#657786',
 
-            blue: '#1D9BF0',
-            blueHover: '#1A8CD8',
-            blueActive: '#1878B9',
-            blueFocus: '#1D9BF0',
+            blue: '#00b8ff',
+            blueHover: '#33c6ff',
+            blueActive: '#66d4ff',
+            blueFocus: '#00b8ff4d',
 
             grayHover: '#F0F2F3',
             grayActive: '#E5E9EB',

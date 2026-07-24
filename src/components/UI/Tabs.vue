@@ -2,16 +2,15 @@
   <div class="relative">
     <div ref="tabsContainer"
    
-      class="flex px-[10px] border-b-[.5px] gap-4 dark:bg-transparent bg-white border-x-light-border dark:border-x-dark-border overflow-x-auto scrollbar-hide whitespace-nowrap"
-       
-      >
+      class="flex px-[10px] gap-4 dark:bg-transparent bg-white overflow-x-auto scrollbar-hide whitespace-nowrap relative">
+      <div class="bg-x-light-border dark:bg-x-dark-border fixed bottom-0 w-full h-[1px] left-0"></div>
       <div v-for="(tab, index) in tabs" :key="index" class="relative flex-1">
         <button @click="selectTab(index, tab.value)"
-          class="py-4 w-full font-semibold active:opacity-40 text-x-dark-textSecondary dark:text-x-dark-textSecondary text-sm"
+          class="py-3 w-full font-semibold active:opacity-40 text-x-dark-textSecondary dark:text-x-dark-textSecondary text-sm"
           :class="{ '!text-inherit': activeTab === tab.value }">
           {{ tab.label }}
           <!-- Borda estática apenas na tab ativa -->
-          <div v-if="activeTab === tab.value" class="absolute rounded-full bottom-0 left-0 right-0 h-[4px] z-[111] bg-x-light-blue"></div>
+          <div v-if="activeTab === tab.value" class="absolute bottom-0 left-0 right-0 h-[3px] z-[111] bg-x-light-blue"></div>
         </button>
       </div>
     </div>

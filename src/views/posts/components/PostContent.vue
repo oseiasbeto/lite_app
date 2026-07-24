@@ -78,7 +78,7 @@ const linkifyContent = (html) => {
 
         const finalHref = href.startsWith('www.') ? `https://${href}` : href
 
-        return `<a href="${finalHref}" target="_blank" rel="noopener noreferrer nofollow" class="link-in-content">${href}</a>${suffix}`
+        return `<a href="${finalHref}?loadIn=defaultBrowser" rel="noopener noreferrer nofollow" class="link-in-content">${href}</a>${suffix}`
       })
     })
     .join('')

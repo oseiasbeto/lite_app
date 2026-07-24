@@ -440,9 +440,22 @@ const handleConfirm = async () => {
 }
 
 const handleCopyText = (text) => {
-    if (text) {
-        const { clipboard } = window.WTN
-        clipboard.set({ data: text })
+  // Verifica se a API moderna está disponível e o contexto é seguro (HTTPS ou localhost)
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        return navigator.clipboard.writeText(text)
+            .then(() => {
+                console.log('Texto copiado com sucesso (API moderna).');
+                store.dispatch("showToast", {
+                    message: 'Texto copiado com sucesso!',
+                    type: 'success',
+                    position: 'top'
+                })
+            })
+            .catch(err => {
+                console.error('Falha ao copiar (API moderna):', err);
+                // Se falhar, tenta o fallback
+                return fallbackCopiarTexto(texto);
+            });
     }
     onCloseDrawer()
 }

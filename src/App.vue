@@ -19,6 +19,8 @@ import Confirmdialog from "./components/UI/Confirmdialog.vue";
 // Estado de loading do app
 const loading = ref(true)
 
+const splashRef = ref(null)
+
 // Vuex store
 const store = useStore()
 
@@ -370,9 +372,6 @@ const handleRefreshToken = async () => {
         });
       }
     })
-    .finally(() => {
-      loading.value = false
-    })
 }
 
 const reloadApp = async () => {
@@ -478,6 +477,9 @@ onMounted(async () => {
     setTimeout(() => {
       setThemeColor(savedTheme.value)
     }, 2000);
+
+    const { appReview: AppReview } = window.WTN
+    AppReview.prompt()
   }
 
   // Se tiver sessão salva, tentar restaurar
@@ -485,6 +487,7 @@ onMounted(async () => {
     await handleRefreshToken()
       .then(async () => {
         await store.dispatch("getTopicList")
+        splashRef.value.finish()
       })
   } else {
     loading.value = false
@@ -595,7 +598,7 @@ onUnmounted(() => {
 
     </div>
     <div v-else>
-      <loading-screen />
+      <loading-screen ref="splashRef" :on-finish="() => (loading = false)" />
     </div>
     <!-- end main app area-->
   </div>

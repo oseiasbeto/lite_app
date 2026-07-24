@@ -5,11 +5,11 @@
 
         <div class="fixed top-0 z-[11] w-full bg-white dark:bg-x-dark-bg transition-transform duration-300 ease-in-out will-change-transform"
             :class="showHeader ? 'translate-y-0' : '-translate-y-full'">
-            <div class="px-[10px] flex justify-between items-center">
+            <div class="px-[12px] flex justify-between items-center">
                 <Avatar size="sm" :url="user?.profile_image?.thumbnails?.md || user?.profile_image?.url" />
                 <!--LOGO-->
                 <div class="text-inherit ml-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="56px"
+                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="48px"
                         viewBox="0 0 1024.000000 1024.000000" preserveAspectRatio="xMidYMid meet">
                         <g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)" fill="currentColor"
                             stroke="none">
@@ -82,7 +82,7 @@
             <div :ref="el => setScrollRef(tab.value, el)" @scroll="(e) => onScroll(tab.value, e)"
                 class="h-screen overflow-x-hidden overflow-y-scroll"
                 :class="{ 'pb-[50px]': !getPagination(TAB_MODULE_MAP[tab.value])?.hasMore }">
-                <div class="w-full h-[113px] relative"></div>
+                <div class="w-full h-[95px] relative"></div>
                 <PostList :scroll-target="scrollRefs[tab.value]" :enable-pull-to-refresh="enablePullToRefresh"
                     :posts="postsByModule(TAB_MODULE_MAP[tab.value])"
                     :has-more="getPagination(TAB_MODULE_MAP[tab.value])?.hasMore || false"
@@ -96,10 +96,12 @@
         </div>
 
         <PostUploadIndicator />
+        <FloatingActionButton/>
     </div>
 </template>
 
 <script setup>
+import FloatingActionButton from '@/components/buttons/FloatingActionButton.vue';
 import Tabs from '@/components/UI/Tabs.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
 import PostList from '@/views/posts/components/PostList.vue';
@@ -126,7 +128,7 @@ const warmedTabs = reactive({ foryou: false, following: false, trending: false }
 
 const tabs = ref([
     { label: 'Para você', value: 'foryou' },
-    { label: 'Seguindo', value: 'following' },
+    { label: 'A seguir', value: 'following' },
     { label: 'Tendências', value: 'trending' }
 ])
 
