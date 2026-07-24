@@ -1,10 +1,14 @@
 <template>
   <div @contextmenu.prevent="" @click="$emit('click')" class="
       flex items-center px-4 py-3 gap-2.5 cursor-pointer bg-white dark:bg-transparent transition-all duration-200 relative
+      active:bg-x-light-surfaceActive
+      dark:active:bg-x-dark-surfaceActive
     ">
     <!-- Avatar com status online -->
     <div class="relative flex-shrink-0">
-      <Avatar :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" size="lg" alt="" />
+      <Avatar :url="conversation?.avatar?.thumbnails?.md || conversation?.avatar?.url" 
+      class="w-[56px] h-[56px]"
+      />
 
       <!-- Bolinha de status -->
       <span v-if="conversation?.is_online"

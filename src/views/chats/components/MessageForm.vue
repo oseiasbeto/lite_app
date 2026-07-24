@@ -1,84 +1,108 @@
 <template>
-  <div class="w-full bg-white dark:bg-transparent" :class="{ 'shadow-[0px_0px_10px_rgba(0,0,0,.10)]': showShadow }">
+  <div class="w-full bg-white dark:bg-black" :class="{ 'shadow-[0px_-1px_0px_rgba(0,0,0,.08)]': showShadow }">
     <reply-to-message-card v-if="replyTo?.show" :user-id="userId" :message="replyTo?.message"
       @on-close="closeReplyTo" />
-    <!-- ===== UI DE GRAVAÇÃO (substitui o form quando gravando) ===== -->
-    <div v-if="isRecording || audioBlob" class="px-4 py-2 pb-1 flex items-center gap-3">
-      <button @click="handleCancelRecording" type="button" class="p-2 text-red-500 active:opacity-50">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M6 6L18 18M6 18L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+
+    <!-- ===== UI DE GRAVAÇÃO (estilo Instagram) ===== -->
+    <div v-if="isRecording || audioBlob" class="px-3 py-2.5 flex items-center gap-3">
+      <button @click="handleCancelRecording" type="button"
+        class="w-9 h-9 flex items-center justify-center rounded-full text-[#8e8e8e] hover:bg-[#f0f0f0] dark:hover:bg-[#1a1a1a] active:opacity-60 transition-colors flex-shrink-0">
+        <svg aria-label="Clipe de voz" class="x1lliihq x1n2onr6 x5n08af" fill="currentColor" height="24" role="img"
+          viewBox="0 0 24 24" width="24">
+          <title>Clipe de voz</title>
+          <path d="M19.5 10.671v.897a7.5 7.5 0 0 1-15 0v-.897" fill="none" stroke="currentColor" stroke-linecap="round"
+            stroke-linejoin="round" stroke-width="2"></path>
+          <line fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" x1="12" x2="12" y1="19.068"
+            y2="22"></line>
+          <line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            x1="8.706" x2="15.104" y1="22" y2="22"></line>
+          <path d="M12 15.745a4 4 0 0 1-4-4V6a4 4 0 0 1 8 0v5.745a4 4 0 0 1-4 4Z" fill="none" stroke="currentColor"
+            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
         </svg>
       </button>
 
-      <div class="flex-1 flex items-center gap-2">
-        <div v-if="isRecording" class="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse"></div>
-        <span class="text-sm font-medium dark:text-white text-[rgb(40,40,41)]">
-          {{ formatTime(recordingTime) }} / {{ formatTime(maxDuration) }}
+      <div
+        class="flex-1 flex items-center gap-2.5 h-10 px-4 rounded-full border border-[#dbdbdb] dark:border-[#363636] bg-white dark:bg-[#000]">
+        <div v-if="isRecording" class="w-2 h-2 rounded-full bg-[#ff3040] animate-pulse flex-shrink-0"></div>
+        <span class="text-[13px] font-medium tabular-nums text-[#262626] dark:text-[#f5f5f5] flex-shrink-0">
+          {{ formatTime(recordingTime) }}
         </span>
+        <span class="text-[13px] text-[#8e8e8e] flex-shrink-0">/ {{ formatTime(maxDuration) }}</span>
+
+        <!-- pseudo-waveform enquanto grava -->
+        <div v-if="isRecording" class="flex-1 flex items-center gap-[3px] justify-center overflow-hidden">
+          <span v-for="n in 18" :key="n" class="w-[2px] rounded-full animate-pulse bg-[#c7c7c7] dark:bg-[#4a4a4a]"
+            :style="{ height: (6 + ((n * 37) % 14)) + 'px', animationDelay: (n * 0.05) + 's' }"></span>
+        </div>
 
         <!-- preview de áudio gravado, antes de enviar -->
-        <audio v-if="!isRecording && audioUrl" :src="audioUrl" controls class="h-8 flex-1"></audio>
+        <audio v-if="!isRecording && audioUrl" :src="audioUrl" controls class="h-8 flex-1 min-w-0"></audio>
       </div>
 
       <!-- Enquanto grava: botão de parar -->
       <button v-if="isRecording" @click="stopRecording" type="button"
-        class="p-2.5 bg-[#287dff] text-white rounded-full active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="white">
+        class="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-[#0095f6] text-white rounded-full active:scale-90 transition-transform">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="white">
           <rect x="6" y="6" width="12" height="12" rx="2" />
         </svg>
       </button>
 
       <!-- Depois de gravar: botão de enviar -->
       <button v-else @click="sendVoiceMessage" :disabled="isUploadingVoice" type="button"
-        class="p-2.5 bg-[#287dff] disabled:opacity-50 text-white rounded-full active:scale-95">
+        class="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-[#0095f6] disabled:opacity-40 text-white rounded-full active:scale-90 transition-transform">
         <SpinnerSmall v-if="isUploadingVoice" class="!w-4 !h-4" />
-        <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none">
+        <svg v-else xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none">
           <path
             d="M21.66,12a2,2,0,0,1-1.14,1.81L5.87,20.75A2.08,2.08,0,0,1,5,21a2,2,0,0,1-1.82-2.82L5.46,13H11a1,1,0,0,0,0-2H5.46L3.18,5.87A2,2,0,0,1,5.86,3.25h0l14.65,6.94A2,2,0,0,1,21.66,12Z"
             style="fill:#fff" />
         </svg>
       </button>
     </div>
-    <form v-else @submit.prevent="send" class="px-4 py-2 pb-1 flex items-center gap-3">
 
-      <!-- Textarea compacto e lindo -->
-      <div class="flex-1">
+    <!-- ===== FORM PADRÃO (estilo Instagram) ===== -->
+    <form v-else @submit.prevent="send" class="px-3 py-2.5 flex items-end gap-2">
+
+      <!-- Campo de texto em pill, com borda fina estilo Instagram -->
+      <div class="flex-1 flex items-end min-h-[40px] rounded-[22px] border border-[#dbdbdb] dark:border-[#363636]
+                  bg-white dark:bg-[#000] focus-within:border-[#a8a8a8] dark:focus-within:border-[#5a5a5a]
+                  transition-colors pl-4 pr-1.5 py-1">
         <textarea ref="textareaRef" v-model="inputMessage" @input="autoResize" @keydown.enter.shift.exact="allowNewLine"
-          @focus="handleFocus" rows="1" placeholder="Mensagem..." class="w-full caret-secondary 
-                resize-none text-base overflow-hidden scroll-pt-4
-                 px-4 py-2.5 dark:bg-[#202020] bg-[#f7f7f8]
+          @focus="handleFocus" rows="1" placeholder="Enviar mensagem..." class="w-full caret-[#0095f6]
+                resize-none text-[15px] overflow-hidden scroll-pt-4 bg-transparent
+                 py-1.5
                  leading-snug
-                 dark:placeholder-[#949494] 
-                 placeholder-[#949494]
-                 rounded-[25px] placeholder-dark-text-secondary/70
-                 focus:outline-none dark:text-white text-[rgb(40,40,41)]
+                 placeholder-[#8e8e8e]
+                 focus:outline-none text-[#262626] dark:text-[#f5f5f5]
                  whitespace-pre-wrap break-words
-                 min-h-[30px]" style="line-height: 20px;" />
+                 min-h-[24px]" style="line-height: 20px;" />
+
+        <!-- Botão de microfone (só aparece sem texto digitado), dentro do campo estilo Instagram -->
+        <button v-if="!inputMessage.trim()" @click.prevent="handleStartRecording" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
+                 text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#1a1a1a]
+                 active:scale-90 transition-all">
+          <svg aria-label="Clipe de voz" class="w-[20px] h-[20px]" fill="currentColor" height="24" role="img"
+            viewBox="0 0 24 24" width="24">
+            <title>Clipe de voz</title>
+            <path d="M19.5 10.671v.897a7.5 7.5 0 0 1-15 0v-.897" fill="none" stroke="currentColor"
+              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            <line fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2" x1="12" x2="12" y1="19.068"
+              y2="22"></line>
+            <line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              x1="8.706" x2="15.104" y1="22" y2="22"></line>
+            <path d="M12 15.745a4 4 0 0 1-4-4V6a4 4 0 0 1 8 0v5.745a4 4 0 0 1-4 4Z" fill="none" stroke="currentColor"
+              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        </button>
       </div>
 
-      <!-- Botão de microfone (só aparece sem texto digitado) -->
-      <button v-if="!inputMessage.trim()" @click.prevent="handleStartRecording" type="button"
-        class="p-2 text-secondary flex-shrink-0 active:scale-95">
-        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M12 15a3 3 0 003-3V6a3 3 0 10-6 0v6a3 3 0 003 3z" stroke="currentColor" stroke-width="1.8" />
-          <path d="M19 11a7 7 0 01-14 0M12 18v3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
-        </svg>
-      </button>
-
-
-      <!-- Botão enviar -->
-      <transition enter-active-class="transition ease-out duration-200" enter-from-class="opacity-0 scale-90"
-        enter-to-class="opacity-100 scale-100" leave-active-class="transition ease-in duration-150"
+      <!-- Botão enviar, estilo texto azul do Instagram -->
+      <transition enter-active-class="transition ease-out duration-150" enter-from-class="opacity-0 scale-90"
+        enter-to-class="opacity-100 scale-100" leave-active-class="transition ease-in duration-100"
         leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-90">
-        <button :disabled="!canSend" type="submit" class="p-1.5 bg-x-light-blue disabled:opacity-50
-                 text-white rounded-full flex-shrink-0
-                 transition-all duration-200 mb-1 active:scale-95">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 24 24" id="send"
-            class="icon glyph">
-            <path
-              d="M21.66,12a2,2,0,0,1-1.14,1.81L5.87,20.75A2.08,2.08,0,0,1,5,21a2,2,0,0,1-1.82-2.82L5.46,13H11a1,1,0,0,0,0-2H5.46L3.18,5.87A2,2,0,0,1,5.86,3.25h0l14.65,6.94A2,2,0,0,1,21.66,12Z"
-              style="fill:#fff" />
-          </svg>
+        <button v-if="inputMessage.trim()" :disabled="!canSend" type="submit" class="h-10 px-1 flex items-center justify-center flex-shrink-0
+                 text-[#0095f6] disabled:text-[#0095f6]/40 font-semibold text-[15px]
+                 active:opacity-50 transition-opacity">
+          Enviar
         </button>
       </transition>
     </form>
