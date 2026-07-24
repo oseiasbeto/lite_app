@@ -1,9 +1,9 @@
 <template>
   <div class="flex h-screen w-full flex-col items-center justify-center bg-white relative">
     <!-- Logo -->
-    <div class="flex h-[100px] w-[100px] items-center justify-center rounded-[26px] shadow-lg bg-white">
+    <div class="flex h-[80px] w-[80px] items-center justify-center rounded-[26px] shadow-lg bg-white">
       <div class="relative flex h-[88px] w-[88px] text-black items-center justify-center rounded-[22px]">
-        <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="80px" viewBox="0 0 1024.000000 1024.000000"
+        <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="70px" viewBox="0 0 1024.000000 1024.000000"
           preserveAspectRatio="xMidYMid meet">
           <g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)" fill="currentColor" stroke="none">
             <path

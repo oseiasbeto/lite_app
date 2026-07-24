@@ -21,7 +21,7 @@
                     <div class="mt-3 mb-3">
                         <p class="text-lg font-semibold dark:text-white text-[rgb(40,40,41)]">{{
                             conversation?.name
-                            }}</p>
+                        }}</p>
                         <p class="dark:text-[#b0b3b8]">@{{ conversation.name }}</p>
                     </div>
 
@@ -120,28 +120,11 @@
                 <DrawerItem v-if="messageSelected?.message_type !== 'voice'"
                     @on-press="handleCopyText(messageSelected?.content)" title="Copiar" />
                 <DrawerItem @on-press="handleReplyTo(messageSelected)" title="Responder" />
-                <DrawerItem @on-press="setModalConfirm({
-                    isOpen: true,
-                    title: 'Eliminar para ti?',
-                    message: 'Esta mensagem vai ser eliminada para ti. Os restantes membros da conversa vão poder continuar a vê-la.',
-                    confirmText: 'Eliminar',
-                    data: { msgId: messageSelected?._id, convId: convId, userId: user._id },
-                    actionType: 'deleteForMe'
-                })" title="Eliminar para mim" />
-                <DrawerItem v-if="isSentMessageSelected" @on-press="setModalConfirm({
-                    isOpen: true,
-                    title: 'Eliminar para todos?',
-                    message: 'Esta mensagem vai ser eliminada para todos. Os restantes membros da conversa não vão poder continuar a vê-la.',
-                    confirmText: 'Eliminar',
-                    data: { msgId: messageSelected?._id, convId: convId, userId: user._id },
-                    actionType: 'deleteMessage'
-                })" title="Eliminar para todos" />
+                <DrawerItem @on-press="handleDeleteForMeConfirm" title="Eliminar para mim" />
+                <DrawerItem v-if="isSentMessageSelected" @on-press="handleDeleteForAllConfirm"
+                    title="Eliminar para todos" />
             </div>
         </Drawer>
-
-        <!--modal-->
-        <Confirmdialog v-model="modalConfirm.isOpen" :title="modalConfirm.title" :message="modalConfirm.message"
-            variant="danger" @confirm="handleConfirm" @cancel="closeModalConfirm" />
     </div>
 </template>
 
@@ -158,7 +141,9 @@ import { useIntersectionObserver } from "@vueuse/core";
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
-import Confirmdialog from '@/components/UI/Confirmdialog.vue';
+
+import { useConfirmModal } from '@/composables/useConfirmModal'
+const { showConfirm, state, close } = useConfirmModal()
 
 const route = useRoute()
 const store = useStore()
@@ -528,12 +513,12 @@ const handleSendMessage = async (message) => {
 const handleSendVoiceMessage = async ({ url, duration }) => {
     const tempId = Math.random().toString(36).substring(2, 10)
     const newMessage = {
-        content: '', 
-        conversation: conversation.value, 
-        created_at: Date.now(), 
+        content: '',
+        conversation: conversation.value,
+        created_at: Date.now(),
         read_by: [],
-        message_type: 'voice', 
-        file_url: url, 
+        message_type: 'voice',
+        file_url: url,
         file_duration: duration,
         sender: {
             profile_image: user?.value?.profile_image,
@@ -561,10 +546,10 @@ const handleSendVoiceMessage = async ({ url, duration }) => {
     await store.dispatch("sendMessage", ({
         tempId, convId: conversation.value?._id,
         ...(newMessage?.reply_to && { replyToId: newMessage?.reply_to?._id || null }),
-        source: conversation?.value?.source, 
-        content: '', 
-        message_type: 'voice', 
-        file_url: url, 
+        source: conversation?.value?.source,
+        content: '',
+        message_type: 'voice',
+        file_url: url,
         file_duration: duration
     }))
 }
@@ -641,6 +626,58 @@ const viewportHandler = () => {
     const isBottom = messagesContainer.value.scrollHeight - messagesContainer.value.scrollTop <= messagesContainer.value.offsetHeight + tolerance
     if (isBottom) scrollToBottom(false)
 };
+
+
+const handleDeleteForMeConfirm = async () => {
+    const msgId = messageSelected.value?._id
+    const userId = user.value?._id
+    const targetConvId = conversation.value?._id
+    const source = conversation?.value?.source
+
+    onCloseDrawer()
+
+    try {
+        const confirmed = await showConfirm({
+            title: 'Eliminar para ti?',
+            message: 'Esta mensagem vai ser eliminada para ti. Os restantes membros da conversa vão poder continuar a vê-la.',
+            variant: 'danger',
+            confirmLabel: 'Eliminar',
+        })
+
+        if (confirmed) {
+            close()
+            await handleDeleteMessageForMe(targetConvId, source, msgId, userId)
+        }
+    } catch (err) {
+        console.log('Operação cancelada')
+    }
+}
+
+const handleDeleteForAllConfirm = async () => {
+    const msgId = messageSelected.value?._id
+    const targetConvId = conversation.value?._id
+    const source = conversation?.value?.source
+
+    onCloseDrawer()
+
+    try {
+        const confirmed = await showConfirm({
+            title: 'Eliminar para todos?',
+            message: 'Esta mensagem vai ser eliminada para todos. Os restantes membros da conversa não vão poder continuar a vê-la.',
+            variant: 'danger',
+            confirmLabel: 'Eliminar',
+        })
+
+        if (confirmed) {
+            close()
+            await handleDeleteMessage(targetConvId, source, msgId)
+        }
+    } catch (err) {
+        console.log('Operação cancelada')
+    }
+}
+
+
 
 onMounted(async () => {
     if (!conversation.value?._id) {
