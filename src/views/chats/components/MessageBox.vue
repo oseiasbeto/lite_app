@@ -8,32 +8,6 @@
       </span>
     </div>
 
-    <!-- Player de áudio -->
-    <div v-if="message.message_type === 'voice' && message.status !== 'is_deleted'"
-      class="flex items-center gap-2 min-w-[180px] py-1 px-4">
-      <button @click="toggleAudio" type="button"
-        class="w-8 h-8 flex items-center justify-center rounded-full flex-shrink-0"
-        :class="isSent ? 'bg-white/20' : 'bg-black/10 dark:bg-white/15'">
-        <svg v-if="!isPlaying" width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M8 5v14l11-7z" />
-        </svg>
-        <svg v-else width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-          <rect x="6" y="5" width="4" height="14" />
-          <rect x="14" y="5" width="4" height="14" />
-        </svg>
-      </button>
-
-      <div class="flex-1 flex items-center gap-2">
-        <input type="range" min="0" :max="audioDuration || 1" step="0.1" v-model.number="audioCurrentTime"
-          @input="seekAudio" class="flex-1 h-1 accent-current" />
-        <span class="text-xs opacity-80 w-9 text-right">{{ formatAudioTime(isPlaying ? audioCurrentTime : audioDuration)
-          }}</span>
-      </div>
-
-      <audio ref="audioRef" :src="message.file_url" preload="metadata" @loadedmetadata="onAudioLoaded"
-        @timeupdate="onAudioTimeUpdate" @ended="onAudioEnded"></audio>
-    </div>
-
     <!--
       ── Swipe-to-reply wrapper ──────────────────────────────────────────────
       Envolve apenas a linha do balão (avatar + bubble).
@@ -80,7 +54,7 @@
             <!-- Bloco de resposta -->
             <div v-if="message.reply_to && !isEmojiOnly && message.status !== 'is_deleted'" class="w-full min-w-0 relative"
               style="margin-bottom: -10px;">
-              <span class="flex items-center w-full text-[12px] mb-1 font-normal text-grey dark:text-greyDark"
+              <span class="flex items-center w-full text-[12px] mb-1 font-normal text-grey dark:text-x-dark-textSecondary"
                 :class="isSent ? 'justify-end' : 'justify-start'">
                 <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"
                   class="mr-1 flex-shrink-0">
@@ -123,6 +97,40 @@
               <p v-if="message.status === 'is_deleted'" class="text-base text-grey dark:text-greyDark">
                 Mensagem eliminada
               </p>
+
+              <!-- Player de áudio (estilo Instagram), dentro do balão -->
+              <div v-else-if="message.message_type === 'voice'" class="flex items-center gap-2 min-w-[190px] py-[2px]">
+                <div @click.stop="toggleAudio"
+                  class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer active:scale-90 transition-transform"
+                  :class="isSent ? 'bg-white/25 text-white' : 'bg-black/10 dark:bg-white/15 text-[rgb(40,40,41)] dark:text-white'">
+                  <svg v-if="!isPlaying" width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M8 5v14l11-7z" />
+                  </svg>
+                  <svg v-else width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="6" y="5" width="4" height="14" />
+                    <rect x="14" y="5" width="4" height="14" />
+                  </svg>
+                </div>
+
+                <!-- waveform clicável para navegar no áudio -->
+                <div class="flex-1 flex items-center gap-[2px] h-6 min-w-0 cursor-pointer select-none"
+                  @click.stop="seekAudioFromClick">
+                  <span v-for="(h, n) in audioWaveformBars" :key="n" class="flex-1 rounded-full transition-colors duration-75"
+                    :class="n <= activeAudioBarIndex
+                      ? (isSent ? 'bg-white' : 'bg-[#0095f6]')
+                      : (isSent ? 'bg-white/35' : 'bg-black/15 dark:bg-white/20')"
+                    :style="{ height: h + 'px' }"></span>
+                </div>
+
+                <span class="text-[11px] tabular-nums flex-shrink-0"
+                  :class="isSent ? 'text-white/85' : 'text-grey dark:text-greyDark'">
+                  {{ formatAudioTime(isPlaying ? audioCurrentTime : audioDuration) }}
+                </span>
+
+                <!-- elemento de áudio real, invisível, controlado via JS -->
+                <audio ref="audioRef" :src="message.file_url" preload="metadata" class="hidden"
+                  @loadedmetadata="onAudioLoaded" @timeupdate="onAudioTimeUpdate" @ended="onAudioEnded"></audio>
+              </div>
 
               <!-- Conteúdo normal -->
               <p v-else :class="[
@@ -514,7 +522,36 @@ const toggleAudio = () => {
 const onAudioLoaded = () => { if (audioRef.value?.duration && isFinite(audioRef.value.duration)) audioDuration.value = audioRef.value.duration }
 const onAudioTimeUpdate = () => { audioCurrentTime.value = audioRef.value?.currentTime || 0 }
 const onAudioEnded = () => { isPlaying.value = false; audioCurrentTime.value = 0 }
-const seekAudio = () => { if (audioRef.value) audioRef.value.currentTime = audioCurrentTime.value }
+
+// Waveform decorativa (estilo Instagram), gerada uma única vez por mensagem
+// (não recalcula a cada render — é só pra ficar visualmente parecida com uma onda de voz)
+const AUDIO_WAVEFORM_BARS = 24
+const audioWaveformBars = (() => {
+  const bars = []
+  const seedBase = (props.message._id?.length || 1) * 7.13
+  for (let i = 0; i < AUDIO_WAVEFORM_BARS; i++) {
+    const seed = Math.sin(i * 12.9898 + seedBase) * 43758.5453
+    const frac = seed - Math.floor(seed)
+    bars.push(Math.round(5 + frac * 13)) // altura entre 5px e 18px
+  }
+  return bars
+})()
+
+const activeAudioBarIndex = computed(() => {
+  if (!audioDuration.value) return -1
+  const ratio = audioCurrentTime.value / audioDuration.value
+  return Math.floor(ratio * AUDIO_WAVEFORM_BARS) - 1
+})
+
+// Seek clicando na waveform (equivalente ao antigo <input type="range">)
+const seekAudioFromClick = (event) => {
+  const el = audioRef.value
+  if (!el || !audioDuration.value) return
+  const rect = event.currentTarget.getBoundingClientRect()
+  const ratio = Math.min(Math.max((event.clientX - rect.left) / rect.width, 0), 1)
+  el.currentTime = ratio * audioDuration.value
+  audioCurrentTime.value = el.currentTime
+}
 
 const formatAudioTime = (seconds) => {
   if (!seconds || !isFinite(seconds)) return '0:00'

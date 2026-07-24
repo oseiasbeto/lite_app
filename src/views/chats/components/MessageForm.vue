@@ -86,7 +86,7 @@
     <form v-else @submit.prevent="send" class="px-3 py-2.5 flex items-center gap-2">
 
       <!-- Campo de texto em pill, com borda fina estilo Instagram, min-height 56px -->
-      <div class="flex-1 flex items-center min-h-[56px] rounded-[28px]
+      <div class="flex-1 flex items-center min-h-[50px] rounded-[25px]
                   bg-x-light-surface dark:bg-[rgb(36,39,44)] focus-within:border-[#a8a8a8] dark:focus-within:border-[#5a5a5a]
                   transition-colors pl-4 pr-1.5 py-1.5">
         <textarea ref="textareaRef" v-model="inputMessage" @input="autoResize" @keydown.enter.shift.exact="allowNewLine"
