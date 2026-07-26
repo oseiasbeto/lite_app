@@ -70,9 +70,9 @@
 
             <!-- Balão principal -->
             <button type="button" @contextmenu.prevent="handleMoreOption(message)"
-              :style="!isEmojiOnly && !isGift && message.status !== 'is_deleted' ? bubbleRadiusStyle : {}" :class="[
+              :style="!isEmojiOnly && !isGif && !isSticker && message.status !== 'is_deleted' ? bubbleRadiusStyle : {}" :class="[
                 'relative z-[1] text-left transition-transform active:scale-[0.99] max-w-full min-w-0',
-                !isEmojiOnly && !isGift && message.status !== 'is_deleted'
+                !isEmojiOnly && !isGif && !isSticker && message.status !== 'is_deleted'
                   ? (isSent
                     ? 'bg-[#0095f6] text-white p-[6px_12px]'
                     : 'dark:bg-[#25292e] dark:text-white text-[rgb(40,40,41)] bg-[#f3f5f7] p-[8px_12px]')
@@ -81,7 +81,8 @@
                   ? 'border border-[#b0b3b8] dark:border-[#555] rounded-[18px] px-3 py-[6px] bg-transparent italic opacity-80'
                   : '',
                 isEmojiOnly ? '!bg-transparent m-0 p-0' : '',
-                isGift ? '!bg-transparent m-0 p-0' : '',
+                isGif ? '!bg-transparent m-0 p-0' : '',
+                isSticker ? '!bg-transparent m-0 p-0' : '',
                 isEmojiOnly && groupedReactions.length ? 'mb-3' : '',
                 message.status === 'sending' || message.status === 'error' ? 'pointer-events-none' : '',
                 isHighlighted ? 'ring-2 ring-yellow-400 ring-offset-1' : '',
@@ -138,11 +139,17 @@
                   @canplay="onAudioCanPlay"></audio>
               </div>
 
-              <!-- Gift (presente) -->
-              <div v-else-if="isGift"
-                class="w-40 max-w-full aspect-square rounded-2xl overflow-hidden bg-black/5 dark:bg-white/5">
-                <img v-lazy="message.file_url" :alt="message.content || 'Gift'"
-                  class="w-full h-full object-cover aspect-square" loading="lazy" />
+              <!-- GIF: altura dinâmica, baseada na proporção real da imagem (estilo Instagram) -->
+              <div v-else-if="message.message_type === 'gif'"
+                class="w-52 max-w-full rounded-2xl overflow-hidden">
+                <img v-lazy="message.file_url" :alt="message.content || 'GIF'"
+                  class="w-full h-auto block object-cover" :style="gifAspectRatioStyle" loading="lazy" />
+              </div>
+
+              <!-- Sticker: sem fundo/crop, mantém a proporção original da imagem -->
+              <div v-else-if="message.message_type === 'sticker'" class="w-36 max-w-full">
+                <img v-lazy="message.file_url" :alt="message.content || 'Sticker'"
+                  class="w-full h-auto object-contain" loading="lazy" />
               </div>
 
               <!-- Conteúdo normal -->
@@ -222,7 +229,18 @@ const emit = defineEmits(['more-option', 'scroll-to-reply', 'reply-swipe'])
 const isSent = computed(() => props.message?.sender?._id === props?.userId)
 const isDeletedForMe = computed(() => props.message?.deleted_for?.includes(props.userId) || false)
 
-const isGift = computed(() => props.message.message_type === 'gif')
+const isGif = computed(() => props.message.message_type === 'gif')
+const isSticker = computed(() => props.message.message_type === 'sticker')
+
+// Altura dinâmica do GIF: usa a proporção real (width/height) devolvida pela Giphy
+// e guardada na mensagem. Sem essa informação (ex: mensagens antigas antes desta
+// alteração), cai num fallback 4:3 em vez de forçar sempre quadrado.
+const gifAspectRatioStyle = computed(() => {
+  const w = Number(props.message.file_width)
+  const h = Number(props.message.file_height)
+  if (w > 0 && h > 0) return { aspectRatio: `${w} / ${h}` }
+  return { aspectRatio: '4 / 3' }
+})
 
 const isEmojiOnly = computed(() => {
   const content = props.message.content?.trim()

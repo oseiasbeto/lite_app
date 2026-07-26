@@ -159,7 +159,8 @@
 
             <div v-if="drawer.name == 'GIFT'" class="flex flex-col h-[70vh]">
                 <div class="px-4 pt-2 pb-3 sticky top-0 bg-white dark:bg-[#0c1014] z-10">
-                    <input v-model="gifQuery" @input="onGifQueryInput" type="text" placeholder="Pesquisar GIFs..."
+                    <input v-model="gifQuery" @input="onGifQueryInput" type="text"
+                        :placeholder="gifPickerTab === 'sticker' ? 'Pesquisar stickers...' : 'Pesquisar GIFs...'"
                         class="w-full h-10 px-4 rounded-full bg-x-light-surface dark:bg-[rgb(36,39,44)]
                                text-[#262626] dark:text-[#f5f5f5] placeholder-[#8e8e8e] focus:outline-none text-sm" />
                 </div>
@@ -171,16 +172,40 @@
 
                     <div v-else-if="!gifResults.length"
                         class="text-center text-sm text-grey dark:text-x-dark-textSecondary py-8">
-                        Nenhum GIF encontrado.
+                        {{ gifPickerTab === 'sticker' ? 'Nenhum sticker encontrado.' : 'Nenhum GIF encontrado.' }}
                     </div>
 
-                    <div v-else class="grid grid-cols-2 gap-2">
+                    <!--
+                        Grid dinâmico (estilo masonry do Instagram): usa CSS columns em vez de
+                        um grid de altura fixa, e cada imagem preserva o seu aspect-ratio real
+                        (vindo da própria Giphy), em vez de cortar tudo para a mesma altura.
+                    -->
+                    <div v-else class="columns-2 gap-2">
                         <button v-for="gif in gifResults" :key="gif.id" type="button" @click="selectGif(gif)"
-                            class="rounded-lg overflow-hidden active:opacity-70 transition-opacity bg-x-light-surface dark:bg-[rgb(36,39,44)]">
-                            <img :src="gif.previewUrl" :alt="gif.title" class="w-full h-28 object-cover"
-                                loading="lazy" />
+                            class="block w-full mb-2 break-inside-avoid rounded-lg overflow-hidden active:opacity-70 transition-opacity"
+                            :class="gifPickerTab === 'sticker' ? '' : 'bg-x-light-surface dark:bg-[rgb(36,39,44)]'">
+                            <img :src="gif.previewUrl" :alt="gif.title" class="w-full h-auto block"
+                                :style="{ aspectRatio: `${gif.width} / ${gif.height}` }" loading="lazy" />
                         </button>
                     </div>
+                </div>
+
+                <!-- Footer com abas GIF / Stickers -->
+                <div class="flex border-t dark:border-[rgb(57,56,57)] bg-white dark:bg-[#0c1014] flex-shrink-0">
+                    <button type="button" @click="selectGifPickerTab('gif')"
+                        class="flex-1 py-3 flex items-center justify-center gap-1.5 text-sm font-semibold border-t-2 transition-colors"
+                        :class="gifPickerTab === 'gif'
+                            ? 'text-[#0095f6] border-[#0095f6]'
+                            : 'text-grey dark:text-x-dark-textSecondary border-transparent'">
+                        GIFs
+                    </button>
+                    <button type="button" @click="selectGifPickerTab('sticker')"
+                        class="flex-1 py-3 flex items-center justify-center gap-1.5 text-sm font-semibold border-t-2 transition-colors"
+                        :class="gifPickerTab === 'sticker'
+                            ? 'text-[#0095f6] border-[#0095f6]'
+                            : 'text-grey dark:text-x-dark-textSecondary border-transparent'">
+                        Stickers
+                    </button>
                 </div>
             </div>
         </Drawer>
@@ -367,7 +392,11 @@ const loadMoreMessages = async () => {
 const resetDrawer = () => { drawer.value = { show: false, name: '', data: {} } }
 
 const onCloseDrawer = () => {
+    const wasGiftDrawer = drawer.value.name === 'GIFT'
+
     resetDrawer()
+
+    if (wasGiftDrawer) resetGifPicker()
 
     if (messageSelected.value) {
         setTimeout(() => { messageSelected.value = null }, 300);
@@ -831,37 +860,53 @@ const uploadAndSendImage = async (file) => {
     }
 }
 
-// ── NOVO: GIFs (Giphy API pública, via axios) ─────────────────────────────────
+// ── NOVO: GIFs & Stickers (Giphy API pública, via axios) ──────────────────────
 // Nota: 'dc6zaTOxFJmzC' é a chave pública de demonstração oficial da Giphy,
 // documentada nos próprios exemplos da API (https://developers.giphy.com/docs/api/endpoint#search).
 // É limitada em rate/qualidade — para produção o ideal é criar uma chave própria
 // gratuita em https://developers.giphy.com.
 const GIPHY_API_KEY = 'XywAQ3d7D7eYw9VhvaKyLNpCVyJEa2xR'
 
+// Aba activa do picker: 'gif' ou 'sticker'. A Giphy tem endpoints próprios
+// para cada um (/v1/gifs/... e /v1/stickers/...), por isso o path muda
+// dinamicamente consoante a aba seleccionada.
+const gifPickerTab = ref('gif')
+const giphyBasePath = computed(() => gifPickerTab.value === 'sticker' ? 'stickers' : 'gifs')
+
 const gifQuery = ref('')
 const gifResults = ref([])
 const isLoadingGifs = ref(false)
 let gifSearchDebounce = null
 
+// Mapeia os resultados da Giphy guardando também a largura/altura originais
+// (width/height), usadas depois para dar aspect-ratio dinâmico a cada item
+// no grid, em vez de uma altura fixa igual para todos.
 const mapGiphyResults = (data) =>
-    (data || []).map(g => ({
-        id: g.id,
-        title: g.title || 'GIF',
-        previewUrl: g.images?.fixed_width?.url || g.images?.fixed_width_small?.url || g.images?.original?.url,
-        fullUrl: g.images?.original?.url || g.images?.downsized_large?.url
-    })).filter(g => g.previewUrl && g.fullUrl)
+    (data || []).map(g => {
+        const img = g.images?.fixed_width || g.images?.fixed_width_small || g.images?.original
+        const width = Number(img?.width) || 1
+        const height = Number(img?.height) || 1
+        return {
+            id: g.id,
+            title: g.title || (gifPickerTab.value === 'sticker' ? 'Sticker' : 'GIF'),
+            previewUrl: img?.url,
+            fullUrl: g.images?.original?.url || g.images?.downsized_large?.url,
+            width,
+            height
+        }
+    }).filter(g => g.previewUrl && g.fullUrl)
 
 const fetchTrendingGifs = async () => {
     isLoadingGifs.value = true
     try {
-        const { data } = await axios.get('https://api.giphy.com/v1/gifs/trending', {
+        const { data } = await axios.get(`https://api.giphy.com/v1/${giphyBasePath.value}/trending`, {
             params: { api_key: GIPHY_API_KEY, limit: 24, rating: 'pg-13' }
         })
         gifResults.value = mapGiphyResults(data?.data)
     } catch (err) {
-        console.error('Erro ao carregar GIFs em alta:', err)
+        console.error('Erro ao carregar itens em alta:', err)
         gifResults.value = []
-        store.dispatch("showToast", { message: 'Não foi possível carregar os GIFs.', type: 'error', position: 'top' })
+        store.dispatch("showToast", { message: 'Não foi possível carregar os resultados.', type: 'error', position: 'top' })
     } finally {
         isLoadingGifs.value = false
     }
@@ -870,14 +915,14 @@ const fetchTrendingGifs = async () => {
 const searchGifs = async (query) => {
     isLoadingGifs.value = true
     try {
-        const { data } = await axios.get('https://api.giphy.com/v1/gifs/search', {
+        const { data } = await axios.get(`https://api.giphy.com/v1/${giphyBasePath.value}/search`, {
             params: { api_key: GIPHY_API_KEY, q: query, limit: 24, rating: 'pg-13', lang: 'pt' }
         })
         gifResults.value = mapGiphyResults(data?.data)
     } catch (err) {
-        console.error('Erro ao pesquisar GIFs:', err)
+        console.error('Erro ao pesquisar:', err)
         gifResults.value = []
-        store.dispatch("showToast", { message: 'Não foi possível pesquisar GIFs.', type: 'error', position: 'top' })
+        store.dispatch("showToast", { message: 'Não foi possível pesquisar.', type: 'error', position: 'top' })
     } finally {
         isLoadingGifs.value = false
     }
@@ -891,15 +936,50 @@ const onGifQueryInput = () => {
     }, 400)
 }
 
+// Repõe tudo relacionado ao picker de GIF/Sticker ao estado inicial:
+// cancela qualquer pesquisa pendente (debounce), limpa o texto pesquisado,
+// os resultados, o estado de loading e volta a aba para "GIFs".
+// Chamado sempre que o drawer 'GIFT' é fechado, para a próxima abertura
+// começar sempre "do zero" (tal como acontece no Instagram).
+const resetGifPicker = () => {
+    clearTimeout(gifSearchDebounce)
+    gifSearchDebounce = null
+    gifQuery.value = ''
+    gifResults.value = []
+    isLoadingGifs.value = false
+    gifPickerTab.value = 'gif'
+}
+
+// Troca entre a aba "GIFs" e "Stickers": recarrega os resultados de acordo
+// com a pesquisa actual (se houver) ou os itens em alta.
+const selectGifPickerTab = (tab) => {
+    if (gifPickerTab.value === tab || isLoadingGifs.value) return
+    gifPickerTab.value = tab
+    gifResults.value = []
+
+    const q = gifQuery.value.trim()
+    q ? searchGifs(q) : fetchTrendingGifs()
+}
+
 const openGifPicker = () => {
     if (drawer.value.show) resetDrawer()
     drawer.value.show = true
     drawer.value.name = 'GIFT'
-    if (!gifResults.value.length) fetchTrendingGifs()
+    if (!gifResults.value.length) {
+        const q = gifQuery.value.trim()
+        q ? searchGifs(q) : fetchTrendingGifs()
+    }
 }
 
-
 const selectGif = async (gif) => {
+    // IMPORTANTE: ler a aba activa ANTES de fechar o drawer — onCloseDrawer
+    // agora chama resetGifPicker(), que volta gifPickerTab para 'gif'.
+    // Se líssemos isto depois do onCloseDrawer(), um sticker seria sempre
+    // enviado como 'gif'.
+    const isSticker = gifPickerTab.value === 'sticker'
+    const messageType = isSticker ? 'sticker' : 'gif'
+    const lastMessagePreview = isSticker ? '🧩 Sticker' : '🎞️ GIF'
+
     onCloseDrawer()
 
     const tempId = Math.random().toString(36).substring(2, 10)
@@ -908,8 +988,10 @@ const selectGif = async (gif) => {
         conversation: conversation.value,
         created_at: Date.now(),
         read_by: [],
-        message_type: 'gif',
+        message_type: messageType,
         file_url: gif.fullUrl,
+        file_width: gif.width,
+        file_height: gif.height,
         sender: {
             profile_image: user?.value?.profile_image,
             _id: user?.value?._id,
@@ -926,7 +1008,7 @@ const selectGif = async (gif) => {
     store.commit("ADD_OR_UPDATE_CONVERSATION", {
         conversation: {
             ...conversation.value,
-            last_message: { created_at: Date.now(), content: '🎞️ GIF', message_type: 'gif' },
+            last_message: { created_at: Date.now(), content: lastMessagePreview, message_type: messageType },
             read_by: []
         },
         userId: user.value?._id, senderId: newMessage.sender?._id, source: conversation.value?.source || 'active'
@@ -940,8 +1022,10 @@ const selectGif = async (gif) => {
         ...(newMessage?.reply_to && { replyToId: newMessage?.reply_to?._id || null }),
         source: conversation?.value?.source,
         content: '',
-        message_type: 'gif',
-        file_url: gif.fullUrl
+        message_type: messageType,
+        file_url: gif.fullUrl,
+        file_width: gif.width,
+        file_height: gif.height
     }))
 }
 
