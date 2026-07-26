@@ -120,7 +120,7 @@ export default {
                 const indexMessage = messages.findIndex((m) => m._id == msgId)
 
                 if (indexMessage !== -1) {
-                    messages[indexMessage] = payload
+                    messages[indexMessage] = {...messages[indexMessage], ...payload}
                 }
             }
         },
@@ -185,8 +185,6 @@ export default {
         },
 
         ADD_OR_UPDATE_CONVERSATION(state, { conversation, source, userId, senderId }) {
-
-            console.log(conversation, source, userId, senderId)
             if (!userId || !senderId) return
 
             if (source) {
@@ -717,6 +715,15 @@ export default {
                     })
                 }
             } catch (err) {
+                // Atualiza conversa na sidebar
+                    commit("UPDATE_MESSAGE", {
+                        byId: convId,
+                        msgId: tempId,
+                        source,
+                        payload: {
+                            status: 'error'
+                        }
+                    })
                 logger.error("Failed to send message:", err);
                 throw err;
             }

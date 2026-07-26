@@ -58,10 +58,10 @@
                 <span class="truncate">{{ replyLabel }}</span>
               </span>
               <button type="button" @click="scrollToReply" :class="[
-                'block max-w-full min-w-0 text-left rounded-[16px] px-3 py-[10px] text-[13px] leading-tight cursor-pointer transition-opacity dark:bg-[#25292e] opacity-50 dark:text-[rgb(245,245,245)] hover:opacity-100',
+                'block max-w-full min-w-0 text-left rounded-[16px] px-3 py-[10px] text-[13px] leading-tight text-inherit bg-[#f3f5f7] cursor-pointer transition-opacity dark:bg-[#25292e] opacity-60 dark:text-[rgb(245,245,245)] hover:opacity-100',
                 isSent ? 'ml-auto' : ''
               ]" :style="isSent ? 'border-radius: 16px 16px 4px 16px;' : 'border-radius: 16px 16px 16px 4px;'">
-                <span class="block text-sm truncate opacity-90"
+                <span class="block text-sm truncate"
                   :class="isSent ? 'text-white' : 'text-[rgb(40,40,41)] dark:text-white'">
                   {{ replyPreviewText }}
                 </span>
@@ -70,9 +70,9 @@
 
             <!-- Balão principal -->
             <button type="button" @contextmenu.prevent="handleMoreOption(message)"
-              :style="!isEmojiOnly && message.status !== 'is_deleted' ? bubbleRadiusStyle : {}" :class="[
+              :style="!isEmojiOnly && !isGift && message.status !== 'is_deleted' ? bubbleRadiusStyle : {}" :class="[
                 'relative z-[1] text-left transition-transform active:scale-[0.99] max-w-full min-w-0',
-                !isEmojiOnly && message.status !== 'is_deleted'
+                !isEmojiOnly && !isGift && message.status !== 'is_deleted'
                   ? (isSent
                     ? 'bg-[#0095f6] text-white p-[6px_12px]'
                     : 'dark:bg-[#25292e] dark:text-white text-[rgb(40,40,41)] bg-[#f3f5f7] p-[8px_12px]')
@@ -81,8 +81,9 @@
                   ? 'border border-[#b0b3b8] dark:border-[#555] rounded-[18px] px-3 py-[6px] bg-transparent italic opacity-80'
                   : '',
                 isEmojiOnly ? '!bg-transparent m-0 p-0' : '',
+                isGift ? '!bg-transparent m-0 p-0' : '',
                 isEmojiOnly && groupedReactions.length ? 'mb-3' : '',
-                message.status === 'sending' ? 'pointer-events-none' : '',
+                message.status === 'sending' || message.status === 'error' ? 'pointer-events-none' : '',
                 isHighlighted ? 'ring-2 ring-yellow-400 ring-offset-1' : '',
               ]">
 
@@ -98,7 +99,7 @@
                   :class="isSent ? 'bg-white/25 text-white' : 'bg-black/10 dark:bg-white/15 text-[rgb(40,40,41)] dark:text-white'">
 
                   <!-- Loading (buffering) -->
-                  <svg v-if="isAudioLoading" class="animate-spin" width="16" height="16" viewBox="0 0 24 24"
+                  <svg v-if="isAudioLoading" class="animate-spin" width="18" height="18" viewBox="0 0 24 24"
                     fill="none">
                     <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"
                       fill="none" />
@@ -106,11 +107,11 @@
                       fill="none" />
                   </svg>
                   <!-- Play -->
-                  <svg v-else-if="!isPlaying" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <svg v-else-if="!isPlaying" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                   <!-- Pause -->
-                  <svg v-else width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+                  <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                     <rect x="6" y="5" width="4" height="14" />
                     <rect x="14" y="5" width="4" height="14" />
                   </svg>
@@ -135,6 +136,13 @@
                   @loadedmetadata="onAudioLoaded" @timeupdate="onAudioTimeUpdate" @ended="onAudioEnded"
                   @play="onAudioPlay" @pause="onAudioPause" @waiting="onAudioWaiting" @playing="onAudioPlaying"
                   @canplay="onAudioCanPlay"></audio>
+              </div>
+
+              <!-- Gift (presente) -->
+              <div v-else-if="isGift"
+                class="w-40 max-w-full aspect-square rounded-2xl overflow-hidden bg-black/5 dark:bg-white/5">
+                <img v-lazy="message.file_url" :alt="message.content || 'Gift'"
+                  class="w-full h-full object-cover aspect-square" loading="lazy" />
               </div>
 
               <!-- Conteúdo normal -->
@@ -177,6 +185,17 @@
               :class="{ '!mt-2.5': groupedReactions.length }">
               Entregue
             </span>
+
+            <!--
+              Indicador "Erro ao enviar" (estilo Instagram).
+              Fica preso à mensagem que falhou, independentemente de novas mensagens
+              terem sido enviadas depois dela — por isso NÃO depende de isLastSentMessage.
+            -->
+            <span v-if="message.status == 'error'"
+              class="text-[11px] text-red-500 mt-[2px] px-1"
+              :class="{ '!mt-2.5': groupedReactions.length }">
+              Erro ao enviar
+            </span>
           </div>
         </div>
       </div><!-- /swipe-content -->
@@ -200,8 +219,10 @@ const props = defineProps({
 
 const emit = defineEmits(['more-option', 'scroll-to-reply', 'reply-swipe'])
 
-const isSent = computed(() => props.message.sender._id === props.userId)
+const isSent = computed(() => props.message?.sender?._id === props?.userId)
 const isDeletedForMe = computed(() => props.message?.deleted_for?.includes(props.userId) || false)
+
+const isGift = computed(() => props.message.message_type === 'gif')
 
 const isEmojiOnly = computed(() => {
   const content = props.message.content?.trim()
@@ -238,12 +259,14 @@ const isMessageEmojiOnly = (msg) => {
 
 const isMessageDeletedForMe = (msg) => !!(msg?.deleted_for?.includes(props.userId))
 const isMessageDeletedForEveryone = (msg) => msg?.status === 'is_deleted'
+const isMessageError = (msg) => msg?.status === 'error'
 
 const breaksGrouping = (msg) =>
   !msg ||
   isMessageEmojiOnly(msg) ||
   isMessageDeletedForEveryone(msg) ||
-  isMessageDeletedForMe(msg)
+  isMessageDeletedForMe(msg) ||
+  isMessageError(msg)
 
 const isGroupedWithPrevious = computed(() =>
   !!props.previousMessage &&
@@ -337,7 +360,7 @@ const dateSeparatorText = computed(() => {
 
 // ── Contexto / ações ─────────────────────────────────────────────────────────
 const handleMoreOption = (msg) => {
-  if (msg.status === 'sending' || msg.status === 'is_deleted') return
+  if (msg.status === 'sending' || msg.status === 'error' || msg.status === 'is_deleted') return
   emit('more-option', msg)
 }
 
@@ -442,7 +465,7 @@ const replyIconScale = computed(() => {
 })
 
 const onTouchStart = (e) => {
-  if (props.message.status === 'is_deleted' || props.message.status === 'sending') return
+  if (props.message.status === 'is_deleted' || props.message.status === 'sending' || props.message.status == 'error') return
   const t = e.touches[0]
   touchStartX.value = t.clientX
   touchStartY.value = t.clientY

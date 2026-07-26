@@ -16,20 +16,21 @@
                 <div v-if="!cachedMessages?.pagination?.hasMore && conversation?.type === 'direct'"
                     class="flex flex-col items-center justify-center py-8 text-center mb-4">
 
-                    <Avatar :url="conversation?.avatar?.thumbnails?.lg || conversation?.avatar?.url" size="big" />
+                    <Avatar :url="conversation?.avatar?.thumbnails?.lg || conversation?.avatar?.url" size="big"
+                        class="w-[96px] h-[96px]" />
 
                     <div class="mt-3 mb-3">
                         <p class="text-lg font-semibold dark:text-white text-[rgb(40,40,41)]">{{
                             conversation?.name
-                            }}</p>
-                        <p class="dark:text-[#b0b3b8]">@{{ conversation.name }}</p>
+                        }}</p>
+                        <p class="dark:text-x-dark-textSecondary">@{{ conversation.name }}</p>
                     </div>
 
                     <div class="flex my-2 justify-between items-center">
                         <button
-                            class="flex active:opacity-50 bg-black text-white dark:bg-white dark:text-black items-center font-bold gap-1 py-2 px-6 rounded-md"
+                            class="flex text-base active:opacity-50 bg-black text-white dark:bg-[#2b3036cc] dark:text-x-dark-textPrimary items-center font-bold gap-1 py-2 px-6 rounded-lg"
                             @click="goToProfile(conversation)">
-                            <p>Ir para este perfil</p>
+                            <p>Ver perfil</p>
                         </button>
                     </div>
                 </div>
@@ -67,9 +68,10 @@
                     class="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#287dff] text-white text-[11px] font-semibold flex items-center justify-center leading-none">
                     {{ unreadWhileScrolled > 9 ? '9+' : unreadWhileScrolled }}
                 </span>
-               
-                <svg class="text-[rgb(40,40,41)] dark:text-white" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="16px"
-                    height="16px" viewBox="0 -4.5 20 20" version="1.1">
+
+                <svg class="text-[rgb(40,40,41)] dark:text-white" xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink" width="16px" height="16px" viewBox="0 -4.5 20 20"
+                    version="1.1">
 
                     <title>arrow_down [#339]</title>
                     <desc>Created with Sketch.</desc>
@@ -77,7 +79,8 @@
 
                     </defs>
                     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-                        <g id="Dribbble-Light-Preview" transform="translate(-180.000000, -6684.000000)" fill="currentColor">
+                        <g id="Dribbble-Light-Preview" transform="translate(-180.000000, -6684.000000)"
+                            fill="currentColor">
                             <g id="icons" transform="translate(56.000000, 160.000000)">
                                 <path
                                     d="M144,6525.39 L142.594,6524 L133.987,6532.261 L133.069,6531.38 L133.074,6531.385 L125.427,6524.045 L124,6525.414 C126.113,6527.443 132.014,6533.107 133.987,6535 C135.453,6533.594 134.024,6534.965 144,6525.39"
@@ -91,11 +94,23 @@
             </button>
         </Transition>
 
+        <!-- ===== Loading enquanto a imagem é enviada automaticamente ===== -->
+        <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="opacity-0 translate-y-1"
+            enter-to-class="opacity-100 translate-y-0" leave-active-class="transition duration-100 ease-in"
+            leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
+            <div v-if="isUploadingImage"
+                class="px-4 py-3 flex items-center gap-3 bg-white dark:bg-[#0c1014] border-t dark:border-[rgb(57,56,57)]">
+                <SpinnerSmall class="!w-5 !h-5" />
+                <span class="text-sm text-grey dark:text-x-dark-textSecondary">A enviar imagem...</span>
+            </div>
+        </Transition>
+
         <div ref="inputContainer" class="z-10 dark:bg-dark-bg w-full">
             <MessageForm @voice-message-sent="handleSendVoiceMessage" :show-shadow="showShadowMessageForm"
                 @typing-start="handleTypingStart" @typing-stop="handleTypingStop" @message-sent="handleSendMessage"
                 @auto-resize="updateInputResize" ref="messageFormRef" :user-id="user._id"
-                :disabled="isLoadingSendMessage" :reply-to="replyTo" @close-reply-to="resetReplyTo" />
+                :disabled="isLoadingSendMessage" :reply-to="replyTo" @close-reply-to="resetReplyTo"
+                @media-selected="handleMediaSelected" @open-gif-picker="openGifPicker" />
         </div>
 
         <!--drawer-->
@@ -141,6 +156,33 @@
                 <DrawerItem v-if="isSentMessageSelected" @on-press="handleDeleteForAllConfirm"
                     title="Eliminar para todos" />
             </div>
+
+            <div v-if="drawer.name == 'GIFT'" class="flex flex-col h-[70vh]">
+                <div class="px-4 pt-2 pb-3 sticky top-0 bg-white dark:bg-[#0c1014] z-10">
+                    <input v-model="gifQuery" @input="onGifQueryInput" type="text" placeholder="Pesquisar GIFs..."
+                        class="w-full h-10 px-4 rounded-full bg-x-light-surface dark:bg-[rgb(36,39,44)]
+                               text-[#262626] dark:text-[#f5f5f5] placeholder-[#8e8e8e] focus:outline-none text-sm" />
+                </div>
+
+                <div class="flex-1 overflow-y-auto px-3 pb-4">
+                    <div v-if="isLoadingGifs" class="flex justify-center py-8">
+                        <SpinnerSmall />
+                    </div>
+
+                    <div v-else-if="!gifResults.length"
+                        class="text-center text-sm text-grey dark:text-x-dark-textSecondary py-8">
+                        Nenhum GIF encontrado.
+                    </div>
+
+                    <div v-else class="grid grid-cols-2 gap-2">
+                        <button v-for="gif in gifResults" :key="gif.id" type="button" @click="selectGif(gif)"
+                            class="rounded-lg overflow-hidden active:opacity-70 transition-opacity bg-x-light-surface dark:bg-[rgb(36,39,44)]">
+                            <img :src="gif.previewUrl" :alt="gif.title" class="w-full h-28 object-cover"
+                                loading="lazy" />
+                        </button>
+                    </div>
+                </div>
+            </div>
         </Drawer>
     </div>
 </template>
@@ -158,6 +200,8 @@ import { useIntersectionObserver } from "@vueuse/core";
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
+import axios from 'axios';
+import { uploadImageMessage } from '@/services/cloudinary';
 
 import { useConfirmModal } from '@/composables/useConfirmModal'
 const { showConfirm, state, close } = useConfirmModal()
@@ -324,7 +368,10 @@ const resetDrawer = () => { drawer.value = { show: false, name: '', data: {} } }
 
 const onCloseDrawer = () => {
     resetDrawer()
-    setTimeout(() => { messageSelected.value = null }, 300);
+
+    if (messageSelected.value) {
+        setTimeout(() => { messageSelected.value = null }, 300);
+    }
 }
 
 const resetReplyTo = () => {
@@ -694,6 +741,209 @@ const handleDeleteForAllConfirm = async () => {
     }
 }
 
+// ── NOVO: Mídia (imagem) ──────────────────────────────────────────────────────
+// Toda a validação vive aqui, no pai. O MessageForm apenas emite o File bruto.
+// Sem preview/confirmação: ao selecionar, valida e sobe automaticamente.
+const isUploadingImage = ref(false)
+
+const MAX_IMAGE_SIZE_BYTES = 15 * 1024 * 1024 // 15MB
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']
+
+const handleMediaSelected = async (file) => {
+    // Evita disparar um segundo envio enquanto o anterior ainda está a subir
+    if (isUploadingImage.value) return
+
+    // 1) Tem de existir e ser realmente um ficheiro
+    if (!file || !(file instanceof File)) {
+        store.dispatch("showToast", { message: 'Ficheiro inválido.', type: 'error', position: 'top' })
+        return
+    }
+
+    // 2) Tem de ser IMAGEM — valida o MIME real do ficheiro, não a extensão do nome
+    const isImageMime = !!file.type && (ALLOWED_IMAGE_TYPES.includes(file.type) || file.type.startsWith('image/'))
+    if (!isImageMime) {
+        store.dispatch("showToast", { message: 'Só é permitido enviar imagens.', type: 'error', position: 'top' })
+        return
+    }
+
+    // 3) Limite de tamanho
+    if (file.size > MAX_IMAGE_SIZE_BYTES) {
+        store.dispatch("showToast", { message: 'Imagem demasiado grande (máx. 15MB).', type: 'error', position: 'top' })
+        return
+    }
+
+    // 4) Apenas UMA mídia por envio: como sobe automaticamente e é bloqueado
+    //    enquanto isUploadingImage está true, nunca há duas em simultâneo.
+    await uploadAndSendImage(file)
+}
+
+const uploadAndSendImage = async (file) => {
+    isUploadingImage.value = true
+    try {
+        const { url } = await uploadImageMessage(file)
+
+        const tempId = Math.random().toString(36).substring(2, 10)
+        const newMessage = {
+            content: '',
+            conversation: conversation.value,
+            created_at: Date.now(),
+            read_by: [],
+            message_type: 'image',
+            file_url: url,
+            sender: {
+                profile_image: user?.value?.profile_image,
+                _id: user?.value?._id,
+                name: user?.value?.name,
+                username: user?.value?.username,
+            },
+            ...(replyTo.value?.show && { reply_to: replyTo.value.message }),
+            status: 'sending',
+            updated_at: Date.now(),
+            _id: tempId
+        }
+
+        store.commit("ADD_MESSAGE_REALTIME", { convId: conversation.value?._id, source: conversation?.value?.source || 'active', message: newMessage })
+        store.commit("ADD_OR_UPDATE_CONVERSATION", {
+            conversation: {
+                ...conversation.value,
+                last_message: { created_at: Date.now(), content: '📷 Imagem', message_type: 'image' },
+                read_by: []
+            },
+            userId: user.value?._id, senderId: newMessage.sender?._id, source: conversation.value?.source || 'active'
+        })
+        store.commit('UPDATE_UNREAD_COUNT_ON_CONVERSATION', { convId: conversation?.value?._id, source: conversation?.value?.source, count: 0 })
+        scrollToBottom()
+        if (replyTo.value?.show) resetReplyTo()
+
+        await store.dispatch("sendMessage", ({
+            tempId, convId: conversation.value?._id,
+            ...(newMessage?.reply_to && { replyToId: newMessage?.reply_to?._id || null }),
+            source: conversation?.value?.source,
+            content: '',
+            message_type: 'image',
+            file_url: url
+        }))
+    } catch (err) {
+        console.error('Erro ao enviar imagem:', err)
+        store.dispatch("showToast", { message: 'Falha ao enviar imagem.', type: 'error', position: 'top' })
+    } finally {
+        isUploadingImage.value = false
+    }
+}
+
+// ── NOVO: GIFs (Giphy API pública, via axios) ─────────────────────────────────
+// Nota: 'dc6zaTOxFJmzC' é a chave pública de demonstração oficial da Giphy,
+// documentada nos próprios exemplos da API (https://developers.giphy.com/docs/api/endpoint#search).
+// É limitada em rate/qualidade — para produção o ideal é criar uma chave própria
+// gratuita em https://developers.giphy.com.
+const GIPHY_API_KEY = 'XywAQ3d7D7eYw9VhvaKyLNpCVyJEa2xR'
+
+const gifQuery = ref('')
+const gifResults = ref([])
+const isLoadingGifs = ref(false)
+let gifSearchDebounce = null
+
+const mapGiphyResults = (data) =>
+    (data || []).map(g => ({
+        id: g.id,
+        title: g.title || 'GIF',
+        previewUrl: g.images?.fixed_width?.url || g.images?.fixed_width_small?.url || g.images?.original?.url,
+        fullUrl: g.images?.original?.url || g.images?.downsized_large?.url
+    })).filter(g => g.previewUrl && g.fullUrl)
+
+const fetchTrendingGifs = async () => {
+    isLoadingGifs.value = true
+    try {
+        const { data } = await axios.get('https://api.giphy.com/v1/gifs/trending', {
+            params: { api_key: GIPHY_API_KEY, limit: 24, rating: 'pg-13' }
+        })
+        gifResults.value = mapGiphyResults(data?.data)
+    } catch (err) {
+        console.error('Erro ao carregar GIFs em alta:', err)
+        gifResults.value = []
+        store.dispatch("showToast", { message: 'Não foi possível carregar os GIFs.', type: 'error', position: 'top' })
+    } finally {
+        isLoadingGifs.value = false
+    }
+}
+
+const searchGifs = async (query) => {
+    isLoadingGifs.value = true
+    try {
+        const { data } = await axios.get('https://api.giphy.com/v1/gifs/search', {
+            params: { api_key: GIPHY_API_KEY, q: query, limit: 24, rating: 'pg-13', lang: 'pt' }
+        })
+        gifResults.value = mapGiphyResults(data?.data)
+    } catch (err) {
+        console.error('Erro ao pesquisar GIFs:', err)
+        gifResults.value = []
+        store.dispatch("showToast", { message: 'Não foi possível pesquisar GIFs.', type: 'error', position: 'top' })
+    } finally {
+        isLoadingGifs.value = false
+    }
+}
+
+const onGifQueryInput = () => {
+    clearTimeout(gifSearchDebounce)
+    gifSearchDebounce = setTimeout(() => {
+        const q = gifQuery.value.trim()
+        q ? searchGifs(q) : fetchTrendingGifs()
+    }, 400)
+}
+
+const openGifPicker = () => {
+    if (drawer.value.show) resetDrawer()
+    drawer.value.show = true
+    drawer.value.name = 'GIFT'
+    if (!gifResults.value.length) fetchTrendingGifs()
+}
+
+
+const selectGif = async (gif) => {
+    onCloseDrawer()
+
+    const tempId = Math.random().toString(36).substring(2, 10)
+    const newMessage = {
+        content: '',
+        conversation: conversation.value,
+        created_at: Date.now(),
+        read_by: [],
+        message_type: 'gif',
+        file_url: gif.fullUrl,
+        sender: {
+            profile_image: user?.value?.profile_image,
+            _id: user?.value?._id,
+            name: user?.value?.name,
+            username: user?.value?.username,
+        },
+        ...(replyTo.value?.show && { reply_to: replyTo.value.message }),
+        status: 'sending',
+        updated_at: Date.now(),
+        _id: tempId
+    }
+
+    store.commit("ADD_MESSAGE_REALTIME", { convId: conversation.value?._id, source: conversation?.value?.source || 'active', message: newMessage })
+    store.commit("ADD_OR_UPDATE_CONVERSATION", {
+        conversation: {
+            ...conversation.value,
+            last_message: { created_at: Date.now(), content: '🎞️ GIF', message_type: 'gif' },
+            read_by: []
+        },
+        userId: user.value?._id, senderId: newMessage.sender?._id, source: conversation.value?.source || 'active'
+    })
+    store.commit('UPDATE_UNREAD_COUNT_ON_CONVERSATION', { convId: conversation?.value?._id, source: conversation?.value?.source, count: 0 })
+    scrollToBottom()
+    if (replyTo.value?.show) resetReplyTo()
+
+    await store.dispatch("sendMessage", ({
+        tempId, convId: conversation.value?._id,
+        ...(newMessage?.reply_to && { replyToId: newMessage?.reply_to?._id || null }),
+        source: conversation?.value?.source,
+        content: '',
+        message_type: 'gif',
+        file_url: gif.fullUrl
+    }))
+}
 
 
 onMounted(async () => {

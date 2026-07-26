@@ -4,7 +4,7 @@
       @on-close="closeReplyTo" />
 
     <!-- ===== UI DE GRAVAÇÃO (estilo Instagram) ===== -->
-    <div v-if="isRecording || audioBlob" class="px-3 py-2.5 flex items-center gap-3">
+    <div v-if="isRecording || audioBlob" class="px-4 py-4 flex items-center gap-3">
       <button @click="handleCancelRecording" type="button"
         class="w-9 h-9 flex items-center justify-center rounded-full text-[#8e8e8e] hover:bg-[#f0f0f0] dark:hover:bg-[#1a1a1a] active:opacity-60 transition-colors flex-shrink-0">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -84,7 +84,7 @@
     </div>
 
     <!-- ===== FORM PADRÃO (estilo Instagram) ===== -->
-    <form v-else @submit.prevent="send" class="px-3 py-2.5 flex items-center gap-2">
+    <form v-else @submit.prevent="send" class="px-4 py-4 flex items-center gap-2">
 
       <!-- Campo de texto em pill, com borda fina estilo Instagram, min-height 56px -->
       <div class="flex-1 flex items-center min-h-[48px] rounded-[25px]
@@ -100,6 +100,9 @@
                  focus:outline-none text-[#262626] dark:text-[#f5f5f5]
                  whitespace-pre-wrap break-words
                  min-h-[24px]" style="line-height: 20px;" />
+
+        <!-- Input de ficheiro escondido, usado pelo botão de mídia -->
+        <input ref="mediaInputRef" type="file" accept="image/*" class="hidden" @change="onMediaFileChange" />
 
         <!-- Botão de microfone (só aparece sem texto digitado), dentro do campo estilo Instagram -->
         <button v-if="!inputMessage.trim()" @click.prevent="handleStartRecording" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
@@ -118,6 +121,48 @@
               stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
           </svg>
         </button>
+
+        <!-- Botão de mídia/imagem (só aparece sem texto digitado) -->
+        <button v-if="!inputMessage.trim()" @click.prevent="handleOpenMediaPicker" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
+                 text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
+                 active:scale-90 transition-all">
+          <svg aria-label="Adicionar foto ou vídeo" class="text-inherit" fill="currentColor" height="22" role="img"
+            viewBox="0 0 24 24" width="24">
+            <title>Adicionar foto ou vídeo</title>
+            <path d="M6.549 5.013A1.557 1.557 0 1 0 8.106 6.57a1.557 1.557 0 0 0-1.557-1.557Z" fill-rule="evenodd">
+            </path>
+            <path
+              d="m2 18.605 3.901-3.9a.908.908 0 0 1 1.284 0l2.807 2.806a.908.908 0 0 0 1.283 0l5.534-5.534a.908.908 0 0 1 1.283 0l3.905 3.905"
+              fill="none" stroke="currentColor" stroke-linejoin="round" stroke-width="2"></path>
+            <path
+              d="M18.44 2.004A3.56 3.56 0 0 1 22 5.564h0v12.873a3.56 3.56 0 0 1-3.56 3.56H5.568a3.56 3.56 0 0 1-3.56-3.56V5.563a3.56 3.56 0 0 1 3.56-3.56Z"
+              fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        </button>
+
+        <!-- Botão de GIF (só aparece sem texto digitado) -->
+        <button v-if="!inputMessage.trim()" @click.prevent="handleOpenGifPicker" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
+                 text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
+                 active:scale-90 transition-all">
+          <svg aria-label="Escolher um GIF ou uma figurinha" class="text-inherit" fill="currentColor"
+            height="22" role="img" viewBox="0 0 24 24" width="22">
+            <title>Escolher um GIF ou uma figurinha</title>
+            <path
+              d="M13.11 22H7.416A5.417 5.417 0 0 1 2 16.583V7.417A5.417 5.417 0 0 1 7.417 2h9.166A5.417 5.417 0 0 1 22 7.417v5.836a2.083 2.083 0 0 1-.626 1.488l-6.808 6.664A2.083 2.083 0 0 1 13.11 22Z"
+              fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            <circle cx="8.238" cy="9.943" r="1.335"></circle>
+            <circle cx="15.762" cy="9.943" r="1.335"></circle>
+            <path d="M15.174 15.23a4.887 4.887 0 0 1-6.937-.301" fill="none" stroke="currentColor"
+              stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            <path
+              d="M22 10.833v1.629a1.25 1.25 0 0 1-1.25 1.25h-1.79a5.417 5.417 0 0 0-5.417 5.417v1.62a1.25 1.25 0 0 1-1.25 1.25H9.897"
+              fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        </button>
+
+
+
+
       </div>
 
       <!-- Botão enviar, estilo texto azul do Instagram -->
@@ -152,7 +197,11 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['message-sent', 'typing-start', 'voice-message-sent', 'typing-stop', 'close-reply-to', 'auto-resize', 'focus'])
+const emit = defineEmits([
+  'message-sent', 'typing-start', 'voice-message-sent', 'typing-stop',
+  'close-reply-to', 'auto-resize', 'focus',
+  'media-selected', 'open-gif-picker'
+])
 
 const inputMessage = ref('')
 const textareaRef = ref(null)
@@ -396,6 +445,30 @@ const sendVoiceMessage = async () => {
   } finally {
     isUploadingVoice.value = false
   }
+}
+
+// === NOVO: seleção de mídia (imagem) e gif ===
+// Este componente NÃO valida o ficheiro (tipo/tamanho/quantidade) — apenas
+// captura o File bruto escolhido pelo utilizador e emite para o componente pai,
+// que é o responsável por toda a validação e pelo fluxo de envio.
+const mediaInputRef = ref(null)
+
+const handleOpenMediaPicker = () => {
+  if (props.disabled) return
+  mediaInputRef.value?.click()
+}
+
+const onMediaFileChange = (e) => {
+  const file = e.target.files?.[0] || null
+  // Reseta o input para permitir selecionar o MESMO ficheiro outra vez no futuro
+  e.target.value = ''
+  if (!file) return
+  emit('media-selected', file)
+}
+
+const handleOpenGifPicker = () => {
+  if (props.disabled) return
+  emit('open-gif-picker')
 }
 
 // Expõe as funções pro componente pai

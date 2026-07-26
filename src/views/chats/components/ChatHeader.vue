@@ -2,7 +2,7 @@
   <header
     class="flex h-[56px] border-b dark:border-x-dark-border items-center px-2 bg-x-light-bg dark:bg-[#0c1014] z-50">
     <button @click="$emit('goBack')"
-      class="p-1 dark:text-white text-[rgb(40,40,41)] mr-3 rounded-full transition-colors">
+      class="p-2 dark:text-white text-[rgb(40,40,41)] mr-2 rounded-full transition-colors">
       <svg aria-label="Voltar" class="text-inherit" fill="currentColor" height="24" role="img" viewBox="0 0 24 24"
         width="24">
         <title>Voltar</title>
@@ -28,7 +28,7 @@
     <div class="ml-2 flex-1 min-w-0">
       <!-- Nome -->
       <div @click="goToProfile(conversation)" class="w-full flex">
-        <h2 class="text-base mb-0.5 font-semibold text-inherit truncate leading-tight">
+        <h2 class="text-base mb-0.5 font-semibold text-x-light-textPrimary dark:text-white truncate leading-tight">
           {{ loading ? 'Carregando...' : conversation?.name || 'Chat' }}
         </h2>
 

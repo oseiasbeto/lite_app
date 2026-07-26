@@ -7,7 +7,7 @@
 
 <style scoped>
 .loader {
-  --color-1: #000;
+  --color-1: #0095f6;
   --size: 1px;
   width: calc(24 * var(--size));
   height: calc(24 * var(--size));
@@ -17,9 +17,6 @@
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 0.8s linear infinite;
-}
-.dark .loader {
-  --color-1: #fff !important;  /* branco */
 }
 
 @keyframes rotation {

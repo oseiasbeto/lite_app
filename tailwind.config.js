@@ -19,7 +19,7 @@ module.exports = {
             borderHover: '#3A3F45',
 
             textPrimary: '#E7E9EA',
-            textSecondary: '#71767B',
+            textSecondary: 'rgb(168, 168, 168)',
             textTertiary: '#536471',
 
             blue: '#0095f6',
