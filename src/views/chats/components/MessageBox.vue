@@ -69,7 +69,8 @@
 
             <!-- Balão principal -->
             <button type="button" @contextmenu.prevent="handleMoreOption(message)"
-              :style="!isEmojiOnly && !isGif && !isSticker && !isVoice && message.status !== 'is_deleted' ? bubbleRadiusStyle : {}" :class="[
+              :style="!isEmojiOnly && !isGif && !isSticker && !isVoice && message.status !== 'is_deleted' ? bubbleRadiusStyle : {}"
+              :class="[
                 'relative z-[1] text-left transition-transform active:scale-[0.99] max-w-full min-w-0',
                 !isEmojiOnly && !isGif && !isSticker && message.status !== 'is_deleted'
                   ? (isSent
@@ -124,10 +125,11 @@
                   <span v-for="(h, n) in audioWaveformBars" :key="n"
                     class="flex-1 rounded-full transition-colors duration-75" :class="n <= activeAudioBarIndex
                       ? (isSent ? 'bg-white' : 'bg-[#0095f6]')
-                      : (isSent ? 'bg-white/35' : 'bg-black/15 dark:bg-white/20')" :style="{ height: h + 'px' }"></span>
+                      : (isSent ? 'bg-white/35' : 'bg-black/15 dark:bg-white/20')"
+                    :style="{ height: h + 'px' }"></span>
                 </div>
 
-                <span class="text-sm tabular-nums flex-shrink-0"
+                <span class="text-sm pr-1 tabular-nums flex-shrink-0"
                   :class="isSent ? 'text-white/85' : 'text-grey dark:text-greyDark'">
                   {{ formatAudioTime(isPlaying ? audioCurrentTime : audioDuration) }}
                 </span>
@@ -159,12 +161,9 @@
                   <SpinnerSmall />
                 </div>
 
-                <img v-lazy="message.file_url" :alt="message.content || 'GIF'"
-                  draggable="false"
+                <img v-lazy="message.file_url" :alt="message.content || 'GIF'" draggable="false"
                   class="w-full h-full block object-cover transition-opacity duration-200 select-none [-webkit-touch-callout:none]"
-                  :class="isMediaLoaded ? 'opacity-100' : 'opacity-0'"
-                  loading="lazy"
-                  @load="onMediaLoad"
+                  :class="isMediaLoaded ? 'opacity-100' : 'opacity-0'" loading="lazy" @load="onMediaLoad"
                   @contextmenu.prevent="handleMoreOption(message)" />
               </div>
 
@@ -172,27 +171,23 @@
                 Sticker: mesma lógica de aspect-ratio reservado + placeholder
                 + bloqueio do menu nativo de imagem, mas sem crop (object-contain).
               -->
-              <div v-else-if="message.message_type === 'sticker'"
-                class="w-36 max-w-full relative"
+              <div v-else-if="message.message_type === 'sticker'" class="w-36 max-w-full relative"
                 :style="mediaAspectRatioStyle">
 
                 <div v-if="!isMediaLoaded" class="absolute inset-0 flex items-center justify-center">
                   <SpinnerSmall class="!w-5 !h-5" />
                 </div>
 
-                <img v-lazy="message.file_url" :alt="message.content || 'Sticker'"
-                  draggable="false"
+                <img v-lazy="message.file_url" :alt="message.content || 'Sticker'" draggable="false"
                   class="w-full h-full object-contain transition-opacity duration-200 select-none [-webkit-touch-callout:none]"
-                  :class="isMediaLoaded ? 'opacity-100' : 'opacity-0'"
-                  loading="lazy"
-                  @load="onMediaLoad"
+                  :class="isMediaLoaded ? 'opacity-100' : 'opacity-0'" loading="lazy" @load="onMediaLoad"
                   @contextmenu.prevent="handleMoreOption(message)" />
               </div>
 
               <!-- Conteúdo normal -->
               <p v-else :class="[
                 'break-words [overflow-wrap:anywhere] whitespace-pre-wrap leading-snug min-w-0',
-                isEmojiOnly ? 'text-5xl' : 'text-base',
+                isEmojiOnly ? 'text-5xl' : 'text-lg',
                 isEmojiOnly && !isSent ? 'ml-6' : 'ml-0'
               ]">
                 {{ message.content }}
@@ -200,32 +195,32 @@
 
               <!-- Reações sobrepostas no canto inferior do balão -->
               <div v-if="groupedReactions.length && message.status !== 'is_deleted'"
-                class="absolute z-[99] flex items-center bg-white dark:bg-[#2c2c2c] border-2 border-white dark:border-[#181818] rounded-full"
+                class="absolute z-[99] flex items-center bg-white dark:bg-[#2c2c2c] border-2 border-white dark:border-[#0c1014] rounded-full"
                 :class="[
                   isSent ? 'right-1' : 'left-1',
                   '-bottom-3',
                   isEmojiOnly ? 'ml-6' : 'ml-0',
-                  groupedReactions.length === 1 ? 'w-5 h-5 justify-center p-0' : 'gap-[2px] px-[5px] py-[2px]'
+                  groupedReactions.length === 1 ? 'w-6 h-6 justify-center p-0' : 'gap-[3px] px-[6px] py-[3px]'
                 ]">
                 <span v-for="r in groupedReactions" :key="r.emoji" class="leading-none flex items-center gap-[1px]"
-                  :class="groupedReactions.length === 1 ? 'text-[12px]' : 'text-[13px]'">
+                  :class="groupedReactions.length === 1 ? 'text-[13px]' : 'text-[14px]'">
                   <img v-if="getEmojiImage(r.emoji)" :src="'/img/emojis/' + getEmojiImage(r.emoji)" :alt="r.emoji"
-                    class="w-[12px] h-[12px] object-contain" />
+                    class="w-[14px] h-[14px] object-contain" />
                   <span v-else>{{ r.emoji }}</span>
-                  <span v-if="r.count > 1" class="text-[10px] text-grey dark:text-greyDark font-medium">{{ r.count
+                  <span v-if="r.count > 1" class="text-[11px] text-grey dark:text-greyDark font-medium">{{ r.count
                     }}</span>
                 </span>
               </div>
             </button>
 
             <!-- Indicador "A enviar..." (estilo Messenger), por baixo do balão -->
-            <span v-if="message.status === 'sending'" class="text-[13px] text-grey dark:text-greyDark mt-[2px] px-1">
+            <span v-if="message.status === 'sending'" class="text-[13px] text-x-light-textSecondary dark:text-x-dark-textSecondary mt-[6px] px-1">
               A enviar...
             </span>
 
             <!-- Indicador "Entregue" na última mensagem enviada (estilo Messenger) -->
             <span v-else-if="message.status == 'sent' && isLastSentMessage && !isReadByOther"
-              class="text-[13px] text-grey dark:text-greyDark mt-[2px] px-1"
+              class="text-[13px] text-x-light-textSecondary dark:text-x-dark-textSecondary mt-[6px] px-1"
               :class="{ '!mt-2.5': groupedReactions.length }">
               Entregue
             </span>
@@ -235,8 +230,7 @@
               Fica preso à mensagem que falhou, independentemente de novas mensagens
               terem sido enviadas depois dela — por isso NÃO depende de isLastSentMessage.
             -->
-            <span v-if="message.status == 'error'"
-              class="text-[13px] text-red-500 mt-[2px] px-1"
+            <span v-if="message.status == 'error'" class="text-[13px] text-red-500 mt-[2px] px-1"
               :class="{ '!mt-2.5': groupedReactions.length }">
               Erro ao enviar
             </span>
@@ -457,7 +451,7 @@ const replyPreviewText = computed(() => {
   // conversa (📷 Imagem, 🎞️ GIF, 🧩 Sticker), em vez de deixar o preview vazio.
   if (repliedType === 'gif') return '🎞️ GIF'
   if (repliedType === 'sticker') return '🎭 Sticker'
-   if (repliedType === 'voice') return '🎤 Mensagem de voz'
+  if (repliedType === 'voice') return '🎤 Mensagem de voz'
 
   const text = props.message.reply_to?.content?.trim() || ''
   return text.length > 90 ? text.substring(0, 87) + '...' : text
@@ -627,7 +621,7 @@ const toggleAudio = () => {
   const el = audioRef.value
   if (!el) return
   if (el.paused) {
-    el.play().catch(() => {})
+    el.play().catch(() => { })
   } else {
     el.pause()
   }
@@ -667,7 +661,7 @@ const playNextVoiceIfSequential = () => {
   nextTick(() => {
     const nextAudioEl = document.querySelector(`#message-${next._id} audio`)
     if (nextAudioEl) {
-      nextAudioEl.play().catch(() => {})
+      nextAudioEl.play().catch(() => { })
     }
   })
 }

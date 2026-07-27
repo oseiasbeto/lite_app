@@ -1,6 +1,6 @@
 <template>
   <header
-    class="flex h-[54px] border-b dark:border-x-dark-border items-center px-2 bg-x-light-bg dark:bg-[#0c1014] z-50">
+    class="flex h-[52px] border-b dark:border-x-dark-border items-center px-2 bg-x-light-bg dark:bg-[#0c1014] z-50">
     <button @click="$emit('goBack')"
       class="p-2 dark:text-white text-[rgb(40,40,41)] active:bg-x-dark-surfaceActive dark:active:bg-x-dark-surfaceActive mr-2 rounded-full transition-colors">
       <svg aria-label="Voltar" class="text-inherit" fill="currentColor" height="24" role="img" viewBox="0 0 24 24"
