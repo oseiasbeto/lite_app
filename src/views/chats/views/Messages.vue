@@ -157,15 +157,15 @@
                     title="Eliminar para todos" />
             </div>
 
-            <div v-if="drawer.name == 'GIFT'" class="flex flex-col h-[70vh]">
+            <div v-if="drawer.name == 'GIFT'" class="flex flex-col h-[80vh]">
                 <div class="px-4 pt-2 pb-3 sticky top-0 bg-white dark:bg-[#0c1014] z-10">
                     <input v-model="gifQuery" @input="onGifQueryInput" type="text"
                         :placeholder="gifPickerTab === 'sticker' ? 'Pesquisar stickers...' : 'Pesquisar GIFs...'"
                         class="w-full h-10 px-4 rounded-full bg-x-light-surface dark:bg-[rgb(36,39,44)]
-                               text-[#262626] dark:text-[#f5f5f5] placeholder-[#8e8e8e] focus:outline-none text-sm" />
+                               text-[#262626] dark:text-[#f5f5f5] placeholder-[#8e8e8e] focus:outline-none text-base" />
                 </div>
 
-                <div class="flex-1 overflow-y-auto px-3 pb-4">
+                <div @touchmove.stop @scroll.stop @mousedown.stop class="flex-1 overflow-y-auto px-3 pb-4">
                     <div v-if="isLoadingGifs" class="flex justify-center py-8">
                         <SpinnerSmall />
                     </div>
@@ -865,7 +865,7 @@ const uploadAndSendImage = async (file) => {
 // documentada nos próprios exemplos da API (https://developers.giphy.com/docs/api/endpoint#search).
 // É limitada em rate/qualidade — para produção o ideal é criar uma chave própria
 // gratuita em https://developers.giphy.com.
-const GIPHY_API_KEY = 'XywAQ3d7D7eYw9VhvaKyLNpCVyJEa2xR'
+const GIPHY_API_KEY = 'Gc7131jiJuvI7IdN0HZ1D7nh0ow5BU6g'
 
 // Aba activa do picker: 'gif' ou 'sticker'. A Giphy tem endpoints próprios
 // para cada um (/v1/gifs/... e /v1/stickers/...), por isso o path muda

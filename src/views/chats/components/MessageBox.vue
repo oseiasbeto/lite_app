@@ -47,10 +47,10 @@
             <div v-if="message.reply_to && !isEmojiOnly && message.status !== 'is_deleted'"
               class="w-full min-w-0 relative" style="margin-bottom: -10px;">
               <span
-                class="flex items-center w-full text-[12px] mb-1 font-normal text-grey dark:text-x-dark-textSecondary"
+                class="flex items-center w-full text-sm mb-1 font-normal text-grey dark:text-x-dark-textSecondary"
                 :class="isSent ? 'justify-end' : 'justify-start'">
-                <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"
-                  class="mr-1 flex-shrink-0">
+                <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"
+                  class="mr-1.5 flex-shrink-0">
                   <path
                     d="M6.497 1.035C7.593-.088 9.5.688 9.5 2.257V4.54c1.923.215 3.49 1.246 4.593 2.672C15.328 8.808 16 10.91 16 13v.305c0 .632-.465 1.017-.893 1.127-.422.11-.99.005-1.318-.493-.59-.894-1.2-1.482-1.951-1.859-.611-.307-1.359-.496-2.338-.558v2.23c0 1.57-1.908 2.346-3.003 1.222L.893 9.223a1.75 1.75 0 0 1 .001-2.444l5.603-5.744z">
                   </path>
@@ -139,17 +139,54 @@
                   @canplay="onAudioCanPlay"></audio>
               </div>
 
-              <!-- GIF: altura dinâmica, baseada na proporção real da imagem (estilo Instagram) -->
+              <!--
+                GIF: altura dinâmica reservada via aspect-ratio no PRÓPRIO WRAPPER
+                (não só na <img>), para o scrollHeight já estar correto ANTES da
+                imagem carregar (evita o scroll ficar "curto"). Mostra spinner
+                enquanto a imagem não disparou @load, depois faz fade-in.
+
+                draggable="false" + select-none + -webkit-touch-callout:none
+                desativam o menu nativo de imagem (Guardar/Copiar) no long-press,
+                e o @contextmenu.prevent está TAMBÉM na <img> (não só no <button>
+                pai) para garantir que handleMoreOption dispara sempre, mesmo
+                que o evento não borbulhe como esperado em alguns navegadores.
+              -->
               <div v-else-if="message.message_type === 'gif'"
-                class="w-52 max-w-full rounded-2xl overflow-hidden">
+                class="w-52 max-w-full rounded-2xl overflow-hidden relative bg-black/5 dark:bg-white/10"
+                :style="mediaAspectRatioStyle">
+
+                <div v-if="!isMediaLoaded" class="absolute inset-0 flex items-center justify-center">
+                  <SpinnerSmall />
+                </div>
+
                 <img v-lazy="message.file_url" :alt="message.content || 'GIF'"
-                  class="w-full h-auto block object-cover" :style="gifAspectRatioStyle" loading="lazy" />
+                  draggable="false"
+                  class="w-full h-full block object-cover transition-opacity duration-200 select-none [-webkit-touch-callout:none]"
+                  :class="isMediaLoaded ? 'opacity-100' : 'opacity-0'"
+                  loading="lazy"
+                  @load="onMediaLoad"
+                  @contextmenu.prevent="handleMoreOption(message)" />
               </div>
 
-              <!-- Sticker: sem fundo/crop, mantém a proporção original da imagem -->
-              <div v-else-if="message.message_type === 'sticker'" class="w-36 max-w-full">
+              <!--
+                Sticker: mesma lógica de aspect-ratio reservado + placeholder
+                + bloqueio do menu nativo de imagem, mas sem crop (object-contain).
+              -->
+              <div v-else-if="message.message_type === 'sticker'"
+                class="w-36 max-w-full relative"
+                :style="mediaAspectRatioStyle">
+
+                <div v-if="!isMediaLoaded" class="absolute inset-0 flex items-center justify-center">
+                  <SpinnerSmall class="!w-5 !h-5" />
+                </div>
+
                 <img v-lazy="message.file_url" :alt="message.content || 'Sticker'"
-                  class="w-full h-auto object-contain" loading="lazy" />
+                  draggable="false"
+                  class="w-full h-full object-contain transition-opacity duration-200 select-none [-webkit-touch-callout:none]"
+                  :class="isMediaLoaded ? 'opacity-100' : 'opacity-0'"
+                  loading="lazy"
+                  @load="onMediaLoad"
+                  @contextmenu.prevent="handleMoreOption(message)" />
               </div>
 
               <!-- Conteúdo normal -->
@@ -213,6 +250,7 @@
 
 <script setup>
 import Avatar from '@/components/Utils/Avatar.vue'
+import SpinnerSmall from '@/components/UI/SpinnerSmall.vue'
 import { computed, ref, nextTick } from 'vue'
 import { useActiveAudio } from '@/composables/useActiveAudio'
 
@@ -232,15 +270,22 @@ const isDeletedForMe = computed(() => props.message?.deleted_for?.includes(props
 const isGif = computed(() => props.message.message_type === 'gif')
 const isSticker = computed(() => props.message.message_type === 'sticker')
 
-// Altura dinâmica do GIF: usa a proporção real (width/height) devolvida pela Giphy
-// e guardada na mensagem. Sem essa informação (ex: mensagens antigas antes desta
-// alteração), cai num fallback 4:3 em vez de forçar sempre quadrado.
-const gifAspectRatioStyle = computed(() => {
+// Aspect-ratio dinâmico para GIF/Sticker: usa width/height reais (Giphy),
+// aplicado no WRAPPER (não só na <img>), para o espaço já ficar reservado
+// no layout ANTES da imagem carregar. Isto é o que garante que o
+// scrollToBottom() chamado logo após enviar já mede a altura final correta.
+// Fallback 4:3 para mensagens antigas sem essa info.
+const mediaAspectRatioStyle = computed(() => {
   const w = Number(props.message.file_width)
   const h = Number(props.message.file_height)
   if (w > 0 && h > 0) return { aspectRatio: `${w} / ${h}` }
   return { aspectRatio: '4 / 3' }
 })
+
+// Controla o placeholder (spinner) do GIF/Sticker: só esconde depois da
+// imagem disparar o evento nativo @load (carregada de facto).
+const isMediaLoaded = ref(false)
+const onMediaLoad = () => { isMediaLoaded.value = true }
 
 const isEmojiOnly = computed(() => {
   const content = props.message.content?.trim()
@@ -398,6 +443,15 @@ const replyLabel = computed(() => {
 })
 
 const replyPreviewText = computed(() => {
+  const repliedType = props.message.reply_to?.message_type
+
+  // GIF/Sticker não têm conteúdo textual relevante (a mídia está em file_url),
+  // então mostramos um rótulo com emoji, igual ao usado no last_message da
+  // conversa (📷 Imagem, 🎞️ GIF, 🧩 Sticker), em vez de deixar o preview vazio.
+  if (repliedType === 'gif') return '🎞️ GIF'
+  if (repliedType === 'sticker') return '🎭 Sticker'
+   if (repliedType === 'voice') return '🎤 Mensagem de voz'
+
   const text = props.message.reply_to?.content?.trim() || ''
   return text.length > 90 ? text.substring(0, 87) + '...' : text
 })

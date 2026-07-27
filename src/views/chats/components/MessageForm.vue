@@ -89,10 +89,40 @@
       <!-- Campo de texto em pill, com borda fina estilo Instagram, min-height 56px -->
       <div class="flex-1 flex items-center min-h-[48px] rounded-[25px]
                   bg-x-light-surface dark:bg-[rgb(36,39,44)] focus-within:border-[#a8a8a8] dark:focus-within:border-[#5a5a5a]
-                  transition-colors pl-4 pr-1.5 py-1.5">
+                  transition-colors pl-4 pr-1.5 py-1.5 min-w-0">
+
+        <!--
+          Botão de câmara (estilo Instagram) — agora DENTRO da pill, antes do
+          textarea, junto aos demais botões. flex-shrink-0 para nunca perder
+          espaço para o textarea encolher.
+        -->
+        <button @click.prevent="handleOpenCamera" type="button" :disabled="props.disabled"
+          class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full mr-1
+                 text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
+                 active:scale-90 transition-all disabled:opacity-40">
+          <svg aria-label="Abrir câmara" class="x1lliihq x1n2onr6 x5n08af" fill="currentColor" height="22" role="img"
+            viewBox="0 0 24 24" width="22">
+            <title>Abrir câmara</title>
+            <path
+              d="M12 15.968a3.44 3.44 0 1 0 0-6.881 3.44 3.44 0 0 0 0 6.881Z"
+              fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+            <path
+              d="M9.315 4.641a2.377 2.377 0 0 1 1.83-1.055h1.71a2.377 2.377 0 0 1 1.83 1.055l.822 1.226a2.377 2.377 0 0 0 1.83 1.055h1.058a2.377 2.377 0 0 1 2.377 2.377v8.078a2.377 2.377 0 0 1-2.377 2.377H6.605a2.377 2.377 0 0 1-2.377-2.377V9.299a2.377 2.377 0 0 1 2.377-2.377h1.058a2.377 2.377 0 0 0 1.83-1.055Z"
+              fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+          </svg>
+        </button>
+
+        <!--
+          min-w-0 é o que realmente resolve a "quebra": um filho flex sem essa
+          propriedade tenta manter a sua largura de conteúdo mínima (min-content),
+          o que — com mais um botão a competir por espaço na mesma linha —
+          empurrava o layout e fazia o textarea/pill quebrar ou distorcer.
+          Com min-w-0, o textarea aceita encolher normalmente conforme os
+          botões ao lado ocupam espaço.
+        -->
         <textarea ref="textareaRef" v-model="inputMessage" @input="autoResize" @keydown.enter.shift.exact="allowNewLine"
-          @focus="handleFocus" rows="1" placeholder="Enviar mensagem..." class="w-full caret-[#0095f6]
-                resize-none text-[20px] overflow-hidden scroll-pt-4 bg-transparent
+          @focus="handleFocus" rows="1" placeholder="Enviar mensagem..." class="w-full min-w-0 caret-[#0095f6]
+                resize-none text-[18px] overflow-hidden scroll-pt-4 bg-transparent
                  py-1.5
                   leading-tight
                  placeholder-[#8e8e8e]
@@ -200,7 +230,7 @@ const props = defineProps({
 const emit = defineEmits([
   'message-sent', 'typing-start', 'voice-message-sent', 'typing-stop',
   'close-reply-to', 'auto-resize', 'focus',
-  'media-selected', 'open-gif-picker'
+  'media-selected', 'open-gif-picker', 'open-camera'
 ])
 
 const inputMessage = ref('')
@@ -211,6 +241,14 @@ const canSend = computed(() => inputMessage.value.trim() && !props.disabled)
 
 // ALTURA MÁXIMA = 4 LINHAS (≈ 98px com line-height 1.4 + padding)
 const MAX_HEIGHT = 98
+
+// Altura "de repouso" (campo vazio, 1 linha) — capturada UMA VEZ, na primeira
+// medição real do textarea (ver autoResize). Guardá-la evita que, depois de
+// escrever e apagar tudo, o campo volte para um valor de scrollHeight
+// ligeiramente diferente do original (drift de arredondamento do browser
+// entre reflows), o que fazia o input "crescer" uns pixels e distorcer o
+// design quando estava só com o placeholder.
+let restHeight = null
 
 const isTyping = ref(false)
 let typingTimer = null
@@ -231,13 +269,23 @@ const autoResize = () => {
 
   emit('auto-resize')
 
-  if (scrollHeight <= MAX_HEIGHT) {
-    el.style.height = `${scrollHeight}px`
-    el.style.overflowY = 'hidden'
-  } else {
-    el.style.height = `${MAX_HEIGHT}px`
-    el.style.overflowY = 'auto'
+  const hasContent = !!inputMessage.value.trim()
+
+  // Captura a altura de repouso (campo vazio) só na primeira vez que ela for
+  // medida — normalmente logo no mount, com o textarea ainda vazio.
+  if (!hasContent && restHeight === null) {
+    restHeight = scrollHeight
   }
+
+  // Sem conteúdo → usa SEMPRE o valor fixo capturado (restHeight), nunca uma
+  // nova medição do scrollHeight. Isto garante que o campo volta exatamente
+  // ao tamanho inicial ao apagar o texto, sem "crescer" uns pixels.
+  const targetHeight = hasContent
+    ? Math.min(scrollHeight, MAX_HEIGHT)
+    : (restHeight ?? scrollHeight)
+
+  el.style.height = `${targetHeight}px`
+  el.style.overflowY = hasContent && scrollHeight > MAX_HEIGHT ? 'auto' : 'hidden'
 
   // DEBOUNCE para iniciar digitação - espera 300ms antes de emitir
   clearTimeout(startTypingDebounce)
@@ -469,6 +517,15 @@ const onMediaFileChange = (e) => {
 const handleOpenGifPicker = () => {
   if (props.disabled) return
   emit('open-gif-picker')
+}
+
+// === NOVO: botão de câmara (estilo Instagram) ===
+// Apenas emite o evento para o componente pai — toda a lógica de abrir a
+// câmara, capturar foto/vídeo e enviar fica por conta de quem escuta este
+// evento (o Chat.vue, tal como já acontece com 'open-gif-picker').
+const handleOpenCamera = () => {
+  if (props.disabled) return
+  emit('open-camera')
 }
 
 // Expõe as funções pro componente pai

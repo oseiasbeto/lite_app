@@ -1,5 +1,5 @@
 <template>
-    <div class="flex border-t dark:border-[rgb(57,56,57)] px-4 py-1.5 justify-between">
+    <div class="flex border-t dark:border-[rgb(57,56,57)] px-4 py-1.5 pb-0 justify-between">
         <div class="flex flex-col flex-1 min-w-0">
             <p class="text-base font-semibold dark:text-white text-[rgb(40,40,41)] truncate">Responder {{ isSent ? 'à tua mensagem' : 'a '+ getFirstName(message?.sender?.name) }}</p>
 
@@ -35,6 +35,10 @@ const previewText = computed(() => {
             return props.message.content
         case 'photo':
             return '📷 Foto'
+        case 'sticker':
+            return '🎭 Sticker'
+        case 'gif':
+            return '🎞️ GIF'
         case 'video':
             return '🎥 Vídeo'
         case 'voice':
