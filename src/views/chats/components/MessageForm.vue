@@ -100,10 +100,9 @@
 
                  text-[#f5f5f5] bg-[#0094f8]
                  active:scale-90 transition-all disabled:opacity-40">
-          <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="22" height="22" viewBox="0 -2 28 28">
             <path
-              d="M18.0002 6C17.3902 6 16.8302 5.65 16.5502 5.11L15.8302 3.66C15.3702 2.75 14.1702 2 13.1502 2H10.8602C9.83017 2 8.63017 2.75 8.17017 3.66L7.45017 5.11C7.17017 5.65 6.61017 6 6.00017 6C3.83017 6 2.11017 7.83 2.25017 9.99L2.77017 18.25C2.89017 20.31 4.00017 22 6.76017 22H17.2402C20.0002 22 21.1002 20.31 21.2302 18.25L21.7502 9.99C21.8902 7.83 20.1702 6 18.0002 6ZM10.5002 7.25H13.5002C13.9102 7.25 14.2502 7.59 14.2502 8C14.2502 8.41 13.9102 8.75 13.5002 8.75H10.5002C10.0902 8.75 9.75017 8.41 9.75017 8C9.75017 7.59 10.0902 7.25 10.5002 7.25ZM12.0002 18.12C10.1402 18.12 8.62017 16.61 8.62017 14.74C8.62017 12.87 10.1302 11.36 12.0002 11.36C13.8702 11.36 15.3802 12.87 15.3802 14.74C15.3802 16.61 13.8602 18.12 12.0002 18.12Z"
-              fill="#fff" />
+              d="m13.846 9.692c2.293.004 4.15 1.862 4.154 4.154v.004c0 2.294-1.86 4.154-4.154 4.154s-4.154-1.86-4.154-4.154c0-1.148.466-2.187 1.218-2.939.728-.753 1.747-1.22 2.876-1.22h.063-.003zm10.154-6h.055c1.002 0 1.908.414 2.554 1.081l.001.001c.668.647 1.082 1.553 1.082 2.555v.058-.003 12.924c-.001 2.039-1.653 3.691-3.692 3.692h-20.308c-2.039-.001-3.691-1.653-3.692-3.692v-12.923c0-.016 0-.036 0-.055 0-1.002.414-1.908 1.081-2.554l.001-.001c.647-.668 1.553-1.082 2.555-1.082h.058-.003 3.23l.735-1.962c.212-.507.557-.922.993-1.213l.01-.006c.411-.311.929-.501 1.49-.512h.002 7.385c.564.011 1.081.201 1.499.517l-.006-.005c.445.297.791.712.996 1.201l.007.018.735 1.962zm-10.154 16.616c.027 0 .059.001.091.001 1.755 0 3.341-.727 4.472-1.896l.002-.002c1.171-1.133 1.897-2.719 1.897-4.474 0-.032 0-.064-.001-.096v.005c0-.027.001-.06.001-.092 0-1.755-.727-3.341-1.896-4.472l-.002-.002c-1.167-1.172-2.781-1.897-4.565-1.897s-3.398.725-4.565 1.896c-1.171 1.133-1.897 2.719-1.897 4.474 0 .032 0 .064.001.096v-.005c0 .028-.001.061-.001.094 0 1.755.726 3.34 1.894 4.471l.002.002c1.133 1.171 2.719 1.897 4.474 1.897.033 0 .065 0 .097-.001h-.005z" />
           </svg>
         </button>
 
@@ -128,6 +127,8 @@
 
         <!-- Input de ficheiro escondido, usado pelo botão de mídia -->
         <input ref="mediaInputRef" type="file" accept="image/*" class="hidden" @change="onMediaFileChange" />
+
+        <input ref="cameraInputRef" type="file" accept="image/*" capture="environment" class="hidden" @change="onCameraFileChange" />
 
         <!-- Botão de microfone (só aparece sem texto digitado), dentro do campo estilo Instagram -->
         <button v-if="!inputMessage.trim() && !replyTo?.show" @click.prevent="handleStartRecording" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
@@ -496,6 +497,7 @@ const sendVoiceMessage = async () => {
 // captura o File bruto escolhido pelo utilizador e emite para o componente pai,
 // que é o responsável por toda a validação e pelo fluxo de envio.
 const mediaInputRef = ref(null)
+const cameraInputRef = ref(null)
 
 const handleOpenMediaPicker = () => {
   if (props.disabled) return
@@ -521,7 +523,15 @@ const handleOpenGifPicker = () => {
 // evento (o Chat.vue, tal como já acontece com 'open-gif-picker').
 const handleOpenCamera = () => {
   if (props.disabled) return
-  emit('open-camera')
+  cameraInputRef.value?.click()
+}
+
+const onCameraFileChange = (e) => {
+  const file = e.target.files?.[0] || null
+  e.target.value = ''
+  if (!file) return
+  // Reaproveita exatamente a mesma validação/upload que a galeria já usa
+  emit('media-selected', file)
 }
 
 // Expõe as funções pro componente pai

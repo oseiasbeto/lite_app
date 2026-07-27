@@ -22,7 +22,7 @@
                     <div class="mt-3 mb-3">
                         <p class="text-xl font-semibold dark:text-white text-[rgb(40,40,41)]">{{
                             conversation?.name
-                        }}</p>
+                            }}</p>
                         <p class="dark:text-x-dark-textSecondary">@{{ conversation.name }}</p>
                     </div>
 
@@ -39,7 +39,7 @@
                     v-for="(message, index) in cachedMessages?.items || []" :key="message._id" :message="message"
                     :chat-read-by="conversation?.read_by" :user-id="user?._id"
                     :previous-message="cachedMessages?.items[index - 1]"
-                    :next-message="cachedMessages?.items[index + 1]" />
+                    :next-message="cachedMessages?.items[index + 1]" @open-image="openImageFullscreen" />
 
                 <div v-if="readersExcludingCurrent.length && cachedMessages?.items?.length"
                     class="flex px-4 items-center justify-end gap-1 mt-2">
@@ -98,10 +98,24 @@
         <Transition enter-active-class="transition duration-150 ease-out" enter-from-class="opacity-0 translate-y-1"
             enter-to-class="opacity-100 translate-y-0" leave-active-class="transition duration-100 ease-in"
             leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 translate-y-1">
+            <!-- DEPOIS -->
             <div v-if="isUploadingImage"
                 class="px-4 py-3 flex items-center gap-3 bg-white dark:bg-[#0c1014] border-t dark:border-[rgb(57,56,57)]">
-                <SpinnerSmall class="!w-5 !h-5" />
-                <span class="text-sm text-grey dark:text-x-dark-textSecondary">A enviar imagem...</span>
+                <div class="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-black/5 dark:bg-white/10">
+                    <img v-if="uploadingImagePreviewUrl" :src="uploadingImagePreviewUrl"
+                        class="w-full h-full object-cover" alt="Pré-visualização" />
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                        <SpinnerSmall class="!w-5 !h-5" />
+                    </div>
+                </div>
+                <span class="text-sm text-grey dark:text-x-dark-textSecondary flex-1">A enviar imagem...</span>
+                <button type="button" @click="cancelImageUpload"
+                    class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full text-grey dark:text-x-dark-textSecondary hover:bg-black/5 dark:hover:bg-white/10 active:opacity-60 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none">
+                        <path d="M6 6L18 18M6 18L18 6" stroke="currentColor" stroke-width="2.2"
+                            stroke-linecap="round" />
+                    </svg>
+                </button>
             </div>
         </Transition>
 
@@ -227,6 +241,9 @@
                 </div>
             </div>
         </Drawer>
+
+        <ImageFullscreenViewer v-if="fullscreenImage.show" :image-url="fullscreenImage.url"
+            @close="closeImageFullscreen" />
     </div>
 </template>
 
@@ -245,6 +262,7 @@ import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
 import axios from 'axios';
 import { uploadImageMessage } from '@/services/cloudinary';
+import ImageFullscreenViewer from '../components/ImageFullscreenViewer.vue';
 
 import { useConfirmModal } from '@/composables/useConfirmModal'
 const { showConfirm, state, close } = useConfirmModal()
@@ -275,6 +293,17 @@ const messageFormRef = ref(false)
 const previousScrollHeight = ref(0)
 const previousScrollTop = ref(0)
 const showShadowMessageForm = ref(false)
+
+const fullscreenImage = ref({ show: false, url: null })
+
+const openImageFullscreen = (url) => {
+    if (!url) return
+    fullscreenImage.value = { show: true, url }
+}
+
+const closeImageFullscreen = () => {
+    fullscreenImage.value = { show: false, url: null }
+}
 
 // ── Scroll-to-bottom btn
 // Distância base ao fundo (estilo Messenger) + extra quando a barra de
@@ -722,6 +751,7 @@ watch(() => conversation.value?.is_online, () => { refreshStatusTimer(); }, { im
 
 onBeforeRouteLeave((to, from, next) => {
     if (drawer.value.show) { onCloseDrawer(); next(false) }
+    else if (fullscreenImage.value.show) { closeImageFullscreen(); next(false) }
     else if (modalConfirm.value?.isOpen) { closeModalConfirm(); next(false) }
     else next()
 })
@@ -788,10 +818,6 @@ const handleDeleteForAllConfirm = async () => {
     }
 }
 
-// ── NOVO: Mídia (imagem) ──────────────────────────────────────────────────────
-// Toda a validação vive aqui, no pai. O MessageForm apenas emite o File bruto.
-// Sem preview/confirmação: ao selecionar, valida e sobe automaticamente.
-const isUploadingImage = ref(false)
 
 const MAX_IMAGE_SIZE_BYTES = 15 * 1024 * 1024 // 15MB
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/heic', 'image/heif']
@@ -824,19 +850,33 @@ const handleMediaSelected = async (file) => {
     await uploadAndSendImage(file)
 }
 
+const isUploadingImage = ref(false)
+const uploadingImagePreviewUrl = ref(null)
+const uploadWasCancelled = ref(false)
+let currentUploadAbortController = null
+
 const uploadAndSendImage = async (file) => {
     isUploadingImage.value = true
-    try {
-        const { url } = await uploadImageMessage(file)
+    uploadWasCancelled.value = false
+    uploadingImagePreviewUrl.value = URL.createObjectURL(file)
+    currentUploadAbortController = new AbortController()
 
+    try {
+        const { url, width, height } = await uploadImageMessage(file, {
+            signal: currentUploadAbortController.signal
+        })
+
+        if (uploadWasCancelled.value) return
         const tempId = Math.random().toString(36).substring(2, 10)
         const newMessage = {
             content: '',
             conversation: conversation.value,
             created_at: Date.now(),
             read_by: [],
-            message_type: 'image',
+            message_type: 'photo',
             file_url: url,
+            file_height: height,
+            file_width: width,
             sender: {
                 profile_image: user?.value?.profile_image,
                 _id: user?.value?._id,
@@ -853,7 +893,7 @@ const uploadAndSendImage = async (file) => {
         store.commit("ADD_OR_UPDATE_CONVERSATION", {
             conversation: {
                 ...conversation.value,
-                last_message: { created_at: Date.now(), content: '📷 Imagem', message_type: 'image' },
+                last_message: { created_at: Date.now(), content: '📷 Foto', message_type: 'photo' },
                 read_by: []
             },
             userId: user.value?._id, senderId: newMessage.sender?._id, source: conversation.value?.source || 'active'
@@ -867,15 +907,32 @@ const uploadAndSendImage = async (file) => {
             ...(newMessage?.reply_to && { replyToId: newMessage?.reply_to?._id || null }),
             source: conversation?.value?.source,
             content: '',
-            message_type: 'image',
-            file_url: url
+            message_type: 'photo',
+            file_url: url,
+            file_height: height,
+            file_width: width
         }))
     } catch (err) {
+        if (uploadWasCancelled.value || err?.name === 'CanceledError' || err?.name === 'AbortError') {
+            return // cancelado pelo próprio utilizador — sem toast de erro
+        }
         console.error('Erro ao enviar imagem:', err)
         store.dispatch("showToast", { message: 'Falha ao enviar imagem.', type: 'error', position: 'top' })
+
     } finally {
         isUploadingImage.value = false
+        if (uploadingImagePreviewUrl.value) {
+            URL.revokeObjectURL(uploadingImagePreviewUrl.value)
+            uploadingImagePreviewUrl.value = null
+        }
+        currentUploadAbortController = null
     }
+}
+
+const cancelImageUpload = () => {
+    if (!isUploadingImage.value) return
+    uploadWasCancelled.value = true
+    currentUploadAbortController?.abort()
 }
 
 // ── NOVO: GIFs & Stickers (Giphy API pública, via axios) ──────────────────────

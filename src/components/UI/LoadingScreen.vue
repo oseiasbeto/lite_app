@@ -27,7 +27,7 @@
       </div>
     </div>
 
-     <div class="h-16"></div>
+     <div class="h-14"></div>
 
     <!-- Rodapé "from Meta" -->
     <div class="absolute bottom-16 flex flex-col items-center gap-1">

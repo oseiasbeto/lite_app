@@ -25,3 +25,27 @@ export const uploadVoiceMessage = async (audioBlob, onProgress) => {
     duration: Math.round(data.duration || 0)
   }
 }
+
+export const uploadImageMessage = async (imageFile, { onProgress, signal } = {}) => {
+  const formData = new FormData()
+  formData.append('file', imageFile)
+  formData.append('upload_preset', UPLOAD_PRESET)
+  formData.append('resource_type', 'image')
+
+  const { data } = await axios.post(
+    `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+    formData,
+    {
+      signal, // ← é isto que faltava: repassar o AbortSignal para o axios
+      onUploadProgress: (e) => {
+        if (onProgress) onProgress(Math.round((e.loaded * 100) / e.total))
+      }
+    }
+  )
+
+  return {
+    url: data.secure_url,
+    width: data.width,
+    height: data.height
+  }
+}

@@ -69,10 +69,10 @@
 
             <!-- Balão principal -->
             <button type="button" @contextmenu.prevent="handleMoreOption(message)"
-              :style="!isEmojiOnly && !isGif && !isSticker && !isVoice && message.status !== 'is_deleted' ? bubbleRadiusStyle : {}"
+              :style="!isEmojiOnly && !isGif && !isSticker && !isImage && !isVoice && message.status !== 'is_deleted' ? bubbleRadiusStyle : {}"
               :class="[
                 'relative z-[1] text-left transition-transform active:scale-[0.99] max-w-full min-w-0',
-                !isEmojiOnly && !isGif && !isSticker && message.status !== 'is_deleted'
+                !isEmojiOnly && !isGif && !isSticker && !isImage && message.status !== 'is_deleted'
                   ? (isSent
                     ? 'bg-[#0095f6] text-white p-[6px_12px]'
                     : 'dark:bg-[#25292e] dark:text-white text-[rgb(40,40,41)] bg-[#f3f5f7] p-[8px_12px]')
@@ -84,6 +84,7 @@
                 isEmojiOnly ? '!bg-transparent m-0 p-0' : '',
                 isGif ? '!bg-transparent m-0 p-0' : '',
                 isSticker ? '!bg-transparent m-0 p-0' : '',
+                isImage ? '!bg-transparent m-0 p-0' : '',
                 isEmojiOnly && groupedReactions.length ? 'mb-3' : '',
                 message.status === 'sending' || message.status === 'error' ? 'pointer-events-none' : '',
                 isHighlighted ? 'ring-2 ring-yellow-400 ring-offset-1' : '',
@@ -129,8 +130,8 @@
                     :style="{ height: h + 'px' }"></span>
                 </div>
 
-                <span class="text-sm pr-3 tabular-nums flex-shrink-0"
-                  :class="isSent ? 'text-white/85' : 'text-grey dark:text-greyDark'">
+                <span class="text-sm pr-3.5 tabular-nums flex-shrink-0"
+                  :class="isSent ? 'text-white' : 'text-inherit dark:text-x-dark-textPrimary'">
                   {{ formatAudioTime(isPlaying ? audioCurrentTime : audioDuration) }}
                 </span>
 
@@ -180,6 +181,30 @@
 
                 <img v-lazy="message.file_url" :alt="message.content || 'Sticker'" draggable="false"
                   class="w-full h-full object-contain transition-opacity duration-200 select-none [-webkit-touch-callout:none]"
+                  :class="isMediaLoaded ? 'opacity-100' : 'opacity-0'" loading="lazy" @load="onMediaLoad"
+                  @contextmenu.prevent="handleMoreOption(message)" />
+              </div>
+
+              <!--
+                Imagem: mesma lógica de aspect-ratio reservado do GIF (crop via
+                object-cover, para manter o balão compacto). Ao clicar, NÃO abre
+                nada aqui — apenas emite 'open-image' com a URL da imagem para o
+                componente pai, que trata a exibição em fullscreen (lightbox).
+
+                @click.stop evita que o clique borbulhe para o <button> pai
+                (que reage a @contextmenu, mas mantemos o stop por segurança,
+                assim como já é feito no player de áudio e na waveform).
+              -->
+              <div v-else-if="message.message_type === 'photo'"
+                class="w-52 max-w-full rounded-2xl overflow-hidden relative bg-black/5 dark:bg-white/10 cursor-pointer"
+                :style="mediaAspectRatioStyle" @click.stop="handleImageClick">
+
+                <div v-if="!isMediaLoaded" class="absolute inset-0 flex items-center justify-center">
+                  <SpinnerSmall />
+                </div>
+
+                <img v-lazy="message.file_url" :alt="message.content || 'Imagem'" draggable="false"
+                  class="w-full h-full block object-cover transition-opacity duration-200 select-none [-webkit-touch-callout:none]"
                   :class="isMediaLoaded ? 'opacity-100' : 'opacity-0'" loading="lazy" @load="onMediaLoad"
                   @contextmenu.prevent="handleMoreOption(message)" />
               </div>
@@ -256,7 +281,7 @@ const props = defineProps({
   nextMessage: { type: Object, default: null }
 })
 
-const emit = defineEmits(['more-option', 'scroll-to-reply', 'reply-swipe'])
+const emit = defineEmits(['more-option', 'scroll-to-reply', 'reply-swipe', 'open-image'])
 
 const isSent = computed(() => props.message?.sender?._id === props?.userId)
 const isDeletedForMe = computed(() => props.message?.deleted_for?.includes(props.userId) || false)
@@ -264,8 +289,9 @@ const isDeletedForMe = computed(() => props.message?.deleted_for?.includes(props
 const isGif = computed(() => props.message.message_type === 'gif')
 const isSticker = computed(() => props.message.message_type === 'sticker')
 const isVoice = computed(() => props.message.message_type === 'voice')
+const isImage = computed(() => props.message.message_type === 'photo')
 
-// Aspect-ratio dinâmico para GIF/Sticker: usa width/height reais (Giphy),
+// Aspect-ratio dinâmico para GIF/Sticker/Imagem: usa width/height reais,
 // aplicado no WRAPPER (não só na <img>), para o espaço já ficar reservado
 // no layout ANTES da imagem carregar. Isto é o que garante que o
 // scrollToBottom() chamado logo após enviar já mede a altura final correta.
@@ -277,8 +303,8 @@ const mediaAspectRatioStyle = computed(() => {
   return { aspectRatio: '4 / 3' }
 })
 
-// Controla o placeholder (spinner) do GIF/Sticker: só esconde depois da
-// imagem disparar o evento nativo @load (carregada de facto).
+// Controla o placeholder (spinner) do GIF/Sticker/Imagem: só esconde depois
+// da imagem disparar o evento nativo @load (carregada de facto).
 const isMediaLoaded = ref(false)
 const onMediaLoad = () => { isMediaLoaded.value = true }
 
@@ -315,10 +341,10 @@ const isMessageEmojiOnly = (msg) => {
   return count >= 1 && count <= 3
 }
 
-// GIF, sticker e áudio nunca são visualmente agrupados com a mensagem
-// anterior/seguinte — cada um fica isolado, com espaçamento e cantos
-// completos, tal como as mensagens eliminadas/emoji/erro.
-const isMessageMediaType = (msg) => msg?.message_type === 'gif' || msg?.message_type === 'sticker' || msg?.message_type === 'voice'
+// GIF, sticker, imagem e áudio nunca são visualmente agrupados com a
+// mensagem anterior/seguinte — cada um fica isolado, com espaçamento e
+// cantos completos, tal como as mensagens eliminadas/emoji/erro.
+const isMessageMediaType = (msg) => msg?.message_type === 'gif' || msg?.message_type === 'sticker' || msg?.message_type === 'voice' || msg?.message_type === 'photo'
 
 const isMessageDeletedForMe = (msg) => !!(msg?.deleted_for?.includes(props.userId))
 const isMessageDeletedForEveryone = (msg) => msg?.status === 'is_deleted'
@@ -428,6 +454,16 @@ const handleMoreOption = (msg) => {
   emit('more-option', msg)
 }
 
+// Clique numa mensagem do tipo imagem: não abre nada aqui, apenas repassa a
+// URL do ficheiro para o componente pai (via evento 'open-image'), que fica
+// responsável por exibir a imagem em fullscreen (lightbox). Bloqueado
+// enquanto a mensagem ainda está a enviar ou falhou, para não abrir uma
+// imagem incompleta/inválida.
+const handleImageClick = () => {
+  if (props.message.status === 'sending' || props.message.status === 'error') return
+  emit('open-image', props.message.file_url)
+}
+
 const getFirstName = (fullName) => (fullName || '').trim().split(/\s+/)[0]
 
 const replyLabel = computed(() => {
@@ -446,12 +482,14 @@ const replyLabel = computed(() => {
 const replyPreviewText = computed(() => {
   const repliedType = props.message.reply_to?.message_type
 
-  // GIF/Sticker não têm conteúdo textual relevante (a mídia está em file_url),
-  // então mostramos um rótulo com emoji, igual ao usado no last_message da
-  // conversa (📷 Imagem, 🎞️ GIF, 🧩 Sticker), em vez de deixar o preview vazio.
+  // GIF/Sticker/Imagem não têm conteúdo textual relevante (a mídia está em
+  // file_url), então mostramos um rótulo com emoji, igual ao usado no
+  // last_message da conversa (📷 Imagem, 🎞️ GIF, 🧩 Sticker), em vez de
+  // deixar o preview vazio.
   if (repliedType === 'gif') return '🎞️ GIF'
   if (repliedType === 'sticker') return '🎭 Sticker'
   if (repliedType === 'voice') return '🎤 Mensagem de voz'
+  if (repliedType === 'image') return '📷 Imagem'
 
   const text = props.message.reply_to?.content?.trim() || ''
   return text.length > 90 ? text.substring(0, 87) + '...' : text
