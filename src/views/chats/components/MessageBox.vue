@@ -129,7 +129,7 @@
                     :style="{ height: h + 'px' }"></span>
                 </div>
 
-                <span class="text-sm pr-1 tabular-nums flex-shrink-0"
+                <span class="text-sm pr-3 tabular-nums flex-shrink-0"
                   :class="isSent ? 'text-white/85' : 'text-grey dark:text-greyDark'">
                   {{ formatAudioTime(isPlaying ? audioCurrentTime : audioDuration) }}
                 </span>
