@@ -34,7 +34,7 @@ module.exports = {
           // === LIGHT MODE ===
           light: {
             bg: '#FFFFFF',
-            surface: '#25292F',
+            surface: '#f3f5f7',
             surfaceHover: '#EFF3F4',
             surfaceActive: '#E6EAEB',
             border: '#CFD9DE',
