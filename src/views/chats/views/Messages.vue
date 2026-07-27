@@ -22,7 +22,7 @@
                     <div class="mt-3 mb-3">
                         <p class="text-xl font-semibold dark:text-white text-[rgb(40,40,41)]">{{
                             conversation?.name
-                            }}</p>
+                        }}</p>
                         <p class="dark:text-x-dark-textSecondary">@{{ conversation.name }}</p>
                     </div>
 
@@ -159,15 +159,15 @@
 
             <div v-if="drawer.name == 'GIFT'" class="flex relative flex-col h-[85vh]">
                 <div class="px-4 pt-2 pb-3 sticky top-0 z-10">
-                    <svg aria-label="Pesquisar figurinhas" class="text-[#262626] dark:text-[#8e8e8e] absolute top-[20px] left-[28px]" fill="currentColor"
+                    <svg aria-label="Pesquisar figurinhas"
+                        class="text-[#262626] dark:text-[#8e8e8e] absolute top-[20px] left-[28px]" fill="currentColor"
                         height="16" role="img" viewBox="0 0 48 48" width="16">
                         <title>Pesquisar figurinhas</title>
                         <path
                             d="M47.6 44 35.8 32.2C38.4 28.9 40 24.6 40 20 40 9 31 0 20 0S0 9 0 20s9 20 20 20c4.6 0 8.9-1.6 12.2-4.2L44 47.6c.6.6 1.5.6 2.1 0l1.4-1.4c.6-.6.6-1.6.1-2.2zM20 35c-8.3 0-15-6.7-15-15S11.7 5 20 5s15 6.7 15 15-6.7 15-15 15z">
                         </path>
                     </svg>
-                    <input v-model="gifQuery" @input="onGifQueryInput" type="text"
-                        :maxlength="20"
+                    <input v-model="gifQuery" @input="onGifQueryInput" type="text" :maxlength="20"
                         :placeholder="gifPickerTab === 'sticker' ? 'Pesquisar stickers...' : 'Pesquisar GIFs...'"
                         class="w-full h-10 pl-9 px-4 rounded-full bg-x-light-surface dark:bg-[rgb(36,39,44)]
                                text-[#262626] dark:text-[#f5f5f5] placeholder-[#8e8e8e] focus:outline-none text-base" />
@@ -412,9 +412,9 @@ const resetDrawer = () => { drawer.value = { show: false, name: '', data: {} } }
 const onCloseDrawer = () => {
     const wasGiftDrawer = drawer.value.name === 'GIFT'
 
-    resetDrawer()
-
     if (wasGiftDrawer) resetGifPicker()
+
+    resetDrawer()
 
     if (messageSelected.value) {
         setTimeout(() => { messageSelected.value = null }, 300);
@@ -721,7 +721,7 @@ watch(() => conversation.value?._id, () => { refreshStatusTimer(); }, { immediat
 watch(() => conversation.value?.is_online, () => { refreshStatusTimer(); }, { immediate: true });
 
 onBeforeRouteLeave((to, from, next) => {
-    if (drawer.value.show) { resetDrawer(); next(false) }
+    if (drawer.value.show) { onCloseDrawer(); next(false) }
     else if (modalConfirm.value?.isOpen) { closeModalConfirm(); next(false) }
     else next()
 })

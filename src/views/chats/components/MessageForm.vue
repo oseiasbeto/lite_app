@@ -89,29 +89,21 @@
       <!-- Campo de texto em pill, com borda fina estilo Instagram, min-height 56px -->
       <div class="flex-1 flex items-center min-h-[50px] rounded-[25px]
                   bg-x-light-surface dark:bg-[rgb(36,39,44)] focus-within:border-[#a8a8a8] dark:focus-within:border-[#5a5a5a]
-                  transition-colors pl-1.5 pr-1.5 py-1.5 min-w-0"
-                  :class="{'pl-3': replyTo?.show}"
-                  >
+                  transition-colors pl-1.5 pr-1.5 py-1.5 min-w-0" :class="{ 'pl-3': replyTo?.show }">
 
         <!--
           Botão de câmara (estilo Instagram) — agora DENTRO da pill, antes do
           textarea, junto aos demais botões. flex-shrink-0 para nunca perder
           espaço para o textarea encolher.
         -->
-        <button v-if="!replyTo?.show" @click.prevent="handleOpenCamera" type="button" :disabled="props.disabled"
-          class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-full mr-1.5
+        <button v-if="!replyTo?.show" @click.prevent="handleOpenCamera" type="button" :disabled="props.disabled" class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-full mr-1.5
 
-                 text-[#f5f5f5] bg-x-light-blue hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
+                 text-[#f5f5f5] bg-[#0094f8]
                  active:scale-90 transition-all disabled:opacity-40">
-          <svg aria-label="Abrir câmara" class="x1lliihq x1n2onr6 x5n08af" fill="currentColor" height="22" role="img"
-            viewBox="0 0 24 24" width="22">
-            <title>Abrir câmara</title>
+          <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24" fill="none">
             <path
-              d="M12 15.968a3.44 3.44 0 1 0 0-6.881 3.44 3.44 0 0 0 0 6.881Z"
-              fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-            <path
-              d="M9.315 4.641a2.377 2.377 0 0 1 1.83-1.055h1.71a2.377 2.377 0 0 1 1.83 1.055l.822 1.226a2.377 2.377 0 0 0 1.83 1.055h1.058a2.377 2.377 0 0 1 2.377 2.377v8.078a2.377 2.377 0 0 1-2.377 2.377H6.605a2.377 2.377 0 0 1-2.377-2.377V9.299a2.377 2.377 0 0 1 2.377-2.377h1.058a2.377 2.377 0 0 0 1.83-1.055Z"
-              fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+              d="M18.0002 6C17.3902 6 16.8302 5.65 16.5502 5.11L15.8302 3.66C15.3702 2.75 14.1702 2 13.1502 2H10.8602C9.83017 2 8.63017 2.75 8.17017 3.66L7.45017 5.11C7.17017 5.65 6.61017 6 6.00017 6C3.83017 6 2.11017 7.83 2.25017 9.99L2.77017 18.25C2.89017 20.31 4.00017 22 6.76017 22H17.2402C20.0002 22 21.1002 20.31 21.2302 18.25L21.7502 9.99C21.8902 7.83 20.1702 6 18.0002 6ZM10.5002 7.25H13.5002C13.9102 7.25 14.2502 7.59 14.2502 8C14.2502 8.41 13.9102 8.75 13.5002 8.75H10.5002C10.0902 8.75 9.75017 8.41 9.75017 8C9.75017 7.59 10.0902 7.25 10.5002 7.25ZM12.0002 18.12C10.1402 18.12 8.62017 16.61 8.62017 14.74C8.62017 12.87 10.1302 11.36 12.0002 11.36C13.8702 11.36 15.3802 12.87 15.3802 14.74C15.3802 16.61 13.8602 18.12 12.0002 18.12Z"
+              fill="#fff" />
           </svg>
         </button>
 
@@ -124,8 +116,7 @@
           botões ao lado ocupam espaço.
         -->
         <textarea ref="textareaRef" v-model="inputMessage" @input="autoResize" @keydown.enter.shift.exact="allowNewLine"
-          @focus="handleFocus" rows="1" 
-                :placeholder="replyTo?.show ? 'Responder' : 'Enviar mensagem...'" class="w-full min-w-0 caret-[#0095f6]
+          @focus="handleFocus" rows="1" :placeholder="replyTo?.show ? 'Responder' : 'Enviar mensagem...'" class="w-full min-w-0 caret-[#0095f6]
                 resize-none text-[18px] overflow-hidden scroll-pt-4 bg-transparent
                  py-1.5
                   leading-tight
@@ -157,7 +148,8 @@
         </button>
 
         <!-- Botão de mídia/imagem (só aparece sem texto digitado) -->
-        <button v-if="!inputMessage.trim() && !replyTo?.show" @click.prevent="handleOpenMediaPicker" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
+        <button v-if="!inputMessage.trim() && !replyTo?.show" @click.prevent="handleOpenMediaPicker" type="button"
+          class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
                  text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
                  active:scale-90 transition-all">
           <svg aria-label="Adicionar foto ou vídeo" class="text-inherit" fill="currentColor" height="22" role="img"
@@ -178,8 +170,8 @@
         <button v-if="!inputMessage.trim() && !replyTo?.show" @click.prevent="handleOpenGifPicker" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
                  text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
                  active:scale-90 transition-all">
-          <svg aria-label="Escolher um GIF ou uma figurinha" class="text-inherit" fill="currentColor"
-            height="22" role="img" viewBox="0 0 24 24" width="22">
+          <svg aria-label="Escolher um GIF ou uma figurinha" class="text-inherit" fill="currentColor" height="22"
+            role="img" viewBox="0 0 24 24" width="22">
             <title>Escolher um GIF ou uma figurinha</title>
             <path
               d="M13.11 22H7.416A5.417 5.417 0 0 1 2 16.583V7.417A5.417 5.417 0 0 1 7.417 2h9.166A5.417 5.417 0 0 1 22 7.417v5.836a2.083 2.083 0 0 1-.626 1.488l-6.808 6.664A2.083 2.083 0 0 1 13.11 22Z"

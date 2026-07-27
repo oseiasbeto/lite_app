@@ -195,7 +195,7 @@
 
               <!-- Reações sobrepostas no canto inferior do balão -->
               <div v-if="groupedReactions.length && message.status !== 'is_deleted'"
-                class="absolute z-[99] flex items-center bg-white dark:bg-[#2c2c2c] border-2 border-white dark:border-[#0c1014] rounded-full"
+                class="absolute z-[99] flex items-center bg-x-light-surface dark:bg-[#25282c] border-2 border-white dark:border-[#0c1014] rounded-full"
                 :class="[
                   isSent ? 'right-1' : 'left-1',
                   '-bottom-3',
@@ -230,7 +230,7 @@
               Fica preso à mensagem que falhou, independentemente de novas mensagens
               terem sido enviadas depois dela — por isso NÃO depende de isLastSentMessage.
             -->
-            <span v-if="message.status == 'error'" class="text-[13px] text-red-500 mt-[2px] px-1"
+            <span v-if="message.status == 'error'" class="text-[13px] text-red-500 px-1"
               :class="{ '!mt-2.5': groupedReactions.length }">
               Erro ao enviar
             </span>
