@@ -3,7 +3,7 @@
 
     <!-- Separador de data/hora estilo Messenger -->
     <div v-if="showDateSeparator" class="flex justify-center my-3">
-      <span class="text-sm font-medium text-x-light-textSecondary dark:text-x-dark-textSecondary  px-3">
+      <span class="text-[13px] font-medium text-x-light-textSecondary dark:text-x-dark-textSecondary  px-3">
         {{ dateSeparatorText }}
       </span>
     </div>
@@ -47,10 +47,10 @@
             <div v-if="message.reply_to && !isEmojiOnly && message.status !== 'is_deleted'"
               class="w-full min-w-0 relative" style="margin-bottom: -10px;">
               <span
-                class="flex items-center w-full text-sm mb-1 font-normal text-grey dark:text-x-dark-textSecondary"
+                class="flex items-center w-full text-[13px] mb-1 font-normal text-x-light-textSecondary dark:text-x-dark-textSecondary"
                 :class="isSent ? 'justify-end' : 'justify-start'">
-                <svg viewBox="0 0 16 16" width="14" height="14" fill="currentColor" aria-hidden="true"
-                  class="mr-1.5 flex-shrink-0">
+                <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" aria-hidden="true"
+                  class="mr-1 flex-shrink-0">
                   <path
                     d="M6.497 1.035C7.593-.088 9.5.688 9.5 2.257V4.54c1.923.215 3.49 1.246 4.593 2.672C15.328 8.808 16 10.91 16 13v.305c0 .632-.465 1.017-.893 1.127-.422.11-.99.005-1.318-.493-.59-.894-1.2-1.482-1.951-1.859-.611-.307-1.359-.496-2.338-.558v2.23c0 1.57-1.908 2.346-3.003 1.222L.893 9.223a1.75 1.75 0 0 1 .001-2.444l5.603-5.744z">
                   </path>
@@ -61,8 +61,7 @@
                 'block max-w-full min-w-0 text-left rounded-[16px] px-3 py-[10px] text-[13px] leading-tight text-inherit bg-[#f3f5f7] cursor-pointer transition-opacity dark:bg-[#25292e] opacity-60 dark:text-[rgb(245,245,245)] hover:opacity-100',
                 isSent ? 'ml-auto' : ''
               ]" :style="isSent ? 'border-radius: 16px 16px 4px 16px;' : 'border-radius: 16px 16px 16px 4px;'">
-                <span class="block text-sm truncate"
-                  :class="isSent ? 'text-white' : 'text-[rgb(40,40,41)] dark:text-white'">
+                <span class="block text-sm truncate text-[rgb(40,40,41)] dark:text-white">
                   {{ replyPreviewText }}
                 </span>
               </button>
@@ -70,13 +69,14 @@
 
             <!-- Balão principal -->
             <button type="button" @contextmenu.prevent="handleMoreOption(message)"
-              :style="!isEmojiOnly && !isGif && !isSticker && message.status !== 'is_deleted' ? bubbleRadiusStyle : {}" :class="[
+              :style="!isEmojiOnly && !isGif && !isSticker && !isVoice && message.status !== 'is_deleted' ? bubbleRadiusStyle : {}" :class="[
                 'relative z-[1] text-left transition-transform active:scale-[0.99] max-w-full min-w-0',
                 !isEmojiOnly && !isGif && !isSticker && message.status !== 'is_deleted'
                   ? (isSent
                     ? 'bg-[#0095f6] text-white p-[6px_12px]'
                     : 'dark:bg-[#25292e] dark:text-white text-[rgb(40,40,41)] bg-[#f3f5f7] p-[8px_12px]')
                   : '',
+                isVoice && message.status !== 'is_deleted' ? 'rounded-full' : '',
                 message.status === 'is_deleted'
                   ? 'border border-[#b0b3b8] dark:border-[#555] rounded-[18px] px-3 py-[6px] bg-transparent italic opacity-80'
                   : '',
@@ -94,13 +94,13 @@
               </p>
 
               <!-- Player de áudio (estilo Instagram), dentro do balão -->
-              <div v-else-if="message.message_type === 'voice'" class="flex items-center gap-2 min-w-[190px] py-[2px]">
+              <div v-else-if="message.message_type === 'voice'" class="flex items-center gap-2 min-w-[205px] py-[2px]">
                 <div @click.stop="toggleAudio"
-                  class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer active:scale-90 transition-transform"
+                  class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer active:scale-90 transition-transform"
                   :class="isSent ? 'bg-white/25 text-white' : 'bg-black/10 dark:bg-white/15 text-[rgb(40,40,41)] dark:text-white'">
 
                   <!-- Loading (buffering) -->
-                  <svg v-if="isAudioLoading" class="animate-spin" width="18" height="18" viewBox="0 0 24 24"
+                  <svg v-if="isAudioLoading" class="animate-spin" width="20" height="20" viewBox="0 0 24 24"
                     fill="none">
                     <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="3" stroke-opacity="0.25"
                       fill="none" />
@@ -108,18 +108,18 @@
                       fill="none" />
                   </svg>
                   <!-- Play -->
-                  <svg v-else-if="!isPlaying" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <svg v-else-if="!isPlaying" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M8 5v14l11-7z" />
                   </svg>
                   <!-- Pause -->
-                  <svg v-else width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                  <svg v-else width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
                     <rect x="6" y="5" width="4" height="14" />
                     <rect x="14" y="5" width="4" height="14" />
                   </svg>
                 </div>
 
                 <!-- waveform clicável para navegar no áudio -->
-                <div class="flex-1 flex items-center gap-[2px] h-6 min-w-0 cursor-pointer select-none"
+                <div class="flex-1 flex items-center gap-[3px] h-7 min-w-0 cursor-pointer select-none"
                   :class="{ 'opacity-60 animate-pulse': !isWaveformReady }" @click.stop="seekAudioFromClick">
                   <span v-for="(h, n) in audioWaveformBars" :key="n"
                     class="flex-1 rounded-full transition-colors duration-75" :class="n <= activeAudioBarIndex
@@ -192,7 +192,7 @@
               <!-- Conteúdo normal -->
               <p v-else :class="[
                 'break-words [overflow-wrap:anywhere] whitespace-pre-wrap leading-snug min-w-0',
-                isEmojiOnly ? 'text-5xl' : 'text-lg',
+                isEmojiOnly ? 'text-5xl' : 'text-base',
                 isEmojiOnly && !isSent ? 'ml-6' : 'ml-0'
               ]">
                 {{ message.content }}
@@ -219,13 +219,13 @@
             </button>
 
             <!-- Indicador "A enviar..." (estilo Messenger), por baixo do balão -->
-            <span v-if="message.status === 'sending'" class="text-[11px] text-grey dark:text-greyDark mt-[2px] px-1">
+            <span v-if="message.status === 'sending'" class="text-[13px] text-grey dark:text-greyDark mt-[2px] px-1">
               A enviar...
             </span>
 
             <!-- Indicador "Entregue" na última mensagem enviada (estilo Messenger) -->
             <span v-else-if="message.status == 'sent' && isLastSentMessage && !isReadByOther"
-              class="text-[11px] text-grey dark:text-greyDark mt-[2px] px-1"
+              class="text-[13px] text-grey dark:text-greyDark mt-[2px] px-1"
               :class="{ '!mt-2.5': groupedReactions.length }">
               Entregue
             </span>
@@ -236,7 +236,7 @@
               terem sido enviadas depois dela — por isso NÃO depende de isLastSentMessage.
             -->
             <span v-if="message.status == 'error'"
-              class="text-[11px] text-red-500 mt-[2px] px-1"
+              class="text-[13px] text-red-500 mt-[2px] px-1"
               :class="{ '!mt-2.5': groupedReactions.length }">
               Erro ao enviar
             </span>
@@ -269,6 +269,7 @@ const isDeletedForMe = computed(() => props.message?.deleted_for?.includes(props
 
 const isGif = computed(() => props.message.message_type === 'gif')
 const isSticker = computed(() => props.message.message_type === 'sticker')
+const isVoice = computed(() => props.message.message_type === 'voice')
 
 // Aspect-ratio dinâmico para GIF/Sticker: usa width/height reais (Giphy),
 // aplicado no WRAPPER (não só na <img>), para o espaço já ficar reservado
@@ -320,6 +321,11 @@ const isMessageEmojiOnly = (msg) => {
   return count >= 1 && count <= 3
 }
 
+// GIF, sticker e áudio nunca são visualmente agrupados com a mensagem
+// anterior/seguinte — cada um fica isolado, com espaçamento e cantos
+// completos, tal como as mensagens eliminadas/emoji/erro.
+const isMessageMediaType = (msg) => msg?.message_type === 'gif' || msg?.message_type === 'sticker' || msg?.message_type === 'voice'
+
 const isMessageDeletedForMe = (msg) => !!(msg?.deleted_for?.includes(props.userId))
 const isMessageDeletedForEveryone = (msg) => msg?.status === 'is_deleted'
 const isMessageError = (msg) => msg?.status === 'error'
@@ -327,6 +333,7 @@ const isMessageError = (msg) => msg?.status === 'error'
 const breaksGrouping = (msg) =>
   !msg ||
   isMessageEmojiOnly(msg) ||
+  isMessageMediaType(msg) ||
   isMessageDeletedForEveryone(msg) ||
   isMessageDeletedForMe(msg) ||
   isMessageError(msg)
@@ -646,11 +653,28 @@ const onAudioEnded = () => {
   isPlaying.value = false
   audioCurrentTime.value = 0
   clearActive(props.message._id)
+
+  // Auto-avanço estilo WhatsApp: se a próxima mensagem também for áudio,
+  // toca-a automaticamente. Não mexe no useActiveAudio — o novo <audio>
+  // dispara o seu próprio evento nativo @play, que já chama setActive()
+  // normalmente e pausa este, mantendo o comportamento singleton intacto.
+  playNextVoiceIfSequential()
+}
+
+const playNextVoiceIfSequential = () => {
+  const next = props.nextMessage
+  if (!next || next.message_type !== 'voice' || next.status === 'is_deleted') return
+  nextTick(() => {
+    const nextAudioEl = document.querySelector(`#message-${next._id} audio`)
+    if (nextAudioEl) {
+      nextAudioEl.play().catch(() => {})
+    }
+  })
 }
 
 // Waveform: começa com a decorativa (fallback imediato) e é substituída
 // pela waveform real assim que o áudio for descodificado com sucesso.
-const AUDIO_WAVEFORM_BARS = 24
+const AUDIO_WAVEFORM_BARS = 16
 
 const audioWaveformBars = ref((() => {
   const bars = []
@@ -658,7 +682,7 @@ const audioWaveformBars = ref((() => {
   for (let i = 0; i < AUDIO_WAVEFORM_BARS; i++) {
     const seed = Math.sin(i * 12.9898 + seedBase) * 43758.5453
     const frac = seed - Math.floor(seed)
-    bars.push(Math.round(5 + frac * 13)) // altura entre 5px e 18px
+    bars.push(Math.round(6 + frac * 16)) // altura entre 6px e 22px
   }
   return bars
 })())
@@ -686,7 +710,7 @@ const loadRealWaveform = async () => {
     }
 
     if (max > 0) {
-      audioWaveformBars.value = peaks.map(p => Math.round(5 + (p / max) * 13))
+      audioWaveformBars.value = peaks.map(p => Math.round(6 + (p / max) * 16))
       isWaveformReady.value = true
     }
     ctx.close?.()

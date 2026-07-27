@@ -4,7 +4,7 @@
       @on-close="closeReplyTo" />
 
     <!-- ===== UI DE GRAVAÇÃO (estilo Instagram) ===== -->
-    <div v-if="isRecording || audioBlob" class="px-4 py-4 flex items-center gap-3">
+    <div v-if="isRecording || audioBlob" class="px-4 py-3.5 flex items-center gap-3">
       <button @click="handleCancelRecording" type="button"
         class="w-9 h-9 flex items-center justify-center rounded-full text-[#8e8e8e] hover:bg-[#f0f0f0] dark:hover:bg-[#1a1a1a] active:opacity-60 transition-colors flex-shrink-0">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
@@ -84,21 +84,24 @@
     </div>
 
     <!-- ===== FORM PADRÃO (estilo Instagram) ===== -->
-    <form v-else @submit.prevent="send" class="px-4 py-4 flex items-center gap-2">
+    <form v-else @submit.prevent="send" class="px-4 py-3.5 flex items-center gap-2">
 
       <!-- Campo de texto em pill, com borda fina estilo Instagram, min-height 56px -->
-      <div class="flex-1 flex items-center min-h-[48px] rounded-[25px]
+      <div class="flex-1 flex items-center min-h-[50px] rounded-[25px]
                   bg-x-light-surface dark:bg-[rgb(36,39,44)] focus-within:border-[#a8a8a8] dark:focus-within:border-[#5a5a5a]
-                  transition-colors pl-4 pr-1.5 py-1.5 min-w-0">
+                  transition-colors pl-1.5 pr-1.5 py-1.5 min-w-0"
+                  :class="{'pl-3': replyTo?.show}"
+                  >
 
         <!--
           Botão de câmara (estilo Instagram) — agora DENTRO da pill, antes do
           textarea, junto aos demais botões. flex-shrink-0 para nunca perder
           espaço para o textarea encolher.
         -->
-        <button @click.prevent="handleOpenCamera" type="button" :disabled="props.disabled"
-          class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full mr-1
-                 text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
+        <button v-if="!replyTo?.show" @click.prevent="handleOpenCamera" type="button" :disabled="props.disabled"
+          class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-full mr-1.5
+
+                 text-[#f5f5f5] bg-x-light-blue hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
                  active:scale-90 transition-all disabled:opacity-40">
           <svg aria-label="Abrir câmara" class="x1lliihq x1n2onr6 x5n08af" fill="currentColor" height="22" role="img"
             viewBox="0 0 24 24" width="22">
@@ -121,7 +124,8 @@
           botões ao lado ocupam espaço.
         -->
         <textarea ref="textareaRef" v-model="inputMessage" @input="autoResize" @keydown.enter.shift.exact="allowNewLine"
-          @focus="handleFocus" rows="1" placeholder="Enviar mensagem..." class="w-full min-w-0 caret-[#0095f6]
+          @focus="handleFocus" rows="1" 
+                :placeholder="replyTo?.show ? 'Responder' : 'Enviar mensagem...'" class="w-full min-w-0 caret-[#0095f6]
                 resize-none text-[18px] overflow-hidden scroll-pt-4 bg-transparent
                  py-1.5
                   leading-tight
@@ -135,7 +139,7 @@
         <input ref="mediaInputRef" type="file" accept="image/*" class="hidden" @change="onMediaFileChange" />
 
         <!-- Botão de microfone (só aparece sem texto digitado), dentro do campo estilo Instagram -->
-        <button v-if="!inputMessage.trim()" @click.prevent="handleStartRecording" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
+        <button v-if="!inputMessage.trim() && !replyTo?.show" @click.prevent="handleStartRecording" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
                  text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
                  active:scale-90 transition-all">
           <svg aria-label="Clipe de voz" class="x1lliihq x1n2onr6 x5n08af" fill="currentColor" height="24" role="img"
@@ -153,7 +157,7 @@
         </button>
 
         <!-- Botão de mídia/imagem (só aparece sem texto digitado) -->
-        <button v-if="!inputMessage.trim()" @click.prevent="handleOpenMediaPicker" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
+        <button v-if="!inputMessage.trim() && !replyTo?.show" @click.prevent="handleOpenMediaPicker" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
                  text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
                  active:scale-90 transition-all">
           <svg aria-label="Adicionar foto ou vídeo" class="text-inherit" fill="currentColor" height="22" role="img"
@@ -171,7 +175,7 @@
         </button>
 
         <!-- Botão de GIF (só aparece sem texto digitado) -->
-        <button v-if="!inputMessage.trim()" @click.prevent="handleOpenGifPicker" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
+        <button v-if="!inputMessage.trim() && !replyTo?.show" @click.prevent="handleOpenGifPicker" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
                  text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
                  active:scale-90 transition-all">
           <svg aria-label="Escolher um GIF ou uma figurinha" class="text-inherit" fill="currentColor"
@@ -199,7 +203,7 @@
       <transition enter-active-class="transition ease-out duration-150" enter-from-class="opacity-0 scale-90"
         enter-to-class="opacity-100 scale-100" leave-active-class="transition ease-in duration-100"
         leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-90">
-        <button v-if="inputMessage.trim()" :disabled="!canSend" type="submit" class="h-10 px-1 flex items-center justify-center flex-shrink-0
+        <button v-if="inputMessage.trim() || replyTo?.show" :disabled="!canSend" type="submit" class="h-10 px-1 flex items-center justify-center flex-shrink-0
                  text-[#0095f6] disabled:text-[#0095f6]/40 font-semibold text-[15px]
                  active:opacity-50 transition-opacity">
           Enviar

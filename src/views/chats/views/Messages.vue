@@ -14,21 +14,21 @@
                 </div>
 
                 <div v-if="!cachedMessages?.pagination?.hasMore && conversation?.type === 'direct'"
-                    class="flex flex-col items-center justify-center py-8 text-center mb-4">
+                    class="flex flex-col items-center justify-center py-6 pt-2 text-center mb-4">
 
                     <Avatar :url="conversation?.avatar?.thumbnails?.lg || conversation?.avatar?.url" size="big"
                         class="w-[96px] h-[96px]" />
 
                     <div class="mt-3 mb-3">
-                        <p class="text-lg font-semibold dark:text-white text-[rgb(40,40,41)]">{{
+                        <p class="text-xl font-semibold dark:text-white text-[rgb(40,40,41)]">{{
                             conversation?.name
-                        }}</p>
+                            }}</p>
                         <p class="dark:text-x-dark-textSecondary">@{{ conversation.name }}</p>
                     </div>
 
                     <div class="flex my-2 justify-between items-center">
                         <button
-                            class="flex text-base active:opacity-50 bg-black text-white dark:bg-[#2b3036cc] dark:text-x-dark-textPrimary items-center font-bold gap-1 py-2 px-6 rounded-lg"
+                            class="flex text-base active:opacity-50 bg-black text-white dark:bg-[#2b3036cc] dark:text-x-dark-textPrimary items-center font-bold gap-1 py-2 px-4 rounded-lg"
                             @click="goToProfile(conversation)">
                             <p>Ver perfil</p>
                         </button>
@@ -157,11 +157,19 @@
                     title="Eliminar para todos" />
             </div>
 
-            <div v-if="drawer.name == 'GIFT'" class="flex flex-col h-[80vh]">
-                <div class="px-4 pt-2 pb-3 sticky top-0 bg-white dark:bg-[#0c1014] z-10">
+            <div v-if="drawer.name == 'GIFT'" class="flex relative flex-col h-[85vh]">
+                <div class="px-4 pt-2 pb-3 sticky top-0 z-10">
+                    <svg aria-label="Pesquisar figurinhas" class="text-[#262626] dark:text-[#8e8e8e] absolute top-[20px] left-[28px]" fill="currentColor"
+                        height="16" role="img" viewBox="0 0 48 48" width="16">
+                        <title>Pesquisar figurinhas</title>
+                        <path
+                            d="M47.6 44 35.8 32.2C38.4 28.9 40 24.6 40 20 40 9 31 0 20 0S0 9 0 20s9 20 20 20c4.6 0 8.9-1.6 12.2-4.2L44 47.6c.6.6 1.5.6 2.1 0l1.4-1.4c.6-.6.6-1.6.1-2.2zM20 35c-8.3 0-15-6.7-15-15S11.7 5 20 5s15 6.7 15 15-6.7 15-15 15z">
+                        </path>
+                    </svg>
                     <input v-model="gifQuery" @input="onGifQueryInput" type="text"
+                        :maxlength="20"
                         :placeholder="gifPickerTab === 'sticker' ? 'Pesquisar stickers...' : 'Pesquisar GIFs...'"
-                        class="w-full h-10 px-4 rounded-full bg-x-light-surface dark:bg-[rgb(36,39,44)]
+                        class="w-full h-10 pl-9 px-4 rounded-full bg-x-light-surface dark:bg-[rgb(36,39,44)]
                                text-[#262626] dark:text-[#f5f5f5] placeholder-[#8e8e8e] focus:outline-none text-base" />
                 </div>
 
@@ -196,15 +204,25 @@
                         class="flex-1 py-3 flex items-center justify-center gap-1.5 text-sm font-semibold border-t-2 transition-colors"
                         :class="gifPickerTab === 'gif'
                             ? 'text-[#0095f6] border-[#0095f6]'
-                            : 'text-grey dark:text-x-dark-textSecondary border-transparent'">
-                        GIFs
+                            : 'text-x-light-textSecondary dark:text-x-dark-textSecondary border-transparent'">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" class="text-inherit">
+                            <path
+                                d="M19 1H5a4.005 4.005 0 0 0-4 4v14a4.005 4.005 0 0 0 4 4h14a4.005 4.005 0 0 0 4-4V5a4.005 4.005 0 0 0-4-4zm2 18a2.002 2.002 0 0 1-2 2H5a2.002 2.002 0 0 1-2-2V5a2.002 2.002 0 0 1 2-2h14a2.002 2.002 0 0 1 2 2zM7.668 12.984h1.468a1.142 1.142 0 0 1-.409.84 1.533 1.533 0 0 1-1.038.338 1.446 1.446 0 0 1-1.211-.566 2.564 2.564 0 0 1-.46-1.617 2.563 2.563 0 0 1 .441-1.588 1.389 1.389 0 0 1 1.174-.553 1.572 1.572 0 0 1 .913.256 1.315 1.315 0 0 1 .51.72l.034.111h1.71l-.025-.179A2.694 2.694 0 0 0 9.75 8.944a3.334 3.334 0 0 0-2.117-.674A3.186 3.186 0 0 0 5.16 9.282a3.9 3.9 0 0 0-.911 2.71 3.918 3.918 0 0 0 .912 2.73 3.233 3.233 0 0 0 2.504 1.008 3.178 3.178 0 0 0 2.315-.839 3.04 3.04 0 0 0 .857-2.267V11.6H7.668zm7.318 2.572h1.736V12.91h2.766V11.43h-2.766V9.974h3.03v-1.53h-4.766zm-3.082 0h1.737V8.444h-1.737z">
+                            </path>
+                        </svg>
+                        <span>GIFs</span>
                     </button>
                     <button type="button" @click="selectGifPickerTab('sticker')"
                         class="flex-1 py-3 flex items-center justify-center gap-1.5 text-sm font-semibold border-t-2 transition-colors"
                         :class="gifPickerTab === 'sticker'
                             ? 'text-[#0095f6] border-[#0095f6]'
-                            : 'text-grey dark:text-x-dark-textSecondary border-transparent'">
-                        Stickers
+                            : 'text-x-light-textSecondary dark:text-x-dark-textSecondary border-transparent'">
+                        <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" class="text-inherit">
+                            <path
+                                d="M16.583 1H7.417A6.425 6.425 0 0 0 1 7.417v9.166A6.425 6.425 0 0 0 7.417 23h5.126v-3.871a6.385 6.385 0 0 1 .232-1.685 5.726 5.726 0 0 1-5.277-1.842 1 1 0 0 1 1.478-1.346 3.888 3.888 0 0 0 5.518.241.93.93 0 0 1 .11-.068 6.384 6.384 0 0 1 4.355-1.717h4.04V7.417A6.425 6.425 0 0 0 16.584 1zM8.237 11.278a1.335 1.335 0 1 1 1.335-1.335 1.335 1.335 0 0 1-1.335 1.335zm7.525 0a1.335 1.335 0 1 1 1.335-1.335 1.335 1.335 0 0 1-1.334 1.335zm-1.22 7.85v3.504a3.068 3.068 0 0 0 .723-.512l6.808-6.664a3.056 3.056 0 0 0 .541-.744h-3.655a4.422 4.422 0 0 0-4.416 4.417z">
+                            </path>
+                        </svg>
+                        <span>Stickers</span>
                     </button>
                 </div>
             </div>

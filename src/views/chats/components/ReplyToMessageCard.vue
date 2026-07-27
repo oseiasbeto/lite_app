@@ -6,7 +6,7 @@
             <p class="text-sm dark:text-[#b0b3b8] truncate ">{{ previewText || '...' }}</p>
         </div>
 
-        <button class="shrink-0" @click="close">
+        <button class="shrink-0 my-auto rounded-full active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive flex justify-center items-center w-6 h-6" @click="close">
              <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path d="m5.5 5.5 13 13m-13 0 13-13" class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5"
                         fill="none" fill-rule="evenodd" stroke-linecap="round"></path>

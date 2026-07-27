@@ -7,7 +7,7 @@
     <Transition name="drawer-slide" @after-leave="onAfterLeave">
       <div v-if="isOpen" ref="drawerRef" :class="[
         'fixed bottom-0 left-0 right-0 z-[999] bg-white dark:bg-x-dark-surface rounded-t-2xl overflow-hidden',
-        'max-h-[85vh] flex flex-col',
+        'max-h-[90vh] flex flex-col',
         costumClass,
       ]" :style="dragStyle" @touchstart="onTouchStart" @touchmove="onTouchMove" @touchend="onTouchEnd">
 

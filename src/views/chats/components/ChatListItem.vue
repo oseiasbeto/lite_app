@@ -1,8 +1,8 @@
 <template>
   <div @contextmenu.prevent="" @click="$emit('click')" class="
       flex items-center px-4 py-3 gap-2.5 cursor-pointer bg-white dark:bg-transparent transition-all duration-200 relative
-      active:bg-x-light-surfaceActive
-      dark:active:bg-x-dark-surfaceActive
+      hover:bg-x-light-surfaceHover
+      dark:hover:bg-x-dark-surfaceHover
     ">
     <!-- Avatar com status online -->
     <div class="relative flex-shrink-0">
