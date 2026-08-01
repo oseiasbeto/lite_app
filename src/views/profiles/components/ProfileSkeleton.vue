@@ -1,5 +1,5 @@
 <template>
-    <div class="h-[calc(100vh-50px-56px)] flex items-center justify-center overflow-y-hidden">
+    <div class="h-[calc(40vh-50px)] flex items-center justify-center overflow-y-hidden">
         <SpinnerSmall/>
     </div>
 </template>

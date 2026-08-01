@@ -10,7 +10,7 @@
           :class="{ '!text-inherit': activeTab === tab.value }">
           {{ tab.label }}
           <!-- Borda estática apenas na tab ativa -->
-          <div v-if="activeTab === tab.value" class="absolute bottom-0 left-0 right-0 h-[3px] z-[111] bg-black dark:bg-white"></div>
+          <div v-if="activeTab === tab.value" class="absolute bottom-0 left-0 right-0 h-[3px] z-[11] bg-black dark:bg-white"></div>
         </button>
       </div>
     </div>

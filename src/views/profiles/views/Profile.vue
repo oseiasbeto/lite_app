@@ -53,7 +53,7 @@
                     <ProfileDetailsUser @go-to-picture-full-screen="goToPictureFullScreen" :profile="profile"
                         :user-id="user?._id" />
                 </div>
-                
+
                 <div class="px-4 pb-3">
                     <CredentialsHighlights />
 
@@ -67,8 +67,25 @@
                         :send-message-btn-off="!canSendMessage" />
                 </div>
 
+                <!-- Sugestões estilo Instagram, exibidas apenas no perfil de outra pessoa -->
+                <div v-if="!isSameUser && !suggestionsLoading" class="mt-4">
+                    <div v-if="suggestionsError" class="px-1 py-2 text-sm text-red-500">
+                        {{ suggestionsError }}
+                    </div>
+
+                    <UserSuggestionsCarousel v-else :users="suggestedUsers" :loading-fetch="suggestionsLoading"
+                        :show-btn-follow="true" title="Sugestões para você" see-all-route="/people"
+                        :exclude-user-id="profile?._id"
+                        start-spacing="16px"
+                        end-spacing="16px"
+                        />
+                </div>
+
                 <!--TABS-->
-                <Tabs :tabs="tabs" v-model="currentTab" />
+                <div class="relative">
+                    <Tabs :tabs="tabs" v-model="currentTab" />
+                </div>
+
 
                 <!--TAB VIEWS-->
                 <template v-if="currentTab === 'posts'">
@@ -109,7 +126,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, onActivated, watch, ref } from 'vue';
+import { computed, onMounted, onActivated, onUnmounted, watch, ref } from 'vue';
 import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import ProfileDetailsUser from '../components/ProfileDetailsUser.vue';
@@ -121,6 +138,7 @@ import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import CredentialsHighlights from '../components/CredentialsHighlights.vue';
 import ProfileSkeleton from '../components/ProfileSkeleton.vue';
 import PullToRefreshIndicator from '@/components/UI/PullToRefreshIndicator.vue';
+import UserSuggestionsCarousel from '@/views/users/components/UserSuggestionsCarousel.vue';
 import { usePullToRefresh } from '@/composables/usePullToRefresh';
 
 // IMPORTANTE: o "name" precisa bater com o que estiver no :include do <keep-alive>
@@ -168,6 +186,11 @@ const conversations = computed(() => {
     return store.getters.conversations;
 })
 
+// === Sugestões estilo Instagram, exibidas no perfil de outra pessoa ===
+// Reaproveita o mesmo módulo "search" que já é usado na tela de busca (Search.vue)
+const suggestedUsers = computed(() => store.getters['search/suggestedUsers'])
+const suggestionsLoading = computed(() => store.getters['search/suggestionsLoading'])
+const suggestionsError = computed(() => store.getters['search/suggestionsError'])
 
 const loadingFetchProfile = ref(false)
 const loadingLoadMorePosts = ref(false)
@@ -293,6 +316,13 @@ const fetchProfilePosts = async (userId, isRefresh = false) => {
         userId,
         isRefresh
     })
+}
+
+// Busca as sugestões de usuário pra exibir no carrossel.
+// Só faz sentido sugerir gente pra seguir quando é o perfil de outra pessoa.
+const fetchSuggestedUsers = async () => {
+    if (isSameUser.value) return
+    await store.dispatch('search/getSuggestedUsers')
 }
 
 const openConv = async (user) => {
@@ -443,6 +473,8 @@ onMounted(async () => {
         loadingFetchProfile.value = true
         await loadProfile(userId.value)
     }
+    // Busca as sugestões só depois do profile carregado, pra "isSameUser" já estar correto
+    fetchSuggestedUsers()
 })
 
 // onActivated cuida de restaurar página/tab/scroll quando a tela reaparece
@@ -469,6 +501,14 @@ onActivated(() => {
             profileView.value.scrollTop = scrollTop
         }
     }
+
+    // Reforça a busca de sugestões ao reativar via keep-alive, já que o
+    // onUnmounted (ex: ao sair pra Search.vue) limpa o estado de sugestões
+    fetchSuggestedUsers()
+})
+
+onUnmounted(() => {
+    store.dispatch('search/clearSuggestions')
 })
 
 // Reage à troca de perfil (navegação entre /profile/:id diferentes)
@@ -491,6 +531,9 @@ watch(userId, async (newId, oldId) => {
     hasError.value = { show: false, message: "" }
 
     await loadProfile(newId)
+
+    // troca de perfil pode mudar "isSameUser", então recarrega as sugestões
+    fetchSuggestedUsers()
 
     // depois que o perfil novo carregar, sobe o scroll pro topo
     if (profileView.value) {
