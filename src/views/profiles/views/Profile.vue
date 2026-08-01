@@ -2,7 +2,7 @@
     <div @scroll="setScrollTopFromCache" ref="profileView" class="relative h-screen overflow-y-scroll"
         :class="{ 'pb-[56px]': !profilePosts?.pagination?.hasMore }">
         <div
-            class="fixed px-4 z-50 flex items-center justify-between top-0 w-full bg-x-light-bg dark:bg-x-dark-bg h-[56px]">
+            class="fixed px-4 z-50 flex items-center justify-between top-0 w-full bg-x-light-bg dark:bg-x-dark-bg h-[50px]">
             <div class="flex w-full items-center">
                 <button @click="router.back()"
                     class="p-1 hover:bg-x-light-surfaceHover active:bg-x-light-surfaceActive dark:hover:bg-x-dark-surfaceHover dark:active:bg-x-dark-surfaceActive text-inherit mr-1 rounded-full transition-colors mt-[-4px]">
@@ -42,7 +42,7 @@
 
             </div>
         </div>
-        <div class="mt-[56px]" v-if="!hasError?.show">
+        <div class="mt-[48px]" v-if="!hasError?.show">
             <div v-if="!loadingFetchProfile">
                 <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
                 <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"

@@ -22,7 +22,7 @@
                     <div class="mt-3 mb-3">
                         <p class="text-xl font-semibold dark:text-white text-[rgb(40,40,41)]">{{
                             conversation?.name
-                            }}</p>
+                        }}</p>
                         <p class="dark:text-x-dark-textSecondary">@{{ conversation.name }}</p>
                     </div>
 
@@ -450,13 +450,13 @@ const onCloseDrawer = () => {
     }
 }
 
-const resetReplyTo = async () => {
+const resetReplyTo = async (isFocus = true) => {
 
     replyTo.value.show = false
-    replyTo.value.message =
+    replyTo.value.message = null
 
-        await nextTick()
-    messageFormRef.value?.focus()
+    await nextTick()
+    if (isFocus) messageFormRef.value?.focus()
 }
 
 const goToProfile = (conv) => {
@@ -733,7 +733,7 @@ watch(() => route.params.convId, async (newId, oldId) => {
     showScrollToBottomBtn.value = false
 
     messageFormRef.value.clearInput()
-    resetReplyTo()
+    resetReplyTo(false)
     unreadWhileScrolled.value = 0
 
     const cachedMessages = getMessageFromCache(newId)
