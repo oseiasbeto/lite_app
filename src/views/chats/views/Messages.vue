@@ -217,7 +217,7 @@
                     <button type="button" @click="selectGifPickerTab('gif')"
                         class="flex-1 py-3 flex items-center justify-center gap-1.5 text-sm font-semibold border-t-2 transition-colors"
                         :class="gifPickerTab === 'gif'
-                            ? 'text-[#0095f6] border-[#0095f6]'
+                            ? 'text-black border-black dark:text-x-dark-textPrimary dark:border-x-dark-textPrimary'
                             : 'text-x-light-textSecondary dark:text-x-dark-textSecondary border-transparent'">
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" class="text-inherit">
                             <path
@@ -229,7 +229,7 @@
                     <button type="button" @click="selectGifPickerTab('sticker')"
                         class="flex-1 py-3 flex items-center justify-center gap-1.5 text-sm font-semibold border-t-2 transition-colors"
                         :class="gifPickerTab === 'sticker'
-                            ? 'text-[#0095f6] border-[#0095f6]'
+                            ? 'text-black border-black dark:text-x-dark-textPrimary dark:border-x-dark-textPrimary'
                             : 'text-x-light-textSecondary dark:text-x-dark-textSecondary border-transparent'">
                         <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" class="text-inherit">
                             <path
@@ -450,9 +450,13 @@ const onCloseDrawer = () => {
     }
 }
 
-const resetReplyTo = () => {
+const resetReplyTo = async () => {
+
     replyTo.value.show = false
-    replyTo.value.message = null
+    replyTo.value.message =
+
+        await nextTick()
+    messageFormRef.value?.focus()
 }
 
 const goToProfile = (conv) => {

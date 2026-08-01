@@ -1,26 +1,14 @@
 <template>
-    <div class="flex items-center justify-between">
+    <div class="flex gap-2.5 items-center justify-between">
         <button :disabled="isDisabled" v-if="!isSameUser" @click="$emit('onFollow')"
-            class="text-[13px] line-clamp-2 leading-[15px] flex-1 disabled:opacity-50 disabled:pointer-events-none">
-            <svg v-if="hasFollowed" class="mx-auto" width="24" height="24" viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg">
-                <g fill="none" fill-rule="evenodd">
-                    <path
-                        d="M10.732 12.97A3.752 3.752 0 0 0 8.25 16.5h7.5a3.752 3.752 0 0 0-2.482-3.53 3 3 0 1 0-2.536 0Zm9.518 1.369a2.493 2.493 0 0 0-.723.63l-1.76 2.262a2.5 2.5 0 0 0-3.933 3.019H7.5a3.75 3.75 0 0 1-3.75-3.75v-9A3.75 3.75 0 0 1 7.5 3.75h9a3.75 3.75 0 0 1 3.75 3.75v6.839Z"
-                        class="icon_svg-fill_as_stroke" fill="currentColor" fill-rule="nonzero"></path>
-                    <path class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                        stroke-linejoin="round" d="m16 19 2 2 3.5-4.495"></path>
-                </g>
-            </svg>
-            <svg v-else class="mx-auto" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <g class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5" fill="none" fill-rule="evenodd">
-                    <path d="M12 12.5A2.25 2.25 0 1 0 12 8a2.25 2.25 0 0 0 0 4.5zm3 4a3 3 0 1 0-6 0"></path>
-                    <path d="M13.5 19.5h-6a3 3 0 0 1-3-3v-9a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v6m-2.5 6h5M19.5 17v5"
-                        stroke-linecap="round"></path>
-                </g>
-            </svg>
+            class="flex-1 justify-center disabled:opacity-50 disabled:pointer-events-none flex text-base active:opacity-50 bg-black text-white dark:bg-white dark:text-black items-center font-semibold gap-1 py-[7px] px-4 rounded-lg"
+            :class="{'bg-x-light-surface !text-inherit dark:bg-x-dark-surface dark:text-x-dark-textPrimary': hasFollowed}"
+            >
+           
             <p>{{ statusFollowTxt }}</p>
         </button>
+
+        <!-- 
         <button :disabled="isDisabled" v-if="!isSameUser" @click="$emit('onSubscribe')"
             class="text-[13px] line-clamp-2 leading-[15px] flex-1 disabled:opacity-50 disabled:pointer-events-none">
 
@@ -41,7 +29,7 @@
             </svg>
             <p>Notificar-me</p>
 
-        </button>
+        </button>-->
         <button v-if="isSameUser" @click="$emit('onEdit')" class="text-[13px] justify-center rounded-full border-2 py-1 dark:border-[rgb(57,56,57)] flex items-center gap-1 flex-1 ">
             <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <g fill="none" fill-rule="evenodd">
@@ -54,21 +42,13 @@
             </svg>
             <p>Editar perfil</p>
         </button>
-        <button :disabled="isDisabled || sendMessageBtnOff" v-if="!isSameUser" @click="$emit('onSendMessage')" class="text-[13px] line-clamp-2 leading-[15px] flex-1 disabled:opacity-50 disabled:pointer-events-none">
-            <svg class="mx-auto" width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <g class="icon_svg-stroke" stroke="currentColor" stroke-width="1.5" fill="none" fill-rule="evenodd">
-                    <g transform="translate(9 7)">
-                        <path d="M3 6v-.5A2.5 2.5 0 1 0 .5 3" stroke-linecap="round" stroke-linejoin="round"></path>
-                        <circle class="icon_svg-fill_as_stroke" fill="currentColor" cx="3" cy="8.5" r="1" stroke="none">
-                        </circle>
-                    </g>
-                    <path d="M7.5 4h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-3L9 22v-3H7.5a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3Z"
-                        stroke-linejoin="round"></path>
-                </g>
-            </svg>
-            <p>Mensagem</p>
+
+        <button :disabled="isDisabled || sendMessageBtnOff" v-if="!isSameUser" @click="$emit('onSendMessage')" class="justify-center flex-1 disabled:opacity-50 disabled:pointer-events-none flex text-base active:opacity-50 bg-x-light-surface text-inherit dark:bg-x-dark-surface dark:text-x-dark-textPrimary items-center font-semibold gap-1 py-[7px] px-4 rounded-lg">
+            
+            <p>Enviar mensagem</p>
         </button>
 
+        <!-- 
         <button :disabled="isDisabled" v-if="!isSameUser" @click="$emit('moreOptions')" class="text-[13px] line-clamp-2 leading-[15px] flex-1 disabled:opacity-50 disabled:pointer-events-none">
             <svg width="24" height="24" class="mx-auto" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -76,7 +56,7 @@
                     class="icon_svg-stroke" stroke-width="1.5" stroke="currentColor" fill="none"></path>
             </svg>
             <p>Mais</p>
-        </button>
+        </button>-->
     </div>
 </template>
 

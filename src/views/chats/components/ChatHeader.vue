@@ -2,7 +2,7 @@
   <header
     class="flex h-[52px] border-b dark:border-x-dark-border items-center px-2 bg-x-light-bg dark:bg-[#0c1014] z-50">
     <button @click="$emit('goBack')"
-      class="p-2 dark:text-white text-[rgb(40,40,41)] active:bg-x-dark-surfaceActive dark:active:bg-x-dark-surfaceActive mr-2 rounded-full transition-colors">
+      class="p-2 dark:text-white text-[rgb(40,40,41)] active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive mr-2 rounded-full transition-colors">
       <svg aria-label="Voltar" class="text-inherit" fill="currentColor" height="24" role="img" viewBox="0 0 24 24"
         width="24">
         <title>Voltar</title>
@@ -33,7 +33,7 @@
         </h2>
 
         <!--celo de verificacao-->
-        <div v-if="!conversation?.is_verified" class="shrink-0 flex-1 justify-start mt-0.5 ml-1">
+        <div v-if="conversation?.is_verified" class="shrink-0 flex-1 justify-start ml-1">
           <svg viewBox="0 0 22 22"
             aria-label="Verified account" role="img" class="w-[16px] h-[16px] text-x-light-blue"
             fill="currentColor" xmlns="http://www.w3.org/2000/svg" data-testid="icon-verified">

@@ -1,10 +1,7 @@
 <template>
-    <div class="">
-        <div class="border-b px-[10px] border-b border-x-light-border dark:border-x-dark-border py-2">
-            <span class="text-[15px] dark:text-white text-[rgb(40,40,41)] font-semibold">Credenciais e destaques</span>
-        </div>
-
-        <ul class="px-4 border-b dark:border-[rgb(57,56,57)] pt-2 pb-3">
+    <div class="relative">
+      
+        <ul class="pt-2 pb-3">
             <li class="flex py-1 text-[15px] gap-1 items-center">
                 <span class="w-6 shrink-0 h-6 flex items-center justify-center rounded-full dark:bg-[#202020]">
                     <svg width="16" height="16" viewBox="0 0 24 24">

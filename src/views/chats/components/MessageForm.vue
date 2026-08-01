@@ -98,7 +98,7 @@
         -->
         <button v-if="!replyTo?.show" @click.prevent="handleOpenCamera" type="button" :disabled="props.disabled" class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-full mr-1.5
 
-                 text-[#f5f5f5] bg-[#0094f8]
+                 text-[#f5f5f5] bg-black
                  active:scale-90 transition-all disabled:opacity-40">
           <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="22" height="22" viewBox="0 -2 28 28">
             <path

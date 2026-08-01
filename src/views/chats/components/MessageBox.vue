@@ -19,7 +19,7 @@
       <div class="absolute inset-y-0 flex items-center pointer-events-none z-0" :class="isSent ? 'right-2' : 'left-2'"
         :style="{ opacity: replyIconOpacity, transform: `scale(${replyIconScale})` }">
         <div class="w-8 h-8 rounded-full bg-black/10 dark:bg-white/15 flex items-center justify-center">
-          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" class="text-grey dark:text-greyDark"
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" class="text-x-light-textSecondary dark:text-x-dark-textSecondary"
             aria-hidden="true">
             <path
               d="M6.497 1.035C7.593-.088 9.5.688 9.5 2.257V4.54c1.923.215 3.49 1.246 4.593 2.672C15.328 8.808 16 10.91 16 13v.305c0 .632-.465 1.017-.893 1.127-.422.11-.99.005-1.318-.493-.59-.894-1.2-1.482-1.951-1.859-.611-.307-1.359-.496-2.338-.558v2.23c0 1.57-1.908 2.346-3.003 1.222L.893 9.223a1.75 1.75 0 0 1 .001-2.444l5.603-5.744z">
@@ -34,7 +34,7 @@
         <div class="flex items-end" :class="isSent ? 'justify-end' : 'justify-start'">
           <!-- Avatar: só no último balão do grupo recebido -->
           <div class="flex flex-col justify-end w-6 flex-shrink-0 mb-[1px]" v-if="!isSent && !isEmojiOnly">
-            <Avatar class="w-[28px] h-[28px]" v-if="isLastOfGroup" size="xl"
+            <Avatar @click="goToProfile(message?.sender?._id)" class="w-[28px] h-[28px]" v-if="isLastOfGroup" size="xl"
               :url="message?.sender?.profile_image?.thumbnails?.xs || message?.sender?.profile_image?.url" />
           </div>
 
@@ -49,7 +49,7 @@
               <span
                 class="flex items-center w-full text-[13px] mb-1 font-normal text-x-light-textSecondary dark:text-x-dark-textSecondary"
                 :class="isSent ? 'justify-end' : 'justify-start'">
-                <svg viewBox="0 0 16 16" width="13" height="13" fill="currentColor" aria-hidden="true"
+                <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"
                   class="mr-1 flex-shrink-0">
                   <path
                     d="M6.497 1.035C7.593-.088 9.5.688 9.5 2.257V4.54c1.923.215 3.49 1.246 4.593 2.672C15.328 8.808 16 10.91 16 13v.305c0 .632-.465 1.017-.893 1.127-.422.11-.99.005-1.318-.493-.59-.894-1.2-1.482-1.951-1.859-.611-.307-1.359-.496-2.338-.558v2.23c0 1.57-1.908 2.346-3.003 1.222L.893 9.223a1.75 1.75 0 0 1 .001-2.444l5.603-5.744z">
@@ -74,7 +74,7 @@
                 'relative z-[1] text-left transition-transform active:scale-[0.99] max-w-full min-w-0',
                 !isEmojiOnly && !isGif && !isSticker && !isImage && message.status !== 'is_deleted'
                   ? (isSent
-                    ? 'bg-[#0095f6] text-white p-[6px_12px]'
+                    ? 'bg-black text-white p-[6px_12px]'
                     : 'dark:bg-[#25292e] dark:text-white text-[rgb(40,40,41)] bg-[#f3f5f7] p-[8px_12px]')
                   : '',
                 isVoice && message.status !== 'is_deleted' ? 'rounded-full' : '',
@@ -125,7 +125,7 @@
                   :class="{ 'opacity-60 animate-pulse': !isWaveformReady }" @click.stop="seekAudioFromClick">
                   <span v-for="(h, n) in audioWaveformBars" :key="n"
                     class="flex-1 rounded-full transition-colors duration-75" :class="n <= activeAudioBarIndex
-                      ? (isSent ? 'bg-white' : 'bg-[#0095f6]')
+                      ? (isSent ? 'bg-white' : 'bg-black')
                       : (isSent ? 'bg-white/35' : 'bg-black/15 dark:bg-white/20')"
                     :style="{ height: h + 'px' }"></span>
                 </div>
@@ -272,6 +272,7 @@ import Avatar from '@/components/Utils/Avatar.vue'
 import SpinnerSmall from '@/components/UI/SpinnerSmall.vue'
 import { computed, ref, nextTick } from 'vue'
 import { useActiveAudio } from '@/composables/useActiveAudio'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   message: { type: Object, required: true },
@@ -281,7 +282,10 @@ const props = defineProps({
   nextMessage: { type: Object, default: null }
 })
 
+
 const emit = defineEmits(['more-option', 'scroll-to-reply', 'reply-swipe', 'open-image'])
+
+const router = useRouter()
 
 const isSent = computed(() => props.message?.sender?._id === props?.userId)
 const isDeletedForMe = computed(() => props.message?.deleted_for?.includes(props.userId) || false)
@@ -625,7 +629,7 @@ const onTouchMove = (e) => {
   // Isto garante que, se o utilizador voltar para trás antes de soltar, o reply é cancelado.
   const nowTriggered = Math.abs(swipeOffset.value) >= SWIPE_THRESHOLD
   if (nowTriggered && !swipeTriggered.value && navigator?.vibrate) {
-    navigator.vibrate(10) // haptic só na borda de subida (entrou na zona de trigger)
+   // navigator.vibrate(10) // haptic só na borda de subida (entrou na zona de trigger)
   }
   swipeTriggered.value = nowTriggered
 }
@@ -776,5 +780,9 @@ const formatAudioTime = (seconds) => {
   const m = Math.floor(seconds / 60)
   const s = Math.floor(seconds % 60).toString().padStart(2, '0')
   return `${m}:${s}`
+}
+
+const goToProfile = (userId) => {
+    router.push('/profile/' + userId)
 }
 </script>

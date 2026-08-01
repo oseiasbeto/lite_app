@@ -461,9 +461,8 @@ onMounted(async () => {
   if (sessionId) {
     // Configurar listeners de conexão
     setupConnectionListeners();
-
-    const { appReview: AppReview } = window.WTN
-    AppReview.prompt()
+   // const { appReview: AppReview } = window.WTN
+   // AppReview.prompt()
   }
 
   // Se tiver sessão salva, tentar restaurar
