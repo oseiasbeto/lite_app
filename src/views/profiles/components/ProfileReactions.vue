@@ -1,7 +1,7 @@
 <template>
     <div class="flex gap-2.5 items-center justify-between">
         <button :disabled="isDisabled" v-if="!isSameUser" @click="$emit('onFollow')"
-            class="flex-1 justify-center disabled:opacity-50 disabled:pointer-events-none flex text-base active:opacity-50 bg-black text-white dark:bg-white dark:text-black items-center font-semibold gap-1 py-[7px] px-4 rounded-lg"
+            class="flex-1 justify-center disabled:opacity-50 disabled:pointer-events-none flex text-sm active:opacity-50 bg-black text-white dark:bg-white dark:text-black items-center font-semibold gap-1 py-[7px] px-4 rounded-lg"
             :class="{'bg-x-light-surface !text-inherit dark:bg-x-dark-surface dark:text-x-dark-textPrimary': hasFollowed}"
             >
            
@@ -43,7 +43,7 @@
             <p>Editar perfil</p>
         </button>
 
-        <button :disabled="isDisabled || sendMessageBtnOff" v-if="!isSameUser" @click="$emit('onSendMessage')" class="justify-center flex-1 disabled:opacity-50 disabled:pointer-events-none flex text-base active:opacity-50 bg-x-light-surface text-inherit dark:bg-x-dark-surface dark:text-x-dark-textPrimary items-center font-semibold gap-1 py-[7px] px-4 rounded-lg">
+        <button :disabled="isDisabled || sendMessageBtnOff" v-if="!isSameUser" @click="$emit('onSendMessage')" class="justify-center flex-1 disabled:opacity-50 disabled:pointer-events-none flex text-sm active:opacity-50 bg-x-light-surface text-inherit dark:bg-x-dark-surface dark:text-x-dark-textPrimary items-center font-semibold gap-1 py-[7px] px-4 rounded-lg">
             
             <p>Enviar mensagem</p>
         </button>

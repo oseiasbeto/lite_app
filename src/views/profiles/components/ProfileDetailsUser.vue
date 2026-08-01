@@ -11,7 +11,7 @@
             </div>
 
             <div class="flex flex-col">
-                <div class="flex mt-4 text-[13px] items-center gap-[32px]">
+                <div class="flex mt-4 text-[13px] items-center gap-4">
                     
                     <span class="flex flex-col">
                         <span class="font-bold text-base dark:text-white text-[rgb(40,40,41)]">{{
