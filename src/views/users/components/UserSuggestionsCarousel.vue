@@ -56,8 +56,12 @@
                         ? ' text-base dark:border-x-dark-border text-x-light-textPrimary dark:text-x-dark-textPrimary bg-x-light-surface dark:bg-x-dark-surface'
                         : 'bg-black text-white dark:bg-white dark:text-black'" @click.stop="onFollowClick(user)">
                     <SpinnerSmall v-if="isFollowLoading(user._id)" class="mx-auto" />
+
                     <template v-else>
-                        {{ isFollowing(user._id) ? (hoveringId === user._id ? 'A seguir' : 'Seguindo') : 'Seguir' }}
+                        <span class="text-sm">
+                            {{ isFollowing(user._id) ? (hoveringId === user._id ? 'A seguir' : 'Seguindo') : 'Seguir' }}
+                        </span>
+                        
                     </template>
                 </button>
             </div>
