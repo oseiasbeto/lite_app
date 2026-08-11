@@ -1,7 +1,7 @@
 <template>
     <div class="flex gap-2.5 items-center justify-between">
         <button :disabled="isDisabled" v-if="!isSameUser" @click="$emit('onFollow')"
-            class="flex-1 justify-center disabled:opacity-50 disabled:pointer-events-none flex text-sm active:opacity-50 bg-black text-white dark:bg-white dark:text-black items-center font-semibold gap-1 py-[7px] px-4 rounded-lg"
+            class="flex-1 justify-center disabled:opacity-50 disabled:pointer-events-none flex text-sm active:opacity-50 bg-black text-white dark:bg-white dark:text-black items-center font-semibold gap-1 py-2 px-4 rounded-lg"
             :class="{'bg-x-light-surface !text-inherit dark:bg-x-dark-surface dark:text-x-dark-textPrimary': hasFollowed}"
             >
            
@@ -30,22 +30,17 @@
             <p>Notificar-me</p>
 
         </button>-->
-        <button v-if="isSameUser" @click="$emit('onEdit')" class="text-[13px] justify-center rounded-lg border-2 py-1 dark:border-[rgb(57,56,57)] flex items-center gap-1 flex-1 ">
-            <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <g fill="none" fill-rule="evenodd">
-                    <path
-                        d="M18.571 5.429h0a2 2 0 0 1 0 2.828l-9.9 9.9-4.24 1.416 1.412-4.245 9.9-9.9a2 2 0 0 1 2.828 0Z"
-                        class="icon_svg-stroke" stroke="#666" stroke-width="1.5" stroke-linecap="round"
-                        stroke-linejoin="round"></path>
-                    <path class="icon_svg-fill_as_stroke" fill="#666" d="m4.429 19.571 2.652-.884-1.768-1.768z"></path>
-                </g>
-            </svg>
+        <button v-if="isSameUser" @click="$emit('onEdit')" class="justify-center flex-1 disabled:opacity-50 disabled:pointer-events-none flex text-sm active:opacity-50 bg-x-light-surface text-inherit dark:bg-x-dark-surface dark:text-x-dark-textPrimary items-center font-semibold gap-1 py-2 px-4 rounded-lg">
             <p>Editar perfil</p>
         </button>
 
-        <button :disabled="isDisabled || sendMessageBtnOff" v-if="!isSameUser" @click="$emit('onSendMessage')" class="justify-center flex-1 disabled:opacity-50 disabled:pointer-events-none flex text-sm active:opacity-50 bg-x-light-surface text-inherit dark:bg-x-dark-surface dark:text-x-dark-textPrimary items-center font-semibold gap-1 py-[7px] px-4 rounded-lg">
+        <button v-if="isSameUser" @click="handleNativeShare" class="justify-center flex-1 disabled:opacity-50 disabled:pointer-events-none flex text-sm active:opacity-50 bg-x-light-surface text-inherit dark:bg-x-dark-surface dark:text-x-dark-textPrimary items-center font-semibold gap-1 py-2 px-4 rounded-lg">
+            <p>Partilhar perfil</p>
+        </button>
+
+        <button :disabled="isDisabled || sendMessageBtnOff" v-if="!isSameUser" @click="$emit('onSendMessage')" class="justify-center flex-1 disabled:opacity-50 disabled:pointer-events-none flex text-sm active:opacity-50 bg-x-light-surface text-inherit dark:bg-x-dark-surface dark:text-x-dark-textPrimary items-center font-semibold gap-1 py-2 px-4 rounded-lg">
             
-            <p>Enviar mensagem</p>
+            <p>Mensagem</p>
         </button>
 
         <!-- 
@@ -97,7 +92,21 @@ const props = defineProps({
     }
 })
 
-
+const handleNativeShare = async () => {
+    if (navigator.share) {
+        try {
+            await navigator.share({
+                title: 'Partilhar Perfil',
+                text: 'Baixe agora o App 1kolet e veja este perfil!',
+                url: 'https://play.google.com/store/apps/details?id=com.wnapp.id1753308188170'
+            });
+        } catch (error) {
+            console.error('Erro ao partilhar:', error);
+        }
+    } else {
+        console.warn('Web Share API não suportada neste navegador.');
+    }
+};
 
 defineEmits(['onFollow', 'onSubscribe', 'onEdit', 'onSendMessage', 'moreOptions'])
 

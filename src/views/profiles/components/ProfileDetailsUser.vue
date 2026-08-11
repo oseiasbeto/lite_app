@@ -13,7 +13,7 @@
             <div class="flex flex-col">
                 <div class="flex mt-4 text-[13px] items-center gap-4">
                     
-                    <span class="flex flex-col">
+                    <span @click="$emit('goToFollowers')" class="flex flex-col">
                         <span class="font-bold text-base dark:text-white text-[rgb(40,40,41)]">{{
                             formattedCount(profile?.followers_count) }}
                         </span>
@@ -22,7 +22,7 @@
 
                     </span>
                  
-                    <span class="flex flex-col">
+                    <span @click="$emit('goToFollowing')" class="flex flex-col">
                         <span class="font-bold text-base dark:text-white text-[rgb(40,40,41)]">{{
                             formattedCount(profile?.following_count) }}
                         </span>
@@ -30,7 +30,7 @@
                         <span class="text-sm">Seguindo</span>
                     </span>
                  
-                    <span class="flex flex-col">
+                    <span @click="$emit('goToPosts')" class="flex flex-col">
                         <span class="font-bold text-base dark:text-white text-[rgb(40,40,41)]">{{
                             formattedCount(profile?.posts_count) }}
                         </span>
@@ -62,7 +62,7 @@ import Avatar from '@/components/Utils/Avatar.vue';
 import formattedCount from '@/utils/formatted-count';
 
 
-defineEmits(['goToPictureFullScreen'])
+defineEmits(['goToPictureFullScreen', 'goToFollowers', 'goToFollowing', 'goToPosts'])
 
 const props = defineProps({
     profile: {

@@ -3,7 +3,7 @@
         :class="{ 'pb-[56px]': !profilePosts?.pagination?.hasMore }">
         <div
             class="fixed px-4 z-50 flex items-center justify-between top-0 w-full bg-x-light-bg dark:bg-x-dark-bg h-[50px]">
-            <div class="flex w-full items-center">
+            <div class="flex w-[calc(100%-38px)] items-center">
                 <button @click="router.back()"
                     class="p-1 hover:bg-x-light-surfaceHover active:bg-x-light-surfaceActive dark:hover:bg-x-dark-surfaceHover dark:active:bg-x-dark-surfaceActive text-inherit mr-1 rounded-full transition-colors mt-[-4px]">
                     <svg aria-label="Voltar" class="text-inherit" fill="currentColor" height="24" role="img"
@@ -38,8 +38,30 @@
                 </div>
             </div>
 
-            <div>
+            <div v-if="!loadingFetchProfile">
+                <button @click="handleMoreOptions"
+                    class="p-1 hover:bg-x-light-surfaceHover active:bg-x-light-surfaceActive dark:hover:bg-x-dark-surfaceHover dark:active:bg-x-dark-surfaceActive text-inherit rounded-full transition-colors flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="24" height="24"
+                        viewBox="0 0 24 24">
 
+                        <g data-name="Layer 2">
+
+                            <g data-name="more-vertical">
+
+                                <rect width="24" height="24" transform="rotate(-90 12 12)" opacity="0" />
+
+                                <circle cx="12" cy="12" r="2" />
+
+                                <circle cx="12" cy="5" r="2" />
+
+                                <circle cx="12" cy="19" r="2" />
+
+                            </g>
+
+                        </g>
+
+                    </svg>
+                </button>
             </div>
         </div>
         <div class="mt-[48px]" v-if="!hasError?.show">
@@ -50,7 +72,12 @@
 
 
                 <div class="px-4 py-4 pb-2">
-                    <ProfileDetailsUser @go-to-picture-full-screen="goToPictureFullScreen" :profile="profile"
+                    <ProfileDetailsUser 
+                        @go-to-picture-full-screen="goToPictureFullScreen" 
+                        @go-to-followers="goToFollowers"
+                        @go-to-following="goToFollowing"
+                        @go-to-posts="goToPosts"
+                        :profile="profile"
                         :user-id="user?._id" />
                 </div>
 
@@ -75,10 +102,7 @@
 
                     <UserSuggestionsCarousel v-else :users="suggestedUsers" :loading-fetch="suggestionsLoading"
                         :show-btn-follow="true" title="Sugestões para você" see-all-route="/people"
-                        :exclude-user-id="profile?._id"
-                        start-spacing="16px"
-                        end-spacing="16px"
-                        />
+                        :exclude-user-id="profile?._id" start-spacing="16px" end-spacing="16px" />
                 </div>
 
                 <!--TABS-->
@@ -442,6 +466,34 @@ const emitRefreshAndWait = () => {
         await loadProfile(userId.value, true)
         resolve()
     })
+}
+
+const handleMoreOptions = () => {
+    if (isSameUser.value) {
+        router.push('/settings')
+    } else {
+        openMoreOptionsDrawer()
+    }
+}
+
+const goToFollowers = () => {
+    router.push({
+        name: 'ProfileFollow',
+        params: { user_id: profile?.value?._id },
+        query: { type: 'followers' }
+    })
+}
+
+const goToFollowing = () => {
+    router.push({
+        name: 'ProfileFollow',
+        params: { user_id: profile?.value?._id },
+        query: { type: 'following' }
+    })
+}   
+
+const goToPosts = () => {
+    // Implementation for navigating to posts
 }
 
 const loadProfile = async (userId, isRefresh = false) => {

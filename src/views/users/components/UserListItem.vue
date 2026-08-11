@@ -1,12 +1,13 @@
 <template>
     <div class="bg-transparent flex items-center py-2 px-4 cursor-pointer h-16 box-border" @click="$emit('click')">
         <Avatar :url="user.profile_image?.thumbnails?.md || user?.profile_image?.url"
-            :alt="user.display_name || user.name || ('@' + user.username)" size="sm" class="mr-2 shrink-0" />
+            :alt="user.display_name || user.name || ('@' + user.username)" size="sm" class="mr-2 shrink-0" 
+        />
 
-        <div class="flex-1 min-w-0">
+        <div class="flex-1 mr-2 min-w-0">
             <p class="flex items-center truncate">
                 <span class="text-[#282829] dark:text-inherit font-medium truncate">
-                    {{ user.display_name || user.name || ('@' + user.username) }}
+                    {{ user.username }}
                 </span>
              
                 <svg v-if="user?.is_verified" :class="{ 'w-[12px] h-[12px]': isParentPost }" viewBox="0 0 22 22"
@@ -19,13 +20,14 @@
                     </g>
                 </svg>
             </p>
-            <p class="text-x-light-textSecondary dark:text-x-dark-textSecondary text-sm truncate">@{{ user.username }}
+            <p class="text-x-light-textSecondary dark:text-x-dark-textSecondary text-sm truncate">
+                {{ user.name }}
             </p>
         </div>
 
         <button v-if="showBtnFollow" @click.stop="handleFollowUser(user?._id)" @mouseenter="isHovering = true"
             @mouseleave="isHovering = false" :disabled="isFollowingUser"
-            class="shrink-0 text-sm font-medium px-3 py-1 rounded-full transition-colors min-w-[92px] text-center disabled:opacity-60"
+            class="shrink-0 text-sm font-medium px-3 py-[7px] rounded-lg transition-colors min-w-[92px] text-center disabled:opacity-60"
             :class="hasFollowingUser
                 ? 'border border-x-light-border dark:border-x-dark-border text-x-light-textPrimary dark:text-x-dark-textPrimary'
                 : 'bg-black dark:bg-white text-white dark:text-[#282829] border border-transparent'">

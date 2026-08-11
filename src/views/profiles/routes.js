@@ -29,4 +29,14 @@ export default [
         },
         component: () => import('./views/PictureFullScreen.vue')
     },
+    {
+        path: '/profile/follow/:user_id',
+        name: 'ProfileFollow',
+        meta: {
+            requiresAuth: true,
+            rootPage: 'profiles',
+            title: 'Seguidores/Seguindo'
+        },
+        component: () => import('./views/ProfileFollow.vue')
+    },
 ]
