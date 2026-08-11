@@ -1,5 +1,5 @@
 <template>
-    <Followlist :user-id="userId" :username="profile?.username" :type="type" />
+    <Followlist :user-id="userId" :is-verified="profile?.is_verified" :username="profile?.username" :type="type" />
 </template>
 
 <script setup>

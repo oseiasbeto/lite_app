@@ -1,7 +1,7 @@
 <template>
     <div class="bg-transparent active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive flex items-center py-2 px-4 cursor-pointer h-16 box-border" @click="$emit('click')">
         <Avatar :url="user.profile_image?.thumbnails?.md || user?.profile_image?.url"
-            :alt="user.display_name || user.name || ('@' + user.username)" size="lg" class="mr-3 shrink-0 w-[42px] h-[42px]" 
+            :alt="user.display_name || user.name || ('@' + user.username)" size="lg" class="mr-3 shrink-0 w-[46px] h-[46px]" 
         />
 
         <div class="flex-1 mr-2 min-w-0">
