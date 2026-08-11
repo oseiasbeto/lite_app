@@ -1,5 +1,5 @@
 <template>
-    <div @scroll="setScrollTopFromCache" ref="profileView" class="relative h-screen overflow-y-scroll"
+    <div @scroll="setScrollTopFromCache" ref="profileView" class="relative mt-[50px] h-[calc(100vh-50px)] overflow-y-scroll"
         :class="{ 'pb-[56px]': !profilePosts?.pagination?.hasMore }">
         <div
             class="fixed px-4 z-50 flex items-center justify-between top-0 w-full bg-x-light-bg dark:bg-x-dark-bg h-[50px]">
@@ -64,14 +64,14 @@
                 </button>
             </div>
         </div>
-        <div class="mt-[48px]" v-if="!hasError?.show">
+        <div v-if="!hasError?.show">
             <div v-if="!loadingFetchProfile">
                 <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
                 <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"
                     :is-refreshing="isRefreshing" :top-position="54" />
 
 
-                <div class="px-4 py-4 pb-2">
+                <div class="px-4 pt-2 py-4 pb-2">
                     <ProfileDetailsUser @go-to-picture-full-screen="goToPictureFullScreen"
                         @go-to-followers="goToFollowers" @go-to-following="goToFollowing" @go-to-posts="goToPosts"
                         :profile="profile" :user-id="user?._id" />
@@ -210,7 +210,7 @@ const conversations = computed(() => {
 // === Sugestões estilo Instagram, exibidas no perfil de outra pessoa ===
 // Reaproveita o mesmo módulo "search" que já é usado na tela de busca (Search.vue)
 const suggestedUsers = computed(() => store.getters['search/suggestedUsers'])
-const suggestionsLoading = computed(() => store.getters['search/suggestionsLoading'])
+const suggestionsLoading = ref(true)
 const suggestionsError = computed(() => store.getters['search/suggestionsError'])
 
 const loadingFetchProfile = ref(false)
@@ -343,7 +343,11 @@ const fetchProfilePosts = async (userId, isRefresh = false) => {
 // Só faz sentido sugerir gente pra seguir quando é o perfil de outra pessoa.
 const fetchSuggestedUsers = async () => {
     if (isSameUser.value) return
+    suggestionsLoading.value = true
     await store.dispatch('search/getSuggestedUsers')
+        .finally(() => {
+            suggestionsLoading.value = false
+        })
 }
 
 const openConv = async (user) => {
@@ -577,6 +581,7 @@ watch(userId, async (newId, oldId) => {
     // limpa as sugestões do perfil anterior imediatamente,
     // pra não "vazar" dado antigo enquanto o perfil novo carrega
     store.dispatch('search/clearSuggestions')
+    suggestionsLoading.value = true
 
     loadingFetchProfile.value = true
     hasError.value = { show: false, message: "" }
