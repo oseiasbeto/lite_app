@@ -92,7 +92,7 @@
 
                 <!-- Sugestões estilo Instagram, exibidas apenas no perfil de outra pessoa -->
                 <!-- Sugestões estilo Instagram, exibidas apenas no perfil de outra pessoa -->
-                <div v-if="!isSameUser" class="mt-4">
+                <div v-if="!isSameUser">
                     <div v-if="suggestionsError" class="px-1 py-2 text-sm text-red-500">
                         {{ suggestionsError }}
                     </div>

@@ -44,7 +44,7 @@
         </div>
 
         <div class="flex leading-5 flex-col">
-            <p class="font-semibold text-base font-bold text-base dark:text-white text-[rgb(40,40,41)]">{{ profile?.name || 'Nome' }}
+            <p class="font-semibold text-base font-bold dark:text-white text-[rgb(40,40,41)]">{{ profile?.name || 'Nome' }}
             </p>
 
             <p v-show="profile?.credentials?.length" class="text-x-light-textSecondary dark:text-x-dark-textSecondary text-sm">{{ profile?.credentials }}</p>

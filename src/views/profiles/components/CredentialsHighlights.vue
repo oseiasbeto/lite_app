@@ -1,6 +1,6 @@
 <template>
     <div class="relative">
-        <ul class="pt-0.5 pb-3">
+        <ul class="py-0.5 pb-1">
             <li class="flex py-1 text-[15px] gap-1 items-center">
                 <span class="w-6 shrink-0 h-6 flex items-center justify-center rounded-full dark:bg-[#202020]">
                     <svg width="16" height="16" viewBox="0 0 24 24">

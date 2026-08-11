@@ -14,7 +14,7 @@
                     </svg>
                 </button>
                 <div class="flex flex-row items-center leading-tight pl-1 flex-1 min-w-0">
-                    <span class="font-bold text-xl truncate text-inherit">Encontrar pessoas</span>
+                    <span class="font-bold text-[22px] truncate text-inherit">Encontrar pessoas</span>
 
                 </div>
             </div>
