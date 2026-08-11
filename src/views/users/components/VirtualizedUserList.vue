@@ -19,7 +19,7 @@
         </div>
 
         <div v-else>
-            <UserSkeleton v-for="n in 6" :key="n" />
+            <UserSkeleton v-for="n in 8" :key="n" />
         </div>
     </div>
 </template>

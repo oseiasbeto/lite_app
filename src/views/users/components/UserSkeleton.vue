@@ -41,7 +41,7 @@ defineProps({
     },
     avatarSize: {
         type: String,
-        default: '40px' // igual ao tamanho real do Avatar "xl" usado no UserListItem
+        default: '46px' // igual ao tamanho real do Avatar "xl" usado no UserListItem
     },
     nameWidth: {
         type: String,

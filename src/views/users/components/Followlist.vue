@@ -26,9 +26,33 @@
             </div>
         </div>
 
+        <!-- Abas Seguidores / Seguindo, igual ao Instagram -->
+        <div class="flex w-full shrink-0 border-b border-x-light-border dark:border-x-dark-border">
+            <button
+                class="flex-1 py-3 text-center text-[15px] font-semibold transition-colors relative text-inherit"
+                :class="currentType === 'followers'
+                    ? 'text-inherit'
+                    : 'text-x-light-textTertiary dark:text-x-dark-textTertiary'"
+                @click="switchTab('followers')">
+                Seguidores
+                <span v-if="currentType === 'followers'"
+                    class="absolute bottom-0 left-0 right-0 mx-auto w-full h-[2px] bg-black dark:bg-white rounded-full"></span>
+            </button>
+            <button
+                class="flex-1 py-3 text-center text-[15px] font-semibold transition-colors relative text-inherit"
+                :class="currentType === 'following'
+                    ? 'text-inherit'
+                    : 'text-x-light-textTertiary dark:text-x-dark-textTertiary'"
+                @click="switchTab('following')">
+                Seguindo
+                <span v-if="currentType === 'following'"
+                    class="absolute bottom-0 left-0 right-0 mx-auto w-full h-[2px] bg-black dark:bg-white rounded-full"></span>
+            </button>
+        </div>
+
         <!-- Filtro local: não bate na API de novo, só filtra o que já foi carregado,
              igual o comportamento da lista de seguidores/seguindo do Instagram -->
-        <div class="px-4 py-2 border-b border-[#dee0e1] dark:border-[rgb(57,56,57)] shrink-0">
+        <div class="px-4 py-2 shrink-0">
             <div class="h-[34px] w-full flex items-center relative">
                 <span class="absolute dark:text-x-dark-textTertiary text-x-light-textTertiary text-inherit left-[8px]">
                     <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -41,7 +65,7 @@
                     class="h-full pl-[34px] placeholder 
                     dark:text-x-dark-textTertiary text-base bg-x-light-surfaceHover dark:bg-x-dark-surface text-inherit px-2 outline-none w-full rounded-lg"
                     v-model="filterQuery"
-                    :placeholder="type === 'followers' ? 'Pesquisar seguidores' : 'Pesquisar seguindo'" />
+                    :placeholder="currentType === 'followers' ? 'Pesquisar seguidores' : 'Pesquisar seguindo'" />
             </div>
         </div>
 
@@ -89,15 +113,16 @@ const store = useStore();
 const scrollContainer = ref(null);
 const filterQuery = ref("");
 
-const users = computed(() => store.getters[`${props.type}Results`]);
-const loading = computed(() => store.getters[`${props.type}Loading`]);
-const loadingMore = computed(() => store.getters[`${props.type}LoadingMore`]);
-const hasMore = computed(() => store.getters[`${props.type}HasMore`]);
-const error = computed(() => store.getters[`${props.type}Error`]);
+// Aba ativa no momento (começa com o type recebido via prop, mas pode ser trocada pelo usuário)
+const currentType = ref(props.type);
 
-const emptyMessage = computed(() =>
-    props.type === "followers" ? "Ainda não há seguidores." : "Ainda não segue ninguém."
-);
+const users = computed(() => store.getters[`${currentType.value}Results`]);
+const loading = computed(() => store.getters[`${currentType.value}Loading`]);
+const loadingMore = computed(() => store.getters[`${currentType.value}LoadingMore`]);
+const hasMore = computed(() => store.getters[`${currentType.value}HasMore`]);
+const error = computed(() => store.getters[`${currentType.value}Error`]);
+
+const emptyMessage = computed(() => "Nenhum resultado encontrado.");
 
 // Filtra client-side pelo que já foi carregado, por username ou nome de exibição
 const filteredUsers = computed(() => {
@@ -108,11 +133,11 @@ const filteredUsers = computed(() => {
     );
 });
 
-const fetchAction = computed(() => (props.type === "followers" ? "getFollowers" : "getFollowing"));
+const fetchAction = computed(() => (currentType.value === "followers" ? "getFollowers" : "getFollowing"));
 const loadMoreAction = computed(() =>
-    props.type === "followers" ? "loadMoreFollowers" : "loadMoreFollowing"
+    currentType.value === "followers" ? "loadMoreFollowers" : "loadMoreFollowing"
 );
-const clearAction = computed(() => (props.type === "followers" ? "clearFollowers" : "clearFollowing"));
+const clearAction = computed(() => (currentType.value === "followers" ? "clearFollowers" : "clearFollowing"));
 
 const loadMore = () => {
     store.dispatch(loadMoreAction.value);
@@ -120,6 +145,18 @@ const loadMore = () => {
 
 const load = () => {
     store.dispatch(fetchAction.value, { userId: props.userId });
+};
+
+// Troca de aba: limpa a lista da aba anterior, reseta o filtro e carrega a nova aba
+const switchTab = (newType) => {
+    if (newType === currentType.value) return;
+
+    const prevClearAction = currentType.value === "followers" ? "clearFollowers" : "clearFollowing";
+    store.dispatch(prevClearAction);
+
+    currentType.value = newType;
+    filterQuery.value = "";
+    load();
 };
 
 onMounted(load);
@@ -131,6 +168,7 @@ watch(
     (newId, oldId) => {
         if (newId !== oldId) {
             filterQuery.value = "";
+            currentType.value = props.type;
             load();
         }
     }

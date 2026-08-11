@@ -72,13 +72,9 @@
 
 
                 <div class="px-4 py-4 pb-2">
-                    <ProfileDetailsUser 
-                        @go-to-picture-full-screen="goToPictureFullScreen" 
-                        @go-to-followers="goToFollowers"
-                        @go-to-following="goToFollowing"
-                        @go-to-posts="goToPosts"
-                        :profile="profile"
-                        :user-id="user?._id" />
+                    <ProfileDetailsUser @go-to-picture-full-screen="goToPictureFullScreen"
+                        @go-to-followers="goToFollowers" @go-to-following="goToFollowing" @go-to-posts="goToPosts"
+                        :profile="profile" :user-id="user?._id" />
                 </div>
 
                 <div class="px-4 pb-3">
@@ -95,7 +91,8 @@
                 </div>
 
                 <!-- Sugestões estilo Instagram, exibidas apenas no perfil de outra pessoa -->
-                <div v-if="!isSameUser && !suggestionsLoading" class="mt-4">
+                <!-- Sugestões estilo Instagram, exibidas apenas no perfil de outra pessoa -->
+                <div v-if="!isSameUser" class="mt-4">
                     <div v-if="suggestionsError" class="px-1 py-2 text-sm text-red-500">
                         {{ suggestionsError }}
                     </div>
@@ -477,6 +474,8 @@ const handleMoreOptions = () => {
 }
 
 const goToFollowers = () => {
+    if (profile?.value?.followers?.length === 0) return
+
     router.push({
         name: 'ProfileFollow',
         params: { user_id: profile?.value?._id },
@@ -485,12 +484,14 @@ const goToFollowers = () => {
 }
 
 const goToFollowing = () => {
+    if (profile?.value?.following?.length === 0) return
+    
     router.push({
         name: 'ProfileFollow',
         params: { user_id: profile?.value?._id },
         query: { type: 'following' }
     })
-}   
+}
 
 const goToPosts = () => {
     // Implementation for navigating to posts
@@ -566,28 +567,24 @@ onUnmounted(() => {
 // Reage à troca de perfil (navegação entre /profile/:id diferentes)
 // enquanto o componente está "vivo" dentro do keep-alive
 watch(userId, async (newId, oldId) => {
-    // só reage se a rota atual realmente for a de perfil — evita disparo
-    // quando o componente muda de "userId" por estar em outra rota (Feed, Chats, etc.)
-    // enquanto fica vivo em cache pelo keep-alive
     if (route.name !== 'Profile') return
     if (!newId || newId === oldId) return
-
-    // se o perfil pedido já é o que está salvo no store, não refaz a requisição
     if (profile.value?._id === newId) return
 
-    // reseta tab e query pro perfil novo, senão a tab/paginação antiga "vaza" pro perfil novo
     currentTab.value = 'posts'
     resetQueryPosts()
+
+    // limpa as sugestões do perfil anterior imediatamente,
+    // pra não "vazar" dado antigo enquanto o perfil novo carrega
+    store.dispatch('search/clearSuggestions')
 
     loadingFetchProfile.value = true
     hasError.value = { show: false, message: "" }
 
     await loadProfile(newId)
 
-    // troca de perfil pode mudar "isSameUser", então recarrega as sugestões
     fetchSuggestedUsers()
 
-    // depois que o perfil novo carregar, sobe o scroll pro topo
     if (profileView.value) {
         profileView.value.scrollTop = 0
     }
