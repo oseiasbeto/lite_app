@@ -25,7 +25,7 @@
             </p>
         </div>
 
-        <button v-if="showBtnFollow" @click.stop="handleFollowUser(user?._id)" @mouseenter="isHovering = true"
+        <button v-if="showBtnFollow && user?._id !== currentUser?._id" @click.stop="handleFollowUser(user?._id)" @mouseenter="isHovering = true"
             @mouseleave="isHovering = false" :disabled="isFollowingUser"
             class="shrink-0 text-sm font-medium px-3 py-[7px] rounded-lg transition-colors min-w-[92px] text-center disabled:opacity-60"
             :class="hasFollowingUser

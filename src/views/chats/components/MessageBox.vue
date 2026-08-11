@@ -212,7 +212,7 @@
               <!-- Conteúdo normal -->
               <p v-else :class="[
                 'break-words [overflow-wrap:anywhere] whitespace-pre-wrap leading-snug min-w-0',
-                isEmojiOnly ? 'text-5xl' : 'text-base',
+                isEmojiOnly ? 'text-5xl' : 'text-[17px]',
                 isEmojiOnly && !isSent ? 'ml-6' : 'ml-0'
               ]">
                 {{ message.content }}
