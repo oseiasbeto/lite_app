@@ -1,4 +1,3 @@
-<!-- components/User/VirtualizedUserList.vue -->
 <template>
     <div ref="scrollContainer" class="relative">
         <div v-if="!loadingFetch">
