@@ -212,6 +212,7 @@ const conversations = computed(() => {
 const suggestedUsers = computed(() => store.getters['search/suggestedUsers'])
 const suggestionsLoading = ref(true)
 const suggestionsError = computed(() => store.getters['search/suggestionsError'])
+const suggestionsUserId = ref(null) 
 
 const loadingFetchProfile = ref(false)
 const loadingLoadMorePosts = ref(false)
@@ -561,6 +562,7 @@ onActivated(() => {
 
     // Reforça a busca de sugestões ao reativar via keep-alive, já que o
     // onUnmounted (ex: ao sair pra Search.vue) limpa o estado de sugestões
+    suggestionsLoading.value = true
     fetchSuggestedUsers()
 })
 
