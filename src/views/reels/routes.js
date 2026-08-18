@@ -4,7 +4,7 @@ export default [
         name: 'Reels',
         meta: {
             requiresAuth: true,
-            rootPage: 'reels',
+            rootPage: 'main',
             title: 'Reels'
         },
         component: () => import('./views/ReelsPage.vue')

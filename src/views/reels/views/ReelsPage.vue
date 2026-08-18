@@ -57,6 +57,8 @@ if (rawSeed.value) {
   store.commit('SET_REELS_SEED', null)
 }
 
+console.log(initialSeedItem)
+
 const {
   items,
   loading,
@@ -72,7 +74,7 @@ const {
 } = useReels({
   feedType: props.initialType,
   pageSize: 6,
-  seedItem: initialSeedItem,
+  ...initialSeedItem?.id && { seedItem: initialSeedItem },
 
   // Liga aqui à tua API real — troca isto pelo teu client HTTP (axios,
   // fetch wrapper com token, etc.). `page` começa em 0 aqui e o
@@ -169,7 +171,7 @@ onUnmounted(() => {
 .reels-page {
   position: fixed;
   inset: 0;
-  height: 100dvh;
+  height: calc(100dvh - 64px);
   width: 100vw;
   background: #000;
 }
