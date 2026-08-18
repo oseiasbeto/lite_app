@@ -19,7 +19,7 @@
         :active="index === activeIndex"
         :should-mount="withinWindow(index)"
         v-model:muted="muted"
-        :is-following="store.state.auth.user?._id == item.author.id || store.state.auth.user?.following?.includes(item?.author?.id)"
+        :is-following="store?.state?.auth?.user?._id == item?.author?.id || store?.state?.auth?.user?.following?.includes(item?.author?.id)"
         @ended="onEnded(index)"
         @like="onLike"
         @comment="onComment"

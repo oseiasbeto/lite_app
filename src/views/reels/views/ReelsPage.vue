@@ -54,7 +54,7 @@ const initialSeedItem =
     : null
 
 if (rawSeed.value) {
-  //store.commit('SET_REELS_SEED', null)
+  store.commit('SET_REELS_SEED', null)
 }
 
 const {
