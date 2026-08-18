@@ -531,6 +531,8 @@ onMounted(async () => {
         loadingFetchProfile.value = true
         await loadProfile(userId.value)
     }
+    
+    suggestionsLoading.value = true
     // Busca as sugestões só depois do profile carregado, pra "isSameUser" já estar correto
     fetchSuggestedUsers()
 })
@@ -590,6 +592,7 @@ watch(userId, async (newId, oldId) => {
 
     await loadProfile(newId)
 
+    suggestionsLoading.value = true
     fetchSuggestedUsers()
 
     if (profileView.value) {

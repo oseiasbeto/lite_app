@@ -7,6 +7,7 @@ import profiles from '../views/profiles/routes'
 import search from '../views/search/routes'
 import settings from '../views/settings/routes'
 import media from '../views/media/routes'
+import reels from '../views/reels/routes'
 
 export default [
     ...auth,
@@ -17,5 +18,6 @@ export default [
     ...profiles,
     ...search,
     ...settings,
-    ...media
+    ...media,
+    ...reels
 ]

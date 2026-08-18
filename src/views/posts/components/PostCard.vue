@@ -199,8 +199,6 @@ const handleFollowUser = async (userId) => {
             isFollowingUser.value = false
         })
 
-
- 
     store.dispatch('showToast', {
         message: hasFollowingUser.value ? 'Você está seguindo ' + props?.data?.author?.name : 'Você deixou de seguir ' + props?.data?.author?.name,
         type: 'success',
@@ -227,7 +225,6 @@ const goToComments = () => {
 }
 
 const goToViewMore = () => {
-    console.log("aki")
     if (!props.showMore) {
         store.commit("SET_POST", props?.data)
         router.push({
@@ -272,8 +269,41 @@ const setMedia = ({ selected, list, post, module }) => {
 }
 
 const openVideo = (video) => {
-    store.commit("SET_MEDIA", { selected: video, list: [video], post: props.data })
-    router.push(`/media/${video._id}?module=${props.module}`)
+    const seedItem = {
+        id: props.data._id,
+        video: {
+            url: video.url,
+            format: video.format,
+            thumbnail: video.thumbnail,
+            duration: video.duration
+        },
+        author: {
+            id: props.data.author?._id,
+            name: props.data.author?.name,
+            username: props.data.author?.username,
+            avatar: props.data.author?.profile_image?.url,
+            verified: props.data.author?.verified,
+            isFollowing: hasFollowingUser.value
+        },
+        caption: props.data.content,
+        stats: {
+            likes: props.data.upvotes_count || 0,
+            comments: props.data.comments_count || 0,
+            shares: props.data.shares_count || 0
+        },
+        liked: props.data.upvotes?.includes(props.user?._id) || false,
+        saved: false
+    }
+
+    store.commit('SET_REELS_SEED', seedItem)
+
+    router.push({
+        path: '/reels',
+        query: {
+            module: props.module,
+            videoId: props.data._id
+        }
+    })
 }
 
 </script>

@@ -14,7 +14,7 @@
              focus:outline-none"
              >
       <!-- Ícone de lápis (exato do Telegram) -->
-      <slot name="icon"></slot>
+      <slot class="text-white" name="icon"></slot>
     </button>
   </transition>
 </template>

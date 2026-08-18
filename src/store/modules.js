@@ -8,6 +8,7 @@ import profiles from '../views/profiles/store'
 import notifications from '../views/notifications/store'
 import search from '../views/search/store'
 import media from '../views/media/store'
+import reels from '../views/reels/store'
 
 export default {
     auth,
@@ -19,5 +20,6 @@ export default {
     profiles,
     notifications,
     search,
-    media
+    media,
+    reels
 }

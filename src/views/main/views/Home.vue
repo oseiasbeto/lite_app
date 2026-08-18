@@ -67,7 +67,8 @@
                         <div class="h-3 w-4/5 rounded bg-x-light-hover dark:bg-x-dark-hover"></div>
 
                         <!-- Placeholder de imagem (alternado) -->
-                        <div v-if="n % 2 === 0" class="h-40 w-full rounded-lg bg-x-light-hover dark:bg-x-dark-hover mt-1"></div>
+                        <div v-if="n % 2 === 0"
+                            class="h-40 w-full rounded-lg bg-x-light-hover dark:bg-x-dark-hover mt-1"></div>
 
                         <!-- Ações -->
                         <div class="flex gap-8 mt-1">
@@ -96,18 +97,32 @@
         </div>
 
         <PostUploadIndicator />
+
+        <FloatingActionButton :show="showHeader" @on-press="goToComposer('feed')" class="fixed bottom-[70px] right-[16px] z-30">
+            <template #icon>
+                <svg class="!text-white" xmlns="http://www.w3.org/2000/svg" width="30px" height="30px"
+                    viewBox="0 0 24 24" fill="none">
+                    <path d="M6 12H18M12 6V18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </template>
+        </FloatingActionButton>
     </div>
 </template>
 
 <script setup>
+import FloatingActionButton from '@/components/buttons/FloatingActionButton.vue';
 import Tabs from '@/components/UI/Tabs.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
 import PostList from '@/views/posts/components/PostList.vue';
 import PostUploadIndicator from '@/views/posts/components/PostUploadIndicator.vue';
 import { ref, reactive, onMounted, onActivated, computed, watch, nextTick } from 'vue';
 import { useStore } from 'vuex';
+import { useRouter } from 'vue-router';
 
 const store = useStore()
+
+const router = useRouter()
 
 const enablePullToRefresh = ref(false)
 
@@ -145,6 +160,18 @@ const getQueryFor = (mod) => {
 const resetQueryFor = (mod) => {
     queriesByModule[mod] = { page: 1, limit: 10, module: mod, hasTotal: null }
     return queriesByModule[mod]
+}
+
+const goToComposer = (module, postType) => {
+    router.push({
+        path: '/composer',
+        query: {
+            module: module,
+            ...(postType && {
+                post_type: postType
+            })
+        }
+    })
 }
 
 // --- loading POR módulo (as três abas podem estar carregando de forma independente) ---
