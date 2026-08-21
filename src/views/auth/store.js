@@ -93,6 +93,17 @@ export default {
                 throw err  // Propaga o erro para que o componente possa lidarhar adequadamente (exibir mensagem de erro, etc).
             }
         },
+        async loginWithGoogle({ commit }, data) {
+            try {
+                const res = await api.post("/auth/login/google", data);
+                //const { user, access_token, session_id } = res.data;
+                //commit('SET_AUTH', { user, new_session: true, access_token, session_id });
+                return res;
+            } catch (err) {
+                logger.error('Erro ao fazer login com Google:', err.message);
+                throw err  // Propaga o erro para que o componente possa lidarhar adequadamente (exibir mensagem de erro, etc).
+            }
+        },
         async logout({ commit }, sessionId) {
             try {
                 await api.delete("/auth/sessions/logout", {
@@ -103,15 +114,6 @@ export default {
             } finally {
                 // Sempre limpa o estado local e desconecta o socket
                 commit('LOGOUT');
-            }
-        },
-        async register({ commit }, { name, email }) {
-            try {
-                const res = await api.post("/auth/register", { name, email });
-                return res
-            } catch (err) {
-                logger.error('Erro ao criar uma conta:', err.message);
-                throw err  // Propaga o erro para que o componente possa lidarhar adequadamente (exibir mensagem de erro, etc).
             }
         },
         async completeRegistration({ commit }, { email, password }) {

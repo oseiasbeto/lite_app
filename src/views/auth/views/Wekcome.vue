@@ -26,8 +26,8 @@ if (isDark) {
 
 const signInWithGoogle = () => {
   loginGoogle({
-    callback: function (value) {
-      console.log(value)
+    callback: async function (value) {
+      await store.dispatch("loginWithGoogle", value);
     }
   });
 };
