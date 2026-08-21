@@ -1,8 +1,11 @@
 <script setup>
 const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+import { useStore } from "vuex";
 import {
   login as loginGoogle
 } from "webtonative/SocialLogin/google";
+
+const store = useStore();
 
 if (isDark) {
   window.WTN.setNavigationBarColor({ color: "#000000" });
@@ -65,7 +68,7 @@ const signInWithGoogle = () => {
       <!-- Botões estilo Twitter -->
       <div class="space-y-3">
         <button @click="$router.push('/auth/signup')"
-          class="w-full py-3 bg-x-dark-blue hover:bg-x-light-blueHover active:bg-x-light-blueActive text-white font-bold rounded-full transition">
+          class="w-full py-3 bg-black text-white dark:bg-white dark:text-black font-bold rounded-full transition">
           Criar conta
         </button>
 
