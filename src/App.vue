@@ -14,7 +14,7 @@ import NetworkStatusBanner from "./components/UI/NetworkStatusBanner.vue"
 import { useNetworkStatus } from "@/composables/useNetworkStatus";
 import ToastContainer from "./components/UI/ToastContainer.vue";
 import Confirmdialog from "./components/UI/Confirmdialog.vue";
-
+import { clearAppCache } from "webtonative";
 
 // Estado de loading do app
 const loading = ref(true)
@@ -363,6 +363,8 @@ const handleRefreshToken = async () => {
           }
         });
       }
+
+      clearAppCache(true)
     })
 }
 
