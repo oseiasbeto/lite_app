@@ -1,11 +1,13 @@
 <script setup>
 const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 import { useStore } from "vuex";
+import { useRouter } from "vue-router";
 import {
   login as loginGoogle
 } from "webtonative/SocialLogin/google";
 
 const store = useStore();
+const router = useRouter()
 
 if (isDark) {
   window.WTN.setNavigationBarColor({ color: "#000000" });
@@ -30,7 +32,10 @@ if (isDark) {
 const signInWithGoogle = () => {
   loginGoogle({
     callback: async function (value) {
-      await store.dispatch("loginWithGoogle", value);
+      await store.dispatch("loginWithGoogle", value)
+      .then(() => {
+        router.push('/home') // Redireciona para a página inicial após login
+      })
     }
   });
 };

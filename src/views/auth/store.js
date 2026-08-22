@@ -96,8 +96,8 @@ export default {
         async loginWithGoogle({ commit }, data) {
             try {
                 const res = await api.post("/auth/login/google", data);
-                //const { user, access_token, session_id } = res.data;
-                //commit('SET_AUTH', { user, new_session: true, access_token, session_id });
+                const { user, access_token, session_id } = res.data;
+                commit('SET_AUTH', { user, new_session: true, access_token, session_id });
                 return res;
             } catch (err) {
                 logger.error('Erro ao fazer login com Google:', err.message);
