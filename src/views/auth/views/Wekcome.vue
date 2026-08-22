@@ -5,9 +5,12 @@ import { useRouter } from "vue-router";
 import {
   login as loginGoogle
 } from "webtonative/SocialLogin/google";
+import { ref } from "vue";
 
 const store = useStore();
 const router = useRouter()
+
+const isGoogleLoading = ref(false);
 
 if (isDark) {
   window.WTN.setNavigationBarColor({ color: "#000000" });
@@ -30,12 +33,19 @@ if (isDark) {
 }
 
 const signInWithGoogle = () => {
+  if (isGoogleLoading.value) return;
+
+  isGoogleLoading.value = true;
+
   loginGoogle({
     callback: async function (value) {
-      await store.dispatch("loginWithGoogle", value)
-      .then(() => {
-        router.push('/home') // Redireciona para a página inicial após login
-      })
+      try {
+        await store.dispatch("loginWithGoogle", value)
+        await router.push('/home') // Redireciona para a página inicial após login
+      } catch (error) {
+        // Garante que o spinner some caso o login falhe
+        isGoogleLoading.value = false;
+      }
     }
   });
 };
@@ -77,9 +87,14 @@ const signInWithGoogle = () => {
           Criar conta
         </button>
 
-        <button @click="signInWithGoogle"
-          class="w-full py-3 flex items-center justify-center gap-2 border text-[rgb(40,40,41)] dark:text-inherit dark:border-[rgb(57,56,57)] font-bold rounded-full transition">
-          <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <button @click="signInWithGoogle" :disabled="isGoogleLoading"
+          class="w-full h-[46px] flex items-center justify-center gap-2 border text-[rgb(40,40,41)] dark:text-inherit dark:border-[rgb(57,56,57)] font-bold rounded-full transition disabled:opacity-60 disabled:cursor-not-allowed">
+          <svg v-if="isGoogleLoading" class="animate-spin h-[18px] w-[18px]" xmlns="http://www.w3.org/2000/svg"
+            fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          <svg v-else width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
             <path fill="#FFC107"
               d="M43.611 20.083H42V20H24v8h11.303c-1.649 4.657-6.08 8-11.303 8-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z" />
             <path fill="#FF3D00"
@@ -89,7 +104,7 @@ const signInWithGoogle = () => {
             <path fill="#1976D2"
               d="M43.611 20.083H42V20H24v8h11.303a12.04 12.04 0 0 1-4.087 5.571l.003-.002 6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z" />
           </svg>
-          Continuar com o Google
+          <span v-if="!isGoogleLoading">Continuar com o Google</span>
         </button>
 
         <button @click="$router.push('/auth/signin')"
