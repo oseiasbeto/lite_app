@@ -8,6 +8,7 @@ import search from '../views/search/routes'
 import settings from '../views/settings/routes'
 import media from '../views/media/routes'
 import reels from '../views/reels/routes'
+import wallets from '../views/wallets/routes'
 
 export default [
     ...auth,
@@ -19,5 +20,6 @@ export default [
     ...search,
     ...settings,
     ...media,
-    ...reels
+    ...reels,
+    ...wallets
 ]

@@ -24,7 +24,7 @@
                             {{ profile?.username }}
                         </h2>
 
-                        <svg viewBox="0 0 22 22" v-if="profile?.is_verified"
+                        <svg @click="router.push('/rewards')" viewBox="0 0 22 22" v-if="profile?.is_verified"
                             class="ml-[5px] shrink-0 mr-[2px] w-[18px] h-[18px] text-x-light-blue"
                             aria-label="Verified account" role="img" fill="currentColor"
                             xmlns="http://www.w3.org/2000/svg" data-testid="icon-verified">

@@ -20,7 +20,7 @@ const loading = ref(false)
 const openRewardsAd = () => {
     loading.value = true
     rewardsAd({
-        adId: "ca-app-pub-3940256099942544/5224354917",
+        adId: "ca-app-pub-3380403461494786/9671633545",
         rewardsAdCallback: (value) => {
             
             const status = value.status
