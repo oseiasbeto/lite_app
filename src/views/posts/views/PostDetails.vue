@@ -858,7 +858,7 @@ const loadPost = async (postId) => {
 
 onMounted(async () => { 
     bannerAd({
-        adId: "ca-app-pub-3380403461494786/3274916045"
+        adId: "ca-app-pub-4593053864161236/3468604114"
     })
 
     if (!post.value?._id) {
@@ -901,7 +901,7 @@ watch(() => route.params.id, async (newId, oldId) => {
     commentTriggerRef.value?.reset()
     
     bannerAd({
-        adId: "ca-app-pub-3380403461494786/3274916045"
+        adId: "ca-app-pub-4593053864161236/3468604114"
     })
 
     postId.value = newId
