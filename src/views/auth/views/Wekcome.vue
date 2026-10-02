@@ -25,14 +25,14 @@ const applyTheme = (dark) => {
     wtn?.statusBar?.({
       style: "light",
       color: "000000",
-      overlay: false, // Somente Android
+      overlay: true, // Somente Android
     });
   } else {
     wtn?.setNavigationBarColor?.({ color: "FFFFFF" });
     wtn?.statusBar?.({
       style: "dark",
       color: "FFFFFF",
-      overlay: false, // Somente Android
+      overlay: true, // Somente Android
     });
   }
 
@@ -581,7 +581,7 @@ onBeforeUnmount(() => {
           Acontecendo<br />agora
         </h1>
         <p class="max-w-[28ch] text-[17px] leading-snug text-neutral-600 dark:text-neutral-400">
-          Junte-se à conversa. Compartilhe momentos. Conecte-se com o mundo.
+          Junte-se à conversa. Compartilhe momentos. Conecte-se com os teus amigos.
         </p>
       </div>
 

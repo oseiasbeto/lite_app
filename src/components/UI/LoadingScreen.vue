@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 
 const props = defineProps({
   totalDots: { type: Number, default: 5 },
@@ -8,6 +8,8 @@ const props = defineProps({
   maxIntervalMs: { type: Number, default: 900 }, // intervalo em conexão muito lenta
   minVisibleMs: { type: Number, default: 700 }, // tempo mínimo na tela (evita "piscar" quando a resposta é instantânea)
   onFinish: { type: Function, default: null }, // chamado quando a animação de saída termina
+  theme: { type: String, default: "system" }, // 'light' | 'dark' | 'system'
+  nativeBars: { type: Boolean, default: true }, // ajusta status bar / navigation bar do app nativo
 });
 
 const emit = defineEmits(["finish"]);
@@ -22,24 +24,36 @@ const phase = ref("loading"); // 'loading' | 'completing' | 'leaving'
 /* -------------------------------------------------------------------------- */
 const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-const applyTheme = (dark) => {
+const resolveDark = () =>
+  props.theme === "dark" || (props.theme === "system" && darkQuery.matches);
+
+const applyTheme = () => {
+  const dark = resolveDark();
   const wtn = window.WTN;
 
-  // As barras nativas acompanham a cor do fundo da splash
-  wtn?.statusBar?.({
-    style: dark ? "light" : "dark",
-    color: dark ? "000000" : "FFFFFF",
-    overlay: false, // Somente Android
-  });
-  wtn?.setNavigationBarColor?.({ color: dark ? "#000000" : "#FFFFFF" });
+  if (props.nativeBars) {
+    // As barras nativas acompanham a cor do fundo da splash
+    wtn?.statusBar?.({
+      style: dark ? "light" : "dark",
+      color: dark ? "000000" : "FFFFFF",
+      overlay: false, // Somente Android
+    });
+    wtn?.setNavigationBarColor?.({ color: dark ? "#000000" : "#FFFFFF" });
+  }
 
   document.documentElement.classList.toggle("dark", dark);
 };
 
 // Aplica já no setup para não piscar o tema errado
-applyTheme(darkQuery.matches);
+applyTheme();
 
-const onThemeChange = (e) => applyTheme(e.matches);
+// Se o tema (prop) mudar com a splash na tela, recolore na hora
+watch(() => props.theme, applyTheme);
+
+// Só acompanha o sistema quando o tema é 'system'
+const onThemeChange = () => {
+  if (props.theme === "system") applyTheme();
+};
 
 /* -------------------------------------------------------------------------- */
 /*  Velocidade da animação conforme a conexão                                  */
