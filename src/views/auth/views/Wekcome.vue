@@ -538,7 +538,7 @@ onBeforeUnmount(() => {
           Fica perto<br />de quem importa
         </h1>
         <p class="max-w-[30ch] text-[17px] leading-snug text-neutral-600 dark:text-neutral-400">
-          Fala com os teus amigos, partilha momentos e fica perto de quem importa.
+          Mensagens, stories e momentos com os teus amigos, num só lugar.
         </p>
       </div>
 

@@ -482,19 +482,17 @@ onMounted(async () => {
 
     console.log(dark, savedTheme.value, window.matchMedia('(prefers-color-scheme: dark)').matches)
     if (dark) {
-      alert("Aplicando tema escuro")
       window.WTN?.setNavigationBarColor({ color: "000000" });
       window.WTN?.statusBar({
         style: "light",
-        color: "000000",
+        color: "00000000",
         overlay: true, // Somente Android
       });
       document.documentElement.classList.add("dark", dark);
     } else {
-      alert("Aplicando tema claro")
       window.WTN.statusBar({
         style: "dark",
-        color: "80ff0000",
+        color: "00000000",
         overlay: true // Somente Android
       });
       window.WTN.setNavigationBarColor({ color: "FFFFFF" });
