@@ -485,6 +485,7 @@ onMounted(async () => {
               color: "000000",
               overlay: true, // Somente Android
             });
+            document.documentElement.classList.add('dark');
           } else {
             wtn.setNavigationBarColor({ color: "FFFFFF" });
             wtn?.statusBar({
@@ -492,7 +493,9 @@ onMounted(async () => {
               color: "FFFFFF",
               overlay: true, // Somente Android
             });
+            document.documentElement.classList.remove('dark');
           }
+
         }
       })
   } else {
@@ -513,7 +516,25 @@ watch(() => isNewSession.value, () => {
     const userTheme = user?.value?.settings?.theme || 'light'
     setThemeColor(userTheme)
   } else {
-    setThemeColor('system')
+    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    if (dark) {
+      wtn?.setNavigationBarColor({ color: "000000" });
+      wtn?.statusBar({
+        style: "light",
+        color: "000000",
+        overlay: true, // Somente Android
+      });
+      document.documentElement.classList.add('dark');
+    } else {
+      wtn.setNavigationBarColor({ color: "FFFFFF" });
+      wtn?.statusBar({
+        style: "dark",
+        color: "FFFFFF",
+        overlay: true, // Somente Android
+      });
+      document.documentElement.classList.remove('dark');
+    }
   }
 
   store.dispatch("getTopicList")

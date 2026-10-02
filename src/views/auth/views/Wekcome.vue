@@ -14,6 +14,17 @@ let loadingTimer = null;
 /*  Tema (claro / escuro) + barras nativas do webtonative                      */
 /* -------------------------------------------------------------------------- */
 const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
+const isDark = ref(darkQuery.matches);
+ const wtn = window.WTN;
+
+const applyTheme = (dark) => {
+  isDark.value = dark;
+};
+
+// Aplica já no setup para não piscar o tema errado
+applyTheme(isDark.value);
+
+const onThemeChange = (e) => applyTheme(e.matches);
 
 /* -------------------------------------------------------------------------- */
 /*  Login com Google                                                           */
@@ -480,6 +491,7 @@ onMounted(() => {
   resizeObserver = new ResizeObserver(resize);
   resizeObserver.observe(containerRef.value);
 
+  darkQuery.addEventListener?.("change", onThemeChange);
   document.addEventListener("visibilitychange", onVisibilityChange);
 
   startLoop();
