@@ -476,26 +476,9 @@ onMounted(async () => {
           const userTheme = user?.value?.settings?.theme || 'light'
           setThemeColor(userTheme)
         } else {
-          const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-          if (dark) {
-             window?.WTN?.setNavigationBarColor({ color: "000000" });
-             window?.WTN?.statusBar({
-              style: "light",
-              color: "000000",
-              overlay: true, // Somente Android
-            });
-            document.documentElement.classList.add('dark');
-          } else {
-             window?.WTN?.setNavigationBarColor({ color: "FFFFFF" });
-             window?.WTN?.statusBar({
-              style: "dark",
-              color: "FFFFFF",
-              overlay: true, // Somente Android
-            });
-            document.documentElement.classList.remove('dark');
-          }
-
+          alert("Monted: Sem usuário logado, aplicando tema do sistema")
+          // Se não tiver usuário, aplicar tema do sistema
+          const dark = window.matchMedia('(prefers-color-scheme: dark)').matches; 
         }
       })
   } else {
@@ -516,28 +499,9 @@ watch(() => isNewSession.value, () => {
     const userTheme = user?.value?.settings?.theme || 'light'
     setThemeColor(userTheme)
   } else {
-    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-    if (dark) {
-       window?.WTN?.setNavigationBarColor({ color: "000000" });
-       window?.WTN?.statusBar({
-        style: "light",
-        color: "000000",
-        overlay: true, // Somente Android
-      });
-      document.documentElement.classList.add('dark');
-    } else {
-       window?.WTN?.setNavigationBarColor({ color: "FFFFFF" });
-       window?.WTN?.statusBar({
-        style: "dark",
-        color: "FFFFFF",
-        overlay: true, // Somente Android
-      });
-      document.documentElement.classList.remove('dark');
-    }
+    alert("Watch: Sem usuário logado, aplicando tema do sistema")
+    // Se não tiver usuário, aplicar tema do sistema
   }
-
-  store.dispatch("getTopicList")
 })
 
 watch(isReallyOnline, (online) => {
