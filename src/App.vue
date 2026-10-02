@@ -480,7 +480,6 @@ onMounted(async () => {
   } else {
     const dark = savedTheme.value === 'dark' || (savedTheme.value === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
-    console.log(dark, savedTheme.value, window.matchMedia('(prefers-color-scheme: dark)').matches)
     if (dark) {
       window.WTN?.setNavigationBarColor({ color: "000000" });
       window.WTN?.statusBar({
@@ -491,7 +490,7 @@ onMounted(async () => {
       document.documentElement.classList.add("dark", dark);
     } else {
       window.WTN.statusBar({
-        style: "dark",
+        style: "light",
         color: "00000000",
         overlay: true // Somente Android
       });

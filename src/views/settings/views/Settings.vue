@@ -17,7 +17,6 @@
 import { onMounted, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
-import LoadingScreen from '@/components/UI/LoadingScreen.vue';
 import Navbar from '@/views/main/components/Navbar.vue';
 import Cookies from "js-cookie";
 
