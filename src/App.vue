@@ -480,7 +480,9 @@ onMounted(async () => {
   } else {
     const dark = savedTheme.value === 'dark' || (savedTheme.value === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
+    console.log(dark, savedTheme.value, window.matchMedia('(prefers-color-scheme: dark)').matches)
     if (dark) {
+      alert("Aplicando tema escuro")
       window.WTN?.setNavigationBarColor({ color: "000000" });
       window.WTN?.statusBar({
         style: "light",
@@ -489,12 +491,13 @@ onMounted(async () => {
       });
       document.documentElement.classList.add("dark", dark);
     } else {
-      window.WTN?.setNavigationBarColor({ color: "FFFFFF" });
-      window.WTN?.statusBar({
+      alert("Aplicando tema claro")
+      window.WTN.statusBar({
         style: "dark",
-        color: "FFFFFF",
-        overlay: true, // Somente Android
+        color: "80ff0000",
+        overlay: true // Somente Android
       });
+      window.WTN.setNavigationBarColor({ color: "FFFFFF" });
       document.documentElement.classList.remove("dark");
     }
 
