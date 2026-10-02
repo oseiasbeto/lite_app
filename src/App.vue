@@ -412,7 +412,7 @@ const setThemeColor = (theme) => {
 
   // Aplicar classe no HTML
   if (savedTheme.value === 'dark') {
-   // window?.WTN?.setNavigationBarColor({ color: "#000000" });
+    // window?.WTN?.setNavigationBarColor({ color: "#000000" });
     window?.WTN?.statusBar({
       style: 'light',
       color: '000000',
@@ -424,7 +424,7 @@ const setThemeColor = (theme) => {
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
     if (isDark) {
-     // window?.WTN?.setNavigationBarColor({ color: "#000000" });
+      // window?.WTN?.setNavigationBarColor({ color: "#000000" });
       window?.WTN?.statusBar({
         style: 'dark',
         color: '000000',
@@ -460,8 +460,8 @@ onMounted(async () => {
   if (sessionId) {
     // Configurar listeners de conexão
     setupConnectionListeners();
-   // const { appReview: AppReview } = window.WTN
-   // AppReview.prompt()
+    // const { appReview: AppReview } = window.WTN
+    // AppReview.prompt()
   }
 
   // Se tiver sessão salva, tentar restaurar
@@ -476,7 +476,23 @@ onMounted(async () => {
           const userTheme = user?.value?.settings?.theme || 'light'
           setThemeColor(userTheme)
         } else {
-          setThemeColor('system')
+          const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+          if (dark) {
+            wtn?.setNavigationBarColor({ color: "000000" });
+            wtn?.statusBar({
+              style: "light",
+              color: "000000",
+              overlay: true, // Somente Android
+            });
+          } else {
+            wtn.setNavigationBarColor({ color: "FFFFFF" });
+            wtn?.statusBar({
+              style: "dark",
+              color: "FFFFFF",
+              overlay: true, // Somente Android
+            });
+          }
         }
       })
   } else {
