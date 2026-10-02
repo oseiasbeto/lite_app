@@ -456,32 +456,48 @@ const setThemeColor = (theme) => {
 
 let heartbeat;
 onMounted(async () => {
-
   if (sessionId) {
     // Configurar listeners de conexão
     setupConnectionListeners();
-    // const { appReview: AppReview } = window.WTN
-    // AppReview.prompt()
   }
 
   // Se tiver sessão salva, tentar restaurar
   if (sessionId && !isAuthenticated.value) {
+    // const { appReview: AppReview } = window.WTN
+    // AppReview.prompt()
     await handleRefreshToken()
       .then(async () => {
-        await store.dispatch("getTopicList")
-        splashRef.value.finish()
-
         // setar com base no valor do corrente usuario
         if (user.value) {
           const userTheme = user?.value?.settings?.theme || 'light'
           setThemeColor(userTheme)
         } else {
-          alert("Monted: Sem usuário logado, aplicando tema do sistema")
-          // Se não tiver usuário, aplicar tema do sistema
-          const dark = window.matchMedia('(prefers-color-scheme: dark)').matches; 
+          setThemeColor('system')
         }
+        splashRef.value.finish()
       })
+
   } else {
+    const dark = savedTheme.value === 'dark' || (savedTheme.value === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+
+    if (dark) {
+      window.WTN?.setNavigationBarColor({ color: "000000" });
+      window.WTN?.statusBar({
+        style: "light",
+        color: "000000",
+        overlay: true, // Somente Android
+      });
+      document.documentElement.classList.add("dark", dark);
+    } else {
+      window.WTN?.setNavigationBarColor({ color: "FFFFFF" });
+      window.WTN?.statusBar({
+        style: "dark",
+        color: "FFFFFF",
+        overlay: true, // Somente Android
+      });
+      document.documentElement.classList.remove("dark");
+    }
+
     loading.value = false
   }
 })
@@ -547,12 +563,10 @@ onUnmounted(() => {
     disconnectSocket()
   }
 
-
   if (sessionId) {
     // Remover listeners de conexão
     removeConnectionListeners()
   }
-
 
   clearInterval(heartbeat);
 });
