@@ -15,21 +15,21 @@ let loadingTimer = null;
 /* -------------------------------------------------------------------------- */
 const darkQuery = window.matchMedia("(prefers-color-scheme: dark)");
 const isDark = ref(darkQuery.matches);
+ const wtn = window.WTN;
 
 const applyTheme = (dark) => {
   isDark.value = dark;
-  const wtn = window.WTN;
 
   if (dark) {
-    wtn?.setNavigationBarColor?.({ color: "#000000" });
-    wtn?.statusBar?.({
+    wtn.setNavigationBarColor({ color: "000000" });
+    wtn.statusBar({
       style: "light",
       color: "000000",
       overlay: true, // Somente Android
     });
   } else {
-    wtn?.setNavigationBarColor?.({ color: "FFFFFF" });
-    wtn?.statusBar?.({
+    wtn.setNavigationBarColor({ color: "FFFFFF" });
+    wtn.statusBar({
       style: "dark",
       color: "FFFFFF",
       overlay: true, // Somente Android
