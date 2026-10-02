@@ -479,16 +479,16 @@ onMounted(async () => {
           const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
           if (dark) {
-            wtn?.setNavigationBarColor({ color: "000000" });
-            wtn?.statusBar({
+             window?.WTN?.setNavigationBarColor({ color: "000000" });
+             window?.WTN?.statusBar({
               style: "light",
               color: "000000",
               overlay: true, // Somente Android
             });
             document.documentElement.classList.add('dark');
           } else {
-            wtn.setNavigationBarColor({ color: "FFFFFF" });
-            wtn?.statusBar({
+             window?.WTN?.setNavigationBarColor({ color: "FFFFFF" });
+             window?.WTN?.statusBar({
               style: "dark",
               color: "FFFFFF",
               overlay: true, // Somente Android
@@ -519,16 +519,16 @@ watch(() => isNewSession.value, () => {
     const dark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 
     if (dark) {
-      wtn?.setNavigationBarColor({ color: "000000" });
-      wtn?.statusBar({
+       window?.WTN?.setNavigationBarColor({ color: "000000" });
+       window?.WTN?.statusBar({
         style: "light",
         color: "000000",
         overlay: true, // Somente Android
       });
       document.documentElement.classList.add('dark');
     } else {
-      wtn.setNavigationBarColor({ color: "FFFFFF" });
-      wtn?.statusBar({
+       window?.WTN?.setNavigationBarColor({ color: "FFFFFF" });
+       window?.WTN?.statusBar({
         style: "dark",
         color: "FFFFFF",
         overlay: true, // Somente Android
