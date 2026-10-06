@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full bg-white dark:bg-[#0c1014] " :class="{ 'shadow-[0px_-1px_0px_rgba(0,0,0,.08)]': showShadow }">
+  <div class="w-full bg-white dark:bg-[#000] " :class="{ 'shadow-[0px_-1px_0px_rgba(0,0,0,.08)]': showShadow }">
     <reply-to-message-card v-if="replyTo?.show" :user-id="userId" :message="replyTo?.message"
       @on-close="closeReplyTo" />
 
@@ -88,7 +88,7 @@
 
       <!-- Campo de texto em pill, com borda fina estilo Instagram, min-height 56px -->
       <div class="flex-1 flex items-center min-h-[50px] rounded-[25px]
-                  bg-x-light-surface dark:bg-[rgb(36,39,44)] focus-within:border-[#a8a8a8] dark:focus-within:border-[#5a5a5a]
+                  bg-x-light-surface dark:bg-[#1a1a1a] focus-within:border-[#a8a8a8] dark:focus-within:border-[#5a5a5a]
                   transition-colors pl-1.5 pr-1.5 py-1.5 min-w-0" :class="{ 'pl-3': replyTo?.show }">
 
         <!--

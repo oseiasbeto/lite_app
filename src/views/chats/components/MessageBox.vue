@@ -74,8 +74,8 @@
                 'relative z-[1] text-left transition-transform active:scale-[0.99] max-w-full min-w-0',
                 !isEmojiOnly && !isGif && !isSticker && !isImage && message.status !== 'is_deleted'
                   ? (isSent
-                    ? 'bg-black text-white p-[6px_12px]'
-                    : 'dark:bg-[#25292e] dark:text-white text-[rgb(40,40,41)] bg-[#f3f5f7] p-[8px_12px]')
+                    ? 'bg-[#1e9cf1] text-white p-[6px_12px]'
+                    : 'dark:bg-[#1a1a1a] dark:text-white text-[rgb(40,40,41)] bg-[#f3f5f7] p-[8px_12px]')
                   : '',
                 isVoice && message.status !== 'is_deleted' ? 'rounded-full' : '',
                 message.status === 'is_deleted'

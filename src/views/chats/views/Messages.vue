@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col dark:bg-[#0c1014] h-screen overflow-hidden">
+    <div class="flex flex-col dark:bg-[#000] h-screen overflow-hidden">
         <div class="sticky z-50 top-0 w-full">
             <ChatHeader :status-text="statusText" @go-to-profile="goToProfile" @go-back="router.back()"
                 :user-id="user?._id" :loading="loading" :conversation="conversation" />
