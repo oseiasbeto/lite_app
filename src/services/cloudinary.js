@@ -1,8 +1,8 @@
 // src/services/cloudinary.js
 import axios from 'axios'
 
-const CLOUD_NAME = 'zu5gujey' //import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
-const UPLOAD_PRESET = 'ml_default' //import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
+const CLOUD_NAME = 'daujoblcc' //import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
+const UPLOAD_PRESET = 'social_media_upload' //import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
 
 export const uploadVoiceMessage = async (audioBlob, onProgress) => {
   const formData = new FormData()

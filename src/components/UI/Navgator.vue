@@ -2,158 +2,98 @@
     <transition enter-active-class="transition-transform duration-100 ease-out"
         leave-active-class="transition-transform duration-100 ease-in" enter-from-class="translate-y-full"
         enter-to-class="translate-y-0" leave-from-class="translate-y-0" leave-to-class="translate-y-full">
-        <ul v-show="showBottomNav"
-            class="fixed inset-x-0 bottom-0 z-[999] flex h-[calc(4rem+env(safe-area-inset-bottom,0px))] w-full items-stretch border-t border-black/10 bg-x-light-bg pb-[env(safe-area-inset-bottom,0px)] text-text-primary [-webkit-tap-highlight-color:transparent] dark:border-white/10 dark:bg-x-dark-bg"
+        <nav v-show="showBottomNav" aria-label="Navegação principal"
+            class="fixed inset-x-0 bottom-0 z-[999] w-full border-t border-[#eff3f4] bg-x-light-bg/90 pb-[env(safe-area-inset-bottom,0px)] text-text-primary backdrop-blur-md [-webkit-tap-highlight-color:transparent] dark:border-[#2f3336] dark:bg-x-dark-bg/80"
             :class="{ 'pointer-events-none': isDisabled, '!border-border-primary': route.name === 'Post details' }">
+            <ul class="flex h-[52px] w-full items-stretch">
 
-            <!-- Início -->
-            <li class="h-full flex-1">
-                <button type="button" @click="router.replace('/home')"
-                    :aria-current="isActive('Home') ? 'page' : undefined"
-                    class="group flex h-full w-full flex-col items-center justify-center gap-1 outline-none"
-                    :class="tabTone(isActive('Home'))">
-                    <span
-                        class="relative flex h-7 w-7 items-center justify-center transition-transform duration-150 ease-out group-active:scale-90">
-                        <svg v-if="isActive('Home')" xmlns="http://www.w3.org/2000/svg" class="h-[26px] w-[26px]"
-                            viewBox="0 0 24 24" fill="none">
-                            <path fill-rule="evenodd" clip-rule="evenodd"
-                                d="M20.479 7.57827L15.093 3.12502C13.2787 1.62499 10.7213 1.62499 8.90703 3.12502L3.52097 7.57827C2.55059 8.38059 2 9.59705 2 10.8663V17.8109C2 20.066 3.73415 22 6 22H8C9.10457 22 10 21.1046 10 20V16.7478C10 15.4803 10.9521 14.5587 12 14.5587C13.0479 14.5587 14 15.4803 14 16.7478V20C14 21.1046 14.8954 22 16 22H18C20.2659 22 22 20.066 22 17.8109V10.8663C22 9.59706 21.4494 8.38059 20.479 7.57827Z"
-                                fill="currentColor" />
-                        </svg>
-
-                        <svg v-else xmlns="http://www.w3.org/2000/svg" class="h-[26px] w-[26px]" viewBox="0 0 24 24"
-                            fill="none">
-                            <path
-                                d="M21 17.8109V10.8663C21 9.88216 20.5726 8.95316 19.8418 8.34896L14.4558 3.89571C13.0113 2.70143 10.9887 2.70143 9.54424 3.89571L4.15818 8.34896C3.42742 8.95316 3 9.88216 3 10.8663V17.8109C3 19.5722 4.34315 21 6 21H8C8.55228 21 9 20.5523 9 20V16.7478C9 14.9865 10.3431 13.5587 12 13.5587C13.6569 13.5587 15 14.9865 15 16.7478V20C15 20.5523 15.4477 21 16 21H18C19.6569 21 21 19.5722 21 17.8109Z"
-                                stroke="currentColor" stroke-width="2" />
-                        </svg>
-                    </span>
-                    <span class="text-[11px] leading-none" :class="isActive('Home') ? 'font-semibold' : 'font-medium'">Início</span>
-                </button>
-            </li>
-
-            <!-- Mensagens -->
-            <li class="h-full flex-1">
-                <router-link to="/chats" :aria-current="isActive('Chats') ? 'page' : undefined"
-                    class="group flex h-full w-full flex-col items-center justify-center gap-1 text-inherit outline-none"
-                    :class="tabTone(isActive('Chats'))">
-                    <span
-                        class="relative flex h-7 w-7 items-center justify-center transition-transform duration-150 ease-out group-active:scale-90">
-                        <svg v-if="isActive('Chats')" aria-label="Mensagens" role="img" viewBox="0 0 22 22"
-                            class="h-6 w-6">
-                            <title>Mensagens</title>
-                            <path
-                                d="M5.85195 21.4694L19.3245 14.0577C20.3799 13.477 21.1437 12.4247 21.2273 11.2231C21.3235 9.84073 20.6427 8.59809 19.4491 7.94169L5.99304 0.539493C4.62004 -0.215795 2.90086 -0.199435 1.63504 0.724303C0.58005 1.49419 0 2.65449 0 3.88663C0 4.24341 0.0481501 4.60548 0.1483 4.96612L1.33112 9.25543C1.44906 9.68303 1.83808 9.97933 2.28172 9.97933H14.3338C14.8788 9.97933 15.3199 10.4208 15.3199 10.9654C15.3199 11.5099 14.8788 11.9515 14.3338 11.9515H2.28172C1.83808 11.9515 1.44906 12.2477 1.33112 12.6754L0.19476 16.7962C-0.22893 18.3326 0.20275 20.0322 1.43072 21.0482C2.70569 22.103 4.40849 22.2628 5.85195 21.4694Z"
-                                fill="currentColor"></path>
-                        </svg>
-
-                        <svg v-else aria-label="Mensagens" role="img" viewBox="0 0 24 24" class="h-[26px] w-[26px]">
-                            <title>Mensagens</title>
-                            <path clip-rule="evenodd"
-                                d="M1.28991 6.08111C0.300992 2.49678 4.11016 -0.512612 7.36803 1.27936L20.9452 8.74811C23.5084 10.1583 23.5084 13.8418 20.9452 15.252L7.36803 22.7208C4.11015 24.5127 0.30101 21.5033 1.28991 17.919L2.92272 12.0001L1.28991 6.08111ZM5.17174 13.2501L3.70006 18.584C3.29928 20.0367 4.84259 21.2564 6.16295 20.5303L19.3973 13.2501H5.17174ZM6.16295 3.46979C4.84258 2.74374 3.29928 3.96344 3.70006 5.41607L5.17174 10.7501H19.3973L6.16295 3.46979Z"
-                                fill="currentColor" fill-rule="evenodd"></path>
-                        </svg>
-
-                        <span v-show="unreadMessagesCount > 0" class="absolute -right-2 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#F02849] px-[5px] text-[11px] font-semibold leading-none text-white ring-2 ring-x-light-bg dark:ring-x-dark-bg">
-                            {{ formatBadge(unreadMessagesCount) }}
+                <!-- Início -->
+                <li class="h-full flex-1">
+                    <button type="button" @click="router.replace('/home')" aria-label="Início"
+                        :aria-current="isActive('Home') ? 'page' : undefined" :class="itemClass">
+                        <span :class="iconWrapClass">
+                            <svg v-if="isActive('Home')" viewBox="0 0 24 24" :class="iconClass" fill="currentColor"
+                                aria-hidden="true">
+                                <path d="M12 1.696L.622 8.807l1.06 1.696L3 9.679V19.5C3 20.881 4.119 22 5.5 22h13c1.381 0 2.5-1.119 2.5-2.5V9.679l1.318.824 1.06-1.696L12 1.696zM12 16.5c-1.933 0-3.5-1.567-3.5-3.5s1.567-3.5 3.5-3.5 3.5 1.567 3.5 3.5-1.567 3.5-3.5 3.5z" />
+                            </svg>
+                            <svg v-else viewBox="0 0 24 24" :class="iconClass" fill="currentColor" aria-hidden="true">
+                                <path d="M12 9c-2.209 0-4 1.791-4 4s1.791 4 4 4 4-1.791 4-4-1.791-4-4-4zm0 6c-1.105 0-2-.895-2-2s.895-2 2-2 2 .895 2 2-.895 2-2 2zm0-13.304L.622 8.807l1.06 1.696L3 9.679V19.5C3 20.881 4.119 22 5.5 22h13c1.381 0 2.5-1.119 2.5-2.5V9.679l1.318.824 1.06-1.696L12 1.696zM19 19.5c0 .276-.224.5-.5.5h-13c-.276 0-.5-.224-.5-.5V8.429l7-4.375 7 4.375V19.5z" />
+                            </svg>
                         </span>
-                    </span>
-                    <span class="text-[11px] leading-none" :class="isActive('Chats') ? 'font-semibold' : 'font-medium'">Mensagens</span>
-                </router-link>
-            </li>
+                    </button>
+                </li>
 
-            <!-- Vídeos -->
-            <li class="h-full flex-1">
-                <router-link to="/reels" :aria-current="isActive('Reels') ? 'page' : undefined"
-                    class="group flex h-full w-full flex-col items-center justify-center gap-1 text-inherit outline-none"
-                    :class="tabTone(isActive('Reels'))">
-                    <span
-                        class="relative flex h-7 w-7 items-center justify-center transition-transform duration-150 ease-out group-active:scale-90">
-                        <svg v-if="isActive('Reels')" aria-label="Reels" role="img" viewBox="0 0 24 24"
-                            class="h-[26px] w-[26px]" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <title>Reels</title>
-                            <path
-                                d="M4 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4zm7.25 4.134a.75.75 0 0 0-1.148.634v6.464a.75.75 0 0 0 1.148.636l5-3.232a.75.75 0 0 0 0-1.27l-5-3.232z" />
-                        </svg>
-
-                        <svg v-else aria-label="Videos" role="img" viewBox="0 0 24 24" class="h-[26px] w-[26px]"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <title>Videos</title>
-                            <path d="M6 3h12a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3z"
-                                stroke="currentColor" stroke-width="2" fill="none" />
-                            <path d="M10.25 9.5v5l4.25-2.5-4.25-2.5z" fill="currentColor" />
-                        </svg>
-                    </span>
-                    <span class="text-[11px] leading-none" :class="isActive('Reels') ? 'font-semibold' : 'font-medium'">Vídeos</span>
-                </router-link>
-            </li>
-
-            <!-- Notificações -->
-            <li class="h-full flex-1">
-                <button type="button" @click="goToNotification"
-                    :aria-current="isActive('Notifications') ? 'page' : undefined"
-                    class="group flex h-full w-full flex-col items-center justify-center gap-1 outline-none"
-                    :class="tabTone(isActive('Notifications'))">
-                    <span
-                        class="relative flex h-7 w-7 items-center justify-center transition-transform duration-150 ease-out group-active:scale-90">
-                        <svg v-if="isActive('Notifications')" aria-label="Notificações" role="img"
-                            viewBox="0 0 24 24" class="h-[26px] w-[26px]" fill="currentColor"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <title>Notificações</title>
-                            <path
-                                d="M16.4045 1.50879C14.785 1.50879 13.2185 2.16259 12 3.30764C10.7815 2.16259 9.215 1.50879 7.5955 1.50879C3.41766 1.50879 0.5 4.62796 0.5 9.09411C0.5 13.7857 4.70617 18.9703 11.2153 22.3022C11.4605 22.428 11.7298 22.4912 11.9995 22.4912C12.2692 22.4912 12.5395 22.428 12.7847 22.3022C19.2938 18.9703 23.5 13.7857 23.5 9.09411C23.5 4.62796 20.5823 1.50879 16.4045 1.50879Z"
-                                fill="currentColor"></path>
-                        </svg>
-
-                        <svg v-else aria-label="Notificações" role="img" viewBox="0 0 24 24"
-                            class="h-[26px] w-[26px]" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <title>Notificações</title>
-                            <path
-                                d="M16.4045 1.50879C14.785 1.50879 13.2185 2.16259 12 3.30764C10.7815 2.16259 9.215 1.50879 7.5955 1.50879C3.41766 1.50879 0.5 4.62796 0.5 9.09411C0.5 13.7857 4.70617 18.9703 11.2153 22.3022C11.4605 22.428 11.7298 22.4912 11.9995 22.4912C11.9993 22.4912 11.9997 22.4912 11.9995 22.4912C12.2692 22.4912 12.5395 22.428 12.7847 22.3022C19.2938 18.9703 23.5 13.7857 23.5 9.09411C23.5 4.62796 20.5823 1.50879 16.4045 1.50879ZM12 19.9518C6.65166 17.1137 2.94684 12.6864 2.94684 9.09411C2.94684 5.97251 4.77133 3.95556 7.5955 3.95556C9.825 3.95556 11.0773 5.80961 12 7.26504C12.9227 5.80961 14.175 3.95556 16.4045 3.95556C19.2287 3.95556 21.0532 5.97251 21.0532 9.09411C21.0532 12.6864 17.3483 17.1137 12 19.9518Z"
-                                fill="currentColor"></path>
-                        </svg>
-
-                        <span v-show="unreadNotificationsCount > 0" class="absolute -right-2 -top-0.5 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#F02849] px-[5px] text-[11px] font-semibold leading-none text-white ring-2 ring-x-light-bg dark:ring-x-dark-bg">
-                            {{ formatBadge(unreadNotificationsCount) }}
+                <!-- Mensagens -->
+                <li class="h-full flex-1">
+                    <router-link to="/chats" aria-label="Mensagens"
+                        :aria-current="isActive('Chats') ? 'page' : undefined" :class="itemClass">
+                        <span :class="iconWrapClass">
+                            <svg v-if="isActive('Chats')" viewBox="0 0 24 24" :class="iconClass" fill="currentColor"
+                                aria-hidden="true">
+                                <path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5V8l-10 4.5L1.998 8V5.5zm0 5.2l10 4.5 10-4.5v7.8c0 1.381-1.119 2.5-2.5 2.5h-15c-1.381 0-2.5-1.119-2.5-2.5v-7.8z" />
+                            </svg>
+                            <svg v-else viewBox="0 0 24 24" :class="iconClass" fill="currentColor" aria-hidden="true">
+                                <path d="M1.998 5.5c0-1.381 1.119-2.5 2.5-2.5h15c1.381 0 2.5 1.119 2.5 2.5v13c0 1.381-1.119 2.5-2.5 2.5h-15c-1.381 0-2.5-1.119-2.5-2.5v-13zm2.5-.5c-.276 0-.5.224-.5.5v2.764l8 3.638 8-3.636V5.5c0-.276-.224-.5-.5-.5h-15zm15.5 5.463l-8 3.636-8-3.638V18.5c0 .276.224.5.5.5h15c.276 0 .5-.224.5-.5v-8.037z" />
+                            </svg>
+                            <span v-show="unreadMessagesCount > 0" :class="badgeClass">
+                                {{ formatBadge(unreadMessagesCount) }}
+                            </span>
                         </span>
-                    </span>
-                    <span class="text-[11px] leading-none" :class="isActive('Notifications') ? 'font-semibold' : 'font-medium'">Notificações</span>
-                </button>
-            </li>
+                    </router-link>
+                </li>
 
-            <!-- Perfil -->
-            <li class="h-full flex-1">
-                <button type="button" @click="goToProfile(user)"
-                    :aria-current="isActive('Profile') ? 'page' : undefined"
-                    class="group flex h-full w-full flex-col items-center justify-center gap-1 text-inherit outline-none"
-                    :class="tabTone(isActive('Profile'))">
-                    <span
-                        class="relative flex h-7 w-7 items-center justify-center transition-transform duration-150 ease-out group-active:scale-90">
-                        <svg v-if="isActive('Profile')" aria-label="Perfil" role="img" viewBox="0 0 24 24"
-                            class="h-[26px] w-[26px]">
-                            <title>Perfil</title>
-                            <path
-                                d="M12 0.75C8.82431 0.75 6.25 3.32437 6.25 6.5C6.25 9.67563 8.82431 12.25 12 12.25C15.1757 12.25 17.75 9.67563 17.75 6.5C17.75 3.32437 15.1757 0.75 12 0.75Z"
-                                fill="currentColor"></path>
-                            <path
-                                d="M12 13.75C7.51601 13.75 3.65758 16.4063 1.86595 20.1981C1.12621 21.7637 2.41318 23.25 3.86237 23.25H20.1377C21.5869 23.25 22.8738 21.7637 22.1341 20.1981C20.3425 16.4063 16.484 13.75 12 13.75Z"
-                                fill="currentColor"></path>
-                        </svg>
-                        <svg v-else aria-label="Perfil" role="img" viewBox="0 0 24 24" class="h-[26px] w-[26px]"
-                            fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <title>Perfil</title>
-                            <path clip-rule="evenodd"
-                                d="M12 0.75C8.82431 0.75 6.25 3.32437 6.25 6.5C6.25 9.67563 8.82431 12.25 12 12.25C15.1757 12.25 17.75 9.67563 17.75 6.5C17.75 3.32437 15.1757 0.75 12 0.75ZM8.75 6.5C8.75 4.70507 10.205 3.25 12 3.25C13.795 3.25 15.25 4.70507 15.25 6.5C15.25 8.29493 13.795 9.75 12 9.75C10.205 9.75 8.75 8.29493 8.75 6.5Z"
-                                fill="currentColor" fill-rule="evenodd"></path>
-                            <path
-                                d="M12.0003 13.75C6.97423 13.75 2.73384 17.086 1.30779 21.6254C1.10089 22.284 1.46707 22.9856 2.1257 23.1925C2.78432 23.3994 3.48596 23.0333 3.69287 22.3746C4.80482 18.835 8.10976 16.25 12.0003 16.25C15.8909 16.25 19.1958 18.835 20.3078 22.3746C20.5147 23.0333 21.2163 23.3994 21.8749 23.1925C22.5336 22.9856 22.8997 22.284 22.6928 21.6254C21.2668 17.086 17.0264 13.75 12.0003 13.75Z"
-                                fill="currentColor"></path>
-                        </svg>
-                    </span>
-                    <span class="text-[11px] leading-none" :class="isActive('Profile') ? 'font-semibold' : 'font-medium'">Perfil</span>
-                </button>
-            </li>
-        </ul>
+                <!-- Vídeos -->
+                <li class="h-full flex-1">
+                    <router-link to="/reels" aria-label="Vídeos"
+                        :aria-current="isActive('Reels') ? 'page' : undefined" :class="itemClass">
+                        <span :class="iconWrapClass">
+                            <svg v-if="isActive('Reels')" viewBox="0 0 24 24" :class="iconClass" fill="currentColor"
+                                aria-hidden="true">
+                                <path d="M6 2h12a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4zm4.25 6.134a.75.75 0 0 0-1.125.65v6.432a.75.75 0 0 0 1.125.65l5.5-3.216a.75.75 0 0 0 0-1.3l-5.5-3.216z" />
+                            </svg>
+                            <svg v-else viewBox="0 0 24 24" :class="iconClass" fill="currentColor" aria-hidden="true">
+                                <path d="M6 2h12a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6zm4.25 4.134a.75.75 0 0 0-1.125.65v6.432a.75.75 0 0 0 1.125.65l5.5-3.216a.75.75 0 0 0 0-1.3l-5.5-3.216z" />
+                            </svg>
+                        </span>
+                    </router-link>
+                </li>
+
+                <!-- Notificações -->
+                <li class="h-full flex-1">
+                    <button type="button" @click="goToNotification" aria-label="Notificações"
+                        :aria-current="isActive('Notifications') ? 'page' : undefined" :class="itemClass">
+                        <span :class="iconWrapClass">
+                            <svg v-if="isActive('Notifications')" viewBox="0 0 24 24" :class="iconClass"
+                                fill="currentColor" aria-hidden="true">
+                                <path d="M11.996 2c-4.062 0-7.49 3.021-7.999 7.051L2.866 18H7.1c.463 2.282 2.481 4 4.9 4s4.437-1.718 4.9-4h4.236l-1.143-8.958C19.48 5.017 16.054 2 11.996 2zM9.171 18h5.658c-.412 1.165-1.523 2-2.829 2s-2.417-.835-2.829-2z" />
+                            </svg>
+                            <svg v-else viewBox="0 0 24 24" :class="iconClass" fill="currentColor" aria-hidden="true">
+                                <path d="M19.993 9.042C19.48 5.017 16.054 2 11.996 2s-7.49 3.021-7.999 7.051L2.866 18H7.1c.463 2.282 2.481 4 4.9 4s4.437-1.718 4.9-4h4.234l-1.141-8.958zM12 20c-1.306 0-2.417-.835-2.829-2h5.658c-.412 1.165-1.523 2-2.829 2zm-6.866-4l.847-6.698C6.364 6.272 8.941 4 11.996 4s5.627 2.268 6.013 5.295L18.864 16H5.134z" />
+                            </svg>
+                            <span v-show="unreadNotificationsCount > 0" :class="badgeClass">
+                                {{ formatBadge(unreadNotificationsCount) }}
+                            </span>
+                        </span>
+                    </button>
+                </li>
+
+                <!-- Perfil -->
+                <li class="h-full flex-1">
+                    <button type="button" @click="goToProfile(user)" aria-label="Perfil"
+                        :aria-current="isActive('Profile') ? 'page' : undefined" :class="itemClass">
+                        <span :class="iconWrapClass">
+                            <svg v-if="isActive('Profile')" viewBox="0 0 24 24" :class="iconClass" fill="currentColor"
+                                aria-hidden="true">
+                                <path d="M17.863 13.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H3.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46C7.627 11.85 9.648 11 12 11s4.373.85 5.863 2.44zM12 2C9.791 2 8 3.79 8 6s1.791 4 4 4 4-1.79 4-4-1.791-4-4-4z" />
+                            </svg>
+                            <svg v-else viewBox="0 0 24 24" :class="iconClass" fill="currentColor" aria-hidden="true">
+                                <path d="M5.651 19h12.698c-.337-1.8-1.023-3.21-1.945-4.19C15.318 13.65 13.838 13 12 13s-3.317.65-4.404 1.81c-.922.98-1.608 2.39-1.945 4.19zm.486-5.56C7.627 11.85 9.648 11 12 11s4.373.85 5.863 2.44c1.477 1.58 2.366 3.8 2.632 6.46l.11 1.1H3.395l.11-1.1c.266-2.66 1.155-4.88 2.632-6.46zM12 4c-1.105 0-2 .9-2 2s.895 2 2 2 2-.9 2-2-.895-2-2-2zM8 6c0-2.21 1.791-4 4-4s4 1.79 4 4-1.791 4-4 4-4-1.79-4-4z" />
+                            </svg>
+                        </span>
+                    </button>
+                </li>
+            </ul>
+        </nav>
     </transition>
 </template>
 
@@ -181,12 +121,17 @@ defineProps({
     }
 })
 
-// --- Apenas apresentação (não alteram a lógica de navegação) ---
+// --- Apenas apresentação ---
 const isActive = (name) => route.name === name
 
-// Aba ativa na cor primária; inativas em cinza, como no Messenger
-const tabTone = (active) =>
-    active ? 'text-primary' : 'text-[#65676B] dark:text-[#B0B3B8]'
+// Classes reutilizadas (estilo X: ícones sem texto, mesma cor ativo/inativo)
+const itemClass =
+    'group flex h-full w-full items-center justify-center text-inherit outline-none'
+const iconWrapClass =
+    'relative flex h-10 w-10 items-center justify-center rounded-full transition duration-150 ease-out group-active:scale-90 group-active:bg-black/5 dark:group-active:bg-white/10'
+const iconClass = 'h-[26px] w-[26px]'
+const badgeClass =
+    'absolute right-0 top-0 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-[#1d9bf0] px-1 text-[11px] font-bold leading-none text-white ring-2 ring-x-light-bg dark:ring-x-dark-bg'
 
 // Contador compacto no badge (99+)
 const formatBadge = (n) => (n > 99 ? '99+' : n)
@@ -200,12 +145,7 @@ const goToProfile = (u) => {
 }
 
 const goToNotification = () => {
-    if (route.name === 'Notification') return
-    else {
-        if (unreadNotificationsCount.value) {
-            // resetUnreadNotificationsCount()
-        }
-        router.push('/notifications')
-    }
+    if (route.name === 'Notifications') return
+    router.push('/notifications')
 }
 </script>
