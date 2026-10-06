@@ -42,21 +42,21 @@
                     </router-link>
                 </li>
 
-                <!-- Vídeos -->
-                <li class="h-full flex-1">
-                    <router-link to="/reels" aria-label="Vídeos"
-                        :aria-current="isActive('Reels') ? 'page' : undefined" :class="itemClass">
-                        <span :class="iconWrapClass">
-                            <svg v-if="isActive('Reels')" viewBox="0 0 24 24" :class="iconClass" fill="currentColor"
-                                aria-hidden="true">
-                                <path d="M6 2h12a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4zm4.25 6.134a.75.75 0 0 0-1.125.65v6.432a.75.75 0 0 0 1.125.65l5.5-3.216a.75.75 0 0 0 0-1.3l-5.5-3.216z" />
-                            </svg>
-                            <svg v-else viewBox="0 0 24 24" :class="iconClass" fill="currentColor" aria-hidden="true">
-                                <path d="M6 2h12a4 4 0 0 1 4 4v12a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4zm0 2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2H6zm4.25 4.134a.75.75 0 0 0-1.125.65v6.432a.75.75 0 0 0 1.125.65l5.5-3.216a.75.75 0 0 0 0-1.3l-5.5-3.216z" />
-                            </svg>
-                        </span>
-                    </router-link>
-                </li>
+               <!-- Busca -->
+<li class="h-full flex-1">
+    <router-link to="/search" aria-label="Buscar"
+        :aria-current="isActive('Search') ? 'page' : undefined" :class="itemClass">
+        <span :class="iconWrapClass">
+            <svg v-if="isActive('Search')" viewBox="0 0 24 24" :class="iconClass" fill="currentColor"
+                aria-hidden="true">
+                <path d="M10.25 4.25c-3.314 0-6 2.686-6 6s2.686 6 6 6c1.657 0 3.155-.67 4.243-1.757 1.087-1.088 1.757-2.586 1.757-4.243 0-3.314-2.686-6-6-6zm-9 6c0-4.971 4.029-9 9-9s9 4.029 9 9c0 1.943-.617 3.744-1.664 5.215l4.475 4.474-2.122 2.122-4.474-4.475c-1.471 1.047-3.272 1.664-5.215 1.664-4.971 0-9-4.029-9-9z" />
+            </svg>
+            <svg v-else viewBox="0 0 24 24" :class="iconClass" fill="currentColor" aria-hidden="true">
+                <path d="M10.25 3.75c-3.59 0-6.5 2.91-6.5 6.5s2.91 6.5 6.5 6.5c1.795 0 3.419-.726 4.596-1.904 1.178-1.177 1.904-2.801 1.904-4.596 0-3.59-2.91-6.5-6.5-6.5zm-8.5 6.5c0-4.694 3.806-8.5 8.5-8.5s8.5 3.806 8.5 8.5c0 1.986-.682 3.815-1.824 5.262l4.781 4.781-1.414 1.414-4.781-4.781c-1.447 1.142-3.276 1.824-5.262 1.824-4.694 0-8.5-3.806-8.5-8.5z" />
+            </svg>
+        </span>
+    </router-link>
+</li>
 
                 <!-- Notificações -->
                 <li class="h-full flex-1">
