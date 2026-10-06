@@ -18,43 +18,51 @@ export const setThemeColor = (theme, { savedTheme, store }) => {
 
   // Aplicar classe no HTML
   if (savedTheme.value === 'dark') {
-    window?.WTN?.setNavigationBarColor({ color: "#000000" });
+
     window?.WTN?.statusBar({
       style: 'light',
       color: '000000',
       overlay: false // Only for android
     })
+    // Ajustar cor da navigation bar nativa (WTN)
+    window?.WTN?.setNavigationBarColor({ color: "#000000" });
+
     // Aplicar tema escuro
     document.documentElement.classList.add('dark')
   } else if (savedTheme.value === 'system') {
     const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
 
     if (isDark) {
-      window?.WTN?.setNavigationBarColor({ color: "#000000" })
-      window?.WTN?.statusBar({
+      window.WTN.statusBar({
         style: 'dark',
         color: '000000',
         overlay: false // Only for android
       })
 
+      window.WTN.setNavigationBarColor({ color: "#000000" })
       document.documentElement.classList.add('dark')
     } else {
-      window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" })
+
       window?.WTN.statusBar({
         style: 'dark',
         color: "FFFFFF",
         overlay: false // Only for android
       })
 
+      window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" })
       document.documentElement.classList.remove('dark')
     }
   } else {
-    window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" })
+    // Tema claro
     window?.WTN.statusBar({
       style: 'dark',
       color: "FFFFFF",
       overlay: false // Only for android
     })
+
+    // Ajustar cor da navigation bar nativa (WTN)
+    window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" })
+
     // Aplicar tema claro
     document.documentElement.classList.remove('dark')
   }
