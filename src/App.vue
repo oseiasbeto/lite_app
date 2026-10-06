@@ -1,356 +1,403 @@
 <script setup>
-import LoadingScreen from "./components/UI/LoadingScreen.vue"
+// ============================================================
+// IMPORTS
+// ============================================================
 import { useStore } from "vuex"
-import { computed, onMounted, ref, watch, onUnmounted } from "vue";
-import { useRoute } from "vue-router";
-import Cookies from "js-cookie";
-import { getSocket, disconnectSocket } from '@/services/socket';
-import { getPlayerId } from "webtonative/OneSignal";
-import { logger } from "./utils/logger";
-import generateSource from "./utils/generate-source";
-import LoadingComponent from "./components/UI/LoadingComponent.vue";
-import Navegator from "./components/UI/Navgator.vue";
+import { computed, onMounted, ref, watch, onUnmounted } from "vue"
+import { useRoute } from "vue-router"
+import Cookies from "js-cookie"
+import { getPlayerId } from "webtonative/OneSignal"
+
+import LoadingScreen from "./components/UI/LoadingScreen.vue"
+import LoadingComponent from "./components/UI/LoadingComponent.vue"
+import Navegator from "./components/UI/Navgator.vue"
 import NetworkStatusBanner from "./components/UI/NetworkStatusBanner.vue"
-import { useNetworkStatus } from "@/composables/useNetworkStatus";
-import ToastContainer from "./components/UI/ToastContainer.vue";
-import Confirmdialog from "./components/UI/Confirmdialog.vue";
+import ToastContainer from "./components/UI/ToastContainer.vue"
+import Confirmdialog from "./components/UI/Confirmdialog.vue"
 
-// Estado de loading do app
-const loading = ref(true)
+import { getSocket, disconnectSocket } from '@/services/socket'
+import { useNetworkStatus } from "@/composables/useNetworkStatus"
+import { logger } from "./utils/logger"
+import generateSource from "./utils/generate-source"
+import { setThemeColor as applyTheme, applyGuestSystemTheme } from "./utils/set-theme-color.js"
+import { prompt } from "webtonative/AppReview"
 
-const splashRef = ref(null)
-
-// Vuex store
-const store = useStore()
-
-// Rota atual
-const route = useRoute()
-
-// Pega sessão salva em cookie
-const sessionId = Cookies.get("session_id")
-
-// Tema salvo em cookie
-const savedTheme = ref(Cookies.get("theme") || 'light')
-
-// Ambiente (prod ou dev)
+// ============================================================
+// CONSTANTES
+// ============================================================
 const node_env = process.env.NODE_ENV === 'production' ? 'prod' : 'dev'
+const BACKGROUND_RELOAD_TIME = 1 * 60 * 1000 // 1 minuto
+const HEARTBEAT_INTERVAL = 15_000 // 15 segundos
+const OFFLINE_DISCONNECT_DELAY = 5000 // 5 segundos
 
-let socket;
-
+// ============================================================
+// ESTADO LOCAL
+// ============================================================
+const loading = ref(true)
+const splashRef = ref(null)
 const networkBanner = ref(null)
 
-// --- NOVO: fonte real de verdade sobre conectividade ---
-const { isOnline: isReallyOnline } = useNetworkStatus()
+const sessionId = Cookies.get("session_id")
+const savedTheme = ref(Cookies.get("theme") || 'light')
 
+let socket
+let heartbeat
+let backgroundStartTime = null
 let wasReallyOffline = false
 let backgroundOfflineTime = null
 
-// Pega dados do usuário
+// Som de notificação
+const notificationSound = new Audio('/sounds/dm.mp3')
+notificationSound.preload = 'auto'
+
+// ============================================================
+// STORE / ROUTE / COMPOSABLES
+// ============================================================
+const store = useStore()
+const route = useRoute()
+
+// Fonte real de verdade sobre conectividade
+const { isOnline: isReallyOnline } = useNetworkStatus()
+
+// ============================================================
+// COMPUTEDS
+// ============================================================
 const user = computed(() => store.getters.currentUser)
 const isNewSession = computed(() => store.getters.isNewSession)
 const isLoadingComponent = computed(() => store.getters.isLoadingComponent)
-const unreadNotificationsCount = computed(() => store.getters?.unreadNotificationsCount || 0);
-const unreadMessagesCount = computed(() => store.getters?.unreadMessagesCount || 0);
 const showBottomNav = computed(() => store.getters.showBottomNav)
+const unreadNotificationsCount = computed(() => store.getters?.unreadNotificationsCount || 0)
+const unreadMessagesCount = computed(() => store.getters?.unreadMessagesCount || 0)
 
-// Estado da rede
-const networkStatus = computed(() => {
-  return store.getters.networkStatus
-})
+const networkStatus = computed(() => store.getters.networkStatus)
+const isOnline = computed(() => networkStatus.value === 'online' ? true : false)
 
-// Computed para verificar se está online
-const isOnline = computed(() => {
-  return networkStatus.value === 'online' ? true : false
-})
-
-// Pega token de acesso
-const accessToken = computed(() => {
-  return store.getters.accessToken
-})
-
-// Verifica se está autenticado
+const accessToken = computed(() => store.getters.accessToken)
 const isAuthenticated = computed(() => {
   if (accessToken.value) return true
   else return false
 })
 
-// Preparar som de notificação
-const notificationSound = new Audio('/sounds/dm.mp3');
-notificationSound.preload = 'auto'
+// ============================================================
+// TEMA (lógica em utils/theme.js)
+// ============================================================
+const setThemeColor = (theme) => applyTheme(theme, { savedTheme, store })
 
-// Configuração de background
-let backgroundStartTime = null;
-const BACKGROUND_RELOAD_TIME = 1 * 60 * 1000; // 2 minutos
+// ============================================================
+// HELPERS
+// ============================================================
+const reloadApp = async () => {
+  // Limpa o histórico do navegador
+  window.history.pushState(null, '', '/home')
 
+  // Recarrega a página para resetar completamente o estado (stores, componentes, etc)
+  window.location.reload()
+}
+
+// Função para tocar o som (com fallback silencioso)
+const playNotificationSound = async () => {
+  try {
+    // Reseta o áudio pro início (permite tocar várias vezes seguidas)
+    notificationSound.currentTime = 0
+    await notificationSound.play()
+  } catch (err) {
+    logger.log(err)
+    // Usuário não interagiu ainda com a página → navegador bloqueia som
+    // Isso é normal no Chrome/Firefox. Só toca após primeira interação.
+    logger.log("Som bloqueado (sem interação do usuário ainda)")
+  }
+}
+
+// ============================================================
+// FOREGROUND / BACKGROUND
+// ============================================================
+const handleAppForeground = () => {
+  const backgroundTime = backgroundStartTime ? Date.now() - backgroundStartTime : 0
+  logger.log(`App voltou ao foreground - Tempo em background: ${Math.round(backgroundTime / 1000)}s`)
+
+  backgroundStartTime = null
+
+  // Se ficou muito tempo em background, recarrega o app
+  if (backgroundTime > BACKGROUND_RELOAD_TIME) {
+    logger.log(`Ficou mais de 2min em background - Reconectando socket...`)
+    reloadApp()
+    return
+  }
+}
+
+const handleAppBackground = () => {
+  logger.log('App em background - monitorando...')
+  backgroundStartTime = Date.now()
+}
 
 const handleVisibilityChange = () => {
   if (document.visibilityState === 'visible') {
-    handleAppForeground();
+    handleAppForeground()
   } else {
-    handleAppBackground();
+    handleAppBackground()
   }
-};
+}
 
-const handleAppForeground = () => {
-  const backgroundTime = backgroundStartTime ? Date.now() - backgroundStartTime : 0;
-  logger.log(`App voltou ao foreground - Tempo em background: ${Math.round(backgroundTime / 1000)}s`);
-
-  backgroundStartTime = null;
-
-  // Se ficou mais de 5min em background, tenta reconexão inteligente
-  if (backgroundTime > BACKGROUND_RELOAD_TIME) {
-    logger.log(`Ficou mais de 2min em background - Reconectando socket...`);
-    reloadApp()
-    return;
-  }
-};
-
-const handleAppBackground = () => {
-  logger.log('App em background - monitorando...');
-  backgroundStartTime = Date.now();
-};
-
-// MODIFICADO: handleOnline com comportamento inteligente
+// ============================================================
+// REDE (online / offline)
+// ============================================================
 const handleOnline = () => {
-  logger.log('Rede online detectada');
+  logger.log('Rede online detectada')
   store.commit("SET_NETWORK_STATUS", 'online')
-  isOnline.value = true;
+  isOnline.value = true
   reloadApp()
-};
+}
 
-// MODIFICADO: handleOffline mais inteligente
 const handleOffline = async () => {
-  logger.log('Rede offline detectada - bufferizando mensagens');
+  logger.log('Rede offline detectada - bufferizando mensagens')
   store.commit("SET_NETWORK_STATUS", 'offline')
-  isOnline.value = false;
+  isOnline.value = false
 
   // Não desconecta imediatamente - tenta manter
   setTimeout(() => {
     if (!isOnline.value) {
-      // Só desconecta após 5 segundos offline
-      logger.log('Rede permanece offline, desconectando...');
-      disconnectSocket();
+      // Só desconecta após alguns segundos offline
+      logger.log('Rede permanece offline, desconectando...')
+      disconnectSocket()
     }
-  }, 5000);
-};
+  }, OFFLINE_DISCONNECT_DELAY)
+}
 
+const setupConnectionListeners = () => {
+  window.addEventListener('online', handleOnline)
+  window.addEventListener('offline', handleOffline)
+  document.addEventListener('visibilitychange', handleVisibilityChange)
+}
+
+const removeConnectionListeners = () => {
+  window.removeEventListener('online', handleOnline)
+  window.removeEventListener('offline', handleOffline)
+  document.removeEventListener('visibilitychange', handleVisibilityChange)
+}
+
+// ============================================================
+// SOCKET - HANDLERS
+// ============================================================
+const onNewMessage = async (msg) => {
+  // Meu ID
+  const myId = user.value?._id
+  const source = generateSource(msg.conversation, myId)
+
+  // Verifica se a mensagem é minha
+  const isFromMe = msg.sender?._id === myId
+
+  // ID da conversa atualmente aberta
+  const currentConvId = route.params?.convId || route.query?.convId
+
+  // Atualiza conversa na sidebar
+  store.commit("ADD_OR_UPDATE_CONVERSATION", {
+    conversation: msg.conversation, // pode estar incompleto
+    userId: user.value?._id, // meu ID
+    senderId: msg.sender?._id, // quem enviou a mensagem
+    source
+  })
+
+  // Se não for mensagem minha
+  if (!isFromMe) {
+    logger.log('Nova mensagem recebida via socket:', msg)
+
+    // Adiciona mensagem no chat (mesmo se estiver em outra conversa)
+    store.commit("ADD_MESSAGE_REALTIME", {
+      convId: msg.conversation._id, // pode ser incompleto
+      message: msg, // mensagem completa
+      source
+    })
+
+    // Tocar som de notificação
+    await playNotificationSound()
+
+    // Verifica se a conversa aberta é essa
+    const isChatOpen = currentConvId === msg.conversation._id
+
+    // Marca como lido automaticamente só se eu estiver vendo exatamente essa conversa
+    if (isChatOpen && route.name === 'Messages') {
+      await store.dispatch("markAsRead", {
+        convId: msg?.conversation?._id,
+        source
+      })
+    }
+
+    const unreadCount = unreadMessagesCount.value
+
+    if (route.name == 'Chats' || route.meta.rootPage == 'chats') {
+      await store.dispatch("updateUnreadMessagesCount", 0)
+    } else {
+      await store.dispatch("updateUnreadMessagesCount", unreadCount + 1)
+    }
+  }
+}
+
+const onDeleteMessage = (msg) => {
+  const myId = user.value?._id
+  const isFromMe = msg?.sender?._id === myId
+
+  const source = generateSource(msg?.conversation, myId)
+
+  if (!isFromMe) {
+    logger.log("Mensagem apagada para todos via socket: ", msg)
+    store.commit("DELETE_MESSAGE", {
+      convId: msg?.conversation?._id,
+      source,
+      msgId: msg?._id
+    })
+  }
+}
+
+const onReactMessage = async ({ msgId, conv, core, emoji, sender }) => {
+  const myId = user.value?._id
+  const isFromMe = sender?._id === myId
+  let hasSeen = false
+
+  const source = generateSource(conv, myId)
+
+  const convIdParams = route?.params?.convId
+
+  if (convIdParams && convIdParams === conv?._id) {
+    hasSeen = true
+  }
+
+  if (!isFromMe) {
+    store.commit("REACT_MESSAGE", {
+      convId: conv?._id,
+      core,
+      source,
+      msgId,
+      emoji,
+      sender,
+      isFromMe: !isFromMe && !hasSeen ? false : true
+    })
+
+    if (hasSeen) {
+      await store.dispatch("markAsRead", {
+        convId: conv?._id,
+        source
+      })
+    }
+  }
+}
+
+const onUserOnline = (userId) => {
+  const isFromMe = user?._id === userId
+  if (isFromMe) return
+
+  store.commit("UPDATE_STATUS_NETWORK_CONVERSATION", {
+    userId,
+    payload: true
+  })
+
+  logger.log("Novo usuário conectado:", userId)
+}
+
+const onUserOffline = (userId) => {
+  store.commit("UPDATE_STATUS_NETWORK_CONVERSATION", {
+    userId,
+    payload: false
+  })
+
+  logger.log("Usuário desconectado:", userId)
+}
+
+const onUserTypingStart = ({ convId, userId, source }) => {
+  if (userId !== user.value?._id) {
+    console.log("comecou a escrever")
+    // Atualiza estado de digitação na conversa
+    store.commit("UPDATE_TYPING_ON_CONVERSATION", {
+      convId,
+      source,
+      payload: true
+    })
+  }
+}
+
+// Quando o outro usuário parar de digitar
+const onUserTypingStop = ({ convId, userId, source }) => {
+  if (userId !== user.value?._id) {
+    console.log("pausou escrever")
+
+    store.commit("UPDATE_TYPING_ON_CONVERSATION", {
+      convId,
+      source,
+      payload: false
+    })
+  }
+}
+
+//
+const onConversationAsRead = (data) => {
+  if (user.value?._id === data.user?._id) return
+  else {
+    setTimeout(() => {
+      const { user: reciver, read_at, conv } = data
+
+      const myId = user.value?._id
+      const source = generateSource(conv, myId)
+
+      store.commit("MARK_AS_READ_CONVERSATION", {
+        user: reciver,
+        read_at,
+        source,
+        convId: conv?._id
+      })
+    }, 300)
+  }
+}
+
+const onNewNotification = async (newNotification) => {
+  logger.log("nova notificacao:", newNotification)
+  store.commit("PUSH_NOTIFICATION_FROM_NOTIFICATIONS", newNotification)
+
+  const unreadCount = unreadNotificationsCount.value
+  if (route.name == 'Notifications') {
+    await store.dispatch("updateUnreadNotificationsCount", 0)
+  } else {
+    await store.dispatch("updateUnreadNotificationsCount", unreadCount + 1)
+  }
+  // Tocar som de notificação
+  playNotificationSound()
+}
+
+// ============================================================
+// SOCKET - INICIALIZAÇÃO
+// ============================================================
 const initializeSocket = () => {
-  socket = getSocket();
+  socket = getSocket()
 
   if (socket) {
     heartbeat = setInterval(() => {
       if (socket?.connected) {
-        socket.emit('heartbeat'); // só isso!
+        socket.emit('heartbeat')
       }
-    }, 15_000); // a cada 15 segundos
+    }, HEARTBEAT_INTERVAL)
 
-    // Conectar socket
-    socket.on('new_message', async (msg) => {
-      // Meu ID
-      const myId = user.value?._id;
-      const source = generateSource(msg.conversation, myId)
-
-      // Verifica se a mensagem é minha
-      const isFromMe = msg.sender?._id === myId;
-
-      // ID da conversa atualmente aberta
-      const currentConvId = route.params?.convId || route.query?.convId;
-
-      // Atualiza conversa na sidebar
-      store.commit("ADD_OR_UPDATE_CONVERSATION", {
-        conversation: msg.conversation, // pode estar incompleto  
-        userId: user.value?._id, // meu ID
-        senderId: msg.sender?._id, // quem enviou a mensagem 
-        source
-      });
-
-      // Se não for mensagem minha
-      if (!isFromMe) {
-        logger.log('Nova mensagem recebida via socket:', msg);
-
-        // Adiciona mensagem no chat (mesmo se estiver em outra conversa)
-        store.commit("ADD_MESSAGE_REALTIME", {
-          convId: msg.conversation._id, // pode ser incompleto
-          message: msg, // mensagem completa 
-          source
-        });
-
-
-        // Tocar som de notificação
-        await playNotificationSound();
-
-        // Verifica se a conversa aberta é essa
-        const isChatOpen = currentConvId === msg.conversation._id;
-
-        // Marca como lido automaticamente só se eu estiver vendo exatamente essa conversa
-        if (isChatOpen && route.name === 'Messages') {
-          // Marca como lido
-          await store.dispatch("markAsRead", {
-            convId: msg?.conversation?._id,
-            source
-          });
-        }
-
-        const unreadCount = unreadMessagesCount.value
-
-        if (route.name == 'Chats' || route.meta.rootPage == 'chats') {
-          await store.dispatch("updateUnreadMessagesCount", 0)
-        } else {
-          await store.dispatch("updateUnreadMessagesCount", unreadCount + 1)
-        }
-      }
-    })
-
-    socket.on('delete_message', (msg) => {
-      const myId = user.value?._id;
-      const isFromMe = msg?.sender?._id === myId;
-
-      const source = generateSource(msg?.conversation, myId)
-
-      if (!isFromMe) {
-        logger.log("Mensagem apagada para todos via socket: ", msg)
-        store.commit("DELETE_MESSAGE", {
-          convId: msg?.conversation?._id,
-          source,
-          msgId: msg?._id
-        })
-      }
-    })
-
-    socket.on('react_message', async ({ msgId, conv, core, emoji, sender }) => {
-      const myId = user.value?._id;
-      const isFromMe = sender?._id === myId;
-      let hasSeen = false
-
-      const source = generateSource(conv, myId)
-
-      const convIdParams = route?.params?.convId
-
-      if (convIdParams && convIdParams === conv?._id) {
-        hasSeen = true
-      }
-
-      if (!isFromMe) {
-        store.commit("REACT_MESSAGE", {
-          convId: conv?._id,
-          core,
-          source,
-          msgId,
-          emoji,
-          sender,
-          isFromMe:
-            !isFromMe && !hasSeen ? false : true
-        })
-
-        if (hasSeen) {
-          await store.dispatch("markAsRead", {
-            convId: conv?._id,
-            source
-          });
-        }
-      }
-    })
-
-    socket.on("user_online", (userId) => {
-      const isFromMe = user?._id === userId;
-      if (isFromMe) return
-
-      store.commit("UPDATE_STATUS_NETWORK_CONVERSATION", {
-        userId,
-        payload: true
-      })
-
-      logger.log("Novo usuário conectado:", userId)
-    })
-
-    socket.on("user_offline", (userId) => {
-      store.commit("UPDATE_STATUS_NETWORK_CONVERSATION", {
-        userId,
-        payload: false
-      })
-
-      logger.log("Usuário desconectado:", userId)
-    })
-
-    // Listeners de digitação
-    socket.on("user_typing_start", ({ convId, userId, source }) => {
-      if (userId !== user.value?._id) {
-
-        console.log("comecou a escrever")
-        // Atualiza estado de digitação na conversa
-        store.commit("UPDATE_TYPING_ON_CONVERSATION", {
-          convId,
-          source,
-          payload: true
-        })
-      }
-    })
-
-    // Listener para quando o outro usuário parar de digitar
-    socket.on("user_typing_stop", ({ convId, userId, source }) => {
-      if (userId !== user.value?._id) {
-
-        console.log("pausou escrever")
-
-        store.commit("UPDATE_TYPING_ON_CONVERSATION", {
-          convId,
-          source,
-          payload: false
-        })
-      }
-    })
-
-    socket.on("conversation_as_read", (data) => {
-      if (user.value?._id === data.user?._id) return
-      else {
-        setTimeout(() => {
-          const { user: reciver, read_at, conv } = data
-
-          const myId = user.value?._id
-          const source = generateSource(conv, myId)
-
-          store.commit("MARK_AS_READ_CONVERSATION", {
-            user: reciver,
-            read_at,
-            source,
-            convId: conv?._id
-          })
-
-        }, 300);
-      }
-    })
-
-    socket.on("new_notification", async (newNotification) => {
-      logger.log("nova notificacao:", newNotification)
-      store.commit("PUSH_NOTIFICATION_FROM_NOTIFICATIONS", newNotification)
-
-
-
-      const unreadCount = unreadNotificationsCount.value
-      if (route.name == 'Notifications') {
-        await store.dispatch("updateUnreadNotificationsCount", 0)
-
-      } else {
-        await store.dispatch("updateUnreadNotificationsCount", unreadCount + 1)
-      }
-      // Tocar som de notificação
-      playNotificationSound();
-    })
-
-
+    socket.on('new_message', onNewMessage)
+    socket.on('delete_message', onDeleteMessage)
+    socket.on('react_message', onReactMessage)
+    socket.on('user_online', onUserOnline)
+    socket.on('user_offline', onUserOffline)
+    socket.on('user_typing_start', onUserTypingStart)
+    socket.on('user_typing_stop', onUserTypingStop)
+    socket.on('conversation_as_read', onConversationAsRead)
+    socket.on('new_notification', onNewNotification)
   } else {
-    logger.log('Nenhum socket encontrado');
-    return false;
+    logger.log('Nenhum socket encontrado')
+    return false
   }
 }
 
+// ============================================================
+// AUTENTICAÇÃO
+// ============================================================
 const handleRefreshToken = async () => {
   await store.dispatch('refreshToken', sessionId)
     .then(() => {
-
       initializeSocket()
 
-      // Registrar OneSignal Player ID  
+      // Registrar OneSignal Player ID
       if (node_env === 'prod') {
         getPlayerId().then(async function (playerId) {
           if (playerId) {
@@ -360,111 +407,21 @@ const handleRefreshToken = async () => {
               })
             }
           }
-        });
+        })
       }
     })
 }
 
-const reloadApp = async () => {
-  // Limpa o histórico do navegador
-  window.history.pushState(null, '', '/home');
-
-  // Recarrega a página para resetar completamente o estado (stores, componentes, etc)
-  window.location.reload();
-}
-
-// Função para tocar o som (com fallback silencioso)
-const playNotificationSound = async () => {
-  try {
-    // Reseta o áudio pro início (permite tocar várias vezes seguidas)
-    notificationSound.currentTime = 0;
-    await notificationSound.play();
-
-  } catch (err) {
-    logger.log(err)
-    // Usuário não interagiu ainda com a página → navegador bloqueia som
-    // Isso é normal no Chrome/Firefox. Só toca após primeira interação.
-    logger.log("Som bloqueado (sem interação do usuário ainda)");
-  }
-}
-
-// Configurar listeners de conexão
-const setupConnectionListeners = () => {
-  window.addEventListener('online', handleOnline);
-  window.addEventListener('offline', handleOffline);
-  document.addEventListener('visibilitychange', handleVisibilityChange);
-}
-
-// Remover listeners de conexão
-const removeConnectionListeners = () => {
-  window.removeEventListener('online', handleOnline);
-  window.removeEventListener('offline', handleOffline);
-  document.removeEventListener('visibilitychange', handleVisibilityChange);
-}
-
-const setThemeColor = (theme) => {
-  // Salvar preferência
-  if (savedTheme.value !== theme) {
-    Cookies.set('theme', theme)
-    savedTheme.value = theme
-    store.commit("SET_CURRENT_THEME", theme)
-  }
-
-  // Aplicar classe no HTML
-  if (savedTheme.value === 'dark') {
-    // window?.WTN?.setNavigationBarColor({ color: "#000000" });
-    window?.WTN?.statusBar({
-      style: 'light',
-      color: '000000',
-      overlay: false //Only for android
-    });
-    // Aplicar tema escuro  
-    document.documentElement.classList.add('dark');
-  } else if (savedTheme.value === 'system') {
-    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-    if (isDark) {
-      window?.WTN?.setNavigationBarColor({ color: "#000000" });
-      window?.WTN?.statusBar({
-        style: 'dark',
-        color: '000000',
-        overlay: false //Only for android
-      });
-
-      document.documentElement.classList.add('dark');
-    } else {
-      window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
-      window?.WTN.statusBar({
-        style: 'dark',
-        color: "FFFFFF",
-        overlay: false //Only for android
-      });
-
-      document.documentElement.classList.remove('dark');
-    }
-  } else {
-    window?.WTN?.setNavigationBarColor({ color: "#FFFFFF" });
-    window?.WTN.statusBar({
-      style: 'dark',
-      color: "FFFFFF",
-      overlay: false //Only for android
-    });
-    // Aplicar tema claro
-    document.documentElement.classList.remove('dark');
-  }
-}
-
-let heartbeat;
+// ============================================================
+// LIFECYCLE
+// ============================================================
 onMounted(async () => {
   if (sessionId) {
-    // Configurar listeners de conexão
-    setupConnectionListeners();
+    setupConnectionListeners()
   }
 
   // Se tiver sessão salva, tentar restaurar
   if (sessionId && !isAuthenticated.value) {
-    // const { appReview: AppReview } = window.WTN
-    // AppReview.prompt()
     await handleRefreshToken()
       .then(async () => {
         // setar com base no valor do corrente usuario
@@ -475,40 +432,36 @@ onMounted(async () => {
           setThemeColor('system')
         }
         splashRef.value.finish()
+        prompt()
       })
-
   } else {
-    const dark = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-    if (dark) {
-      window.WTN?.setNavigationBarColor({ color: "000000" });
-      window.WTN?.statusBar({
-        style: "light",
-        color: "00000000",
-        overlay: true, // Somente Android
-      });
-      document.documentElement.classList.add("dark", dark);
-    } else {
-      window.WTN.statusBar({
-        style: "dark",
-        color: "00000000",
-        overlay: true // Somente Android
-      });
-      window.WTN.setNavigationBarColor({ color: "FFFFFF" });
-      document.documentElement.classList.remove("dark");
-    }
-
+    applyGuestSystemTheme()
     loading.value = false
   }
 })
 
+onUnmounted(() => {
+  const socket = getSocket()
+  if (socket) {
+    socket.off('new_message')
+    socket.off('new_notification')
+    socket.off('conversation_as_read')
+    disconnectSocket()
+  }
+
+  if (sessionId) {
+    removeConnectionListeners()
+  }
+
+  clearInterval(heartbeat)
+})
+
+// ============================================================
+// WATCHERS
+// ============================================================
 watch(() => isNewSession.value, () => {
-
   initializeSocket()
-
-
-  // Configurar listeners de conexão
-  setupConnectionListeners();
+  setupConnectionListeners()
 
   // setar com base no valor do corrente usuario
   if (user.value) {
@@ -553,27 +506,9 @@ watch(isReallyOnline, (online) => {
     }
   }
 })
-
-onUnmounted(() => {
-  const socket = getSocket();
-  if (socket) {
-    socket.off('new_message');
-    socket.off('new_notification');
-    socket.off('conversation_as_read');
-    disconnectSocket()
-  }
-
-  if (sessionId) {
-    // Remover listeners de conexão
-    removeConnectionListeners()
-  }
-
-  clearInterval(heartbeat);
-});
 </script>
 
 <template>
-
   <div
     class="font-primary text-[13px] dark:bg-x-dark-bg dark:text-x-dark-textPrimary bg-x-light-bg text-x-light-textPrimary relative w-screen text-sm h-screen overflow-x-hidden text-light-text-primary overflow-auto">
     <!-- Banner de status de rede, sempre no topo, fora do keep-alive -->
@@ -600,12 +535,10 @@ onUnmounted(() => {
 
         <loading-component v-if="isLoadingComponent" />
       </div>
-
     </div>
     <div v-else>
       <loading-screen ref="splashRef" :on-finish="() => (loading = false)" />
     </div>
     <!-- end main app area-->
   </div>
-
 </template>
