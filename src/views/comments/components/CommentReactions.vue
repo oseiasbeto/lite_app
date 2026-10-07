@@ -1,46 +1,52 @@
 <template>
-    <div class="flex items-center justify-between" :class="{ 'pointer-events-none': loading }">
-        <div class="flex gap-2 items-center">
-            <!--Gostar: icone de coracao com animacao, count por baixo igual ao TikTok-->
-            <button @click="$emit('on-upvote')"
-                :class="upvotes?.includes(userId) ? 'text-[#f91880]' : 'text-x-light-textSecondary dark:text-x-dark-textSecondary'"
-                class="flex flex-col items-center justify-center gap-0.5 py-0.5">
-                <span class="relative inline-flex items-center justify-center">
-                    <span v-if="bursting" class="like-burst" aria-hidden="true">
-                        <span v-for="particle in particles" :key="particle.id" class="like-burst__particle"
-                            :style="particle.style"></span>
-                    </span>
+    <!--
+        Raiz com "display: contents": o rodape fica no fluxo normal (dentro da coluna do texto)
+        e a coluna do coracao e posicionada em absoluto no canto direito da linha do comentario
+        (o ancestral "relative" e a linha flex do CommentCard).
+    -->
+    <div class="contents" :class="{ 'pointer-events-none': loading }">
 
-                    <svg v-if="!upvotes?.includes(userId)" aria-label="Gosto" role="img" viewBox="-0.5 0 25 24"
-                        class="w-[18px] h-[18px]" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <title>Gosto</title>
-                        <path
-                            d="M16.5 2C14.8335 2 13.2217 2.70703 12 3.93652C10.7783 2.70704 9.1665 2 7.5 2C3.3785 2 0.5 5.08423 0.5 9.5C0.5 14.1284 4.84516 19.4619 11.311 22.7719C11.5267 22.8827 11.7633 22.9379 12 22.9379C12.2367 22.9379 12.4733 22.8827 12.689 22.7719C19.1548 19.4619 23.5 14.1284 23.5 9.5C23.5 5.08423 20.6217 2 16.5 2ZM12 20.8764C6.30767 17.8962 2.5 13.3467 2.5 9.5C2.5 6.15893 4.4625 4 7.5 4C9.5 4 11.25 5.75 12 7.5C12.75 5.75 14.5 4 16.5 4C19.5377 4 21.5 6.15893 21.5 9.5C21.5 13.3467 17.6923 17.8962 12 20.8764Z"
-                            fill="currentColor"></path>
-                    </svg>
-                    <svg v-else aria-label="Não gosto" role="img" viewBox="-0.5 0 25 24" class="w-[18px] h-[18px]"
-                        :class="{ 'heart-pop': popping }" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <title>Não gosto</title>
-                        <path
-                            d="M16.4045 1.50879C14.785 1.50879 13.2185 2.16259 12 3.30764C10.7815 2.16259 9.215 1.50879 7.5955 1.50879C3.41766 1.50879 0.5 4.62796 0.5 9.09411C0.5 13.7857 4.70617 18.9703 11.2153 22.3022C11.4605 22.428 11.7298 22.4912 11.9995 22.4912C12.2692 22.4912 12.5395 22.428 12.7847 22.3022C19.2938 18.9703 23.5 13.7857 23.5 9.09411C23.5 4.62796 20.5823 1.50879 16.4045 1.50879Z"
-                            fill="currentColor"></path>
-                    </svg>
+        <!--COLUNA DO CORACAO: icone por cima, contagem por baixo (igual ao TikTok)-->
+        <button @click="$emit('on-upvote')"
+            :class="upvotes?.includes(userId) ? 'text-[#FE2C55]' : 'text-x-light-textSecondary dark:text-x-dark-textSecondary'"
+            class="absolute right-0 top-0 w-10 flex flex-col items-center justify-start gap-1 pt-0.5">
+            <span class="relative inline-flex items-center justify-center">
+                <span v-if="bursting" class="like-burst" aria-hidden="true">
+                    <span v-for="particle in particles" :key="particle.id" class="like-burst__particle"
+                        :style="particle.style"></span>
                 </span>
-                <span class="text-[11px] leading-none font-medium">
-                    <Flipnumber :value="upvotesCount" />
-                </span>
+
+                <svg v-if="!upvotes?.includes(userId)" aria-label="Gosto" role="img" viewBox="-0.5 0 25 24"
+                    class="w-[20px] h-[20px]" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <title>Gosto</title>
+                    <path
+                        d="M16.5 2C14.8335 2 13.2217 2.70703 12 3.93652C10.7783 2.70704 9.1665 2 7.5 2C3.3785 2 0.5 5.08423 0.5 9.5C0.5 14.1284 4.84516 19.4619 11.311 22.7719C11.5267 22.8827 11.7633 22.9379 12 22.9379C12.2367 22.9379 12.4733 22.8827 12.689 22.7719C19.1548 19.4619 23.5 14.1284 23.5 9.5C23.5 5.08423 20.6217 2 16.5 2ZM12 20.8764C6.30767 17.8962 2.5 13.3467 2.5 9.5C2.5 6.15893 4.4625 4 7.5 4C9.5 4 11.25 5.75 12 7.5C12.75 5.75 14.5 4 16.5 4C19.5377 4 21.5 6.15893 21.5 9.5C21.5 13.3467 17.6923 17.8962 12 20.8764Z"
+                        fill="currentColor"></path>
+                </svg>
+                <svg v-else aria-label="Não gosto" role="img" viewBox="-0.5 0 25 24" class="w-[20px] h-[20px]"
+                    :class="{ 'heart-pop': popping }" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                    <title>Não gosto</title>
+                    <path
+                        d="M16.4045 1.50879C14.785 1.50879 13.2185 2.16259 12 3.30764C10.7815 2.16259 9.215 1.50879 7.5955 1.50879C3.41766 1.50879 0.5 4.62796 0.5 9.09411C0.5 13.7857 4.70617 18.9703 11.2153 22.3022C11.4605 22.428 11.7298 22.4912 11.9995 22.4912C12.2692 22.4912 12.5395 22.428 12.7847 22.3022C19.2938 18.9703 23.5 13.7857 23.5 9.09411C23.5 4.62796 20.5823 1.50879 16.4045 1.50879Z"
+                        fill="currentColor"></path>
+                </svg>
+            </span>
+            <span class="text-[12px] leading-none font-medium text-x-light-textSecondary dark:text-x-dark-textSecondary">
+                <Flipnumber :value="upvotesCount" />
+            </span>
+        </button>
+
+        <!--RODAPE: data + Responder + mais-->
+        <div class="flex items-center gap-4 mt-1.5 text-[13px] text-x-light-textSecondary dark:text-x-dark-textSecondary">
+            <span v-if="createdAt" class="shrink-0">{{ formattedDate(createdAt) }}</span>
+
+            <button @click="$emit('on-reply')" class="font-semibold active:opacity-60">
+                Responder
             </button>
 
-            <button @click="$emit('on-reply')"
-                class="flex font-medium text-x-light-textSecondary dark:text-x-dark-textSecondary text-sm items-center h-[28px] px-0.5">
-                <p>Responder</p>
-            </button>
-        </div>
-
-        <div>
-            <button @click="$emit('on-more')"
-                class="h-[30px] min-w-[30px] text-x-light-textSecondary dark:text-x-dark-textSecondary active:bg-x-light-surfaceActive active:dark:bg-x-dark-surfaceActive rounded-full flex items-center justify-center">
-                <svg width="24" height="24" class="w-5 h-5" viewBox="0 0 24 24" fill="none"
+            <button @click="$emit('on-more')" aria-label="Mais opções"
+                class="h-6 min-w-[24px] -ml-1 rounded-full flex items-center justify-center active:bg-x-light-surfaceActive active:dark:bg-x-dark-surfaceActive">
+                <svg width="24" height="24" class="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none"
                     xmlns="http://www.w3.org/2000/svg">
                     <path
                         d="M11.25 11.25a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Zm-7 0a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Zm14 0a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Z"
@@ -55,6 +61,7 @@
 <script setup>
 import { computed, ref, watch } from 'vue';
 import Flipnumber from '@/components/UI/Flipnumber.vue';
+import formattedDate from '@/utils/formatted-date';
 
 const props = defineProps({
     loading: {
@@ -89,6 +96,10 @@ const props = defineProps({
         type: Number,
         default: 0
     },
+    // novo (apenas visual): a data passou do cabecalho do autor para o rodape, como no TikTok
+    createdAt: {
+        type: String
+    }
 })
 
 defineEmits(['on-upvote', 'on-downvote', 'on-reply', 'on-more', 'on-share'])
@@ -105,7 +116,7 @@ let burstTimeout = null
 let popTimeout = null
 let particleIdSeed = 0
 
-const PARTICLE_COLORS = ['#F91880', '#FF8C69', '#FFAD1F', '#7856FF', '#F91880', '#1D9BF0']
+const PARTICLE_COLORS = ['#FE2C55', '#FF8C69', '#FFAD1F', '#25F4EE', '#FE2C55', '#FFFFFF']
 
 function buildParticles() {
     const count = 8
@@ -226,6 +237,13 @@ watch(isLiked, (likedNow, likedBefore) => {
 
     100% {
         transform: scale(1);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .heart-pop,
+    .like-burst__particle {
+        animation: none;
     }
 }
 </style>

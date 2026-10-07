@@ -3,35 +3,33 @@
   <Transition name="fade-scale">
     <div
       v-if="distance > 0 || isRefreshing"
-      class="left-1/2 z-30 -translate-x-1/2 flex items-center justify-center
-             w-10 h-10 rounded-full bg-white dark:bg-neutral-800
-             shadow-[0_2px_6px_rgba(0,0,0,0.10),0_1px_3px_rgba(0,0,0,0.06)]"
+      role="status"
+      aria-live="polite"
+      :aria-label="isRefreshing ? 'A atualizar' : 'Puxe para atualizar'"
+      class="left-1/2 z-30 -translate-x-1/2 flex items-center justify-center w-10 h-10
+             text-neutral-500 dark:text-neutral-400"
       :class="isRefreshing ? 'fixed' : 'absolute'"
       :style="indicatorStyle"
     >
-      <!-- Spinner girando enquanto carrega: só o arco, sem trilho cinzento -->
-      <svg v-if="isRefreshing" class="fb-spin" width="22" height="22" viewBox="0 0 24 24" fill="none">
-        <path
-          d="M21.5 12a9.5 9.5 0 0 0-9.5-9.5"
-          stroke="#1877F2"
-          stroke-width="2.5"
-          stroke-linecap="round"
-        />
-      </svg>
-
-      <!-- Seta enquanto puxa: vira 180° quando passa do threshold (pronto pra soltar) -->
+      <!--
+        Estilo TikTok: sem circulo de fundo nem sombra, so um spinner cinza fino de 12 tracos.
+        Ao puxar, os tracos vao aparecendo um a um conforme o progresso;
+        ao atualizar, gira em passos de 30° com a cauda a desvanecer.
+      -->
       <svg
-        v-else
         width="26" height="26" viewBox="0 0 24 24" fill="none"
-        :style="{ transform: `rotate(${arrowRotation}deg)`, transition: 'transform 0.2s ease' }"
+        :class="{ 'tt-spin': isRefreshing }"
+        aria-hidden="true"
       >
-        <path
-          d="M12 4v13M12 17l-5.5-5.5M12 17l5.5-5.5"
-          :stroke="reachedThreshold ? '#1877F2' : '#c4c7cc'"
-          stroke-width="2.2"
+        <line
+          v-for="i in 12"
+          :key="i"
+          x1="12" y1="2.5" x2="12" y2="6.5"
+          stroke="currentColor"
+          stroke-width="2"
           stroke-linecap="round"
-          stroke-linejoin="round"
-          style="transition: stroke 0.2s ease"
+          :transform="`rotate(${(i - 1) * 30} 12 12)`"
+          :opacity="spokeOpacity(i - 1)"
         />
       </svg>
     </div>
@@ -53,8 +51,16 @@ const progress = computed(() => Math.min(props.distance / props.threshold, 1))
 
 const reachedThreshold = computed(() => props.distance >= props.threshold)
 
-// Seta aponta pra baixo enquanto puxa, e vira pra cima quando já passou do threshold
-const arrowRotation = computed(() => (reachedThreshold.value ? 180 : 0))
+// Opacidade de cada traco:
+// - a atualizar: gradiente de 0.2 a 1 (cria a "cauda" que da a sensacao de rotacao)
+// - a puxar: o traco acende conforme o progresso; ao passar do threshold ficam todos fortes
+function spokeOpacity(index) {
+  if (props.isRefreshing) {
+    return 0.2 + (index / 11) * 0.8
+  }
+  const lit = Math.min(Math.max(progress.value * 12 - index, 0), 1)
+  return reachedThreshold.value ? 1 : lit * 0.85
+}
 
 // Posição vertical: começa em topPosition e vai até topPosition + threshold
 const indicatorStyle = computed(() => {
@@ -102,18 +108,29 @@ const indicatorStyle = computed(() => {
   transform: translate(-50%, -14px) scale(0.5);
 }
 
-/* Rotação contínua e suave, igual ao spinner do Facebook (sem trilho cinzento) */
-.fb-spin {
-  animation: fb-spin-rotate 0.85s linear infinite;
+/* Rotação em 12 passos, como o spinner de tracos do TikTok / iOS */
+.tt-spin {
+  animation: tt-spin-rotate 0.9s steps(12, end) infinite;
   transform-origin: center;
 }
 
-@keyframes fb-spin-rotate {
+@keyframes tt-spin-rotate {
   from {
     transform: rotate(0deg);
   }
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* Quem prefere menos movimento: spinner mais lento e sem transicoes de entrada/saida */
+@media (prefers-reduced-motion: reduce) {
+  .tt-spin {
+    animation-duration: 2.4s;
+  }
+  .fade-scale-enter-active,
+  .fade-scale-leave-active {
+    transition: none;
   }
 }
 </style>

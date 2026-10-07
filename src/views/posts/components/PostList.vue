@@ -85,11 +85,11 @@ const props = defineProps({
         default: false
     },
     topPostionPullToRefresh: {
-        type: Boolean,
+        type: Number,
         default: 14
     },
     refreshingTopPosition: {
-        type: Boolean,
+        type: Number,
         default: 140
     },
     enablePullToRefresh: {

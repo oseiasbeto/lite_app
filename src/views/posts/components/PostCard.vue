@@ -1,15 +1,16 @@
 <template>
     <div @click="goToViewMore" v-if="data?._id"
-        class="flex flex-row dark:border-x-dark-border border-x-light-border bg-transparent"
+        class="flex flex-row dark:border-x-dark-border border-x-light-border bg-transparent transition-colors active:bg-black/[0.03] dark:active:bg-white/[0.05]"
         :class="[!isParentPost ? 'border-b' : 'border-none']">
         <!--HEADER-->
         <div :class="isParentPost ? 'px-[10px] pb-1 pt-[12px]' : 'p-[10px]'">
             <div @click.stop @click="goToProfile(data?.author?._id)" class="relative shrink-0">
                 <Avatar :size="isParentPost ? 's' : 'md'"
                     :url="isParentPost ? data?.author?.profile_image?.thumbnails?.xs || data?.author?.profile_image?.url : data?.author?.profile_image?.thumbnails?.sm || data?.author?.profile_image?.url" />
+                <!--Badge de seguir estilo TikTok: circulo vermelho com "+" centrado na base do avatar-->
                 <span @click.stop="handleFollowUser(data?.author?._id)"
                     v-if="canFollowUser && !isParentPost || hasFollowing"
-                    class="absolute bottom-0 text-white dark:text-black right-0 bg-x-dark-bg dark:bg-x-light-bg flex justify-center items-center h-[14px] w-[14px] rounded-full ring-[1.5px] ring-x-light-bg dark:ring-x-dark-bg">
+                    class="absolute -bottom-[7px] left-1/2 -translate-x-1/2 text-white bg-[#FE2C55] flex justify-center items-center h-[18px] w-[18px] rounded-full ring-2 ring-x-light-bg dark:ring-x-dark-bg">
 
                     <svg v-if="!hasFollowingUser" aria-label="Seguir" role="img" viewBox="0 0 10 9"
                         class="w-[10px] h-[10px] text-inherit" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -19,7 +20,7 @@
                         </path>
                     </svg>
 
-                    <svg v-else aria-label="Seguindo" role="img" viewBox="0 0 8 8" class="w-[8px] h-[8px] text-inherit"
+                    <svg v-else aria-label="Seguindo" role="img" viewBox="0 0 8 8" class="w-[9px] h-[9px] text-inherit"
                         fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <title>Seguindo</title>
                         <path
@@ -30,11 +31,11 @@
             </div>
         </div>
 
-        <div class="flex shrink-0 flex-1 flex-col pr-4">
+        <div class="flex shrink-0 flex-1 flex-col pr-4 min-w-0">
             <!--BODY-->
             <div>
 
-                <div class="pt-[10px] pb-[8px]">
+                <div class="pt-[10px] pb-[6px]">
                     <!--AUTHOR DETAILS-->
                     <PostAuthorDetails @on-follow="handleFollowUser(data?.author?._id)"
                         :is-following-user="isFollowingUser" :show-btn-follow="canFollowUser" :author="data?.author"
@@ -64,7 +65,7 @@
 
                 <!--PARENT POST-->
                 <div @click.stop v-if="data?.shared_post?._id" class="pt-1 pb-2">
-                    <div class="border border-x-light-border dark:border-x-dark-border rounded-2xl overflow-hidden">
+                    <div class="border border-x-light-border dark:border-x-dark-border rounded-xl overflow-hidden">
                         <PostCard :data="data?.shared_post" :is-parent-post="true" :user-id="user?._id"
                             :module="module" />
                     </div>
@@ -72,7 +73,7 @@
             </div>
 
             <!--FOOTER-->
-            <div @click.stop v-if="!isParentPost" class="pt-1 pb-1">
+            <div @click.stop v-if="!isParentPost" class="pt-2 pb-2">
                 <PostReactions 
                     :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
                     :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"

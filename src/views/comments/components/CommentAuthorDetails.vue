@@ -1,14 +1,14 @@
 <template>
     <div>
-        <div v-if="author?._id" class="flex gap-1 flex-row items-center min-w-0">
-            <div class="flex-1 text-sm min-w-0">
+        <div v-if="author?._id" class="flex flex-row items-center min-w-0">
+            <div class="flex-1 min-w-0">
                 <div class="flex items-center min-w-0">
                     <span @click="goToProfile(author?._id)"
-                        class="dark:text-white text-[rgb(40,40,41)] font-bold truncate min-w-0">{{
+                        class="text-[13px] leading-[18px] font-semibold truncate min-w-0 cursor-pointer text-x-light-textSecondary dark:text-x-dark-textSecondary">{{
                             author?.name }}</span>
-                    <svg v-if="author?.is_verified" :class="{ 'w-[12px] h-[12px]': isParentPost }" viewBox="0 0 22 22"
+                    <svg v-if="author?.is_verified" viewBox="0 0 22 22"
                         aria-label="Verified account" role="img"
-                        class="w-[16px] h-[16px] text-x-light-blue ml-[3px] shrink-0" fill="currentColor"
+                        class="w-[13px] h-[13px] text-x-light-blue ml-[3px] shrink-0" fill="currentColor"
                         xmlns="http://www.w3.org/2000/svg" data-testid="icon-verified">
                         <g>
                             <path
@@ -16,11 +16,6 @@
                             </path>
                         </g>
                     </svg>
-                    <span
-                        class="flex items-center dark:text-x-dark-textSecondary text-x-light-textSecondary ml-0.5 shrink-0">
-                        <span class="shrink-0"> · </span>
-                        <span class="truncate">{{ formattedDate(createdAt) }}</span>
-                    </span>
                 </div>
             </div>
         </div>
@@ -28,7 +23,6 @@
 </template>
 
 <script setup>
-import formattedDate from '@/utils/formatted-date';
 import { useRouter } from 'vue-router';
 
 const router = useRouter()
@@ -39,6 +33,7 @@ const goToProfile = (userId) => {
     })
 }
 
+// "createdAt" continua a ser recebido (a data agora e mostrada no rodape, em CommentReactions)
 defineProps({
     author: {
         type: Object,

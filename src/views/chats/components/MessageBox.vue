@@ -74,7 +74,7 @@
                 'relative z-[1] text-left transition-transform active:scale-[0.99] max-w-full min-w-0',
                 !isEmojiOnly && !isGif && !isSticker && !isImage && message.status !== 'is_deleted'
                   ? (isSent
-                    ? 'bg-[#1e9cf1] text-white p-[6px_12px]'
+                    ? 'bg-[#7639f9f7] text-white p-[6px_12px]'
                     : 'dark:bg-[#1a1a1a] dark:text-white text-[rgb(40,40,41)] bg-[#f3f5f7] p-[8px_12px]')
                   : '',
                 isVoice && message.status !== 'is_deleted' ? 'rounded-full' : '',
@@ -212,7 +212,7 @@
               <!-- Conteúdo normal -->
               <p v-else :class="[
                 'break-words [overflow-wrap:anywhere] whitespace-pre-wrap leading-snug min-w-0',
-                isEmojiOnly ? 'text-5xl' : 'text-[17px]',
+                isEmojiOnly ? 'text-5xl' : 'text-[15px]',
                 isEmojiOnly && !isSent ? 'ml-6' : 'ml-0'
               ]">
                 {{ message.content }}

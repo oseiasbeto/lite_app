@@ -1,43 +1,38 @@
 <template>
-    <div
-        :class="['relative gap-2 mb-1.5 flex py-1.5 pb-0.5 flex-col border-x-light-border dark:border-x-dark-border', isReply ? 'border-none px-0 !bg-transparent' : 'border-b px-4', active ? 'dark:bg-x-dark-surfaceActive bg-x-light-surfaceActive' : 'bg-transparent']">
+    <!--Sem bordas nem fundo: comentarios "soltos" como no TikTok-->
+    <div :class="['relative flex flex-col', isReply ? 'pt-3' : 'px-4 pt-4', active ? 'bg-x-light-surfaceActive dark:bg-x-dark-surfaceActive' : 'bg-transparent']">
 
-        <!--TRUNK: linha vertical de ramificacao, do fundo do avatar ate as respostas.
-            Ajusta os valores de "top"/"left" caso o teu Avatar 'md'/'xs' nao sejam 40px/24px -->
-        <span v-if="data?.replies?.length" class="absolute bottom-0 w-[2px] z-0 bg-x-light-border dark:bg-x-dark-border"
-            :class="isReply ? 'top-[30px] left-[12px]' : 'top-[46px] left-[30px]'">
-        </span>
-
-        <div class="flex flex-row gap-2 relative z-[1]">
-            <div @click="goToProfile(data?.author?._id || data?.user?._id)" class="shrink-0">
+        <div class="relative flex flex-row gap-3">
+            <div @click="goToProfile(data?.author?._id || data?.user?._id)" class="shrink-0 cursor-pointer">
                 <Avatar :size="isReply ? 'xs' : 'md'" :url="isReply ? data?.author?.profile_image?.thumbnails?.xs || data?.author?.profile_image?.url :
                     data?.author?.profile_image?.thumbnails?.md || data?.author?.profile_image?.url" />
             </div>
-            <div class="flex-1 min-w-0">
-                <!--AUTHOR DETAILS-->
-                <CommentAuthorDetails :author="data?.author || data?.user || {}" :user-id="userId"
-                    :created-at="data?.created_at" />
-                <!--BODY-->
-                <div>
-                    <!--CONTENT-->
-                    <p v-if="isReply && data?.reply_to?._id !== data?.author?._id"
-                        class="py-[3px] flex gap-1 items-center text-sm min-w-0">
-                        <span class="shrink-0 text-x-light-textSecondary dark:text-x-dark-textSecondary">Em resposta a:
-                        </span>
-                        <router-link class="text-x-light-blue truncate" :to="`/profile/${data?.reply_to?._id}`">
-                            {{ '@' + data?.reply_to?.username }}
-                        </router-link>
-                    </p>
-                    <CommentContent :content="data?.content || ''" />
-                    <!--MEDIA-->
-                </div>
 
-                <!--FOOTER-->
-                <div class="mb-1">
+            <div class="flex-1 min-w-0">
+                <!--Area principal: reserva espaco a direita para o coracao (coluna de likes do TikTok)-->
+                <div class="pr-12">
+                    <!--AUTHOR DETAILS-->
+                    <CommentAuthorDetails :author="data?.author || data?.user || {}" :user-id="userId"
+                        :created-at="data?.created_at" />
+
+                    <!--BODY-->
+                    <div>
+                        <p v-if="isReply && data?.reply_to?._id !== data?.author?._id"
+                            class="flex gap-1 items-center text-[13px] min-w-0 mt-0.5">
+                            <span class="shrink-0 text-x-light-textSecondary dark:text-x-dark-textSecondary">Em resposta a</span>
+                            <router-link class="font-semibold truncate text-x-light-textSecondary dark:text-x-dark-textSecondary"
+                                :to="`/profile/${data?.reply_to?._id}`">
+                                {{ '@' + data?.reply_to?.username }}
+                            </router-link>
+                        </p>
+                        <CommentContent :content="data?.content || ''" />
+                    </div>
+
+                    <!--FOOTER: data + Responder + mais (o coracao posiciona-se a direita, absoluto)-->
                     <CommentReactions :loading="isReactingComment" :upvotes="data?.upvotes"
                         :upvotes-count="data?.upvotes_count" :downvotes="data?.downvotes" :user-id="userId"
                         :downvotes-count="data?.downvotes_count" :replies-count="data?.replies_count"
-                        :shares-count="data?.shares_count"
+                        :shares-count="data?.shares_count" :created-at="data?.created_at"
                         @on-more="handleOneMore(data)"
                         @on-upvote="handleUpvote"
                         @on-downvote="handleDownvote" @on-reply="onReply({
@@ -47,14 +42,8 @@
                 </div>
 
                 <!--REPLIES-->
-                <div v-if="data?.replies?.length" class="relative z-[1]">
+                <div v-if="data?.replies?.length" class="relative">
                     <div v-for="reply in data?.replies" :key="reply?._id" class="relative">
-                        <!--CURVA: liga o tronco vertical ao avatar desta resposta especifica-->
-                        <span class="absolute top-0 h-[18px] border-l-2 border-b-2 rounded-bl-2xl z-0
-                            border-x-light-border dark:border-x-dark-border pointer-events-none"
-                            :class="isReply ? '-left-[20px] w-[20px]' : '-left-[28px] w-[28px]'">
-                        </span>
-
                         <!--
                             🔒 CORREÇÃO DE SEGURANÇA:
                             Antes: @on-more="handleOneMore(data)" -> enviava sempre o comentário PAI,
@@ -73,18 +62,19 @@
                             />
                     </div>
 
-                    <!--LOAD MORE-->
-                    <button class="text-x-light-textSecondary dark:text-x-dark-textSecondary py-2 text-[13px]"
+                    <!--LOAD MORE: traco curto + texto, como "Ver respostas" do TikTok-->
+                    <button class="flex items-center gap-2 pt-3 pb-1 text-[13px] text-x-light-textSecondary dark:text-x-dark-textSecondary"
                         @click="loadMoreReplies" v-if="queryReplies?.hasMore && !loadingLoadMoreReplies">
+                        <span class="block w-6 h-px bg-x-light-border dark:bg-x-dark-border"></span>
                         <span class="flex items-center gap-1">
-                            <p class="font-semibold">Ver mais respostas</p>
-                            <svg width="16" height="16" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <span class="font-semibold">Ver mais respostas</span>
+                            <svg width="14" height="14" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path d="m5 8.5 7 7 7.005-7" class="icon_svg-stroke" stroke="currentColor"
-                                    stroke-width="2" fill="none" stroke-linecap="round"></path>
+                                    stroke-width="2.5" fill="none" stroke-linecap="round"></path>
                             </svg>
                         </span>
                     </button>
-                    <div v-if="loadingLoadMoreReplies" class="py-[13px] w-full flex justify-center">
+                    <div v-if="loadingLoadMoreReplies" class="pt-3 pb-1 w-full flex justify-start pl-8">
                         <SpinnerSmall />
                     </div>
                 </div>

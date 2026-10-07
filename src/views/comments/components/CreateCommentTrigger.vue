@@ -5,51 +5,51 @@
         :style="{ height: `${fadeHeight}px` }">
     </div>
 
-    <div ref="composerRef" class="fixed bottom-0 w-full z-[11] px-1.5 pb-[12px] pt-2">
-        <div class="w-full bg-x-light-surface dark:bg-x-dark-surface border dark:border-x-dark-border border-x-light-border transition-[border-radius] px-3 py-2 duration-150"
-            :class="isExpanded ? 'rounded-[22px]' : 'rounded-[22px] h-[54px] flex items-center'">
+    <!--Barra solida colada ao fundo, com linha fina no topo (como o TikTok)-->
+    <div ref="composerRef"
+        class="fixed bottom-0 w-full z-[11] px-3 pt-2 pb-[12px] bg-whitedark:bg-x-dark-surface border-t border-x-light-border dark:border-x-dark-border">
+        <div class="flex items-end gap-2">
 
-            <!--ESTADO FECHADO: linha padrão de trigger-->
-            <div v-if="!isExpanded" @click="expand" class="flex items-center w-full h-full cursor-text justify-between">
-
-                <div class="flex items-center flex-1">
-                    <div class="shrink-0">
-                        <Avatar size="md" :url="user?.profile_image?.thumbnails?.md || user?.profile_image?.url" />
-                    </div>
-                    <p class="text-[15px] ml-2 text-x-light-textSecondary dark:text-x-dark-textSecondary">
-                        Postar {{ type == 'post' ? ' o seu comentário' : 'a sua resposta' }}
-                    </p>
-                </div>
-
-                <button @click.stop="$emit('on-expand')"
-                    class="shrink-0 h-8 w-8 mb-[3px] rounded-full flex items-center justify-center transition-colors text-x-light-textSecondary dark:text-x-dark-textSecondary active:bg-x-light-surfaceActive dark:active:bg-x-dark-surfaceActive disabled:opacity-50">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
-                        <path d="M14 10L21 3M21 3H16.5M21 3V7.5M10 14L3 21M3 21H7.5M3 21L3 16.5" stroke="currentColor"
-                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                </button>
+            <div class="shrink-0 mb-0">
+                <Avatar size="md" :url="user?.profile_image?.thumbnails?.md || user?.profile_image?.url" />
             </div>
 
-            <!--ESTADO ABERTO: avatar + textarea auto-expansível + botão enviar (seta)-->
-            <div v-else class="flex items-end gap-2">
-                <div class="shrink-0">
-                    <Avatar size="md" :url="user?.profile_image?.thumbnails?.md || user?.profile_image?.url" />
+            <!--PILULA CINZA: contem o gatilho (fechado) ou a textarea (aberto)-->
+            <div class="flex-1 min-w-0 bg-x-light-surfaceActive dark:bg-x-dark-surfaceActive transition-[border-radius] duration-150 px-4"
+                :class="isExpanded ? 'rounded-[20px] py-1.5' : 'rounded-full h-10 flex items-center'">
+
+                <!--ESTADO FECHADO: linha padrão de trigger-->
+                <div v-if="!isExpanded" @click="expand" class="flex items-center w-full h-full cursor-text justify-between">
+                    <p class="text-[15px] truncate text-x-light-textSecondary dark:text-x-dark-textSecondary">
+                        {{ type == 'post' ? 'Adicionar comentário...' : 'Adicionar resposta...' }}
+                    </p>
+
+                    <button @click.stop="$emit('on-expand')" aria-label="Expandir"
+                        class="shrink-0 h-8 w-8 -mr-2 rounded-full flex items-center justify-center transition-colors text-x-light-textSecondary dark:text-x-dark-textSecondary disabled:opacity-50">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M14 10L21 3M21 3H16.5M21 3V7.5M10 14L3 21M3 21H7.5M3 21L3 16.5" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
                 </div>
 
-                <textarea ref="textareaRef" v-model="content" :maxlength="300" rows="1"
-                    class="flex-1 resize-none bg-transparent outline-none text-[15px] leading-5 max-h-[160px] overflow-y-auto py-2 placeholder:text-x-light-textSecondary dark:placeholder:text-x-dark-textSecondary"
-                    :placeholder="type == 'post' ? 'Escreva o seu comentário' : 'Escreva a sua resposta'"
-                    @input="autoGrow" @keydown.esc="collapse" @keydown.enter.ctrl="submit"
-                    @keydown.enter.meta="submit"></textarea>
+                <!--ESTADO ABERTO: textarea auto-expansível + botão enviar (seta vermelha)-->
+                <div v-else class="flex items-end gap-2">
+                    <textarea ref="textareaRef" v-model="content" :maxlength="300" rows="1"
+                        class="flex-1 resize-none bg-transparent outline-none text-[15px] leading-5 max-h-[160px] overflow-y-auto py-1.5 placeholder:text-x-light-textSecondary dark:placeholder:text-x-dark-textSecondary"
+                        :placeholder="type == 'post' ? 'Escreva o seu comentário' : 'Escreva a sua resposta'"
+                        @input="autoGrow" @keydown.esc="collapse" @keydown.enter.ctrl="submit"
+                        @keydown.enter.meta="submit"></textarea>
 
-                <button v-if="content.trim().length > 0" @click="submit" :disabled="!canSubmit || loading"
-                    class="shrink-0 h-8 w-8 mb-[3px] rounded-full flex items-center justify-center transition-colors bg-black text-white dark:bg-white dark:text-black disabled:opacity-50">
-                    <svg viewBox="0 0 24 24" class="h-[18px] w-[18px] text-inherit" fill="none">
-                        <path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
-                            stroke-linejoin="round" />
-                    </svg>
-                </button>
-                
+                    <button v-if="content.trim().length > 0" @click="submit" :disabled="!canSubmit || loading"
+                        aria-label="Enviar"
+                        class="shrink-0 h-8 w-8 mb-0.5 -mr-2 rounded-full flex items-center justify-center transition-colors bg-[#FE2C55] text-white disabled:opacity-50">
+                        <svg viewBox="0 0 24 24" class="h-[18px] w-[18px] text-inherit" fill="none">
+                            <path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </div>

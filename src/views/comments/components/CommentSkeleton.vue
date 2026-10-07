@@ -1,29 +1,32 @@
 <template>
-  <div class="gap-2 flex bg-white dark:bg-transparent pt-1.5 pb-0.5 flex-col px-4 border-b dark:border-[rgb(57,56,57)]">
-    <div class="flex flex-row gap-2">
+  <div class="flex flex-col px-4 pt-4 bg-transparent">
+    <div class="relative flex flex-row gap-3">
       <!-- Avatar skeleton -->
       <div class="shrink-0">
         <div class="skeleton-shimmer rounded-full w-10 h-10"></div>
       </div>
 
-      <div class="flex-1">
-        <!-- Author + time skeleton -->
-        <div class="flex items-center gap-2 mb-1">
-          <div class="skeleton-shimmer h-4 w-24 rounded-md"></div>
+      <div class="flex-1 min-w-0 pr-12">
+        <!-- Nome -->
+        <div class="skeleton-shimmer h-3 w-20 rounded-full mb-2"></div>
+
+        <!-- Conteudo -->
+        <div class="space-y-1.5">
+          <div class="skeleton-shimmer h-3.5 w-full rounded-full"></div>
+          <div class="skeleton-shimmer h-3.5 w-4/6 rounded-full"></div>
         </div>
 
-        <!-- Content skeleton -->
-        <div class="space-y-1 mt-1">
-          <div class="skeleton-shimmer h-4 w-full rounded-md"></div>
-          <div class="skeleton-shimmer h-4 w-5/6 rounded-md"></div>
+        <!-- Rodape: data + Responder -->
+        <div class="flex items-center gap-4 mt-3">
+          <div class="skeleton-shimmer h-3 w-10 rounded-full"></div>
+          <div class="skeleton-shimmer h-3 w-14 rounded-full"></div>
         </div>
+      </div>
 
-        <!-- Reactions footer skeleton -->
-        <div class="flex items-center gap-4 mt-2 mb-1">
-          <div class="skeleton-shimmer h-5 w-12 rounded-md"></div>
-          <div class="skeleton-shimmer h-5 w-12 rounded-md"></div>
-          <div class="skeleton-shimmer h-5 w-12 rounded-md"></div>
-        </div>
+      <!-- Coluna do coracao -->
+      <div class="absolute right-0 top-0 w-10 flex flex-col items-center gap-1.5 pt-0.5">
+        <div class="skeleton-shimmer h-5 w-5 rounded-full"></div>
+        <div class="skeleton-shimmer h-2.5 w-4 rounded-full"></div>
       </div>
     </div>
   </div>
@@ -73,6 +76,12 @@
 @keyframes shimmer {
   100% {
     transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-shimmer::after {
+    animation: none;
   }
 }
 </style>

@@ -1,15 +1,24 @@
 <template>
     <div class="relative h-screen overflow-hidden">
         <!--Header (fixo, compartilhado pelas abas)-->
+        <!--Header (fixo, compartilhado pelas abas)-->
         <div class="w-full h-[113px] relative"></div>
 
-        <div class="fixed top-0 z-[11] w-full bg-white dark:bg-x-dark-bg transition-transform duration-300 ease-in-out will-change-transform"
+        <div class="fixed top-0 z-[11] w-full bg-white dark:bg-x-dark-bg
+            border-b border-black/5 dark:border-white/10
+            transition-transform duration-300 ease-in-out will-change-transform"
             :class="showHeader ? 'translate-y-0' : '-translate-y-full'">
-            <div class="px-[12px] flex justify-between items-center">
-                <Avatar size="sm" :url="user?.profile_image?.thumbnails?.md || user?.profile_image?.url" />
-                <!--LOGO-->
-                <div class="text-inherit ml-3">
-                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="48px"
+
+            <div class="relative h-[56px] px-[12px] flex justify-between items-center">
+
+                <!--AVATAR (esquerda)-->
+                <div>
+                    <Avatar size="sm" :url="user?.profile_image?.thumbnails?.md || user?.profile_image?.url" />
+                </div>
+
+                <!--LOGO (centralizada)-->
+                <div class="absolute left-1/2 -translate-x-1/2 text-inherit pointer-events-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" width="40px"
                         viewBox="0 0 1024.000000 1024.000000" preserveAspectRatio="xMidYMid meet">
                         <g transform="translate(0.000000,1024.000000) scale(0.100000,-0.100000)" fill="currentColor"
                             stroke="none">
@@ -23,20 +32,52 @@
                     </svg>
                 </div>
 
-                <!--SEARCH-->
-                <router-link to="/search"
-                    class="flex active:text-x-light-textPrimary active:dark:text-x-dark-textPrimary transition-colors items-center justify-center w-[48px] h-[48px] text-x-light-textSecondary dark:text-x-dark-textSecondary">
-                    <svg aria-label="Pesquisar" role="img" viewBox="0 0 24 24" class="w-[24px] h-[24px] text-inherit">
-                        <title>Pesquisar</title>
-                        <path clip-rule="evenodd"
-                            d="M11.2607 1.01074C5.59982 1.01074 1.01074 5.59982 1.01074 11.2607C1.01074 16.9217 5.59982 21.5107 11.2607 21.5107C13.6407 21.5107 15.8312 20.6996 17.5709 19.3387L20.8554 22.6231C21.3435 23.1113 22.135 23.1113 22.6231 22.6231C23.1113 22.135 23.1113 21.3435 22.6231 20.8554L19.3387 17.5709C20.6996 15.8312 21.5107 13.6407 21.5107 11.2607C21.5107 5.59982 16.9217 1.01074 11.2607 1.01074ZM3.51074 11.2607C3.51074 6.98053 6.98054 3.51074 11.2607 3.51074C15.5409 3.51074 19.0107 6.98053 19.0107 11.2607C19.0107 15.541 15.5409 19.0107 11.2607 19.0107C6.98054 19.0107 3.51074 15.541 3.51074 11.2607Z"
-                            fill="currentColor" fill-rule="evenodd"></path>
-                    </svg>
-                </router-link>
+                <!--AÇÕES (direita): criar post + pesquisar-->
+                <div class="flex items-center gap-2">
+
+                    <!--CRIAR POST (preto, sem sombra)-->
+                    <button type="button" aria-label="Criar publicação" @click="goToComposer('feed')" class="flex items-center justify-center w-[36px] h-[36px] rounded-full
+                       bg-black dark:bg-white">
+                        <svg viewBox="0 0 24 24" class="w-[20px] h-[20px] text-white dark:text-black" fill="none">
+                            <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2.4"
+                                stroke-linecap="round" />
+                        </svg>
+                    </button>
+
+                    <!--SEARCH-->
+                    <router-link to="/search"
+                        class="flex items-center justify-center w-[40px] h-[40px] text-x-light-textPrimary dark:text-x-dark-textPrimary">
+                        <svg aria-label="Pesquisar" role="img" viewBox="0 0 24 24"
+                            class="w-[24px] h-[24px] text-inherit">
+                            <title>Pesquisar</title>
+                            <path clip-rule="evenodd"
+                                d="M11.2607 1.01074C5.59982 1.01074 1.01074 5.59982 1.01074 11.2607C1.01074 16.9217 5.59982 21.5107 11.2607 21.5107C13.6407 21.5107 15.8312 20.6996 17.5709 19.3387L20.8554 22.6231C21.3435 23.1113 22.135 23.1113 22.6231 22.6231C23.1113 22.135 23.1113 21.3435 22.6231 20.8554L19.3387 17.5709C20.6996 15.8312 21.5107 13.6407 21.5107 11.2607C21.5107 5.59982 16.9217 1.01074 11.2607 1.01074ZM3.51074 11.2607C3.51074 6.98053 6.98054 3.51074 11.2607 3.51074C15.5409 3.51074 19.0107 6.98053 19.0107 11.2607C19.0107 15.541 15.5409 19.0107 11.2607 19.0107C6.98054 19.0107 3.51074 15.541 3.51074 11.2607Z"
+                                fill="currentColor" fill-rule="evenodd"></path>
+                        </svg>
+                    </router-link>
+                </div>
             </div>
 
-            <!--TABS-->
-            <Tabs :tabs="tabs" v-model="currentTab" />
+            <!--ABAS (inline, sem o componente Tabs)-->
+            <div class="relative flex h-[48px]" role="tablist">
+                <button v-for="tab in tabs" :key="tab.value" type="button" role="tab"
+                    :aria-selected="currentTab === tab.value" @click="currentTab = tab.value"
+                    class="flex-1 flex items-center justify-center text-[15px]" :class="currentTab === tab.value
+                        ? 'font-bold text-x-light-textPrimary dark:text-x-dark-textPrimary'
+                        : 'font-medium text-x-light-textSecondary dark:text-x-dark-textSecondary'">
+                    {{ tab.label }}
+                </button>
+
+                <!--Indicador deslizante (preto)-->
+                <span
+                    class="absolute bottom-0 left-0 h-[3px] flex justify-center transition-transform duration-300 ease-out"
+                    :style="{
+                        width: (100 / tabs.length) + '%',
+                        transform: `translateX(${tabs.findIndex(t => t.value === currentTab) * 100}%)`
+                    }">
+                    <span class="w-[28px] h-full rounded-full bg-black dark:bg-white"></span>
+                </span>
+            </div>
         </div>
 
         <!--
@@ -49,7 +90,7 @@
         -->
         <div v-for="tab in tabs" :key="tab.value" v-show="currentTab === tab.value" class="absolute inset-0 top-0">
             <div v-if="settling[tab.value]"
-                class="absolute inset-0 top-[113px] z-20 bg-white dark:bg-x-dark-bg overflow-hidden">
+                class="absolute inset-0 top-[115px] z-20 bg-white dark:bg-x-dark-bg overflow-hidden">
                 <div v-for="n in 6" :key="n"
                     class="animate-pulse flex gap-3 px-4 py-3 border-b border-x-light-border dark:border-x-dark-border">
                     <!-- Avatar -->
@@ -97,16 +138,6 @@
         </div>
 
         <PostUploadIndicator />
-
-        <FloatingActionButton :show="showHeader" @on-press="goToComposer('feed')" class="fixed bottom-[70px] right-[16px] z-30">
-            <template #icon>
-                <svg class="!text-white" xmlns="http://www.w3.org/2000/svg" width="30px" height="30px"
-                    viewBox="0 0 24 24" fill="none">
-                    <path d="M6 12H18M12 6V18" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
-                        stroke-linejoin="round" />
-                </svg>
-            </template>
-        </FloatingActionButton>
     </div>
 </template>
 

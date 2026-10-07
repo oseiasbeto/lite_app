@@ -1,23 +1,25 @@
 <template>
-    <div v-if="data?._id" class="flex flex-col dark:border-x-dark-border border-x-light-border bg-transparent border-b">
+    <!--Faixa grossa e cinza no fim: separa o post dos comentarios (corte tipico do TikTok)-->
+    <div v-if="data?._id"
+        class="flex flex-col bg-transparent border-b-[6px] dark:border-x-dark-surfaceActive border-x-light-surfaceActive">
 
-        <!--HEADER: avatar + name/username inline + follow button (estilo X no detalhe do post)-->
-        <div class="flex items-start gap-1.5 justify-between px-4 pt-3">
-            <div class="flex items-center gap-2 min-w-0 flex-1">
+        <!--HEADER: avatar + nome + (@username · data) + Seguir vermelho + mais-->
+        <div class="flex items-center gap-2 justify-between px-4 pt-3">
+            <div class="flex items-center gap-2.5 min-w-0 flex-1">
                 <div @click="goToProfile(data?.author?._id)" class="relative shrink-0 cursor-pointer">
                     <Avatar size="md"
                         :url="data?.author?.profile_image?.thumbnails?.sm || data?.author?.profile_image?.url" />
                 </div>
 
-                <div class="flex flex-col leading-[22px] cursor-pointer min-w-0"
+                <div class="flex flex-col leading-[20px] cursor-pointer min-w-0"
                     @click="goToProfile(data?.author?._id)">
                     <span
-                        class="font-bold flex items-center text-[15px] dark:text-white text-black hover:underline min-w-0">
+                        class="font-bold flex items-center text-[15px] dark:text-white text-[rgb(22,24,35)] min-w-0">
                         <span class="truncate">{{ data?.author?.name }}</span>
 
-                        <svg v-if="data?.author?.is_verified" :class="{ 'w-[12px] h-[12px]': isParentPost }"
+                        <svg v-if="data?.author?.is_verified"
                             viewBox="0 0 22 22" aria-label="Verified account" role="img"
-                            class="w-[16px] h-[16px] text-x-light-blue ml-[3px] shrink-0" fill="currentColor"
+                            class="w-[15px] h-[15px] text-[#20D5EC] ml-[3px] shrink-0" fill="currentColor"
                             xmlns="http://www.w3.org/2000/svg" data-testid="icon-verified">
                             <g>
                                 <path
@@ -26,22 +28,31 @@
                             </g>
                         </svg>
                     </span>
-                    <span class="text-sm text-x-light-textSecondary dark:text-x-dark-textSecondary truncate">
-                        @{{ data?.author?.username || data?.author?.name?.toLowerCase()?.replace(/\s+/g, '') }}
+
+                    <!--@username · data (a hora fica no tooltip), tudo numa linha com truncate-->
+                    <span class="flex items-center min-w-0 text-[13px] text-x-light-textSecondary dark:text-x-dark-textSecondary">
+                        <span class="truncate min-w-0" style="flex-shrink: 3">
+                            @{{ data?.author?.username || data?.author?.name?.toLowerCase()?.replace(/\s+/g, '') }}
+                        </span>
+                        <span v-if="formattedDate" class="shrink-0 whitespace-nowrap" :title="formattedTime">
+                            <span class="mx-1">·</span>{{ formattedDate }}
+                        </span>
                     </span>
                 </div>
             </div>
 
-            <div class="flex items-center gap-2">
+            <div class="flex items-center gap-1.5 shrink-0">
+                <!--Seguir: retangulo de cantos suaves, vermelho TikTok; "A seguir" fica cinza-->
                 <button v-if="canFollowUser" @click="handleFollowUser(data?.author?._id)" :disabled="isFollowingUser"
-                    class="px-4 py-1.5 rounded-full text-[14px] font-bold border transition-colors" :class="hasFollowingUser
-                        ? 'bg-transparent border-x-light-border dark:border-x-dark-border dark:text-white text-black'
-                        : 'bg-black dark:bg-white text-white dark:text-black border-transparent'">
+                    class="px-4 h-8 rounded-md text-[14px] font-semibold transition-colors active:opacity-80 disabled:opacity-60"
+                    :class="hasFollowingUser
+                        ? 'bg-x-light-surfaceActive dark:bg-x-dark-surfaceActive dark:text-white text-[rgb(22,24,35)]'
+                        : 'bg-[#FE2C55] text-white'">
                     {{ hasFollowingUser ? 'A seguir' : 'Seguir' }}
                 </button>
 
-                <button @click="$emit('openMoreOptionsDrawer', data)"
-                    class="h-8 w-8 flex items-center justify-center rounded-full text-x-light-textSecondary dark:text-x-dark-textSecondary hover:bg-black/5 dark:hover:bg-white/10">
+                <button @click="$emit('openMoreOptionsDrawer', data)" aria-label="Mais opções"
+                    class="h-8 w-8 flex items-center justify-center rounded-full text-x-light-textSecondary dark:text-x-dark-textSecondary active:bg-black/5 dark:active:bg-white/10">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M11.25 11.25a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Zm-7 0a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Zm14 0a1.06 1.06 0 1 0 1.5 1.5 1.06 1.06 0 0 0-1.5-1.5Z"
@@ -52,8 +63,8 @@
             </div>
         </div>
 
-        <!--CONTENT: fonte maior, igual ao tweet expandido do X-->
-        <div v-if="data?.content?.length" class="px-4 mb-[-8px] pt-2">
+        <!--CONTENT: legenda do post-->
+        <div v-if="data?.content?.length" class="px-4 mb-[-8px] pt-2.5">
             <PostContent :content="data?.content" :enable-truncate="false" />
         </div>
 
@@ -69,54 +80,41 @@
 
         <!--PARENT / SHARED POST-->
         <div v-if="data?.shared_post?._id" class="px-4 pt-3">
-            <div class="border border-x-light-border dark:border-x-dark-border rounded-2xl overflow-hidden">
+            <div class="border border-x-light-border dark:border-x-dark-border rounded-xl overflow-hidden">
                 <PostCard :data="data?.shared_post" :is-parent-post="true" :user-id="user?._id" :module="module" />
             </div>
         </div>
 
-        <!--TIMESTAMP-->
-        <div
-            class="px-4 pt-3 pb-3 flex items-center gap-1 text-[15px] text-x-light-textSecondary dark:text-x-dark-textSecondary">
-            <span>{{ formattedTime }}</span>
-            <span>·</span>
-            <span>{{ formattedDate }}</span>
-            <span v-if="data?.views_count">·</span>
+        <!--RESUMO: Gostos · Comentarios · Partilhas · Visualizacoes (uma linha leve, sem bordas)-->
+        <div class="px-4 pt-3 pb-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px]">
+            <button class="flex items-center gap-1 active:opacity-60">
+                <span class="font-semibold dark:text-white text-[rgb(22,24,35)]">
+                    <Flipnumber :value="data?.upvotes_count" />
+                </span>
+                <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Gostos</span>
+            </button>
+            <button class="flex items-center gap-1 active:opacity-60">
+                <span class="font-semibold dark:text-white text-[rgb(22,24,35)]">
+                    <Flipnumber :value="data?.comments_count" />
+                </span>
+                <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Comentários</span>
+            </button>
+            <button class="flex items-center gap-1 active:opacity-60" @click="goToShare">
+                <span class="font-semibold dark:text-white text-[rgb(22,24,35)]">
+                    <Flipnumber :value="data?.shares_count" />
+                </span>
+                <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Partilhas</span>
+            </button>
             <span v-if="data?.views_count" class="flex items-center gap-1">
-                <span class="font-semibold dark:text-white text-black mt-[-2px]">
+                <span class="font-semibold dark:text-white text-[rgb(22,24,35)]">
                     <Flipnumber :value="data?.views_count" />
                 </span>
                 <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Visualizações</span>
             </span>
         </div>
 
-        <!--DIVIDER-->
-        <div class="border-t dark:border-x-dark-border border-x-light-border"></div>
-
-        <!--STATS ROW (Retweets / Citações / Gostos) estilo X-->
-        <div
-            class="px-4 py-3 flex items-center gap-4 text-[15px] border-b dark:border-x-dark-border border-x-light-border">
-            <button class="flex items-center gap-1 hover:underline" @click="goToShare">
-                <span class="font-semibold dark:text-white text-black mt-[-2px]">
-                    <Flipnumber :value="data?.shares_count" />
-                </span>
-                <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Partilhas</span>
-            </button>
-            <button class="flex items-center gap-1 hover:underline">
-                <span class="font-semibold dark:text-white text-black mt-[-2px]">
-                    <Flipnumber :value="data?.comments_count" />
-                </span>
-                <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Comentários</span>
-            </button>
-            <button class="flex items-center gap-1 hover:underline">
-                <span class="font-semibold dark:text-white text-black mt-[-2px]">
-                    <Flipnumber :value="data?.upvotes_count" />
-                </span>
-                <span class="text-x-light-textSecondary dark:text-x-dark-textSecondary">Gostos</span>
-            </button>
-        </div>
-
-        <!--ACTION BAR (icones grandes, espacados, igual ao X)-->
-        <div class="px-2 py-1">
+        <!--ACTION BAR-->
+        <div class="px-2 py-1 border-t dark:border-x-dark-border border-x-light-border">
             <PostDetailReactions :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
                 :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"
                 :comments-count="data?.comments_count" :shares-count="data?.shares_count" :user-id="user?._id"
