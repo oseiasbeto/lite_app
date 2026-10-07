@@ -2,35 +2,24 @@
   <div class="reels-feed" ref="scrollEl" @scroll.passive="onScroll">
 
     <button v-if="showClose" class="reels-close-btn" aria-label="Fechar" @click="emit('close')">
-      <svg width="20" height="20" viewBox="0 0 24 24">
-        <path d="m5.5 5.5 13 13m-13 0 13-13" stroke="#fff" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+      <svg width="22" height="22" viewBox="0 0 24 24">
+        <path d="m5.5 5.5 13 13m-13 0 13-13" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round" />
       </svg>
     </button>
 
-    <div
-      v-for="(item, index) in items"
-      :key="item.id"
-      :ref="el => setSlideRef(el, index)"
-      :data-index="index"
-      class="reels-slide-wrap"
-    >
-      <ReelItem
-        :item="item"
-        :active="index === activeIndex"
-        :should-mount="withinWindow(index)"
-        v-model:muted="muted"
+    <div v-for="(item, index) in items" :key="item.id" :ref="el => setSlideRef(el, index)" :data-index="index"
+      class="reels-slide-wrap">
+      <ReelItem :item="item" :active="index === activeIndex" :should-mount="withinWindow(index)" v-model:muted="muted"
         :is-following="store?.state?.auth?.user?._id == item?.author?.id || store?.state?.auth?.user?.following?.includes(item?.author?.id)"
-        @ended="onEnded(index)"
-        @like="onLike"
-        @comment="onComment"
-        @share="onShare"
-        @save="onSave"
-        @follow="onFollow"
-      />
+        @ended="onEnded(index)" @like="onLike" @comment="onComment" @share="onShare" @save="onSave"
+        @follow="onFollow" />
     </div>
 
-    <div v-if="loading" class="reels-loading">
-      <div class="reels-loading-spinner" />
+    <div v-if="loading" class="reels-loading" :class="{ 'is-initial': !items.length }">
+      <div class="reels-loading-spinner" role="status" aria-label="A carregar">
+        <span class="reels-dot reels-dot--cyan"></span>
+        <span class="reels-dot reels-dot--red"></span>
+      </div>
     </div>
 
     <div v-if="!loading && !items.length" class="reels-empty">
@@ -51,7 +40,7 @@ const props = defineProps({
   initialIndex: { type: Number, default: 0 },
   showClose: { type: Boolean, default: false },
   prefetchThreshold: { type: Number, default: 3 },
-  startMuted: { type: Boolean, default: true }   
+  startMuted: { type: Boolean, default: true }
 })
 
 const emit = defineEmits(['reach-end', 'like', 'comment', 'share', 'save', 'follow', 'close', 'active-change'])
@@ -175,7 +164,10 @@ defineExpose({ goToIndex, activeIndex })
   -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 }
-.reels-feed::-webkit-scrollbar { display: none; }
+
+.reels-feed::-webkit-scrollbar {
+  display: none;
+}
 
 .reels-slide-wrap {
   position: relative;
@@ -187,41 +179,78 @@ defineExpose({ goToIndex, activeIndex })
   contain-intrinsic-size: 100vh;
 }
 
+/* Botão de fechar discreto, sem fundo */
 .reels-close-btn {
   position: fixed;
-  left: 10px;
-  top: 10px;
+  left: 8px;
+  top: calc(env(safe-area-inset-top, 0px) + 8px);
   z-index: 999;
   height: 36px;
   width: 36px;
   border: none;
   border-radius: 999px;
-  background: rgba(0,0,0,0.35);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.5));
 }
 
 .reels-loading {
   position: absolute;
   left: 0;
   right: 0;
-  bottom: 24px;
+  bottom: 28px;
   z-index: 30;
   display: flex;
   justify-content: center;
   pointer-events: none;
 }
-.reels-loading-spinner {
-  height: 32px;
-  width: 32px;
-  border-radius: 999px;
-  border: 3px solid rgba(255,255,255,0.2);
-  border-top-color: #fff;
-  animation: reels-spin 0.8s linear infinite;
+
+/* Primeira carga (sem vídeos): loader no centro do ecrã */
+.reels-loading.is-initial {
+  top: 0;
+  bottom: 0;
+  align-items: center;
 }
-@keyframes reels-spin { to { transform: rotate(360deg); } }
+
+.reels-loading-spinner {
+  position: relative;
+  width: 44px;
+  height: 14px;
+}
+
+.reels-dot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  border-radius: 999px;
+  mix-blend-mode: screen;
+  animation: reels-cross 0.6s ease-in-out infinite alternate;
+}
+
+.reels-dot--cyan {
+  background: #25f4ee;
+}
+
+.reels-dot--red {
+  background: #fe2c55;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes reels-cross {
+  0%   { transform: translateX(-15px) scale(1); }
+  50%  { transform: translateX(0) scale(0.7); }
+  100% { transform: translateX(15px) scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reels-dot { animation-duration: 1.6s; }
+}
 
 .reels-empty {
   position: absolute;
@@ -229,7 +258,7 @@ defineExpose({ goToIndex, activeIndex })
   display: flex;
   align-items: center;
   justify-content: center;
-  color: rgba(255,255,255,0.7);
+  color: rgba(255, 255, 255, 0.7);
   font-size: 14px;
 }
 </style>

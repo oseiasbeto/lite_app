@@ -4,8 +4,13 @@
         enter-to-class="translate-y-0" leave-from-class="translate-y-0" leave-to-class="translate-y-full">
         <!--Barra solida (branca / preta) com linha fina no topo, como a do TikTok-->
         <nav v-show="showBottomNav" aria-label="Navegação principal"
-            class="fixed inset-x-0 bottom-0 z-[999] w-full border-t border-black/10 bg-white/95 pb-[env(safe-area-inset-bottom,0px)] text-text-primary backdrop-blur-md [-webkit-tap-highlight-color:transparent] dark:border-white/10 dark:bg-black/95"
-            :class="{ 'pointer-events-none': isDisabled, '!border-border-primary': route.name === 'Post details' }">
+            class="fixed inset-x-0 bottom-0 z-[999] w-full border-t pb-[env(safe-area-inset-bottom,0px)] text-text-primary backdrop-blur-md [-webkit-tap-highlight-color:transparent]"
+            :class="[
+                isReelsActive
+                    ? 'border-white/10 bg-black'
+                    : 'border-black/10 bg-white/95 dark:border-white/10 dark:bg-black/95',
+                { 'pointer-events-none': isDisabled, '!border-border-primary': route.name === 'Post details' }
+            ]">
             <ul class="flex h-[52px] w-full items-stretch">
 
                 <!-- Início -->
@@ -15,11 +20,13 @@
                         <span :class="iconWrapClass">
                             <svg v-if="isActive('Home')" viewBox="0 0 24 24" :class="iconClass" fill="currentColor"
                                 aria-hidden="true">
-                                <path d="M11.1 2.6a1.4 1.4 0 0 1 1.8 0l8 6.7c.5.4.8 1 .8 1.7V20a2 2 0 0 1-2 2h-4.5v-6a1.5 1.5 0 0 0-1.5-1.5h-3A1.5 1.5 0 0 0 9 16v6H4.5a2 2 0 0 1-2-2v-9c0-.7.3-1.3.8-1.7l7.8-6.7z" />
+                                <path
+                                    d="M11.1 2.6a1.4 1.4 0 0 1 1.8 0l8 6.7c.5.4.8 1 .8 1.7V20a2 2 0 0 1-2 2h-4.5v-6a1.5 1.5 0 0 0-1.5-1.5h-3A1.5 1.5 0 0 0 9 16v6H4.5a2 2 0 0 1-2-2v-9c0-.7.3-1.3.8-1.7l7.8-6.7z" />
                             </svg>
                             <svg v-else viewBox="0 0 24 24" :class="iconClass" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M11.1 2.6a1.4 1.4 0 0 1 1.8 0l8 6.7c.5.4.8 1 .8 1.7V20a2 2 0 0 1-2 2h-4.5v-6a1.5 1.5 0 0 0-1.5-1.5h-3A1.5 1.5 0 0 0 9 16v6H4.5a2 2 0 0 1-2-2v-9c0-.7.3-1.3.8-1.7l7.8-6.7z" />
+                                <path
+                                    d="M11.1 2.6a1.4 1.4 0 0 1 1.8 0l8 6.7c.5.4.8 1 .8 1.7V20a2 2 0 0 1-2 2h-4.5v-6a1.5 1.5 0 0 0-1.5-1.5h-3A1.5 1.5 0 0 0 9 16v6H4.5a2 2 0 0 1-2-2v-9c0-.7.3-1.3.8-1.7l7.8-6.7z" />
                             </svg>
                         </span>
                         <span :class="labelClass(isActive('Home'))">Início</span>
@@ -33,11 +40,13 @@
                         <span :class="iconWrapClass">
                             <svg v-if="isActive('Chats')" viewBox="0 0 24 24" :class="iconClass" fill="currentColor"
                                 aria-hidden="true">
-                                <path d="M12 3C6.98 3 3 6.58 3 11c0 2.4 1.15 4.55 3 6l-.9 3.6a.6.6 0 0 0 .86.67L9.8 18.9c.7.14 1.45.2 2.2.2 5.02 0 9-3.58 9-8s-3.98-8-9-8z" />
+                                <path
+                                    d="M12 3C6.98 3 3 6.58 3 11c0 2.4 1.15 4.55 3 6l-.9 3.6a.6.6 0 0 0 .86.67L9.8 18.9c.7.14 1.45.2 2.2.2 5.02 0 9-3.58 9-8s-3.98-8-9-8z" />
                             </svg>
                             <svg v-else viewBox="0 0 24 24" :class="iconClass" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M12 3C6.98 3 3 6.58 3 11c0 2.4 1.15 4.55 3 6l-.9 3.6a.6.6 0 0 0 .86.67L9.8 18.9c.7.14 1.45.2 2.2.2 5.02 0 9-3.58 9-8s-3.98-8-9-8z" />
+                                <path
+                                    d="M12 3C6.98 3 3 6.58 3 11c0 2.4 1.15 4.55 3 6l-.9 3.6a.6.6 0 0 0 .86.67L9.8 18.9c.7.14 1.45.2 2.2.2 5.02 0 9-3.58 9-8s-3.98-8-9-8z" />
                             </svg>
                             <span v-show="unreadMessagesCount > 0" :class="badgeClass">
                                 {{ formatBadge(unreadMessagesCount) }}
@@ -47,22 +56,43 @@
                     </router-link>
                 </li>
 
-                <!-- Vídeos / Reels (substitui a Busca) -->
+                <!-- Vídeos / Reels (planeta com anel, maior, legenda alinhada) -->
                 <li class="h-full flex-1">
-                    <router-link to="/reels" aria-label="Vídeos"
-                        :aria-current="isReelsActive ? 'page' : undefined" :class="itemClass(isReelsActive)">
+                    <router-link to="/reels" aria-label="Vídeos" :aria-current="isReelsActive ? 'page' : undefined"
+                        :class="itemClass(isReelsActive)">
                         <span :class="iconWrapClass">
-                            <svg v-if="isReelsActive" viewBox="0 0 24 24" :class="iconClass" fill="currentColor"
-                                fill-rule="evenodd" clip-rule="evenodd" aria-hidden="true">
-                                <path d="M7 3.5h10A3.5 3.5 0 0 1 20.5 7v10a3.5 3.5 0 0 1-3.5 3.5H7A3.5 3.5 0 0 1 3.5 17V7A3.5 3.5 0 0 1 7 3.5zM10 9.2v5.6a.6.6 0 0 0 .9.5l4.6-2.8a.6.6 0 0 0 0-1l-4.6-2.8a.6.6 0 0 0-.9.5z" />
-                            </svg>
-                            <svg v-else viewBox="0 0 24 24" :class="iconClass" fill="none" stroke="currentColor"
-                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <rect x="3.5" y="3.5" width="17" height="17" rx="3.5" />
-                                <path d="M10 9.2v5.6a.6.6 0 0 0 .9.5l4.6-2.8a.6.6 0 0 0 0-1l-4.6-2.8a.6.6 0 0 0-.9.5z" />
+                            <svg viewBox="0 0 24 24" class="h-[28px] w-[28px] shrink-0" fill="none"
+                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                                aria-hidden="true">
+                                <defs>
+                                    <!-- Abre um espaço no planeta onde o anel da frente passa -->
+                                    <mask id="planet-ring-gap" maskUnits="userSpaceOnUse" x="-4" y="-4" width="32"
+                                        height="32">
+                                        <rect x="-4" y="-4" width="32" height="32" fill="white" stroke="none" />
+                                        <path d="M1.5 12A10.5 3.5 0 0 0 22.5 12" fill="none" stroke="black"
+                                            stroke-width="4.4" stroke-linecap="butt" />
+                                    </mask>
+                                </defs>
+
+                                <g transform="rotate(-22 12 12)">
+                                    <!-- Anel: parte de trás (só as pontas visíveis fora do planeta) -->
+                                    <path d="M1.5 12A10.5 3.5 0 0 1 6.83 8.95" />
+                                    <path d="M17.17 8.95A10.5 3.5 0 0 1 22.5 12" />
+
+                                    <!-- Planeta (preenchido quando a rota é /reels) -->
+                                    <circle cx="12" cy="12" r="6" mask="url(#planet-ring-gap)"
+                                        :fill="isReelsActive ? 'currentColor' : 'none'" />
+
+                                    <!-- Anel: parte da frente -->
+                                    <path d="M1.5 12A10.5 3.5 0 0 0 22.5 12" />
+                                </g>
+
+                                <!-- Estrela de brilho -->
+                                <path d="M5 2.8l.65 1.55L7.2 5l-1.55.65L5 7.2l-.65-1.55L2.8 5l1.55-.65z"
+                                    fill="currentColor" stroke="none" />
                             </svg>
                         </span>
-                        <span :class="labelClass(isReelsActive)">Vídeos</span>
+                        <span :class="labelClass(isReelsActive)">Mundo</span>
                     </router-link>
                 </li>
 
@@ -74,12 +104,14 @@
                         <span :class="iconWrapClass">
                             <svg v-if="isActive('Notifications')" viewBox="0 0 24 24" :class="iconClass"
                                 fill="currentColor" aria-hidden="true">
-                                <path d="M12 2.5A6.5 6.5 0 0 0 5.5 9v4.1l-1.6 3.1a1 1 0 0 0 .9 1.4h14.4a1 1 0 0 0 .9-1.4l-1.6-3.1V9A6.5 6.5 0 0 0 12 2.5z" />
+                                <path
+                                    d="M12 2.5A6.5 6.5 0 0 0 5.5 9v4.1l-1.6 3.1a1 1 0 0 0 .9 1.4h14.4a1 1 0 0 0 .9-1.4l-1.6-3.1V9A6.5 6.5 0 0 0 12 2.5z" />
                                 <path d="M9.5 19.5h5a2.5 2.5 0 0 1-5 0z" />
                             </svg>
                             <svg v-else viewBox="0 0 24 24" :class="iconClass" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                <path d="M12 2.5A6.5 6.5 0 0 0 5.5 9v4.1l-1.6 3.1a1 1 0 0 0 .9 1.4h14.4a1 1 0 0 0 .9-1.4l-1.6-3.1V9A6.5 6.5 0 0 0 12 2.5z" />
+                                <path
+                                    d="M12 2.5A6.5 6.5 0 0 0 5.5 9v4.1l-1.6 3.1a1 1 0 0 0 .9 1.4h14.4a1 1 0 0 0 .9-1.4l-1.6-3.1V9A6.5 6.5 0 0 0 12 2.5z" />
                                 <path d="M9.5 19.5a2.5 2.5 0 0 0 5 0" />
                             </svg>
                             <span v-show="unreadNotificationsCount > 0" :class="badgeClass">
@@ -145,18 +177,24 @@ const isActive = (name) => route.name === name
 // O separador "Vídeos" fica ativo em qualquer rota /reels (o nome da rota pode variar)
 const isReelsActive = computed(() => route.path?.startsWith('/reels'))
 
-// Estilo TikTok: ícone + rótulo pequeno; ativo em preto/branco pleno, inativo mais apagado
-const itemClass = (active) =>
-    'group flex h-full w-full flex-col items-center justify-center gap-0.5 outline-none ' +
-    (active ? 'text-black dark:text-white' : 'text-black/55 dark:text-white/55')
+// Estilo TikTok: ícone + rótulo pequeno; ativo pleno, inativo mais apagado.
+// Em /reels a barra fica sempre escura, independentemente do tema do sistema.
+const itemClass = (active) => {
+    const color = isReelsActive.value
+        ? (active ? 'text-white' : 'text-white/55')
+        : (active ? 'text-black dark:text-white' : 'text-black/55 dark:text-white/55')
+    return 'group flex h-full w-full flex-col items-center justify-center gap-0.5 outline-none ' + color
+}
 const labelClass = (active) =>
     'text-[10px] leading-3 ' + (active ? 'font-semibold' : 'font-medium')
 const iconWrapClass =
     'relative flex h-7 w-7 items-center justify-center transition duration-150 ease-out group-active:scale-90'
 const iconClass = 'h-[24px] w-[24px]'
-// Badge vermelho TikTok no canto do ícone
-const badgeClass =
-    'absolute -right-2 -top-1 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[#FE2C55] px-1 text-[10px] font-bold leading-none text-white ring-2 ring-white dark:ring-black'
+// Badge vermelho TikTok no canto do ícone (o anel acompanha o fundo da barra)
+const badgeClass = computed(() =>
+    'absolute -right-2 -top-1 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[#FE2C55] px-1 text-[10px] font-bold leading-none text-white ring-2 ' +
+    (isReelsActive.value ? 'ring-black' : 'ring-white dark:ring-black')
+)
 
 // Contador compacto no badge (99+)
 const formatBadge = (n) => (n > 99 ? '99+' : n)

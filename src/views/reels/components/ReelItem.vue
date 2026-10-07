@@ -9,16 +9,11 @@
     <!-- Poster estático fora da janela de montagem — custo quase zero -->
     <img v-else :src="item?.video?.thumbnail" loading="lazy" decoding="async" class="reel-poster" alt="" />
 
-    <!-- Gradientes para legibilidade do topo e rodapé, à TikTok -->
+    <!-- Gradientes para legibilidade -->
     <div class="reel-scrim-top" />
     <div class="reel-scrim-bottom" />
 
-    <!-- Barra de progresso fina no topo -->
-    <div class="reel-progress-track">
-      <div class="reel-progress-fill" :style="{ width: progressPct + '%' }" />
-    </div>
-
-    <!-- Botão de som, sempre visível -->
+    <!-- Botão de som -->
     <button class="reel-icon-btn reel-mute-btn" :class="{ 'reel-mute-btn--pulse': needsUnmutePrompt }"
       :aria-label="isMuted ? 'Ativar som' : 'Silenciar'" @click.stop="toggleMute">
       <svg v-if="!isMuted" viewBox="0 0 24 24" width="16" height="16" fill="white">
@@ -31,7 +26,7 @@
       </svg>
     </button>
 
-    <!-- Aviso discreto a pedir um toque para ativar o som (browser bloqueou autoplay com áudio) -->
+    <!-- Aviso discreto a pedir um toque para ativar o som -->
     <Transition name="fade">
       <div v-if="needsUnmutePrompt" class="reel-unmute-hint" @click.stop="toggleMute">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="white">
@@ -49,40 +44,49 @@
       </div>
     </Transition>
 
-    <!-- Rodapé: autor + legenda -->
+    <!-- Rodapé: autor + legenda + som -->
     <div class="reel-footer">
-      <div class="reel-author">
-        <div class="reel-avatar-wrap" @click="goToProfile(item.author.id)">
-          <div class="reel-avatar">
-            <img v-if="item?.author?.avatar" :src="item?.author?.avatar" alt="" />
-            <span v-else>{{ authorInitial }}</span>
-          </div>
-          <button v-if="!isFollowing" class="reel-avatar-follow" aria-label="Seguir" @click.stop="emitFollow">+</button>
-        </div>
-        <div @click="goToProfile(item?.author?.id)" class="reel-author-meta">
-          <span class="reel-author-name">
-            {{ item?.author?.name }}
-            <svg v-if="item?.author?.verified" viewBox="0 0 22 22" width="13" height="13" fill="#1d9bf0"
-              class="reel-verified">
-              <path
-                d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" />
-            </svg>
-          </span>
-        </div>
+      <div @click="goToProfile(item?.author?.id)" class="reel-author-meta">
+        <span class="reel-author-name">
+          <span class="reel-author-text">{{ item?.author?.name }}</span>
+          <svg v-if="item?.author?.verified" viewBox="0 0 22 22" width="14" height="14" fill="#20d5ec"
+            class="reel-verified">
+            <path
+              d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z" />
+          </svg>
+        </span>
       </div>
+
       <p v-if="item?.caption" class="reel-caption" v-html="item?.caption"></p>
+
       <div v-if="item?.sound?.name" class="reel-sound-tag">
-        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor">
+        <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" class="reel-sound-icon">
           <path d="M9 3v10.55A4 4 0 1 0 11 17V7h4V3H9z" />
         </svg>
-        <span>{{ item?.sound?.name }}</span>
+        <div class="reel-sound-marquee">
+          <span class="reel-sound-text">{{ item?.sound?.name }}</span>
+        </div>
       </div>
     </div>
 
     <!-- Barra lateral de ações -->
     <div class="reel-actions">
+      <!-- Avatar com botão seguir -->
+      <div class="reel-avatar-wrap" @click="goToProfile(item.author.id)">
+        <div class="reel-avatar">
+          <img v-if="item?.author?.avatar" :src="item?.author?.avatar" alt="" />
+          <span v-else>{{ authorInitial }}</span>
+        </div>
+        <button v-if="!isFollowing" class="reel-avatar-follow" aria-label="Seguir" @click.stop="emitFollow">
+          <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="#fff" stroke-width="3.2"
+            stroke-linecap="round">
+            <path d="M12 5v14M5 12h14" />
+          </svg>
+        </button>
+      </div>
+
       <button class="reel-action" :class="{ 'is-liked': item?.liked }" @click.stop="emitLike">
-        <svg viewBox="-0.5 0 25 24" width="30" height="30" fill="currentColor" :class="{ 'like-pop': likePopping }">
+        <svg viewBox="-0.5 0 25 24" width="34" height="34" fill="currentColor" :class="{ 'like-pop': likePopping }">
           <path v-if="item?.liked"
             d="M16.4045 1.50879C14.785 1.50879 13.2185 2.16259 12 3.30764C10.7815 2.16259 9.215 1.50879 7.5955 1.50879C3.41766 1.50879 0.5 4.62796 0.5 9.09411C0.5 13.7857 4.70617 18.9703 11.2153 22.3022C11.4605 22.428 11.7298 22.4912 11.9995 22.4912C12.2692 22.4912 12.5395 22.428 12.7847 22.3022C19.2938 18.9703 23.5 13.7857 23.5 9.09411C23.5 4.62796 20.5823 1.50879 16.4045 1.50879Z" />
           <path v-else
@@ -92,7 +96,7 @@
       </button>
 
       <button class="reel-action" @click.stop="emit('comment', item)">
-        <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor">
+        <svg viewBox="0 0 24 24" width="31" height="31" fill="currentColor">
           <path fill-rule="evenodd"
             d="M12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21C13.414 21 14.7492 20.6747 15.9373 20.0956C16.1277 20.0028 16.3428 19.9728 16.5514 20.0101L20.7565 20.7619L19.9927 16.5927C19.954 16.3815 19.9843 16.1633 20.0792 15.9707C20.6685 14.7742 21 13.4273 21 12C21 7.02944 16.9706 3 12 3ZM1 12C1 5.92486 5.92488 1 12 1C18.0752 1 23 5.92488 23 12C23 13.6205 22.649 15.1615 22.018 16.549L22.9836 21.8198C23.0427 22.1423 22.94 22.4733 22.7086 22.7056C22.4773 22.938 22.1468 23.0421 21.824 22.9844L16.512 22.0348C15.1341 22.6553 13.6061 23 12 23C5.92488 23 1 18.0752 1 12Z" />
         </svg>
@@ -100,7 +104,7 @@
       </button>
 
       <button class="reel-action" :class="{ 'is-saved': item.saved }" @click.stop="emit('save', item)">
-        <svg viewBox="0 0 24 24" width="28" height="28" :fill="item.saved ? 'currentColor' : 'none'"
+        <svg viewBox="0 0 24 24" width="31" height="31" :fill="item.saved ? 'currentColor' : 'none'"
           stroke="currentColor" stroke-width="1.8">
           <path d="M6 3.75A1.75 1.75 0 0 1 7.75 2h8.5A1.75 1.75 0 0 1 18 3.75V21l-6-3.6L6 21V3.75Z"
             stroke-linejoin="round" />
@@ -109,28 +113,35 @@
       </button>
 
       <button class="reel-action" @click.stop="emit('share', item)">
-       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
-        <g id="Communication / Share_Android">
-          <path id="Vector" d="M9 13.5L15 16.5M15 7.5L9 10.5M18 21C16.3431 21 15 19.6569 15 18C15 16.3431 16.3431 15 18 15C19.6569 15 21 16.3431 21 18C21 19.6569 19.6569 21 18 21ZM6 15C4.34315 15 3 13.6569 3 12C3 10.3431 4.34315 9 6 9C7.65685 9 9 10.3431 9 12C9 13.6569 7.65685 15 6 15ZM18 9C16.3431 9 15 7.65685 15 6C15 4.34315 16.3431 3 18 3C19.6569 3 21 4.34315 21 6C21 7.65685 19.6569 9 18 9Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </g>
+        <svg xmlns="http://www.w3.org/2000/svg" width="29" height="29" viewBox="0 0 24 24" fill="none">
+          <g id="Communication / Share_Android">
+            <path id="Vector"
+              d="M9 13.5L15 16.5M15 7.5L9 10.5M18 21C16.3431 21 15 19.6569 15 18C15 16.3431 16.3431 15 18 15C19.6569 15 21 16.3431 21 18C21 19.6569 19.6569 21 18 21ZM6 15C4.34315 15 3 13.6569 3 12C3 10.3431 4.34315 9 6 9C7.65685 9 9 10.3431 9 12C9 13.6569 7.65685 15 6 15ZM18 9C16.3431 9 15 7.65685 15 6C15 4.34315 16.3431 3 18 3C19.6569 3 21 4.34315 21 6C21 7.65685 19.6569 9 18 9Z"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </g>
         </svg>
         <span>{{ formatCount(item?.stats?.shares) }}</span>
       </button>
 
-      <!-- Disco de som giratório — assinatura visual do TikTok -->
+      <!-- Disco de som giratório -->
       <div class="reel-sound-disc" :class="{ 'is-spinning': isPlaying && !buffering }">
         <img v-if="item?.author?.avatar" :src="item?.author?.avatar" alt="" />
         <span v-else>{{ authorInitial }}</span>
       </div>
     </div>
 
+    <!-- Barra de progresso fina, no fundo (logo acima do menu) -->
+    <div class="reel-progress-track">
+      <div class="reel-progress-fill" :style="{ width: progressPct + '%' }" />
+    </div>
+
     <!-- Feedback central: play/pause -->
     <Transition name="fade">
       <div v-if="tapFeedback" class="reel-tap-feedback">
-        <svg v-if="!isPlaying" viewBox="0 0 24 24" width="54" height="54" fill="white">
+        <svg v-if="!isPlaying" viewBox="0 0 24 24" width="64" height="64" fill="white">
           <path d="M8 5v14l11-7z" />
         </svg>
-        <svg v-else viewBox="0 0 24 24" width="54" height="54" fill="white">
+        <svg v-else viewBox="0 0 24 24" width="64" height="64" fill="white">
           <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
         </svg>
       </div>
@@ -139,7 +150,7 @@
     <!-- Coração de duplo-toque -->
     <Transition name="heart">
       <div v-if="heartBurst" class="reel-heart-burst">
-        <svg viewBox="0 0 24 24" width="90" height="90" fill="white">
+        <svg viewBox="0 0 24 24" width="100" height="100" fill="#fe2c55">
           <path
             d="M16.5 2C14.8335 2 13.2217 2.70703 12 3.93652C10.7783 2.70704 9.1665 2 7.5 2C3.3785 2 0.5 5.08423 0.5 9.5C0.5 14.1284 4.84516 19.4619 11.311 22.7719C11.5267 22.8827 11.7633 22.9379 12 22.9379C12.2367 22.9379 12.4733 22.8827 12.689 22.7719C19.1548 19.4619 23.5 14.1284 23.5 9.5C23.5 5.08423 20.6217 2 16.5 2Z" />
         </svg>
@@ -492,14 +503,15 @@ onBeforeUnmount(() => {
   background: #000;
 }
 
+/* Gradientes mais suaves, só o suficiente para ler o texto */
 .reel-scrim-top {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 90px;
+  height: 110px;
   z-index: 18;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.35), transparent);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), transparent);
   pointer-events: none;
 }
 
@@ -508,20 +520,22 @@ onBeforeUnmount(() => {
   left: 0;
   right: 0;
   bottom: 0;
-  height: 42%;
+  height: 38%;
   z-index: 18;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.65) 0%, rgba(0, 0, 0, 0.35) 45%, transparent 100%);
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.25) 50%, transparent 100%);
   pointer-events: none;
 }
 
+/* Progresso no fundo, como no TikTok */
 .reel-progress-track {
   position: absolute;
-  top: 0;
+  bottom: 0;
   left: 0;
   right: 0;
-  height: 2.5px;
-  background: rgba(255, 255, 255, 0.2);
+  height: 2px;
+  background: rgba(255, 255, 255, 0.25);
   z-index: 22;
+  pointer-events: none;
 }
 
 .reel-progress-fill {
@@ -532,7 +546,7 @@ onBeforeUnmount(() => {
 
 .reel-icon-btn {
   border: none;
-  background: rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
@@ -543,7 +557,7 @@ onBeforeUnmount(() => {
 
 .reel-mute-btn {
   position: absolute;
-  top: 16px;
+  top: 54px;
   right: 12px;
   z-index: 26;
   height: 30px;
@@ -562,7 +576,7 @@ onBeforeUnmount(() => {
 
 .reel-unmute-hint {
   position: absolute;
-  top: 54px;
+  top: 90px;
   right: 12px;
   z-index: 26;
   display: flex;
@@ -598,90 +612,41 @@ onBeforeUnmount(() => {
 }
 
 @keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
+/* ---------- Rodapé ---------- */
 .reel-footer {
   position: absolute;
   left: 12px;
-  right: 78px;
-  bottom: 16px;
+  right: 76px;
+  bottom: 18px;
   z-index: 21;
   display: flex;
   flex-direction: column;
-  gap: 9px;
-}
-
-.reel-author {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.reel-avatar-wrap {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.reel-avatar {
-  height: 40px;
-  width: 40px;
-  border-radius: 999px;
-  border: 1.5px solid rgba(255, 255, 255, 0.9);
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: #444;
-  color: #fff;
-  font-weight: 600;
-  font-size: 15px;
-}
-
-.reel-avatar img {
-  height: 100%;
-  width: 100%;
-  object-fit: cover;
-}
-
-.reel-avatar-follow {
-  position: absolute;
-  left: 50%;
-  bottom: -8px;
-  transform: translateX(-50%);
-  height: 18px;
-  width: 18px;
-  border-radius: 999px;
-  border: none;
-  background: #f91880;
-  color: #fff;
-  font-size: 13px;
-  font-weight: 700;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 0 0 2px #000;
-  padding: 0;
+  gap: 8px;
 }
 
 .reel-author-meta {
   display: flex;
   flex-direction: column;
   min-width: 0;
+  cursor: pointer;
 }
 
 .reel-author-name {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   color: #fff;
-  font-size: 15.5px;
-  font-weight: 600;
-  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+  min-width: 0;
+}
+
+.reel-author-text {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -694,9 +659,9 @@ onBeforeUnmount(() => {
 .reel-caption {
   margin: 0;
   color: #fff;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.35;
-  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.7);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.6);
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -707,21 +672,92 @@ onBeforeUnmount(() => {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: rgba(255, 255, 255, 0.92);
-  font-size: 12.5px;
+  color: #fff;
+  font-size: 14px;
   font-weight: 500;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  max-width: 210px;
 }
 
+.reel-sound-icon {
+  flex-shrink: 0;
+}
+
+.reel-sound-marquee {
+  overflow: hidden;
+  white-space: nowrap;
+  min-width: 0;
+  -webkit-mask-image: linear-gradient(to right, #000 85%, transparent);
+  mask-image: linear-gradient(to right, #000 85%, transparent);
+}
+
+.reel-sound-text {
+  display: inline-block;
+  padding-right: 24px;
+  animation: sound-marquee 9s linear infinite;
+}
+
+@keyframes sound-marquee {
+  0%, 15% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+/* ---------- Ações laterais ---------- */
 .reel-actions {
   position: absolute;
   right: 8px;
-  bottom: 16px;
+  bottom: 14px;
   z-index: 21;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
+}
+
+.reel-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+  cursor: pointer;
+}
+
+.reel-avatar {
+  height: 48px;
+  width: 48px;
+  border-radius: 999px;
+  border: 2px solid #fff;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #444;
+  color: #fff;
+  font-weight: 600;
+  font-size: 17px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+}
+
+.reel-avatar img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+.reel-avatar-follow {
+  position: absolute;
+  left: 50%;
+  bottom: -11px;
+  transform: translateX(-50%);
+  height: 22px;
+  width: 22px;
+  border-radius: 999px;
+  border: none;
+  background: #fe2c55;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
 }
 
 .reel-action {
@@ -731,24 +767,30 @@ onBeforeUnmount(() => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   padding: 0;
   cursor: pointer;
-  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.55));
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.5));
+  transition: transform 120ms ease;
+}
+
+.reel-action:active {
+  transform: scale(0.9);
 }
 
 .reel-action span {
-  font-size: 11.5px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
+  min-height: 14px;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
 }
 
 .reel-action.is-liked {
-  color: #f91880;
+  color: #fe2c55;
 }
 
 .reel-action.is-saved {
-  color: #ffd400;
+  color: #face15;
 }
 
 .like-pop {
@@ -756,27 +798,22 @@ onBeforeUnmount(() => {
 }
 
 @keyframes like-pop {
-  0% {
-    transform: scale(1);
-  }
-
-  35% {
-    transform: scale(1.35);
-  }
-
-  100% {
-    transform: scale(1);
-  }
+  0% { transform: scale(1); }
+  35% { transform: scale(1.3); }
+  100% { transform: scale(1); }
 }
 
+/* Disco tipo vinil */
 .reel-sound-disc {
-  margin-top: 4px;
-  height: 34px;
-  width: 34px;
+  margin-top: 2px;
+  height: 46px;
+  width: 46px;
+  box-sizing: border-box;
+  padding: 10px;
   border-radius: 999px;
   overflow: hidden;
-  border: 2px solid rgba(255, 255, 255, 0.85);
-  background: #222;
+  background: radial-gradient(circle, #3a3a3a 0%, #151515 60%, #2a2a2a 100%);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -789,6 +826,7 @@ onBeforeUnmount(() => {
 .reel-sound-disc img {
   height: 100%;
   width: 100%;
+  border-radius: 999px;
   object-fit: cover;
 }
 
@@ -797,11 +835,10 @@ onBeforeUnmount(() => {
 }
 
 @keyframes disc-spin {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
 
+/* ---------- Feedback de toque ---------- */
 .reel-tap-feedback {
   position: absolute;
   inset: 0;
@@ -813,7 +850,7 @@ onBeforeUnmount(() => {
 }
 
 .reel-tap-feedback svg {
-  opacity: 0.9;
+  opacity: 0.85;
   filter: drop-shadow(0 2px 12px rgba(0, 0, 0, 0.5));
 }
 

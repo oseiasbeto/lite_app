@@ -1,8 +1,8 @@
 <template>
-    <div class="relative">
+    <div class="relative flex justify-center">
         <ul class="py-0.5 pb-1">
-            <li class="flex py-1 text-[15px] gap-1 items-center">
-                <span class="w-6 shrink-0 h-6 flex items-center justify-center rounded-full dark:bg-[#202020]">
+            <li class="flex py-1 text-[13px] gap-1.5 items-center text-[rgba(22,24,35,0.6)] dark:text-[rgba(255,255,255,0.6)]">
+                <span class="w-5 shrink-0 h-5 flex items-center justify-center">
                     <svg width="16" height="16" viewBox="0 0 24 24">
                         <g class="icon_svg-stroke icon_svg-fill" stroke-width="1.5" fill="none" fill-rule="evenodd"
                             stroke-linecap="round" stroke-linejoin="round">

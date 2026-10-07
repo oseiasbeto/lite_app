@@ -1,6 +1,6 @@
 <template>
   <div class="reels-page">
-    <!-- Abas Para ti / Seguindo, estilo Facebook/Instagram Reels -->
+    <!-- Abas Para ti / Seguindo -->
     <div class="reels-tabs">
       <button v-for="tab in tabs" :key="tab.value" class="reels-tab" :class="{ active: feedType === tab.value }"
         @click="onTabChange(tab.value)">
@@ -112,7 +112,7 @@ const currentTheme = computed(() => store.getters.currentTheme)
 const setThemeColor = (theme) => {
   // Aplicar classe no HTML
   if (theme === 'dark') {
-    //window?.WTN?.setNavigationBarColor({ color: "#000000" });
+    window?.WTN?.setNavigationBarColor({ color: "#000000" });
     window?.WTN?.statusBar({
       style: 'light',
       color: '000000',
@@ -152,14 +152,7 @@ function onClose() {
 
 onMounted(() => {
   loadMore()
-
-  console.log('seedItem', rawSeed.value)
-  window?.WTN?.setNavigationBarColor({ color: "#000000" });
-  window?.WTN?.statusBar({
-    style: 'light',
-    color: '000000',
-    overlay: false //Only for android
-  });
+  setThemeColor('dark')
 })
 
 onUnmounted(() => {
@@ -171,44 +164,66 @@ onUnmounted(() => {
 .reels-page {
   position: fixed;
   inset: 0;
-  height: calc(100dvh - 64px);
+  height: calc(100dvh - 52px);
   width: 100vw;
   background: #000;
 }
 
+/* Abas centradas no topo, como no TikTok */
 .reels-tabs {
   position: fixed;
-  top: 14px;
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 998;
   display: flex;
-  gap: 18px;
+  gap: 22px;
 }
 
 .reels-tab {
+  position: relative;
   border: none;
   background: transparent;
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 15px;
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 17px;
   font-weight: 600;
-  padding: 4px 2px;
+  padding: 6px 2px 8px;
   cursor: pointer;
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+  transition: color 150ms ease;
 }
 
 .reels-tab.active {
   color: #fff;
-  border-bottom: 2px solid #fff;
+  font-weight: 700;
+}
+
+/* Traço curto sob a aba ativa */
+.reels-tab::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  height: 2px;
+  width: 0;
+  border-radius: 2px;
+  background: #fff;
+  transform: translateX(-50%);
+  transition: width 180ms ease;
+}
+
+.reels-tab.active::after {
+  width: 24px;
 }
 
 .reels-fallback-banner {
   position: fixed;
-  top: 52px;
+  top: calc(env(safe-area-inset-top, 0px) + 54px);
   left: 50%;
   transform: translateX(-50%);
   z-index: 997;
   background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
   color: #fff;
   font-size: 12px;
   padding: 6px 14px;

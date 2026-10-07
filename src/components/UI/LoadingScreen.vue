@@ -7,6 +7,7 @@ const props = defineProps({
   onFinish: { type: Function, default: null }, // chamado quando a animação de saída termina
   theme: { type: String, default: "system" }, // 'light' | 'dark' | 'system'
   nativeBars: { type: Boolean, default: true }, // ajusta status bar / navigation bar do app nativo
+  logoSrc: { type: String, default: "" }, // (opcional) logo do app, de preferência PNG/SVG com fundo transparente
 });
 
 const emit = defineEmits(["finish"]);
@@ -113,17 +114,34 @@ defineExpose({ start, stop, finish });
   >
     <span class="sr-only">Carregando…</span>
 
-    <div class="splash-content" :class="{ 'is-leaving': phase === 'leaving' }">
-      <span
-        class="spinner block h-10 w-10 rounded-full border-4 border-neutral-300 border-t-neutral-900 dark:border-neutral-700 dark:border-t-white"
-        aria-hidden="true"
-      ></span>
+    <div
+      class="splash-content flex flex-col items-center"
+      :class="{ 'is-leaving': phase === 'leaving' }"
+    >
+      <!-- Logo com efeito glitch ciano/vermelho (só aparece se logoSrc for passado) -->
+      <div v-if="logoSrc" class="logo mb-10" aria-hidden="true">
+        <span
+          class="logo-layer logo-cyan"
+          :style="{ '--logo': `url(${logoSrc})` }"
+        ></span>
+        <span
+          class="logo-layer logo-red"
+          :style="{ '--logo': `url(${logoSrc})` }"
+        ></span>
+        <img :src="logoSrc" alt="" class="logo-main" draggable="false" />
+      </div>
+
+      <!-- Loader: duas bolinhas que se cruzam -->
+      <div class="loader" aria-hidden="true">
+        <span class="dot dot-cyan mix-blend-multiply dark:mix-blend-screen"></span>
+        <span class="dot dot-red mix-blend-multiply dark:mix-blend-screen"></span>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* Saída: o spinner cresce levemente e some */
+/* Saída: o conteúdo cresce levemente e some */
 .splash-content {
   transition: opacity 0.32s ease, transform 0.32s ease;
 }
@@ -132,19 +150,106 @@ defineExpose({ start, stop, finish });
   transform: scale(1.06);
 }
 
-.spinner {
-  animation: spin 0.8s linear infinite;
+/* ------------------------------ Loader ------------------------------ */
+.loader {
+  position: relative;
+  width: 44px;
+  height: 14px;
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+.dot {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  border-radius: 9999px;
+  animation: cross 0.6s ease-in-out infinite alternate;
+}
+
+.dot-cyan {
+  background: #25f4ee;
+}
+
+.dot-red {
+  background: #fe2c55;
+  animation-direction: alternate-reverse;
+}
+
+@keyframes cross {
+  0% {
+    transform: translateX(-15px) scale(1);
+  }
+  50% {
+    transform: translateX(0) scale(0.7);
+  }
+  100% {
+    transform: translateX(15px) scale(1);
   }
 }
 
+/* ------------------------------- Logo ------------------------------- */
+.logo {
+  position: relative;
+  width: 96px;
+  height: 96px;
+}
+
+.logo-main,
+.logo-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.logo-main {
+  object-fit: contain;
+  user-select: none;
+}
+
+/* Camadas coloridas usam o próprio logo como máscara */
+.logo-layer {
+  -webkit-mask: var(--logo) center / contain no-repeat;
+  mask: var(--logo) center / contain no-repeat;
+}
+
+.logo-cyan {
+  background: #25f4ee;
+  transform: translate(-2px, -2px);
+  animation: glitch-cyan 1.8s steps(1) infinite;
+}
+
+.logo-red {
+  background: #fe2c55;
+  transform: translate(2px, 2px);
+  animation: glitch-red 1.8s steps(1) infinite;
+}
+
+/* Fica parado a maior parte do tempo e "treme" rapidamente */
+@keyframes glitch-cyan {
+  0%, 70%, 100% { transform: translate(-2px, -2px); }
+  74% { transform: translate(-5px, 1px); }
+  78% { transform: translate(-1px, -4px); }
+  82% { transform: translate(-3px, 0); }
+}
+
+@keyframes glitch-red {
+  0%, 70%, 100% { transform: translate(2px, 2px); }
+  74% { transform: translate(5px, -1px); }
+  78% { transform: translate(1px, 4px); }
+  82% { transform: translate(3px, 0); }
+}
+
+/* ------------------------- Acessibilidade ------------------------- */
 @media (prefers-reduced-motion: reduce) {
-  .spinner {
-    animation-duration: 2s;
+  .dot {
+    animation-duration: 1.6s;
+  }
+  .logo-cyan,
+  .logo-red {
+    animation: none;
   }
   .splash-content {
     transition: opacity 0.2s ease;

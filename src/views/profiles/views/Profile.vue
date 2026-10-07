@@ -1,86 +1,78 @@
 <template>
-    <div @scroll="setScrollTopFromCache" ref="profileView" class="relative mt-[50px] h-[calc(100vh-50px)] overflow-y-scroll"
+    <div @scroll="setScrollTopFromCache" ref="profileView"
+        class="relative mt-[50px] h-[calc(100vh-50px)] overflow-y-scroll"
         :class="{ 'pb-[56px]': !profilePosts?.pagination?.hasMore }">
-        <div
-            class="fixed px-4 z-50 flex items-center justify-between top-0 w-full bg-x-light-bg dark:bg-x-dark-bg h-[50px]">
-            <div class="flex w-[calc(100%-38px)] items-center">
-                <button @click="router.back()"
-                    class="p-1 hover:bg-x-light-surfaceHover active:bg-x-light-surfaceActive dark:hover:bg-x-dark-surfaceHover dark:active:bg-x-dark-surfaceActive text-inherit mr-1 rounded-full transition-colors mt-[-4px]">
-                    <svg aria-label="Voltar" class="text-inherit" fill="currentColor" height="24" role="img"
-                        viewBox="0 0 24 24" width="24">
-                        <title>Voltar</title>
-                        <line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
-                            stroke-width="2" x1="2.909" x2="22.001" y1="12.004" y2="12.004"></line>
-                        <polyline fill="none" points="9.276 4.726 2.001 12.004 9.276 19.274" stroke="currentColor"
-                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline>
-                    </svg>
-                </button>
-                <!-- Informações do contato -->
-                <div class="ml-1 flex-1 min-w-0">
-                    <!-- Title -->
-                    <div class="w-full items-center flex">
-                        <h2
-                            class="text-2xl mb-0.5 font-bold dark:text-white text-[rgb(40,40,41)] truncate leading-tight">
-                            {{ profile?.username }}
-                        </h2>
 
-                        <svg @click="router.push('/rewards')" viewBox="0 0 22 22" v-if="profile?.is_verified"
-                            class="ml-[5px] shrink-0 mr-[2px] w-[18px] h-[18px] text-x-light-blue"
-                            aria-label="Verified account" role="img" fill="currentColor"
-                            xmlns="http://www.w3.org/2000/svg" data-testid="icon-verified">
-                            <g>
-                                <path
-                                    d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z">
-                                </path>
-                            </g>
-                        </svg>
-                    </div>
-                </div>
+        <!-- Topbar -->
+        <div
+            class="fixed z-50 top-0 w-full h-[50px] px-2 grid grid-cols-[40px_1fr_40px] items-center bg-x-light-bg dark:bg-x-dark-bg border-b border-[rgba(22,24,35,0.08)] dark:border-[rgba(255,255,255,0.08)]">
+            <button @click="router.back()"
+                class="p-2 hover:bg-x-light-surfaceHover active:bg-x-light-surfaceActive dark:hover:bg-x-dark-surfaceHover dark:active:bg-x-dark-surfaceActive text-inherit rounded-full transition-colors flex items-center justify-center">
+                <svg aria-label="Voltar" class="text-inherit" fill="currentColor" height="22" role="img"
+                    viewBox="0 0 24 24" width="22">
+                    <title>Voltar</title>
+                    <line fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2" x1="2.909" x2="22.001" y1="12.004" y2="12.004"></line>
+                    <polyline fill="none" points="9.276 4.726 2.001 12.004 9.276 19.274" stroke="currentColor"
+                        stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></polyline>
+                </svg>
+            </button>
+
+            <!-- Username centrado -->
+            <div class="flex items-center justify-center min-w-0">
+                <h2 class="text-[17px] font-bold dark:text-white text-[rgb(22,24,35)] truncate leading-tight">
+                    {{ profile?.username }}
+                </h2>
+
+                <svg @click="router.push('/rewards')" viewBox="0 0 22 22" v-if="profile?.is_verified"
+                    class="ml-1 shrink-0 w-[16px] h-[16px] text-x-light-blue" aria-label="Verified account"
+                    role="img" fill="currentColor" xmlns="http://www.w3.org/2000/svg" data-testid="icon-verified">
+                    <g>
+                        <path
+                            d="M20.396 11c-.018-.646-.215-1.275-.57-1.816-.354-.54-.852-.972-1.438-1.246.223-.607.27-1.264.14-1.897-.131-.634-.437-1.218-.882-1.687-.47-.445-1.053-.75-1.687-.882-.633-.13-1.29-.083-1.897.14-.273-.587-.704-1.086-1.245-1.44S11.647 1.62 11 1.604c-.646.017-1.273.213-1.813.568s-.969.854-1.24 1.44c-.608-.223-1.267-.272-1.902-.14-.635.13-1.22.436-1.69.882-.445.47-.749 1.055-.878 1.688-.13.633-.08 1.29.144 1.896-.587.274-1.087.705-1.443 1.245-.356.54-.555 1.17-.574 1.817.02.647.218 1.276.574 1.817.356.54.856.972 1.443 1.245-.224.606-.274 1.263-.144 1.896.13.634.433 1.218.877 1.688.47.443 1.054.747 1.687.878.633.132 1.29.084 1.897-.136.274.586.705 1.084 1.246 1.439.54.354 1.17.551 1.816.569.647-.016 1.276-.213 1.817-.567s.972-.854 1.245-1.44c.604.239 1.266.296 1.903.164.636-.132 1.22-.447 1.68-.907.46-.46.776-1.044.908-1.681s.075-1.299-.165-1.903c.586-.274 1.084-.705 1.439-1.246.354-.54.551-1.17.569-1.816zM9.662 14.85l-3.429-3.428 1.293-1.302 2.072 2.072 4.4-4.794 1.347 1.246z">
+                        </path>
+                    </g>
+                </svg>
             </div>
 
-            <div v-if="!loadingFetchProfile">
-                <button @click="handleMoreOptions"
-                    class="p-1 hover:bg-x-light-surfaceHover active:bg-x-light-surfaceActive dark:hover:bg-x-dark-surfaceHover dark:active:bg-x-dark-surfaceActive text-inherit rounded-full transition-colors flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="24" height="24"
+            <!-- Menu (mantém o espaço da coluna mesmo durante o loading) -->
+            <div class="flex items-center justify-center">
+                <button v-if="!loadingFetchProfile" @click="handleMoreOptions"
+                    class="p-2 hover:bg-x-light-surfaceHover active:bg-x-light-surfaceActive dark:hover:bg-x-dark-surfaceHover dark:active:bg-x-dark-surfaceActive text-inherit rounded-full transition-colors flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" width="22" height="22"
                         viewBox="0 0 24 24">
-
                         <g data-name="Layer 2">
-
                             <g data-name="more-vertical">
-
                                 <rect width="24" height="24" transform="rotate(-90 12 12)" opacity="0" />
-
                                 <circle cx="12" cy="12" r="2" />
-
                                 <circle cx="12" cy="5" r="2" />
-
                                 <circle cx="12" cy="19" r="2" />
-
                             </g>
-
                         </g>
-
                     </svg>
                 </button>
             </div>
         </div>
+
         <div v-if="!hasError?.show">
             <div v-if="!loadingFetchProfile">
-                <!-- Indicador flutuante estilo Facebook, não desloca o conteúdo -->
+                <!-- Indicador flutuante, não desloca o conteúdo -->
                 <PullToRefreshIndicator v-if="enablePullToRefresh" :distance="pullDistance" :threshold="threshold"
                     :is-refreshing="isRefreshing" :top-position="54" />
 
-
-                <div class="px-4 pt-2 py-4 pb-2">
+                <!-- Cabeçalho do perfil (já centrado, com padding próprio) -->
+                <div>
                     <ProfileDetailsUser @go-to-picture-full-screen="goToPictureFullScreen"
                         @go-to-followers="goToFollowers" @go-to-following="goToFollowing" @go-to-posts="goToPosts"
                         :profile="profile" :user-id="user?._id" />
                 </div>
 
-                <div class="px-4 pb-3">
+                <div class="px-4">
                     <CredentialsHighlights />
+                </div>
 
-                    <!--REACTIOS-->
+                <!-- Ações -->
+                <div class="pt-3 pb-3">
                     <ProfileReactions :profile="profile" :user-id="user?._id" :is-same-user="isSameUser"
                         :has-followed="hasFollowed" :has-subscribed="hasSubscribed" :status-follow-txt="statusFollowTxt"
                         @on-follow="handleFollow(profile?._id)"
@@ -90,10 +82,9 @@
                         :send-message-btn-off="!canSendMessage" />
                 </div>
 
-                <!-- Sugestões estilo Instagram, exibidas apenas no perfil de outra pessoa -->
-                <!-- Sugestões estilo Instagram, exibidas apenas no perfil de outra pessoa -->
+                <!-- Sugestões, exibidas apenas no perfil de outra pessoa -->
                 <div v-if="!isSameUser">
-                    <div v-if="suggestionsError" class="px-1 py-2 text-sm text-red-500">
+                    <div v-if="suggestionsError" class="px-4 py-2 text-sm text-red-500">
                         {{ suggestionsError }}
                     </div>
 
@@ -102,13 +93,25 @@
                         :exclude-user-id="profile?._id" start-spacing="16px" end-spacing="16px" />
                 </div>
 
-                <!--TABS-->
-                <div class="relative">
-                    <Tabs :tabs="tabs" v-model="currentTab" />
+                <!-- TABS (próprias, sem o componente Tabs) -->
+                <div
+                    class="sticky top-0 z-20 bg-x-light-bg dark:bg-x-dark-bg border-b border-[rgba(22,24,35,0.12)] dark:border-[rgba(255,255,255,0.12)]">
+                    <div role="tablist" class="no-scrollbar flex overflow-x-auto">
+                        <button v-for="tab in tabs" :key="tab.value" type="button" role="tab"
+                            :aria-selected="currentTab === tab.value" @click="selectTab(tab.value, $event)"
+                            class="relative shrink-0 grow px-5 py-3 text-[15px] font-semibold whitespace-nowrap transition-colors active:opacity-60"
+                            :class="currentTab === tab.value
+                                ? 'text-[rgb(22,24,35)] dark:text-white'
+                                : 'text-[rgba(22,24,35,0.5)] dark:text-[rgba(255,255,255,0.5)]'">
+                            {{ tab.label }}
+                            <span
+                                class="absolute left-1/2 -translate-x-1/2 bottom-0 h-[2px] rounded-full bg-[rgb(22,24,35)] dark:bg-white transition-all duration-200"
+                                :class="currentTab === tab.value ? 'w-8 opacity-100' : 'w-0 opacity-0'"></span>
+                        </button>
+                    </div>
                 </div>
 
-
-                <!--TAB VIEWS-->
+                <!-- TAB VIEWS -->
                 <template v-if="currentTab === 'posts'">
                     <PostList :scroll-target="profileView" :posts="profilePosts?.posts || []"
                         :has-more="profilePosts?.pagination?.hasMore || false" :loading-fetch="loadingFetchProfilePosts"
@@ -128,7 +131,7 @@
                     <!--Seguindo-->
                 </template>
 
-                <!--DRAWER-->
+                <!-- DRAWER -->
                 <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
                     <template v-if="drawer?.name == 'moreOptions'">
                         <DrawerItem v-if="canSendMessage" @on-press="openConv(profile)" title="Enviar mensagem" />
@@ -140,10 +143,11 @@
             </div>
         </div>
         <div v-else>
-            <p>{{ hasError?.message }}</p>
+            <p class="px-4 py-6 text-center text-sm text-[rgba(22,24,35,0.6)] dark:text-[rgba(255,255,255,0.6)]">
+                {{ hasError?.message }}
+            </p>
         </div>
     </div>
-
 </template>
 
 <script setup>
@@ -152,7 +156,6 @@ import { onBeforeRouteLeave, useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import ProfileDetailsUser from '../components/ProfileDetailsUser.vue';
 import ProfileReactions from '../components/ProfileReactions.vue';
-import Tabs from '@/components/UI/Tabs.vue';
 import PostList from '@/views/posts/components/PostList.vue';
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
@@ -212,7 +215,7 @@ const conversations = computed(() => {
 const suggestedUsers = computed(() => store.getters['search/suggestedUsers'])
 const suggestionsLoading = ref(true)
 const suggestionsError = computed(() => store.getters['search/suggestionsError'])
-const suggestionsUserId = ref(null) 
+const suggestionsUserId = ref(null)
 
 const loadingFetchProfile = ref(false)
 const loadingLoadMorePosts = ref(false)
@@ -272,6 +275,15 @@ const tabs = ref([
     { label: 'Seguindo', value: 'following' },
 ])
 
+// Muda a tab e centra o botão escolhido na barra
+const selectTab = (value, event) => {
+    currentTab.value = value
+    event?.currentTarget?.scrollIntoView({
+        behavior: 'smooth',
+        inline: 'center',
+        block: 'nearest'
+    })
+}
 
 const profilePosts = computed(() => {
     const modules = store.getters.modulePosts
@@ -490,7 +502,7 @@ const goToFollowers = () => {
 
 const goToFollowing = () => {
     if (profile?.value?.following?.length === 0) return
-    
+
     router.push({
         name: 'ProfileFollow',
         params: { user_id: profile?.value?._id },
@@ -531,7 +543,7 @@ onMounted(async () => {
         loadingFetchProfile.value = true
         await loadProfile(userId.value)
     }
-    
+
     suggestionsLoading.value = true
     // Busca as sugestões só depois do profile carregado, pra "isSameUser" já estar correto
     fetchSuggestedUsers()
@@ -618,3 +630,13 @@ watch(() => currentTab.value, async (newTab, oldTab) => {
     }
 },)
 </script>
+
+<style scoped>
+.no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+</style>

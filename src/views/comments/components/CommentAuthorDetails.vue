@@ -8,7 +8,7 @@
                             author?.name }}</span>
                     <svg v-if="author?.is_verified" viewBox="0 0 22 22"
                         aria-label="Verified account" role="img"
-                        class="w-[13px] h-[13px] text-x-light-blue ml-[3px] shrink-0" fill="currentColor"
+                        class="w-[13px] h-[13px] text-[#20d5ec] ml-[3px] shrink-0" fill="currentColor"
                         xmlns="http://www.w3.org/2000/svg" data-testid="icon-verified">
                         <g>
                             <path
