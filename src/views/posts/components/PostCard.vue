@@ -73,7 +73,7 @@
             </div>
 
             <!--FOOTER-->
-            <div @click.stop v-if="!isParentPost" class="pt-2 pb-2">
+            <div @click.stop v-if="!isParentPost" class="pt-1.5 pb-2">
                 <PostReactions 
                     :loading="isReactingPost" :upvotes="data?.upvotes" :upvotes-count="data?.upvotes_count"
                     :downvotes="data?.downvotes" :downvotes-count="data?.downvotes_count"

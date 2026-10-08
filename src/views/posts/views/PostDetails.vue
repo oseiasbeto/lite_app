@@ -901,7 +901,7 @@ watch(() => route.params.id, async (newId, oldId) => {
     commentTriggerRef.value?.reset()
     
     bannerAd({
-        adId: "ca-app-pub-4593053864161236/3468604114"
+       // adId: "ca-app-pub-4593053864161236/3468604114"
     })
 
     postId.value = newId
