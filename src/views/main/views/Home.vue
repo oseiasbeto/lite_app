@@ -124,7 +124,7 @@
             <div :ref="el => setScrollRef(tab.value, el)" @scroll="(e) => onScroll(tab.value, e)"
                 class="h-screen overflow-x-hidden overflow-y-scroll"
                 :class="{ 'pb-[50px]': !getPagination(TAB_MODULE_MAP[tab.value])?.hasMore }">
-                <div class="w-full h-[95px] relative"></div>
+                <div class="w-full h-[113px] relative"></div>
                 <PostList :scroll-target="scrollRefs[tab.value]" :enable-pull-to-refresh="enablePullToRefresh"
                     :posts="postsByModule(TAB_MODULE_MAP[tab.value])"
                     :has-more="getPagination(TAB_MODULE_MAP[tab.value])?.hasMore || false"

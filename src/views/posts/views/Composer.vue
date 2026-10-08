@@ -1,154 +1,387 @@
 <template>
     <div class="relative">
         <div
-            class="relative dark:bg-black bg-white h-[calc(100vh-56px)] w-screen overflow-y-hidden box-border flex flex-col">
+            class="relative box-border flex h-[100dvh] w-full flex-col overflow-hidden bg-white text-black dark:bg-black dark:text-white">
 
             <!--start header-->
-            <div class="flex flex-col sticky top-0 w-full z-[100] bg-white dark:bg-black">
-                <div class="flex w-full py-2 items-center justify-between">
-                    <div class="flex flex-1 pr-2 items-center gap-2">
-                        <button :disable="isSubmiting"
-                            class="w-9 h-9 flex items-center justify-center text-inherit rounded-full hover:bg-black/5 dark:hover:bg-white/10"
-                            @click="openCancelPostDrawer">
-                            <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path d="m5.5 5.5 13 13m-13 0 13-13" class="icon_svg-stroke" stroke="currentColor"
-                                    stroke-width="1.8" fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
-                            </svg>
-                        </button>
-
-                        <h1 class="text-base font-semibold">Criar publicação</h1>
-                    </div>
-                    <div class="shrink-0 pr-3">
-                        <button
-                            class="rounded-full font-semibold text-[15px] px-4 py-2 bg-black text-white dark:bg-white dark:text-black disabled:opacity-50 transition-colors"
-                            :disabled="!canPost || selectFileLoading" @click="handleSubmit">
-                            Publicar
-                        </button>
-                    </div>
-                </div>
-            </div>
+            <header
+                class="sticky top-0 z-[100] grid h-14 w-full shrink-0 grid-cols-[48px_1fr_48px] items-center border-b border-black/5 bg-white px-1 dark:border-white/10 dark:bg-black">
+                <button :disabled="isSubmiting"
+                    class="flex h-10 w-10 items-center justify-center rounded-full text-inherit hover:bg-black/5 disabled:opacity-40 dark:hover:bg-white/10"
+                    aria-label="Voltar" @click="openCancelPostDrawer">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="m15 5-7 7 7 7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+                <h1 class="text-center text-[17px] font-bold">Novo post</h1>
+                <span></span>
+            </header>
             <!--end header-->
 
             <!--start body-->
-            <div class="flex-1 px-4 pt-3 max-h-full overflow-y-auto justify-between flex-col">
-                <div>
-                    <!--start error alert-->
-                    <div v-if="error" class="px-0 mb-3">
-                        <div
-                            class="py-3 flex justify-between px-3 bg-light-card dark:bg-dark-card mb-2 rounded-lg text-light-text-secondary dark:text-dark-text-primary relative">
-                            <div class="flex">
-                                <svg class="shrink-0 mr-2" fill="none" viewBox="0 0 24 24" width="20" height="20">
-                                    <path fill="hsl(346, 91%, 47.2%)" fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16ZM2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm8-1a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v5a1 1 0 1 1-2 0v-4a1 1 0 0 1-1-1Zm1-3a1 1 0 1 0 2 0 1 1 0 0 0-2 0Z">
+            <div class="flex-1 overflow-y-auto overscroll-contain px-4 pb-6 pt-3">
+
+                <!--start error alert-->
+                <div v-if="error" class="mb-3">
+                    <div
+                        class="relative flex justify-between rounded-lg bg-light-card px-3 py-3 text-light-text-secondary dark:bg-dark-card dark:text-dark-text-primary">
+                        <div class="flex">
+                            <svg class="mr-2 shrink-0" fill="none" viewBox="0 0 24 24" width="20" height="20">
+                                <path fill="hsl(346, 91%, 47.2%)" fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M12 4a8 8 0 1 0 0 16 8 8 0 0 0 0-16ZM2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm8-1a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1v5a1 1 0 1 1-2 0v-4a1 1 0 0 1-1-1Zm1-3a1 1 0 1 0 2 0 1 1 0 0 0-2 0Z">
+                                </path>
+                            </svg>
+                            <span class="block leading-5">{{ error }}</span>
+                        </div>
+                        <button @click="error = null" aria-label="Fechar aviso"
+                            class="ml-2 flex h-[22px] w-[22px] shrink-0 items-center justify-center rounded-full bg-light-bg dark:bg-dark-bg">
+                            <svg fill="none" width="12" viewBox="0 0 24 24" height="12"
+                                style="color: rgb(147, 165, 183); pointer-events: none;">
+                                <path fill="hsl(211, 20%, 64.8%)" fill-rule="evenodd" clip-rule="evenodd"
+                                    d="M4.293 4.293a1 1 0 0 1 1.414 0L12 10.586l6.293-6.293a1 1 0 1 1 1.414 1.414L13.414 12l6.293 6.293a1 1 0 0 1-1.414 1.414L12 13.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L10.586 12 4.293 5.707a1 1 0 0 1 0-1.414Z">
+                                </path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <!--end error alert-->
+
+                <!--start author-->
+                <div class="mb-3 flex items-center gap-2.5">
+                    <Avatar size="md" :url="user?.profile_image?.url" />
+                    <p class="truncate text-[15px] font-bold">{{ user?.name }}</p>
+                </div>
+                <!--end author-->
+
+                <!--start caption + capa (estilo TikTok: legenda à esquerda, miniatura à direita)-->
+                <div class="flex items-start gap-3">
+                    <div class="min-w-0 flex-1">
+                        <RichTextEditor ref="richTextEditorRef" v-model="postContent"
+                            placeholder="Adiciona uma legenda… #hashtags @menções"
+                            :no-min-height="mediaPreviews.length > 0 || parentPost?._id?.length > 0" />
+
+                        <div class="mt-2 flex gap-2">
+                            <button type="button"
+                                class="rounded-md bg-black/5 px-3 py-1.5 text-[13px] font-semibold dark:bg-white/10"
+                                @click="insertIntoEditor('#')"># Hashtags</button>
+                            <button type="button"
+                                class="rounded-md bg-black/5 px-3 py-1.5 text-[13px] font-semibold dark:bg-white/10"
+                                @click="insertIntoEditor('@')">@ Mencionar</button>
+                        </div>
+                    </div>
+
+                    <div v-if="mediaPreviews.length" class="relative h-[128px] w-[96px] shrink-0">
+                        <button type="button"
+                            class="absolute inset-0 overflow-hidden rounded-lg bg-neutral-200 dark:bg-neutral-800"
+                            :aria-label="'Editar ' + (mediaPreviews[0].type === 'video' ? 'vídeo' : 'foto')"
+                            @click="openEditor(mediaPreviews[0].id)">
+                            <img v-if="mediaPreviews[0].type === 'image'" :src="mediaPreviews[0].url"
+                                class="h-full w-full object-cover" alt="Prévia" />
+                            <video v-else :src="mediaPreviews[0].url + '#t=0.1'" muted playsinline preload="metadata"
+                                class="pointer-events-none h-full w-full object-cover"></video>
+
+                            <span v-if="mediaPreviews[0].type === 'video' && mediaPreviews[0].duration"
+                                class="absolute left-1.5 top-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-white">
+                                {{ formatDuration(mediaPreviews[0].duration) }}
+                            </span>
+                            <span v-if="mediaPreviews.length > 1"
+                                class="absolute right-1.5 top-1.5 rounded bg-black/60 px-1.5 py-0.5 text-[11px] font-semibold text-white">
+                                1/{{ mediaPreviews.length }}
+                            </span>
+                            <span
+                                class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-2 pb-1.5 pt-5 text-center text-[12px] font-semibold text-white">
+                                {{ mediaPreviews[0].edit ? 'Editado · Editar' : 'Editar' }}
+                            </span>
+                        </button>
+
+                        <button type="button" :disabled="isSubmiting" @click.stop="removeMedia(0)"
+                            class="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/80 text-white shadow ring-2 ring-white dark:ring-black"
+                            aria-label="Remover mídia">
+                            <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor"
+                                stroke-width="2.4" stroke-linecap="round">
+                                <path d="M18 6 6 18M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                <!--end caption-->
+
+                <!--start galeria (várias fotos)-->
+                <div v-if="mediaPreviews.length > 1" class="mt-4">
+                    <p class="mb-2 text-[13px] font-semibold text-black/60 dark:text-white/60">
+                        Fotos ({{ mediaPreviews.length }}/{{ MAX_IMAGES }})
+                    </p>
+                    <div class="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4">
+                        <div v-for="(media, index) in mediaPreviews" :key="media.id"
+                            class="relative h-[152px] w-[108px] shrink-0 overflow-hidden rounded-xl bg-neutral-200 dark:bg-neutral-800">
+                            <button type="button" class="absolute inset-0" @click="openEditor(media.id)"
+                                :aria-label="'Editar foto ' + (index + 1)">
+                                <img :src="media.url" class="h-full w-full object-cover" alt="Prévia da imagem" />
+                                <span
+                                    class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 to-transparent px-2 pb-1.5 pt-5 text-center text-[12px] font-semibold text-white">
+                                    {{ media.edit ? 'Editado' : 'Editar' }}
+                                </span>
+                            </button>
+                            <span
+                                class="absolute left-1.5 top-1.5 flex h-5 min-w-[20px] items-center justify-center rounded-full bg-black/60 px-1 text-[11px] font-semibold text-white">
+                                {{ index + 1 }}
+                            </span>
+                            <button type="button" :disabled="isSubmiting" @click.stop="removeMedia(index)"
+                                class="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-black/60 text-white hover:bg-black/80"
+                                aria-label="Remover foto">
+                                <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor"
+                                    stroke-width="2.4" stroke-linecap="round">
+                                    <path d="M18 6 6 18M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <button v-if="!disableUploadImage" type="button" @click="imageInput?.click()"
+                            class="flex h-[152px] w-[108px] shrink-0 flex-col items-center justify-center gap-1 rounded-xl border-2 border-dashed border-black/15 text-black/60 dark:border-white/20 dark:text-white/60">
+                            <svg viewBox="0 0 24 24" class="h-6 w-6" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round">
+                                <path d="M12 5v14M5 12h14" />
+                            </svg>
+                            <span class="text-[12px] font-semibold">Adicionar</span>
+                        </button>
+                    </div>
+                </div>
+                <!--end galeria-->
+
+                <!--start share post component-->
+                <div class="mx-[-2px] mt-4" v-if="parentPost?._id">
+                    <ParentPostCard @close="removeParentPost" :show-btn-close="true" :user-id="user?._id"
+                        :data="parentPost" />
+                </div>
+                <!--end share post component-->
+
+                <!--start definições (linhas como no TikTok)-->
+                <div class="mt-5 divide-y divide-black/5 border-y border-black/5 dark:divide-white/10 dark:border-white/10">
+                    <button type="button" :disabled="isSubmiting"
+                        class="flex w-full items-center gap-3 py-3.5 text-left disabled:opacity-50"
+                        @click="openPostAudienceDrawer">
+                        <svg v-if="postAudience === 'everyone'" width="22" height="22" viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg" class="shrink-0">
+                            <g class="icon_svg-stroke" transform="translate(4 4)" stroke="currentColor"
+                                stroke-width="1.8" fill="none" fill-rule="evenodd">
+                                <path d="M10 15.5a5 5 0 0 0-10 0m17 0a5 5 0 0 0-7.032-4.57"></path>
+                                <circle cx="5" cy="4" r="4"></circle>
+                                <path d="M9.678 7.258A4 4 0 1 0 9.791.665"></path>
+                            </g>
+                        </svg>
+                        <svg v-else width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"
+                            class="shrink-0">
+                            <g class="icon_svg-stroke" transform="translate(6 3)" stroke="currentColor"
+                                stroke-width="1.8" fill="none" fill-rule="evenodd">
+                                <path d="M13 18c0-3.314-2.91-6-6.5-6S0 14.686 0 18"></path>
+                                <circle cx="6.5" cy="5" r="4.5"></circle>
+                            </g>
+                        </svg>
+                        <span class="flex-1 text-[15px] font-medium">Quem pode ver este post</span>
+                        <span class="text-[14px] text-black/55 dark:text-white/55">{{ audienceText }}</span>
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" class="shrink-0 text-black/35 dark:text-white/35">
+                            <path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+                <!--end definições-->
+
+                <!--input files-->
+                <input type="file" ref="imageInput" accept="image/*" multiple @change="handleImageUpload"
+                    class="hidden" />
+                <input type="file" ref="videoInput" accept="video/*" @change="handleVideoUpload" class="hidden" />
+                <!--input files-->
+            </div>
+            <!--end body-->
+
+            <!--start footer-->
+            <footer
+                class="shrink-0 border-t border-[rgb(239,243,244)] bg-white pb-[env(safe-area-inset-bottom)] dark:border-[rgb(47,51,54)] dark:bg-black">
+                <!--start toolbar -->
+                <div class="flex h-12 items-center justify-between pl-3 pr-4">
+                    <div class="flex h-full min-w-0 flex-row items-center overflow-hidden">
+                        <button @click="toggleToolbar" class="mr-2 border-none bg-transparent text-inherit"
+                            :title="showToolbar ? 'Ocultar formatação' : 'Mostrar formatação'">
+                            <svg v-if="showToolbar" width="22" height="22" viewBox="0 0 24 24"
+                                xmlns="http://www.w3.org/2000/svg">
+                                <path d="m5 8.5 7 7 7.005-7" class="icon_svg-stroke" stroke="currentColor"
+                                    stroke-width="1.8" fill="none" stroke-linecap="round"></path>
+                            </svg>
+                            <svg v-else xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
+                                <path class="icon_svg-fill_as_stroke"
+                                    d="m10.526 17.352-1.002-3.031H5.162l-1.018 3.031H2L6.205 5.5h2.382l4.214 11.852h-2.275zM7.281 7.759l-1.626 4.887h3.376l-1.61-4.887h-.14zm10.415 8.14c1.232 0 2.152-.797 2.152-1.84v-.715l-2.029.131c-1.142.074-1.676.485-1.676 1.216 0 .756.649 1.207 1.552 1.207zm-.6 1.602c-1.733 0-2.973-1.051-2.973-2.694 0-1.626 1.224-2.563 3.409-2.694l2.316-.14v-.756c0-.879-.591-1.372-1.692-1.372-.936 0-1.577.329-1.766.936h-1.922c.164-1.585 1.651-2.595 3.786-2.595 2.308 0 3.606 1.125 3.606 3.031v6.136h-1.963V16.12h-.14c-.501.871-1.487 1.38-2.661 1.38z"
+                                    fill="currentColor" fill-rule="evenodd"></path>
+                            </svg>
+                        </button>
+
+                        <div class="flex items-center" v-if="!showToolbar">
+                            <button :disabled="disableUploadImage" @click="imageInput?.click()"
+                                class="ml-1 mr-2 border-none bg-transparent text-inherit disabled:opacity-40"
+                                title="Adicionar foto">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                    fill="none">
+                                    <path
+                                        d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z"
+                                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                    <path
+                                        d="M9 10C10.1046 10 11 9.10457 11 8C11 6.89543 10.1046 6 9 6C7.89543 6 7 6.89543 7 8C7 9.10457 7.89543 10 9 10Z"
+                                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                    <path
+                                        d="M2.67004 18.9501L7.60004 15.6401C8.39004 15.1101 9.53004 15.1701 10.24 15.7801L10.57 16.0701C11.35 16.7401 12.61 16.7401 13.39 16.0701L17.55 12.5001C18.33 11.8301 19.59 11.8301 20.37 12.5001L22 13.9001"
+                                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                </svg>
+                            </button>
+                            <button :disabled="disableUploadVideo" @click="videoInput?.click()"
+                                class="ml-1 mr-2 border-none bg-transparent text-inherit disabled:opacity-40"
+                                title="Adicionar vídeo">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                    fill="none">
+                                    <path
+                                        d="M22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22H15C20 22 22 20 22 15Z"
+                                        stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                                        stroke-linejoin="round" />
+                                    <path d="M2.52002 7.11011H21.48" stroke="currentColor" stroke-width="1.8"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M8.52002 2.11011V6.97011" stroke="currentColor" stroke-width="1.8"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path d="M15.48 2.11011V6.52011" stroke="currentColor" stroke-width="1.8"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                    <path
+                                        d="M9.75 14.4501V13.2501C9.75 11.7101 10.84 11.0801 12.17 11.8501L13.21 12.4501L14.25 13.0501C15.58 13.8201 15.58 15.0801 14.25 15.8501L13.21 16.4501L12.17 17.0501C10.84 17.8201 9.75 17.1901 9.75 15.6501V14.4501Z"
+                                        stroke="currentColor" stroke-width="1.8" stroke-miterlimit="10"
+                                        stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                            </button>
+                            <span v-if="selectFileLoading"
+                                class="ml-1 h-4 w-4 animate-spin rounded-full border-2 border-black/20 border-t-black dark:border-white/20 dark:border-t-white"></span>
+                        </div>
+
+                        <!-- Toolbar expansível -->
+                        <div v-show="showToolbar && richTextEditorRef?.editor"
+                            class="scrollbar-hide no-scrollbar flex flex-nowrap gap-1 overflow-x-auto px-2 pt-0">
+                            <button @click="richTextEditorRef?.editor.chain().focus().toggleHeading({ level: 1 }).run()"
+                                :class="[
+                                    'mr-2 cursor-pointer rounded-md border-none bg-transparent text-sm font-medium',
+                                    richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('heading', { level: 1 }) ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
+                                ]" title="Título H1">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M15 20h-3.15v-6.686h-5.7V20H3V4h3.15v6.098h5.7V4H15v16Zm3.397 0v-8.031l-1.897 1.91V11.78L18.397 10H20.5v10h-2.103Z"
+                                        fill="currentColor" class="icon_svg-fill_as_stroke"></path>
+                                </svg>
+                            </button>
+
+                            <button @click="richTextEditorRef?.editor.chain().focus().toggleBold().run()" :class="[
+                                'mr-2 cursor-pointer rounded-md border-none bg-transparent text-sm font-medium',
+                                richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('bold') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
+                            ]" title="Negrito (Ctrl+B)">
+                                <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M12.78 20H6V4h6.602c2.929 0 4.676 1.52 4.676 3.992 0 1.696-1.182 3.17-2.73 3.415v.2c1.998.154 3.452 1.75 3.452 3.813 0 2.806-1.998 4.58-5.22 4.58ZM9.16 6.561v4.07h2.374c1.706 0 2.637-.743 2.637-2.03 0-1.275-.868-2.04-2.375-2.04H9.16Zm0 10.878h2.814c1.82 0 2.804-.81 2.804-2.307 0-1.463-1.015-2.24-2.877-2.24H9.16v4.547Z"
+                                        class="icon_svg-fill_as_stroke" fill="currentColor" fill-rule="evenodd">
                                     </path>
                                 </svg>
-                                <span class="block leading-5">{{ error }}</span>
-                            </div>
-                            <button @click="error = null"
-                                class="shrink-0 w-[22px] h-[22px] rounded-full flex justify-center items-center bg-light-bg dark:bg-dark-bg top-0 bottom-0 right-0">
-                                <svg fill="none" width="12" viewBox="0 0 24 24" height="12"
-                                    style="color: rgb(147, 165, 183); pointer-events: none;">
-                                    <path fill="hsl(211, 20%, 64.8%)" fill-rule="evenodd" clip-rule="evenodd"
-                                        d="M4.293 4.293a1 1 0 0 1 1.414 0L12 10.586l6.293-6.293a1 1 0 1 1 1.414 1.414L13.414 12l6.293 6.293a1 1 0 0 1-1.414 1.414L12 13.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L10.586 12 4.293 5.707a1 1 0 0 1 0-1.414Z">
+                            </button>
+
+                            <button @click="richTextEditorRef?.editor.chain().focus().toggleItalic().run()" :class="[
+                                'mr-2 cursor-pointer rounded-md border-none bg-transparent text-sm font-medium',
+                                richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('italic') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
+                            ]" title="Itálico (Ctrl+I)">
+                                <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="m13.903 6.712-2.081 10.325a6.896 6.896 0 0 0-.086.798c0 .41.129.687.386.832.258.144.723.231 1.395.262L13.324 20H6.5l.236-1.071c.773-.03 1.327-.152 1.663-.365.336-.213.569-.638.698-1.276l2.081-10.325c.057-.395.086-.661.086-.798 0-.41-.129-.687-.386-.832-.258-.144-.723-.231-1.395-.262L9.676 4H16.5l-.236 1.071c-.773.03-1.327.152-1.663.365-.336.213-.569.638-.698 1.276Z"
+                                        class="icon_svg-fill_as_stroke" fill="currentColor" fill-rule="evenodd">
+                                    </path>
+                                </svg>
+                            </button>
+
+                            <button @click="richTextEditorRef?.editor.chain().focus().toggleOrderedList().run()"
+                                :class="[
+                                    'mr-2 cursor-pointer rounded-md border-none bg-transparent text-sm font-medium',
+                                    richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('orderedList') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
+                                ]" title="Lista numerada">
+                                <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M8.5 5.5h11a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V6a.5.5 0 0 1 .5-.5zm0 5.5h11a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-11A.5.5 0 0 1 8 12v-.5a.5.5 0 0 1 .5-.5zm0 5.5h11a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V17a.5.5 0 0 1 .5-.5zM5.308 8.123h.738V4.6H5.31l-.911.627v.686l.864-.595h.044zM4 11.145v.012h.684v-.014c0-.325.234-.55.576-.55.322 0 .552.2.552.484 0 .23-.125.412-.62.896l-1.15 1.125v.515h2.541V13H5.04v-.043l.674-.643c.61-.573.818-.903.818-1.286 0-.606-.513-1.028-1.248-1.028C4.522 10 4 10.464 4 11.145zm.908 6.44h.437c.396 0 .637.19.637.498 0 .3-.256.508-.625.508-.378 0-.63-.188-.651-.486H4c.032.664.564 1.099 1.35 1.099.803 0 1.384-.447 1.384-1.065 0-.464-.302-.786-.786-.84v-.044a.794.794 0 0 0 .65-.805c0-.554-.52-.95-1.243-.95-.77 0-1.265.42-1.29 1.086h.682c.02-.305.247-.498.588-.498.345 0 .564.181.564.464 0 .288-.227.484-.561.484h-.43v.549z"
+                                        class="icon_svg-fill_as_stroke" fill="currentColor" fill-rule="evenodd">
+                                    </path>
+                                </svg>
+                            </button>
+
+                            <button @click="richTextEditorRef?.editor.chain().focus().toggleBulletList().run()"
+                                :class="[
+                                    'mr-2 cursor-pointer rounded-md border-none bg-transparent text-sm font-medium',
+                                    richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('bulletList') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
+                                ]" title="Lista com marcadores">
+                                <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path
+                                        d="M8.5 5.75h11a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-.5a.5.5 0 0 1 .5-.5zm0 5.5h11a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-.5a.5.5 0 0 1 .5-.5zm0 5.5h11a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-.5a.5.5 0 0 1 .5-.5zM4.5 5.5h1A.5.5 0 0 1 6 6v1a.5.5 0 0 1-.5.5h-1A.5.5 0 0 1 4 7V6a.5.5 0 0 1 .5-.5zm0 5.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm0 5.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1A.5.5 0 0 1 4 18v-1a.5.5 0 0 1 .5-.5z"
+                                        class="icon_svg-fill_as_stroke" fill="currentColor" fill-rule="evenodd">
+                                    </path>
+                                </svg>
+                            </button>
+
+                            <button @click="richTextEditorRef?.editor.chain().focus().toggleBlockquote().run()"
+                                :class="[
+                                    'mr-2 cursor-pointer rounded-md border-none bg-transparent text-sm font-medium',
+                                    richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('blockquote') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
+                                ]" title="Citação">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
+                                    fill="currentColor">
+                                    <path class="icon_svg-fill_as_stroke"
+                                        d="m10.287 9.586.005-.191a3.896 3.896 0 1 0-7.792.001 3.896 3.896 0 0 0 3.896 3.896 3.88 3.88 0 0 0 1.376-.25c-.089.875-.302 1.643-.765 2.26-1.042 1.386-2.377 2.014-3.413 2.244-.277.062-.455.254-.44.534.015.268.251.415.515.42l.036-.001C4.993 18.431 6.5 17.5 8 16c1.472-1.472 2.313-3.784 2.287-6.414zm-1.403 7.297c-1.746 1.746-3.49 2.777-5.097 2.863l-.14.003c-.885-.015-1.688-.621-1.742-1.604-.048-.913.562-1.63 1.418-1.821.991-.22 1.954-.803 2.685-1.775a5.18 5.18 0 0 1-4.757-5.155 5.146 5.146 0 0 1 10.292 0l-.004.213c.021 2.918-.926 5.548-2.653 7.275zm12.653-7.297.005-.191a3.896 3.896 0 1 0-7.792.001 3.896 3.896 0 0 0 3.896 3.896 3.88 3.88 0 0 0 1.376-.25c-.089.875-.302 1.643-.765 2.26-1.042 1.386-2.377 2.014-3.413 2.244-.277.062-.455.254-.44.534.015.268.251.415.515.42l.036-.001C16.243 18.43 17.75 17.5 19.25 16c1.472-1.472 2.313-3.784 2.287-6.414zm-1.403 7.297c-1.746 1.746-3.49 2.777-5.097 2.863l-.14.003c-.885-.015-1.688-.621-1.742-1.604-.048-.913.562-1.63 1.418-1.821.991-.22 1.954-.803 2.685-1.775a5.18 5.18 0 0 1-4.757-5.155 5.146 5.146 0 0 1 10.292 0l-.004.213c.021 2.918-.926 5.548-2.653 7.275z">
                                     </path>
                                 </svg>
                             </button>
                         </div>
                     </div>
-                    <!--end error alert-->
+                    <!--end toolbar-->
 
-                    <!--start author + editor row (side by side, like X)-->
-                    <div class="flex flex-col gap-0.5">
-                        <div class="flex items-center gap-2">
-                            <div class="shrink-0">
-                                <Avatar size="md" :url="user?.profile_image?.url" />
-                            </div>
-
-                            <div>
-                                <p class="text-sm font-bold">{{ user?.name }}</p>
-                                <button
-                                    class="flex items-center gap-1 rounded-full bg-x-light-surface dark:bg-x-dark-surface px-2.5 py-0.5 text-inherit"
-                                    @click="openPostAudienceDrawer">
-                                    <svg v-if="postAudience === 'everyone'" width="16" height="16" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <g class="icon_svg-stroke" transform="translate(4 4)" stroke="currentColor"
-                                            stroke-width="1.8" fill="none" fill-rule="evenodd">
-                                            <path d="M10 15.5a5 5 0 0 0-10 0m17 0a5 5 0 0 0-7.032-4.57"></path>
-                                            <circle cx="5" cy="4" r="4"></circle>
-                                            <path d="M9.678 7.258A4 4 0 1 0 9.791.665"></path>
-                                        </g>
-                                    </svg>
-                                    <svg v-else width="16" height="16" viewBox="0 0 24 24"
-                                        xmlns="http://www.w3.org/2000/svg">
-                                        <g class="icon_svg-stroke" transform="translate(6 3)" stroke="currentColor"
-                                            stroke-width="1.8" fill="none" fill-rule="evenodd">
-                                            <path d="M13 18c0-3.314-2.91-6-6.5-6S0 14.686 0 18"></path>
-                                            <circle cx="6.5" cy="5" r="4.5"></circle>
-                                        </g>
-                                    </svg>
-                                    <span class="text-[13px] font-semibold">{{ audienceText }}</span>
-                                </button>
-                            </div>
-                        </div>
-
-
-                        <div class="flex-1 min-w-0">
-                            <!--start editor-->
-                            <RichTextEditor ref="richTextEditorRef" v-model="postContent"
-                                placeholder="O que está a acontecer?"
-                                :no-min-height="mediaPreviews.length > 0 || parentPost?._id?.length > 0" />
-                            <!--end editor-->
-
-                            <!-- start media previews -->
-                            <div class="py-2 pt-0 flex-1 flex flex-row gap-3 rounded-2xl"
-                                :class="{ 'overflow-x-auto': mediaPreviews.length > 1, 'justify-center': mediaPreviews.length === 1 }"
-                                v-if="mediaPreviews.length" ref="mediaContainer">
-                                <div v-for="(media, index) in mediaPreviews" :key="media.id"
-                                    class="relative bg-light-card dark:border-[rgb(57,56,57)] border rounded-2xl overflow-hidden shadow-sm flex-shrink-0"
-                                    :style="mediaPreviews.length === 1
-                                        ? { width: '100%', height: '240px' }
-                                        : { width: '192px', height: '192px' }">
-                                    <!-- Imagem -->
-                                    <img v-if="media.type === 'image'" :src="media.url"
-                                        class="w-full h-full object-cover" alt="Prévia da imagem" />
-
-                                    <!-- Vídeo -->
-                                    <video v-if="media.type === 'video'" controls class="w-full h-full object-cover"
-                                        autoplay loop muted playsinline disablePictureInPicture>
-                                        <source :src="media.url" :type="'video/' + media.format" />
-                                    </video>
-
-                                    <!-- Botão de remoção -->
-                                    <button @click.stop="removeMedia(index)"
-                                        class="absolute top-2 right-2 bg-black/60 text-white rounded-full p-1.5 hover:bg-black/80 transition-colors duration-200">
-                                        <svg viewBox="0 0 24 24" class="w-5 h-5">
-                                            <path fill="currentColor"
-                                                d="M10.59 12L4.54 5.96l1.42-1.42L12 10.59l6.04-6.05 1.42 1.42L13.41 12l6.05 6.04-1.42 1.42L12 13.41l-6.04 6.05-1.42-1.42L10.59 12z">
-                                            </path>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                            <!-- end media previews -->
-
-                            <!--start share post component-->
-                            <div class="mx-[-2px] pb-4" v-if="parentPost?._id">
-                                <ParentPostCard @close="removeParentPost" :show-btn-close="true" :user-id="user?._id"
-                                    :data="parentPost" />
-                            </div>
-                            <!--end share post component-->
-                        </div>
+                    <!--start char count ring (só aparece perto do limite, como no X)-->
+                    <div v-if="remainingChars <= 20" class="ml-2 flex shrink-0 items-center">
+                        <svg width="30" height="30" fill="none">
+                            <path d="M15 0.5
+           a14.5 14.5 0 0 1 0 29
+           a14.5 14.5 0 0 1 0 -29" stroke-linecap="butt" stroke-width="1"
+                                class="text-[rgb(222,224,225)] dark:text-[rgb(57,56,57)]" stroke="currentColor" />
+                            <path
+                                :class="remainingChars < 0 ? 'text-[#f4212e]' : remainingChars <= 10 ? 'text-[#ffd400]' : 'text-inherit'"
+                                :stroke-dasharray="dashArrayCharCount" d="M15 2.5
+           a12.5 12.5 0 0 1 0 25
+           a12.5 12.5 0 0 1 0 -25" stroke-linecap="butt" stroke-width="3" stroke="currentColor" />
+                        </svg>
+                        <span v-if="remainingChars <= 10" class="ml-1 text-xs font-semibold"
+                            :class="remainingChars < 0 ? 'text-[#f4212e]' : 'text-inherit'">
+                            {{ remainingChars }}
+                        </span>
                     </div>
-                    <!--end author + editor row-->
-
-                    <!--input files-->
-                    <input type="file" ref="imageInput" accept="image/*" multiple @change="handleImageUpload"
-                        class="hidden" />
-                    <input type="file" ref="videoInput" accept="video/*" @change="handleVideoUpload" class="hidden" />
-                    <!--input files-->
+                    <!--end char count ring-->
                 </div>
-            </div>
-            <!--end body-->
+
+                <!-- Ações principais (estilo TikTok) -->
+                <div class="flex gap-2 px-3 pb-3 pt-1">
+                    <button type="button" :disabled="isSubmiting" @click="openCancelPostDrawer"
+                        class="flex h-11 flex-1 items-center justify-center rounded-md bg-black/5 text-[15px] font-semibold transition-colors active:bg-black/10 disabled:opacity-50 dark:bg-white/10 dark:active:bg-white/20">
+                        Descartar
+                    </button>
+                    <button type="button"
+                        class="flex h-11 flex-[1.4] items-center justify-center gap-2 rounded-md bg-[#FE2C55] text-[15px] font-semibold text-white transition-opacity active:opacity-80 disabled:opacity-40"
+                        :disabled="!canPost || selectFileLoading || isSubmiting" @click="handleSubmit">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 19V5M5 12l7-7 7 7" />
+                        </svg>
+                        Publicar
+                    </button>
+                </div>
+            </footer>
+            <!--end footer-->
 
             <!-- Modal de Confirmação -->
             <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
@@ -171,160 +404,9 @@
             </Drawer>
         </div>
 
-        <!--start footer-->
-        <div
-            class="fixed bg-white flex items-center justify-between pl-[15px] px-4 bottom-0 dark:bg-black border-t border-[rgb(239,243,244)] dark:border-[rgb(47,51,54)] h-14 w-full">
-            <!--start toolbar -->
-            <div class="flex py-2 h-full flex-row items-center overflow-hidden">
-                <button @click="toggleToolbar" class="bg-transparent text-inherit border-none mr-2"
-                    :title="showToolbar ? 'Ocultar formatação' : 'Mostrar formatação'">
-                    <svg v-if="showToolbar" width="22" height="22" viewBox="0 0 24 24"
-                        xmlns="http://www.w3.org/2000/svg">
-                        <path d="m5 8.5 7 7 7.005-7" class="icon_svg-stroke" stroke="currentColor" stroke-width="1.8"
-                            fill="none" stroke-linecap="round"></path>
-                    </svg>
-                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24">
-                        <path class="icon_svg-fill_as_stroke"
-                            d="m10.526 17.352-1.002-3.031H5.162l-1.018 3.031H2L6.205 5.5h2.382l4.214 11.852h-2.275zM7.281 7.759l-1.626 4.887h3.376l-1.61-4.887h-.14zm10.415 8.14c1.232 0 2.152-.797 2.152-1.84v-.715l-2.029.131c-1.142.074-1.676.485-1.676 1.216 0 .756.649 1.207 1.552 1.207zm-.6 1.602c-1.733 0-2.973-1.051-2.973-2.694 0-1.626 1.224-2.563 3.409-2.694l2.316-.14v-.756c0-.879-.591-1.372-1.692-1.372-.936 0-1.577.329-1.766.936h-1.922c.164-1.585 1.651-2.595 3.786-2.595 2.308 0 3.606 1.125 3.606 3.031v6.136h-1.963V16.12h-.14c-.501.871-1.487 1.38-2.661 1.38z"
-                            fill="currentColor" fill-rule="evenodd"></path>
-                    </svg>
-                </button>
-
-                <div class="flex items-center" v-if="!showToolbar">
-                    <button :disabled="disableUploadImage" @click="imageInput?.click()"
-                        class="bg-transparent text-inherit disabled:opacity-40 border-none ml-1 mr-1.5"
-                        title="Adicionar imagem">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
-                            <path d="M9 22H15C20 22 22 20 22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22Z"
-                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <path
-                                d="M9 10C10.1046 10 11 9.10457 11 8C11 6.89543 10.1046 6 9 6C7.89543 6 7 6.89543 7 8C7 9.10457 7.89543 10 9 10Z"
-                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <path
-                                d="M2.67004 18.9501L7.60004 15.6401C8.39004 15.1101 9.53004 15.1701 10.24 15.7801L10.57 16.0701C11.35 16.7401 12.61 16.7401 13.39 16.0701L17.55 12.5001C18.33 11.8301 19.59 11.8301 20.37 12.5001L22 13.9001"
-                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                    </button>
-                    <button :disabled="disableUploadVideo" @click="videoInput?.click()"
-                        class="bg-transparent text-inherit disabled:opacity-40 border-none ml-1 mr-2"
-                        title="Adicionar vídeo">
-
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none">
-                            <path d="M22 15V9C22 4 20 2 15 2H9C4 2 2 4 2 9V15C2 20 4 22 9 22H15C20 22 22 20 22 15Z"
-                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                            <path d="M2.52002 7.11011H21.48" stroke="currentColor" stroke-width="1.8"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M8.52002 2.11011V6.97011" stroke="currentColor" stroke-width="1.8"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                            <path d="M15.48 2.11011V6.52011" stroke="currentColor" stroke-width="1.8"
-                                stroke-linecap="round" stroke-linejoin="round" />
-                            <path
-                                d="M9.75 14.4501V13.2501C9.75 11.7101 10.84 11.0801 12.17 11.8501L13.21 12.4501L14.25 13.0501C15.58 13.8201 15.58 15.0801 14.25 15.8501L13.21 16.4501L12.17 17.0501C10.84 17.8201 9.75 17.1901 9.75 15.6501V14.4501V14.4501Z"
-                                stroke="currentColor" stroke-width="1.8" stroke-miterlimit="10" stroke-linecap="round"
-                                stroke-linejoin="round" />
-                        </svg>
-                    </button>
-                </div>
-
-
-                <!-- Toolbar expansível -->
-                <div v-show="showToolbar && richTextEditorRef?.editor"
-                    class="flex scrollbar-hide  flex-nowrap overflow-x-auto gap-1 px-2 pt-0">
-                    <button @click="richTextEditorRef?.editor.chain().focus().toggleHeading({ level: 1 }).run()" :class="[
-                        'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('heading', { level: 1 }) ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
-                    ]" title="Título H1">
-                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M15 20h-3.15v-6.686h-5.7V20H3V4h3.15v6.098h5.7V4H15v16Zm3.397 0v-8.031l-1.897 1.91V11.78L18.397 10H20.5v10h-2.103Z"
-                                fill="currentColor" class="icon_svg-fill_as_stroke"></path>
-                        </svg>
-                    </button>
-
-                    <button @click="richTextEditorRef?.editor.chain().focus().toggleBold().run()" :class="[
-                        'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('bold') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
-                    ]" title="Negrito (Ctrl+B)">
-                        <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M12.78 20H6V4h6.602c2.929 0 4.676 1.52 4.676 3.992 0 1.696-1.182 3.17-2.73 3.415v.2c1.998.154 3.452 1.75 3.452 3.813 0 2.806-1.998 4.58-5.22 4.58ZM9.16 6.561v4.07h2.374c1.706 0 2.637-.743 2.637-2.03 0-1.275-.868-2.04-2.375-2.04H9.16Zm0 10.878h2.814c1.82 0 2.804-.81 2.804-2.307 0-1.463-1.015-2.24-2.877-2.24H9.16v4.547Z"
-                                class="icon_svg-fill_as_stroke" fill="currentColor" fill-rule="evenodd"></path>
-                        </svg>
-                    </button>
-
-                    <button @click="richTextEditorRef?.editor.chain().focus().toggleItalic().run()" :class="[
-                        'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('italic') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
-                    ]" title="Itálico (Ctrl+I)">
-                        <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="m13.903 6.712-2.081 10.325a6.896 6.896 0 0 0-.086.798c0 .41.129.687.386.832.258.144.723.231 1.395.262L13.324 20H6.5l.236-1.071c.773-.03 1.327-.152 1.663-.365.336-.213.569-.638.698-1.276l2.081-10.325c.057-.395.086-.661.086-.798 0-.41-.129-.687-.386-.832-.258-.144-.723-.231-1.395-.262L9.676 4H16.5l-.236 1.071c-.773.03-1.327.152-1.663.365-.336.213-.569.638-.698 1.276Z"
-                                class="icon_svg-fill_as_stroke" fill="currentColor" fill-rule="evenodd"></path>
-                        </svg>
-                    </button>
-
-                    <button @click="richTextEditorRef?.editor.chain().focus().toggleOrderedList().run()" :class="[
-                        'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('orderedList') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
-                    ]" title="Lista numerada">
-                        <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M8.5 5.5h11a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V6a.5.5 0 0 1 .5-.5zm0 5.5h11a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-11A.5.5 0 0 1 8 12v-.5a.5.5 0 0 1 .5-.5zm0 5.5h11a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5V17a.5.5 0 0 1 .5-.5zM5.308 8.123h.738V4.6H5.31l-.911.627v.686l.864-.595h.044zM4 11.145v.012h.684v-.014c0-.325.234-.55.576-.55.322 0 .552.2.552.484 0 .23-.125.412-.62.896l-1.15 1.125v.515h2.541V13H5.04v-.043l.674-.643c.61-.573.818-.903.818-1.286 0-.606-.513-1.028-1.248-1.028C4.522 10 4 10.464 4 11.145zm.908 6.44h.437c.396 0 .637.19.637.498 0 .3-.256.508-.625.508-.378 0-.63-.188-.651-.486H4c.032.664.564 1.099 1.35 1.099.803 0 1.384-.447 1.384-1.065 0-.464-.302-.786-.786-.84v-.044a.794.794 0 0 0 .65-.805c0-.554-.52-.95-1.243-.95-.77 0-1.265.42-1.29 1.086h.682c.02-.305.247-.498.588-.498.345 0 .564.181.564.464 0 .288-.227.484-.561.484h-.43v.549z"
-                                class="icon_svg-fill_as_stroke" fill="currentColor" fill-rule="evenodd"></path>
-                        </svg>
-                    </button>
-
-                    <button @click="richTextEditorRef?.editor.chain().focus().toggleBulletList().run()" :class="[
-                        'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('bulletList') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
-                    ]" title="Lista com marcadores">
-                        <svg width="22" height="22" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M8.5 5.75h11a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-.5a.5.5 0 0 1 .5-.5zm0 5.5h11a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-.5a.5.5 0 0 1 .5-.5zm0 5.5h11a.5.5 0 0 1 .5.5v.5a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-.5a.5.5 0 0 1 .5-.5zM4.5 5.5h1A.5.5 0 0 1 6 6v1a.5.5 0 0 1-.5.5h-1A.5.5 0 0 1 4 7V6a.5.5 0 0 1 .5-.5zm0 5.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5zm0 5.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1A.5.5 0 0 1 4 18v-1a.5.5 0 0 1 .5-.5z"
-                                class="icon_svg-fill_as_stroke" fill="currentColor" fill-rule="evenodd"></path>
-                        </svg>
-                    </button>
-
-                    <button @click="richTextEditorRef?.editor.chain().focus().toggleBlockquote().run()" :class="[
-                        'bg-transparent border-none text-sm font-medium mr-2 rounded-md cursor-pointer',
-                        richTextEditorRef?.editor && richTextEditorRef?.editor.isActive('blockquote') ? 'text-inherit' : 'text-[rgb(83,100,113)] dark:text-[#71767b]'
-                    ]" title="Citação">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24"
-                            fill="currentColor">
-                            <path class="icon_svg-fill_as_stroke"
-                                d="m10.287 9.586.005-.191a3.896 3.896 0 1 0-7.792.001 3.896 3.896 0 0 0 3.896 3.896 3.88 3.88 0 0 0 1.376-.25c-.089.875-.302 1.643-.765 2.26-1.042 1.386-2.377 2.014-3.413 2.244-.277.062-.455.254-.44.534.015.268.251.415.515.42l.036-.001C4.993 18.431 6.5 17.5 8 16c1.472-1.472 2.313-3.784 2.287-6.414zm-1.403 7.297c-1.746 1.746-3.49 2.777-5.097 2.863l-.14.003c-.885-.015-1.688-.621-1.742-1.604-.048-.913.562-1.63 1.418-1.821.991-.22 1.954-.803 2.685-1.775a5.18 5.18 0 0 1-4.757-5.155 5.146 5.146 0 0 1 10.292 0l-.004.213c.021 2.918-.926 5.548-2.653 7.275zm12.653-7.297.005-.191a3.896 3.896 0 1 0-7.792.001 3.896 3.896 0 0 0 3.896 3.896 3.88 3.88 0 0 0 1.376-.25c-.089.875-.302 1.643-.765 2.26-1.042 1.386-2.377 2.014-3.413 2.244-.277.062-.455.254-.44.534.015.268.251.415.515.42l.036-.001C16.243 18.43 17.75 17.5 19.25 16c1.472-1.472 2.313-3.784 2.287-6.414zm-1.403 7.297c-1.746 1.746-3.49 2.777-5.097 2.863l-.14.003c-.885-.015-1.688-.621-1.742-1.604-.048-.913.562-1.63 1.418-1.821.991-.22 1.954-.803 2.685-1.775a5.18 5.18 0 0 1-4.757-5.155 5.146 5.146 0 0 1 10.292 0l-.004.213c.021 2.918-.926 5.548-2.653 7.275z">
-                            </path>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <!--end toolbar-->
-
-            <!--start char count ring (só aparece perto do limite, como no X)-->
-            <div v-if="remainingChars <= 20" class="flex ml-1 items-center">
-                <svg width="30" height="30" fill="none">
-                    <path d="M15 0.5
-           a14.5 14.5 0 0 1 0 29
-           a14.5 14.5 0 0 1 0 -29" stroke-linecap="butt" stroke-width="1"
-                        class="text-[rgb(222,224,225)] dark:text-[rgb(57,56,57)]" stroke="currentColor" />
-                    <path
-                        :class="remainingChars < 0 ? 'text-[#f4212e]' : remainingChars <= 10 ? 'text-[#ffd400]' : 'text-inherit'"
-                        :stroke-dasharray="dashArrayCharCount" d="M15 2.5
-           a12.5 12.5 0 0 1 0 25
-           a12.5 12.5 0 0 1 0 -25" stroke-linecap="butt" stroke-width="3" stroke="currentColor" />
-                </svg>
-                <span v-if="remainingChars <= 10" class="text-xs font-semibold ml-1"
-                    :class="remainingChars < 0 ? 'text-[#f4212e]' : 'text-inherit'">
-                    {{ remainingChars }}
-                </span>
-            </div>
-            <!--end char count ring-->
-        </div>
-        <!--end footer-->
+        <!-- Editor de foto/vídeo (ecrã inteiro) -->
+        <MediaEditor v-if="editingMedia" ref="mediaEditorRef" :key="editingMedia.id" :media="editingMedia"
+            @close="editingId = null" @save="onEditorSave" />
 
         <!--
             O indicador de estado da publicação (estilo Threads/YouTube) é global
@@ -343,6 +425,7 @@ import { useStore } from 'vuex';
 import Drawer from '@/components/drawer/Drawer.vue';
 import DrawerItem from '@/components/drawer/DrawerItem.vue';
 import RichTextEditor from '@/components/UI/RichTextEditor.vue';
+import MediaEditor from '@/components/UI/MediaEditor.vue';
 import Avatar from '@/components/Utils/Avatar.vue';
 import { logger } from '@/utils/logger';
 import ParentPostCard from '../components/ParentPostCard.vue';
@@ -358,7 +441,10 @@ const isAnonymous = ref(false);
 const postAudience = ref("everyone");
 const topics = ref([]);
 const postContent = ref('');
-const mediaPreviews = ref([]); // { id, url (blob local), type, format, file } — só sobem no submit
+// { id, url (blob da versão atual), type, format, file (versão atual — é esta que sobe),
+//   duration, originalUrl/originalFile/originalFormat/originalDuration (ficheiro intacto),
+//   edit (estado do editor, para reabrir e continuar) } — só sobem no submit
+const mediaPreviews = ref([]);
 const error = ref(null);
 const drawer = ref({ show: false, name: "", metadata: {} });
 const imageInput = ref(null);
@@ -367,6 +453,10 @@ const loadingFetchPostParent = ref(false);
 const isSubmiting = ref(false);
 const isNavigatingAway = ref(false);
 const isSubmittingSuccess = ref(false);
+
+// Editor de mídia
+const editingId = ref(null);
+const mediaEditorRef = ref(null);
 
 // Estado da toolbar (controlado pelo pai)
 const showToolbar = ref(false);
@@ -393,21 +483,25 @@ const audienceText = computed(() => {
 
 const module = computed(() => route.query.module || null);
 
+const hasImages = computed(() => mediaPreviews.value.some(m => m.type === 'image'));
+const hasVideo = computed(() => mediaPreviews.value.some(m => m.type === 'video'));
+const user = computed(() => store.getters.currentUser);
+const parentPost = computed(() => store.getters.parentPost);
+
 // Computed para desabilitar uploads
 const disableUploadImage = computed(() => {
     return mediaPreviews.value.length >= MAX_IMAGES ||
         hasVideo.value ||
+        isSubmiting.value ||
         parentPost.value?._id?.length > 0;
 });
 
 const disableUploadVideo = computed(() => {
     return hasImages.value ||
         hasVideo.value ||
+        isSubmiting.value ||
         parentPost.value?._id?.length > 0;
 });
-
-const hasImages = computed(() => mediaPreviews.value.some(m => m.type === 'image'));
-const hasVideo = computed(() => mediaPreviews.value.some(m => m.type === 'video'));
 
 const plainTextLength = (html) => {
     if (!html) return 0;
@@ -434,10 +528,33 @@ const canPost = computed(() => {
     return (hasContent || hasMedia || hasParentPost) && withinLimit && !isSubmited.value && !isSubmiting.value;
 });
 
-const user = computed(() => store.getters.currentUser);
-const parentPost = computed(() => store.getters.parentPost);
+const editingMedia = computed(() => mediaPreviews.value.find(m => m.id === editingId.value) || null);
 
 // Methods
+const formatDuration = (sec) => {
+    const s = Math.max(0, Math.round(sec || 0));
+    return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+};
+
+const revokeUrl = (url) => {
+    if (url?.startsWith('blob:')) URL.revokeObjectURL(url);
+};
+
+// Liberta o blob da versão editada e o do ficheiro original (podem ser o mesmo)
+const revokeMedia = (m) => {
+    if (!m) return;
+    revokeUrl(m.url);
+    if (m.originalUrl !== m.url) revokeUrl(m.originalUrl);
+};
+
+const revokeAllMedia = () => {
+    mediaPreviews.value.forEach(revokeMedia);
+};
+
+const insertIntoEditor = (char) => {
+    richTextEditorRef.value?.editor?.chain().focus().insertContent(char).run();
+};
+
 const setPostAudience = (status) => {
     postAudience.value = status;
     closeDrawer();
@@ -471,11 +588,38 @@ const openCancelPostDrawer = () => {
 
 const openPostAudienceDrawer = () => {
     if (isSubmiting.value) return;
-    openDrawer({ show: true, name: 'postAudience', metadata: { title: 'Audiencia' } });
+    openDrawer({ show: true, name: 'postAudience', metadata: { title: 'Audiência' } });
 };
 
 const removeParentPost = () => {
     store.commit("RESET_PARENT_POST");
+};
+
+// ── Editor de mídia ──
+const openEditor = (id) => {
+    if (isSubmiting.value) return;
+    editingId.value = id;
+};
+
+// Recebe o resultado do editor: o ficheiro (já com as edições aplicadas) substitui o anterior
+const onEditorSave = (id, result) => {
+    const media = mediaPreviews.value.find(m => m.id === id);
+    if (!media) {
+        editingId.value = null;
+        return;
+    }
+
+    const previousUrl = media.url;
+    media.file = result.file;
+    media.url = result.url;
+    media.format = result.format || media.format;
+    media.duration = result.duration ?? media.originalDuration;
+    media.edit = result.edit;
+
+    // Só liberta a versão editada anterior; o original mantém-se para re-edição
+    if (previousUrl !== media.originalUrl && previousUrl !== result.url) revokeUrl(previousUrl);
+
+    editingId.value = null;
 };
 
 // ── Validação de integridade do vídeo ──
@@ -484,20 +628,18 @@ const removeParentPost = () => {
 const validateVideoIntegrity = (file) => {
     return new Promise((resolve, reject) => {
         const video = document.createElement('video');
+        const objectUrl = URL.createObjectURL(file);
         video.preload = 'metadata';
-        video.src = URL.createObjectURL(file);
+        video.src = objectUrl;
         video.onloadedmetadata = () => {
-            if (video.duration === Infinity || isNaN(video.duration) || video.videoWidth === 0) {
-                URL.revokeObjectURL(video.src);
-                reject(new Error('Vídeo corrompido ou inválido.'));
-            } else {
-                const duration = video.duration; // NOVO
-                URL.revokeObjectURL(video.src);
-                resolve(duration); // NOVO — antes resolvia `true`, agora devolve a duração em segundos
-            }
+            const ok = !(video.duration === Infinity || isNaN(video.duration) || video.videoWidth === 0);
+            const duration = video.duration;
+            URL.revokeObjectURL(objectUrl);
+            if (ok) resolve(duration);
+            else reject(new Error('Vídeo corrompido ou inválido.'));
         };
         video.onerror = () => {
-            URL.revokeObjectURL(video.src);
+            URL.revokeObjectURL(objectUrl);
             reject(new Error('Vídeo corrompido ou não pôde ser lido.'));
         };
     });
@@ -506,65 +648,90 @@ const validateVideoIntegrity = (file) => {
 // Apenas cria a prévia local (blob URL). Nada é enviado ao Cloudinary aqui —
 // o upload real só acontece dentro de handleSubmit / na action de background.
 const handleImageUpload = (e) => {
+    const input = e.target;
+
     if (isSubmiting.value) {
         error.value = 'Aguarde o post atual ser enviado';
+        input.value = '';
         return;
     }
 
-    const files = Array.from(e.target.files || []);
+    const files = Array.from(input.files || []);
     const availableSlots = MAX_IMAGES - mediaPreviews.value.length;
 
-    if (files.length > availableSlots) {
+    if (!files.length) return;
+
+    if (availableSlots <= 0) {
         error.value = `Você pode adicionar no máximo ${MAX_IMAGES} imagens`;
+        input.value = '';
         return;
     }
 
-    error.value = null;
+    error.value = files.length > availableSlots
+        ? `Você pode adicionar no máximo ${MAX_IMAGES} imagens. Foram adicionadas apenas ${availableSlots}.`
+        : null;
     selectFileLoading.value = true;
 
+    const added = [];
     for (const file of files.slice(0, availableSlots)) {
         if (!(file instanceof File) || !file.type.startsWith('image/')) {
             error.value = 'Arquivo inválido ou não é uma imagem.';
             continue;
         }
 
-        const id = uuidv4();
+        const url = URL.createObjectURL(file);
+        const format = file.type.split('/')[1];
         const media = {
-            id,
-            url: URL.createObjectURL(file),
+            id: uuidv4(),
+            url,
             type: 'image',
-            format: file.type.split('/')[1],
+            format,
             file,
+            originalUrl: url,
+            originalFile: file,
+            originalFormat: format,
+            originalDuration: undefined,
+            edit: null,
         };
         mediaPreviews.value.push(media);
+        added.push(media);
         logger.log('Imagem adicionada à prévia (upload adiado até Postar):', media.id);
     }
 
     selectFileLoading.value = false;
-    e.target.value = '';
+    input.value = '';
+
+    // Uma só foto → abre logo o editor, como no TikTok
+    if (added.length === 1 && files.length === 1) openEditor(added[0].id);
 };
 
 const handleVideoUpload = async (e) => {
+    const input = e.target;
+
     if (isSubmiting.value) {
         error.value = 'Aguarde o post atual ser enviado';
+        input.value = '';
         return;
     }
 
-    const file = e.target.files?.[0];
-    const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/mov', 'video/avi'];
+    const file = input.files?.[0];
+    const allowedVideoTypes = ['video/mp4', 'video/webm', 'video/quicktime'];
 
     if (!file || !(file instanceof File) || !file.type.startsWith('video/')) {
         error.value = 'Arquivo inválido ou não é um vídeo.';
+        input.value = '';
         return;
     }
 
     if (file.size > MAX_VIDEO_SIZE_MB * 1024 * 1024) {
         error.value = `O vídeo deve ter no máximo ${MAX_VIDEO_SIZE_MB}MB.`;
+        input.value = '';
         return;
     }
 
     if (!allowedVideoTypes.includes(file.type)) {
-        error.value = 'Formato de vídeo não suportado. Use MP4 ou WebM.';
+        error.value = 'Formato de vídeo não suportado. Use MP4, MOV ou WebM.';
+        input.value = '';
         return;
     }
 
@@ -572,28 +739,37 @@ const handleVideoUpload = async (e) => {
     selectFileLoading.value = true;
 
     try {
-        const duration = await validateVideoIntegrity(file); // NOVO — vem do onloadedmetadata
+        const duration = await validateVideoIntegrity(file); // vem do onloadedmetadata
 
-        const id = uuidv4();
+        const url = URL.createObjectURL(file);
+        const format = file.type.split('/')[1];
         const media = {
-            id,
-            url: URL.createObjectURL(file),
+            id: uuidv4(),
+            url,
             type: 'video',
-            format: file.type.split('/')[1],
+            format,
             file,
-            duration, // NOVO — em segundos; segue até ao submit e serve de fallback no upload
+            duration, // em segundos; segue até ao submit e serve de fallback no upload
+            originalUrl: url,
+            originalFile: file,
+            originalFormat: format,
+            originalDuration: duration,
+            edit: null,
         };
+
+        mediaPreviews.value.forEach(revokeMedia);
         mediaPreviews.value = [media]; // vídeo substitui tudo
 
-        e.target.value = '';
+        openEditor(media.id); // abre logo o editor, como no TikTok
     } catch (err) {
         error.value = err.message || 'Vídeo corrompido ou inválido.';
     } finally {
         selectFileLoading.value = false;
+        input.value = '';
     }
 };
 
-// Como nada foi enviado ainda, remover é só tirar da lista local (e libertar o blob URL).
+// Como nada foi enviado ainda, remover é só tirar da lista local (e libertar os blob URLs).
 const removeMedia = (index) => {
     if (isSubmiting.value) {
         error.value = 'Aguarde o post atual ser enviado';
@@ -601,9 +777,7 @@ const removeMedia = (index) => {
     }
 
     const media = mediaPreviews.value[index];
-    if (media?.url?.startsWith('blob:')) {
-        URL.revokeObjectURL(media.url);
-    }
+    revokeMedia(media);
     mediaPreviews.value.splice(index, 1);
 };
 
@@ -611,10 +785,9 @@ const confirmCancel = async () => {
     if (isSubmiting.value) return;
 
     isNavigatingAway.value = true;
+    editingId.value = null;
 
-    mediaPreviews.value.forEach(m => {
-        if (m.url?.startsWith('blob:')) URL.revokeObjectURL(m.url);
-    });
+    revokeAllMedia();
 
     resetForm();
     mediaPreviews.value = [];
@@ -633,10 +806,10 @@ const handleSubmit = async () => {
 
     const mediaFiles = mediaPreviews.value.map(m => ({
         id: m.id,
-        file: m.file,
+        file: m.file, // já é a versão editada, se houver edições
         type: m.type,
         format: m.format,
-        duration: m.duration, // NOVO — indefinido para imagens, em segundos para vídeo
+        duration: m.duration, // indefinido para imagens, em segundos para vídeo (já considera corte e velocidade)
     }));
 
     const payload = {
@@ -660,9 +833,8 @@ const handleSubmit = async () => {
         isSubmited.value = true;
         isNavigatingAway.value = true;
 
-        mediaPreviews.value.forEach(m => {
-            if (m.url?.startsWith('blob:')) URL.revokeObjectURL(m.url);
-        });
+        // Os Files continuam referenciados no payload; só os blob URLs de prévia são libertados.
+        revokeAllMedia();
 
         resetForm();
         mediaPreviews.value = [];
@@ -672,13 +844,19 @@ const handleSubmit = async () => {
     } catch (err) {
         console.error("Erro ao iniciar publicação:", err);
         error.value = err.message || "Erro ao criar post. Tente novamente.";
-    } finally {
         isSubmiting.value = false;
     }
 };
 
 onBeforeRouteLeave((to, from, next) => {
     if (isCancellingOrDone()) { next(); return; }
+
+    // Botão "voltar" com o editor aberto: fecha só o editor (pede confirmação se houver alterações)
+    if (editingId.value) {
+        mediaEditorRef.value?.requestClose?.();
+        next(false);
+        return;
+    }
 
     if (drawer.value?.show) {
         closeDrawer();
@@ -695,9 +873,7 @@ onBeforeRouteLeave((to, from, next) => {
         next(false);
     } else {
         if (!isNavigatingAway.value && !isSubmittingSuccess.value) {
-            mediaPreviews.value.forEach(m => {
-                if (m.url?.startsWith('blob:')) URL.revokeObjectURL(m.url);
-            });
+            revokeAllMedia();
             resetForm();
             mediaPreviews.value = [];
             store.commit("SET_PARENT_POST", {});
@@ -710,7 +886,18 @@ function isCancellingOrDone() {
     return isNavigatingAway.value || isSubmittingSuccess.value;
 }
 
+// Evita perder o rascunho por fechar/recarregar o separador sem querer
+const handleBeforeUnload = (e) => {
+    if (isCancellingOrDone()) return;
+    if (mediaPreviews.value.length > 0 || postContent.value.trim().length > 0) {
+        e.preventDefault();
+        e.returnValue = '';
+    }
+};
+
 onMounted(async () => {
+    window.addEventListener('beforeunload', handleBeforeUnload);
+
     if (parentPost.value?._id) {
         loadingFetchPostParent.value = true;
         await store.dispatch("getPostById", {
@@ -723,9 +910,20 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
-    // Não revoga blobs aqui: se o utilizador só navegou para outro sítio sem
-    // cancelar/publicar (ex.: back do telemóvel tratado no beforeRouteLeave
-    // acima), a limpeza já foi feita lá. Isto evita revogar URLs que a
-    // action de background ainda possa estar a ler do File original.
+    window.removeEventListener('beforeunload', handleBeforeUnload);
+    // Não revoga blobs aqui: a limpeza já é feita em confirmCancel / handleSubmit /
+    // onBeforeRouteLeave. Isto evita revogar URLs que a action de background
+    // ainda possa estar a ler do File original.
 });
 </script>
+
+<style scoped>
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.no-scrollbar {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+</style>

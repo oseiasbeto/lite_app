@@ -1,298 +1,160 @@
 <template>
-    <div class="h-screen bg-white dark:bg-transparent">
+    <div class="tt-page [--tt-bg:#ffffff] [--tt-text:#161823] [--tt-text-2:rgba(22,24,35,0.6)] [--tt-text-3:rgba(22,24,35,0.34)] [--tt-field:rgba(22,24,35,0.06)] [--tt-line:rgba(22,24,35,0.12)] dark:[--tt-bg:#000000] dark:[--tt-text:#ffffff] dark:[--tt-text-2:rgba(255,255,255,0.6)] dark:[--tt-text-3:rgba(255,255,255,0.34)] dark:[--tt-field:rgba(255,255,255,0.12)] dark:[--tt-line:rgba(255,255,255,0.12)]">
         <!--start header-->
-        <div class="flex flex-col sticky top-0 w-full z-[100] bg-white dark:bg-transparent">
-            <div class="flex w-full py-2 items-center justify-between">
-                <div class="flex flex-1 pr-2 items-center gap-2">
-                    <button :disable="loading || uploading"
-                        class="py-1.5 px-2.5 text-sm text-light-link dark:text-dark-link rounded-full font-semibold flex text-inherit items-center"
-                        @click="router.back()">
-                        <svg width="24" height="24" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path d="m5.5 5.5 13 13m-13 0 13-13" class="icon_svg-stroke" stroke="currentColor"
-                                stroke-width="1.5" fill="none" fill-rule="evenodd" stroke-linecap="round"></path>
-                        </svg>
-                    </button>
-                </div>
-                <div class=" shrink-0 pr-2">
-                    <SecondaryButton @on-press="handleSubmit" :loading="loading || uploading" :disabled="!canSubmit"
-                        text="Editar" />
-                </div>
+        <header class="tt-header">
+            <button :disable="loading || uploading" class="tt-header__back" aria-label="Voltar" @click="router.back()">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="m15 5-7 7 7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
 
-            </div>
-        </div>
+            <h1 class="tt-header__title">{{ pageTitle }}</h1>
+
+            <button class="tt-save" :disabled="!canSubmit || loading || uploading" @click="handleSubmit">
+                <span v-if="loading || uploading" class="tt-save__spinner" aria-hidden="true"></span>
+                <span v-else>Salvar</span>
+            </button>
+        </header>
         <!--end header-->
-        <template v-if="editForm == 'picture'">
-            <div class="picture-editor">
-                <p class="mb-4 text-center text-[#282829] dark:text-inherit text-lg font-medium">Editar foto de perfil
-                </p>
 
-                <!-- Preview da imagem -->
-                <div class="flex flex-col items-center gap-4">
-                    <div :class="{ 'pointer-events-none': loadingRemovePicture }" class="relative">
-                        <img :src="imagePreview" alt="Preview"
-                            class="w-32 h-32 rounded-full object-cover border-2 dark:border-[rgb(57,56,57)]" />
-                        <label for="picture-upload"
-                            class="absolute dark:bg-[#202020] text-[#282829] bottom-0 right-0 bg-white dark:text-white shadow-md p-2 rounded-full cursor-pointer hover:bg-blue-600 transition-colors"
-                            title="Alterar foto">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+        <main class="tt-content">
+            <!-- FOTO -->
+            <template v-if="editForm == 'picture'">
+                <section class="tt-picture">
+                    <div :class="{ 'pointer-events-none': loadingRemovePicture }" class="tt-picture__wrap">
+                        <img :src="imagePreview" alt="Preview" class="tt-picture__img" />
+                        <label for="picture-upload" class="tt-picture__overlay" title="Alterar foto">
+                            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                                <path
+                                    d="M3 9a2 2 0 0 1 2-2h.93a2 2 0 0 0 1.664-.89l.812-1.22A2 2 0 0 1 10.07 4h3.86a2 2 0 0 1 1.664.89l.812 1.22A2 2 0 0 0 18.07 7H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9z" />
+                                <circle cx="12" cy="13" r="3" />
                             </svg>
                         </label>
-                        <input id="picture-upload" type="file"
+                        <input id="picture-upload" ref="fileInput" type="file"
                             accept="image/jpeg,image/png,image/jpg,image/gif,image/webp" @change="handleFileSelect"
                             class="hidden" />
                     </div>
 
+                    <label for="picture-upload" class="tt-picture__change">Alterar foto</label>
+
                     <!-- Botão remover foto -->
                     <button v-if="!loadingRemovePicture && !uploading && (originalPicturePublicId || selectedFile)"
-                        @click="removePicture"
-                        class="text-red-500 hover:text-red-700 text-sm font-medium transition-colors"
-                        :disabled="uploading">
+                        @click="removePicture" class="tt-picture__remove" :disabled="uploading">
                         Remover foto atual
                     </button>
 
                     <!-- Barra de progresso -->
-                    <div v-if="uploading" class="w-full max-w-xs">
-                        <div class="dark:bg-[rgb(57,56,57)] rounded-full h-2 overflow-hidden">
-                            <div class="bg-blue h-2 transition-all duration-300"
-                                :style="{ width: `${uploadProgress}%` }"></div>
+                    <div v-if="uploading" class="tt-progress">
+                        <div class="tt-progress__track">
+                            <div class="tt-progress__bar" :style="{ width: `${uploadProgress}%` }"></div>
                         </div>
-                        <p class="text-xs text-gray-500 text-center mt-1">{{ uploadProgress }}%</p>
+                        <p class="tt-progress__label">{{ uploadProgress }}%</p>
                     </div>
 
                     <!-- Mensagens de erro -->
-                    <div v-if="pictureError.show" class="text-red-500 text-sm text-center">
-                        {{ pictureError.message }}
-                    </div>
-                </div>
-            </div>
-        </template>
-        <template v-else-if="editForm == 'name'">
-            <div class="px-4">
-                <div class="mb-5">
-                    <h4 class="text-lg font-bold text-[#282829] dark:text-inherit">Editar nome</h4>
-                    <p class="text-sm text-[#636466] dark:text-[#e6e7e8]">Altere seu nome quantas vezes quiser.</p>
-                </div>
-                <Input @update:model-value="validateName" v-model="form.name" title="Nome" label="name"
-                    :error="nameError" />
-            </div>
+                    <p v-if="pictureError.show" class="tt-error">{{ pictureError.message }}</p>
+                </section>
+            </template>
 
-        </template>
-        <template v-else-if="editForm == 'credentials'">
-            <div class="px-4">
-                <div class="mb-5">
-                    <h4 class="text-lg font-bold text-[#282829] dark:text-inherit">Adicionar credencial de perfil</h4>
-                </div>
-                <Input @update:model-value="validateCredentials" v-model="form.credentials" title="Credencial"
-                    label="credentials" :error="credentialsError" />
-            </div>
+            <!-- NOME -->
+            <template v-else-if="editForm == 'name'">
+                <section class="tt-section">
+                    <p class="tt-section__desc">Altere seu nome quantas vezes quiser.</p>
+                    <div class="tt-field">
+                        <Input @update:model-value="validateName" v-model="form.name" title="Nome" label="name"
+                            :error="nameError" />
+                        <span class="tt-counter">{{ (form.name || '').length }}/20</span>
+                    </div>
+                </section>
+            </template>
 
-        </template>
-        <template v-else-if="editForm == 'location'">
-            <div class="px-4">
-                <div class="mb-5">
-                    <h4 class="text-lg font-bold text-[#282829] dark:text-inherit">Adicionar localização</h4>
-                </div>
-                <Input @update:model-value="validateLocation" v-model="form.location" title="Localização"
-                    label="location" :error="locationError" />
-            </div>
+            <!-- CREDENCIAL -->
+            <template v-else-if="editForm == 'credentials'">
+                <section class="tt-section">
+                    <p class="tt-section__desc">Adicione uma credencial para mostrar quem você é no seu perfil.</p>
+                    <div class="tt-field">
+                        <Input @update:model-value="validateCredentials" v-model="form.credentials"
+                            title="Credencial" label="credentials" :error="credentialsError" />
+                        <span class="tt-counter">{{ (form.credentials || '').length }}/20</span>
+                    </div>
+                </section>
+            </template>
 
-        </template>
-        <template v-else-if="editForm == 'bio'">
-            <div class="px-4">
-                <div class="mb-5">
-                    <h4 class="text-lg font-bold text-[#282829] dark:text-inherit">Editar descrição</h4>
-                </div>
-                <Textarea @update:model-value="validateBio" v-model="form.bio" title="Biografia" label="bio"
-                    :error="bioError" />
-            </div>
+            <!-- LOCALIZAÇÃO -->
+            <template v-else-if="editForm == 'location'">
+                <section class="tt-section">
+                    <p class="tt-section__desc">Diga de onde você é.</p>
+                    <div class="tt-field">
+                        <Input @update:model-value="validateLocation" v-model="form.location" title="Localização"
+                            label="location" :error="locationError" />
+                        <span class="tt-counter">{{ (form.location || '').length }}/30</span>
+                    </div>
+                </section>
+            </template>
 
-        </template>
-        <template v-else-if="editForm == 'theme'">
-            <div class="mb-5 px-4">
-                <h4 class="text-lg mb-4 font-bold text-[#282829] dark:text-inherit">Configuração do tema</h4>
-                <p class="text-sm text-[#636466] dark:text-[#e6e7e8]">Ajuste a maneira em que você gostaria que o tema
-                    apareça no seu App.</p>
-            </div>
-            <div class="flex px-4 items-center">
-                <label :class="form.theme == 'light' ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-transparent'"
-                    class="grow mr-2 p-2 rounded-[3px]" for="themeLight">
-                    <div :class="form.theme == 'light' ? 'text-secondary' : 'text-inherit'"
-                        class="flex items-center gap-2 mb-1.5">
-                        <input class="hidden" type="radio" id="themeLight" value="light" v-model="form.theme" />
-                        <span
-                            :class="['w-4 h-4 rounded-[3px] border flex items-center justify-center', form.theme === 'light' ? 'bg-secondary text-white border-secondary' : 'bg-white dark:bg-transparent border-[#b1b3b6] dark:border-[#48484a]']">
-                            <svg v-if="form.theme == 'light'" width="16" height="16" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path d="m4 12.258 5.818 5.818L20 5" class="icon_svg-stroke" stroke="currentColor"
-                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                </path>
-                            </svg>
-                        </span>
-                        <span class="font-bold">Claro</span>
+            <!-- BIO -->
+            <template v-else-if="editForm == 'bio'">
+                <section class="tt-section">
+                    <p class="tt-section__desc">Conte um pouco sobre você.</p>
+                    <div class="tt-field">
+                        <Textarea @update:model-value="validateBio" v-model="form.bio" title="Biografia" label="bio"
+                            :error="bioError" />
+                        <span class="tt-counter">{{ (form.bio || '').length }}/200</span>
                     </div>
-                    <div class="rounded-[3px] overflow-hidden"
-                        style="box-sizing: border-box; padding: 8px 3px 4px; background-color: rgb(206, 206, 206);"><svg
-                            width="100%" viewBox="0 0 154 286" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            style="display: inline-block; vertical-align: middle; border-radius: 2px;">
-                            <rect width="154" height="286" fill="#e6e7e8"></rect>
-                            <rect width="154" height="26" fill="#fff"></rect>
-                            <rect y="26" width="154" height="1" fill="#dee0e1"></rect>
-                            <rect y="32" width="154" height="30" fill="#fff"></rect>
-                            <rect x="19" y="44" width="23" height="6" rx="3" fill="#636466"></rect>
-                            <rect x="8" y="43" width="8" height="8" rx="4" fill="#636466"></rect>
-                            <rect y="68" width="154" height="68" fill="#fff"></rect>
-                            <rect x="8" y="103" width="75" height="8" rx="4" fill="#939598"></rect>
-                            <rect x="8" y="115" width="137" height="8" rx="4" fill="#939598"></rect>
-                            <rect x="19" y="80" width="23" height="6" rx="3" fill="#636466"></rect>
-                            <rect x="8" y="79" width="8" height="8" rx="4" fill="#636466"></rect>
-                            <rect y="142" width="154" height="68" fill="#fff"></rect>
-                            <rect x="8" y="177" width="75" height="8" rx="4" fill="#939598"></rect>
-                            <rect x="8" y="189" width="137" height="8" rx="4" fill="#939598"></rect>
-                            <rect x="19" y="154" width="23" height="6" rx="3" fill="#636466"></rect>
-                            <rect x="8" y="153" width="8" height="8" rx="4" fill="#636466"></rect>
-                            <rect y="216" width="154" height="68" fill="#fff"></rect>
-                            <rect x="8" y="251" width="75" height="8" rx="4" fill="#939598"></rect>
-                            <rect x="8" y="263" width="137" height="8" rx="4" fill="#939598"></rect>
-                            <rect x="19" y="228" width="23" height="6" rx="3" fill="#636466"></rect>
-                            <rect x="8" y="227" width="8" height="8" rx="4" fill="#636466"></rect>
-                            <rect y="260" width="154" height="26" fill="#fff"></rect>
-                            <rect y="260" width="154" height="1" fill="#dee0e1"></rect>
-                            <circle cx="18.5" cy="272.5" r="6.5" fill="#1471ff"></circle>
-                            <circle cx="47.5" cy="272.5" r="6.5" fill="#636466"></circle>
-                            <circle cx="76.5" cy="272.5" r="6.5" fill="#636466"></circle>
-                            <circle cx="105.5" cy="272.5" r="6.5" fill="#636466"></circle>
-                            <circle cx="134.5" cy="272.5" r="6.5" fill="#636466"></circle>
-                            <circle cx="14.5" cy="12.5" r="6.5" fill="#282829"></circle>
-                            <rect x="27" y="10" width="23" height="6" rx="3" fill="#282829"></rect>
-                            <circle cx="127" cy="233" r="18" fill="#1471ff"></circle>
-                        </svg>
-                    </div>
-                </label>
-                <label :class="form.theme == 'dark' ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-transparent'"
-                    class="grow mr-2 p-2 rounded-[3px]" for="themeDark">
-                    <div :class="form.theme == 'dark' ? 'text-secondary' : 'text-inherit'"
-                        class="flex items-center gap-2 mb-1.5">
-                        <input class="hidden" type="radio" id="themeDark" value="dark" v-model="form.theme" />
-                        <span
-                            :class="['w-4 h-4 rounded-[3px] border flex items-center justify-center', form.theme === 'dark' ? 'bg-secondary text-white border-secondary' : 'bg-white dark:bg-transparent border-[#b1b3b6] dark:border-[#48484a]']">
-                            <svg v-if="form.theme == 'dark'" width="16" height="16" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path d="m4 12.258 5.818 5.818L20 5" class="icon_svg-stroke" stroke="currentColor"
-                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                </path>
-                            </svg>
-                        </span>
-                        <span class="font-bold text-inherit">Escuro</span>
-                    </div>
+                </section>
+            </template>
 
-                    <div class="rounded-[3px] overflow-hidden"
-                        style="box-sizing: border-box; padding: 8px 3px 4px; background-color: rgb(23, 23, 23);"><svg
-                            width="100%" viewBox="0 0 154 286" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            style="display: inline-block; vertical-align: middle; border-radius: 2px;">
-                            <rect width="154" height="286" fill="#181818"></rect>
-                            <rect width="154" height="26" fill="#262626"></rect>
-                            <rect y="26" width="154" height="1" fill="#393839"></rect>
-                            <rect y="32" width="154" height="30" fill="#262626"></rect>
-                            <rect x="19" y="44" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
-                            <rect x="8" y="43" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
-                            <rect y="68" width="154" height="68" fill="#262626"></rect>
-                            <rect x="8" y="103" width="75" height="8" rx="4" fill="#b1b3b6"></rect>
-                            <rect x="8" y="115" width="137" height="8" rx="4" fill="#b1b3b6"></rect>
-                            <rect x="19" y="80" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
-                            <rect x="8" y="79" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
-                            <rect y="142" width="154" height="68" fill="#262626"></rect>
-                            <rect x="8" y="177" width="75" height="8" rx="4" fill="#b1b3b6"></rect>
-                            <rect x="8" y="189" width="137" height="8" rx="4" fill="#b1b3b6"></rect>
-                            <rect x="19" y="154" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
-                            <rect x="8" y="153" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
-                            <rect y="216" width="154" height="68" fill="#262626"></rect>
-                            <rect x="8" y="251" width="75" height="8" rx="4" fill="#b1b3b6"></rect>
-                            <rect x="8" y="263" width="137" height="8" rx="4" fill="#b1b3b6"></rect>
-                            <rect x="19" y="228" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
-                            <rect x="8" y="227" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
-                            <rect y="260" width="154" height="26" fill="#262626"></rect>
-                            <rect y="260" width="154" height="1" fill="#393839"></rect>
-                            <circle cx="18.5" cy="272.5" r="6.5" fill="#1471ff"></circle>
-                            <circle cx="47.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
-                            <circle cx="76.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
-                            <circle cx="105.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
-                            <circle cx="134.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
-                            <circle cx="14.5" cy="12.5" r="6.5" fill="#fff"></circle>
-                            <rect x="27" y="10" width="23" height="6" rx="3" fill="#fff"></rect>
-                            <circle cx="127" cy="233" r="18" fill="#1471ff"></circle>
-                        </svg>
+            <!-- TEMA -->
+            <template v-else-if="editForm == 'theme'">
+                <section class="tt-section">
+                    <p class="tt-section__desc">Ajuste a maneira em que você gostaria que o tema apareça no seu App.
+                    </p>
+
+                    <div class="tt-themes" role="radiogroup" aria-label="Tema">
+                        <label v-for="opt in themeOptions" :key="opt.value" :for="opt.id" class="tt-theme"
+                            :class="{ 'is-active': form.theme === opt.value }">
+                            <input class="hidden" type="radio" :id="opt.id" :value="opt.value"
+                                v-model="form.theme" />
+
+                            <div class="tt-theme__preview" :class="`is-${opt.value}`" aria-hidden="true">
+                                <span class="tt-theme__bar"></span>
+                                <span class="tt-theme__card"></span>
+                                <span class="tt-theme__card"></span>
+                                <span class="tt-theme__fab"></span>
+                            </div>
+
+                            <div class="tt-theme__footer">
+                                <span class="tt-theme__radio">
+                                    <svg v-if="form.theme === opt.value" width="12" height="12" viewBox="0 0 24 24"
+                                        fill="none">
+                                        <path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" stroke-width="3"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </span>
+                                <span class="tt-theme__name">{{ opt.label }}</span>
+                            </div>
+                        </label>
                     </div>
-                </label>
-                <label :class="form.theme == 'system' ? 'dark:bg-[#1a2035] bg-[#edf1f5]' : 'dark:bg-transparent'"
-                    class="grow mr-2 p-2 rounded-[3px]" for="themeSystem">
-                    <div :class="form.theme == 'system' ? 'text-secondary' : 'text-inherit'"
-                        class="flex items-center gap-2 mb-1.5">
-                        <input class="hidden" type="radio" id="themeSystem" value="system" v-model="form.theme" />
-                        <span
-                            :class="['w-4 h-4 rounded-[3px] border flex items-center justify-center', form.theme === 'system' ? 'bg-secondary text-white border-secondary' : 'bg-white dark:bg-transparent border-[#b1b3b6] dark:border-[#48484a]']">
-                            <svg v-if="form.theme == 'system'" width="16" height="16" viewBox="0 0 24 24"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path d="m4 12.258 5.818 5.818L20 5" class="icon_svg-stroke" stroke="currentColor"
-                                    stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                                </path>
-                            </svg>
-                        </span>
-                        <span class="font-bold text-inherit">Sistema</span>
-                    </div>
-                    <div class="rounded-[3px] overflow-hidden"
-                        style="box-sizing: border-box; padding: 8px 3px 4px; background-color: rgb(23, 23, 23);"><svg
-                            width="100%" viewBox="0 0 154 286" fill="none" xmlns="http://www.w3.org/2000/svg"
-                            style="display: inline-block; vertical-align: middle; border-radius: 2px;">
-                            <rect width="154" height="286" fill="#181818"></rect>
-                            <rect width="154" height="26" fill="#262626"></rect>
-                            <rect y="26" width="154" height="1" fill="#393839"></rect>
-                            <rect y="32" width="154" height="30" fill="#262626"></rect>
-                            <rect x="19" y="44" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
-                            <rect x="8" y="43" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
-                            <rect y="68" width="154" height="68" fill="#262626"></rect>
-                            <rect x="8" y="103" width="75" height="8" rx="4" fill="#b1b3b6"></rect>
-                            <rect x="8" y="115" width="137" height="8" rx="4" fill="#b1b3b6"></rect>
-                            <rect x="19" y="80" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
-                            <rect x="8" y="79" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
-                            <rect y="142" width="154" height="68" fill="#262626"></rect>
-                            <rect x="8" y="177" width="75" height="8" rx="4" fill="#b1b3b6"></rect>
-                            <rect x="8" y="189" width="137" height="8" rx="4" fill="#b1b3b6"></rect>
-                            <rect x="19" y="154" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
-                            <rect x="8" y="153" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
-                            <rect y="216" width="154" height="68" fill="#262626"></rect>
-                            <rect x="8" y="251" width="75" height="8" rx="4" fill="#b1b3b6"></rect>
-                            <rect x="8" y="263" width="137" height="8" rx="4" fill="#b1b3b6"></rect>
-                            <rect x="19" y="228" width="23" height="6" rx="3" fill="#e6e7e8"></rect>
-                            <rect x="8" y="227" width="8" height="8" rx="4" fill="#e6e7e8"></rect>
-                            <rect y="260" width="154" height="26" fill="#262626"></rect>
-                            <rect y="260" width="154" height="1" fill="#393839"></rect>
-                            <circle cx="18.5" cy="272.5" r="6.5" fill="#1471ff"></circle>
-                            <circle cx="47.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
-                            <circle cx="76.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
-                            <circle cx="105.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
-                            <circle cx="134.5" cy="272.5" r="6.5" fill="#e6e7e8"></circle>
-                            <circle cx="14.5" cy="12.5" r="6.5" fill="#fff"></circle>
-                            <rect x="27" y="10" width="23" height="6" rx="3" fill="#fff"></rect>
-                            <circle cx="127" cy="233" r="18" fill="#1471ff"></circle>
-                        </svg>
-                    </div>
-                </label>
-            </div>
-        </template>
-        <template v-else>
-            <p>Formulário não encontrado.</p>
-        </template>
+                </section>
+            </template>
+
+            <template v-else>
+                <p class="tt-empty">Formulário não encontrado.</p>
+            </template>
+        </main>
+
+        <!-- Recorte da foto (estilo TikTok) -->
+        <ImageCropper v-if="showCropper && cropSrc" :src="cropSrc" :file-name="pendingFileName"
+            @cancel="closeCropper" @done="onCropDone" />
     </div>
 </template>
 
 <script setup>
 import Input from '@/views/auth/components/Input.vue';
 import Textarea from '@/views/auth/components/Textarea.vue';
+import ImageCropper from '@/components/UI/Imagecropper.vue';
 import { computed, ref } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
@@ -301,7 +163,6 @@ import CryptoJS from 'crypto-js';
 import { logger } from '@/utils/logger';
 import Cookies from "js-cookie";
 import { statusBar } from "webtonative"
-import SecondaryButton from '@/components/buttons/SecondaryButton.vue';
 
 const route = useRoute()
 const router = useRouter()
@@ -322,11 +183,27 @@ const form = ref({
     theme: profile.value?.settings?.theme || 'system'
 })
 
+// (visual) título do cabeçalho e opções de tema
+const pageTitle = computed(() => ({
+    picture: 'Editar foto de perfil',
+    name: 'Nome',
+    credentials: 'Credencial',
+    location: 'Localização',
+    bio: 'Descrição',
+    theme: 'Tema'
+}[editForm.value] || 'Editar perfil'))
+
+const themeOptions = [
+    { value: 'light', id: 'themeLight', label: 'Claro' },
+    { value: 'dark', id: 'themeDark', label: 'Escuro' },
+    { value: 'system', id: 'themeSystem', label: 'Sistema' }
+]
+
 // Configurações Cloudinary
 const CLOUD_NAME = 'daujoblcc'
 const UPLOAD_PRESET = 'social_media_upload'
-const API_KEY = '686559434489718'; // Substitua pelo sua API Key do Cloudinary
-const API_SECRET = 'oAYl12OIZf2HkieFNDQQk2romHM'; // Substitua pelo seu API Secret do Cloudinary
+const API_KEY = 'MANTENHA_SEU_VALOR_ATUAL'; // ⚠️ idealmente mover para o backend
+const API_SECRET = 'MANTENHA_SEU_VALOR_ATUAL'; // ⚠️ NUNCA deixe o secret no front-end
 
 // Estado da imagem
 const selectedFile = ref(null)
@@ -339,6 +216,12 @@ const nameError = ref({ show: false, message: '' })
 const credentialsError = ref({ show: false, message: '' })
 const locationError = ref({ show: false, message: '' })
 const bioError = ref({ show: false, message: '' })
+
+// Estado do cropper
+const fileInput = ref(null)
+const showCropper = ref(false)
+const cropSrc = ref(null)
+const pendingFileName = ref('profile.jpg')
 
 const canSubmit = computed(() => {
     if (editForm.value === 'picture') {
@@ -517,7 +400,7 @@ const uploadToCloudinary = async (file) => {
     }
 }
 
-// Manipular seleção de arquivo
+// Manipular seleção de arquivo (agora abre o cropper depois de validar)
 const handleFileSelect = async (event) => {
     const file = event.target.files[0]
 
@@ -533,15 +416,27 @@ const handleFileSelect = async (event) => {
         return
     }
 
-    // Criar preview
-    const reader = new FileReader()
-    reader.onload = (e) => {
-        imagePreview.value = e.target.result
-    }
-    reader.readAsDataURL(file)
+    // Abrir o cropper com a imagem escolhida
+    pendingFileName.value = file.name
+    cropSrc.value = URL.createObjectURL(file)
+    showCropper.value = true
+}
 
-    selectedFile.value = file
+// Fechar cropper (cancelar ou concluir)
+const closeCropper = () => {
+    if (cropSrc.value) URL.revokeObjectURL(cropSrc.value)
+    cropSrc.value = null
+    showCropper.value = false
+    if (fileInput.value) fileInput.value.value = '' // permite escolher o mesmo arquivo de novo
+}
+
+// Recorte concluído: o arquivo recortado segue o mesmo fluxo de antes
+const onCropDone = (croppedFile) => {
+    if (imagePreview.value?.startsWith('blob:')) URL.revokeObjectURL(imagePreview.value)
+    imagePreview.value = URL.createObjectURL(croppedFile)
+    selectedFile.value = croppedFile
     loadingRemovePicture.value = false
+    closeCropper()
 }
 
 // Remover foto
@@ -755,9 +650,361 @@ const setThemeColor = (theme) => {
 </script>
 
 <style scoped>
-.picture-editor {
-    padding: 20px;
-    max-width: 400px;
+/* Cores claro/escuro vêm das classes Tailwind (dark:) no elemento raiz */
+.tt-page {
+    --tt-red: #fe2c55;
+    --tt-red-press: #e0264b;
+
+    min-height: 100vh;
+    min-height: 100dvh;
+    background: var(--tt-bg);
+    color: var(--tt-text);
+    font-family: 'Proxima Nova', 'TikTokFont', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* ====== Header ====== */
+.tt-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    display: grid;
+    grid-template-columns: 72px 1fr 72px;
+    align-items: center;
+    height: 52px;
+    padding: 0 8px;
+    background: var(--tt-bg);
+    border-bottom: 1px solid var(--tt-line);
+}
+
+.tt-header__back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--tt-text);
+    cursor: pointer;
+}
+
+.tt-header__back:active {
+    background: var(--tt-field);
+}
+
+.tt-header__title {
+    margin: 0;
+    text-align: center;
+    font-size: 17px;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tt-save {
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 64px;
+    height: 32px;
+    padding: 0 14px;
+    border: 0;
+    border-radius: 4px;
+    background: var(--tt-red);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+.tt-save:active:not(:disabled) {
+    background: var(--tt-red-press);
+}
+
+.tt-save:disabled {
+    background: var(--tt-field);
+    color: var(--tt-text-3);
+    cursor: default;
+}
+
+.tt-save__spinner {
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: tt-spin 0.7s linear infinite;
+}
+
+.tt-header__back:focus-visible,
+.tt-save:focus-visible {
+    outline: 2px solid var(--tt-red);
+    outline-offset: 2px;
+}
+
+/* ====== Conteúdo ====== */
+.tt-content {
+    max-width: 480px;
     margin: 0 auto;
+    padding: 24px 16px 40px;
+}
+
+.tt-section__desc {
+    margin: 0 0 20px;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--tt-text-2);
+}
+
+.tt-empty {
+    text-align: center;
+    color: var(--tt-text-2);
+}
+
+/* ====== Campos (envolve os componentes Input/Textarea existentes) ====== */
+.tt-field {
+    position: relative;
+}
+
+.tt-field :deep(label) {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--tt-text-2);
+}
+
+.tt-field :deep(input),
+.tt-field :deep(textarea) {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid transparent !important;
+    border-radius: 4px !important;
+    background: var(--tt-field) !important;
+    color: var(--tt-text) !important;
+    font-size: 16px;
+    outline: none;
+    caret-color: var(--tt-red);
+    transition: border-color 0.15s ease;
+}
+
+.tt-field :deep(input:focus),
+.tt-field :deep(textarea:focus) {
+    border-color: var(--tt-red) !important;
+}
+
+.tt-field :deep(textarea) {
+    min-height: 120px;
+    resize: none;
+}
+
+.tt-counter {
+    display: block;
+    margin-top: 6px;
+    text-align: right;
+    font-size: 12px;
+    color: var(--tt-text-3);
+}
+
+/* ====== Foto de perfil ====== */
+.tt-picture {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding-top: 16px;
+}
+
+.tt-picture__wrap {
+    position: relative;
+    width: 120px;
+    height: 120px;
+}
+
+.tt-picture__img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    background: var(--tt-field);
+}
+
+.tt-picture__overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.4);
+    color: #fff;
+    cursor: pointer;
+}
+
+.tt-picture__overlay:active {
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.tt-picture__change {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--tt-red);
+    cursor: pointer;
+}
+
+.tt-picture__remove {
+    border: 0;
+    background: none;
+    padding: 4px 8px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--tt-text-2);
+    cursor: pointer;
+}
+
+.tt-picture__remove:disabled {
+    opacity: 0.5;
+}
+
+.tt-progress {
+    width: 100%;
+    max-width: 280px;
+}
+
+.tt-progress__track {
+    height: 4px;
+    border-radius: 2px;
+    background: var(--tt-field);
+    overflow: hidden;
+}
+
+.tt-progress__bar {
+    height: 100%;
+    background: var(--tt-red);
+    transition: width 0.3s ease;
+}
+
+.tt-progress__label {
+    margin: 6px 0 0;
+    text-align: center;
+    font-size: 12px;
+    color: var(--tt-text-2);
+}
+
+.tt-error {
+    margin: 0;
+    text-align: center;
+    font-size: 13px;
+    color: var(--tt-red);
+}
+
+/* ====== Tema ====== */
+.tt-themes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.tt-theme {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 8px;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    background: var(--tt-field);
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+
+.tt-theme.is-active {
+    border-color: var(--tt-red);
+}
+
+.tt-theme__preview {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    aspect-ratio: 154 / 230;
+    padding: 8px 6px;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.tt-theme__preview.is-light { background: #f1f1f2; }
+.tt-theme__preview.is-dark { background: #121212; }
+.tt-theme__preview.is-system { background: linear-gradient(90deg, #f1f1f2 50%, #121212 50%); }
+
+.tt-theme__bar,
+.tt-theme__card {
+    display: block;
+    border-radius: 3px;
+}
+
+.tt-theme__bar { height: 8px; }
+.tt-theme__card { flex: 1; }
+
+.is-light .tt-theme__bar,
+.is-light .tt-theme__card { background: #ffffff; }
+
+.is-dark .tt-theme__bar,
+.is-dark .tt-theme__card { background: #262626; }
+
+.is-system .tt-theme__bar,
+.is-system .tt-theme__card {
+    background: linear-gradient(90deg, #ffffff 50%, #262626 50%);
+}
+
+.tt-theme__fab {
+    position: absolute;
+    right: 8px;
+    bottom: 8px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--tt-red);
+}
+
+.tt-theme__footer {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.tt-theme__radio {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--tt-text-3);
+    border-radius: 50%;
+    color: #fff;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.tt-theme.is-active .tt-theme__radio {
+    background: var(--tt-red);
+    border-color: var(--tt-red);
+}
+
+.tt-theme__name {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+@keyframes tt-spin {
+    to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .tt-save__spinner { animation-duration: 1.5s; }
+    .tt-progress__bar,
+    .tt-theme,
+    .tt-theme__radio { transition: none; }
 }
 </style>
