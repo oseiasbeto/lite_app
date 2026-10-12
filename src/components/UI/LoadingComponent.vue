@@ -3,7 +3,7 @@
         role="status" aria-live="polite" aria-label="A carregar">
 
         <!-- Barra de progresso no topo -->
-        <span class="absolute left-0 top-0 h-[4px] w-full overflow-hidden bg-white/20">
+        <span class="absolute left-0 top-0 h-[5px] w-full overflow-hidden bg-white/20">
             <div class="animate-gradient-move h-full rounded-r-full bg-[length:200%_100%] transition-all duration-[0.5s] ease-in-out"
                 :style="{
                     width: `${progress}%`,

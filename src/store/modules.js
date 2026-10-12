@@ -9,6 +9,7 @@ import notifications from '../views/notifications/store'
 import search from '../views/search/store'
 import media from '../views/media/store'
 import reels from '../views/reels/store'
+import stories from '../views/stories/store'
 
 export default {
     auth,
@@ -21,5 +22,6 @@ export default {
     notifications,
     search,
     media,
-    reels
+    reels,
+    stories
 }

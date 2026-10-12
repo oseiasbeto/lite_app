@@ -51,7 +51,6 @@
                 <SpinnerSmall />
             </div>
 
-
             <!--DRWER-->
             <Drawer @close="closeDrawer" :is-open="drawer?.show" :title="drawer?.metadata?.title">
                 <template v-if="drawer?.name === 'newComment' || drawer?.name == 'editComment'">
@@ -858,7 +857,7 @@ const loadPost = async (postId) => {
 
 onMounted(async () => { 
     bannerAd({
-        adId: "ca-app-pub-4593053864161236/3468604114"
+        //adId: "ca-app-pub-4593053864161236/3468604114"
     })
 
     if (!post.value?._id) {

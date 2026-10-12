@@ -1,12 +1,15 @@
-
 import { logger } from '@/utils/logger';
 import api from '../../api'
+
+// Ignora respostas antigas quando o usuário digita/troca de filtro rapidamente
+let filteredRequestSeq = 0
 
 export default {
     state: {
         conversations: [],
         conversation: {},
-        messages: []
+        messages: [],
+        filtered: null   // { key, items, pagination } resultado de filtro/busca no servidor
     },
     mutations: {
         SET_CONVERSATION(state, conversation) {
@@ -21,6 +24,7 @@ export default {
             const source = newModule?.source || 'active'
 
             const index = modules.findIndex(m => m?.source === source)
+            let added = []
 
             if (index === -1) {
                 modules.push(newModule)
@@ -28,7 +32,7 @@ export default {
                 const conversations = modules[index].items || []
                 const items = newModule?.items || []
 
-                const uniqueItems = items.filter(
+                added = items.filter(
                     (conv) =>
                         !conversations.some(
                             (existingConv) => existingConv._id === conv._id
@@ -37,11 +41,39 @@ export default {
 
                 state.conversations[index].items = [
                     ...conversations,
-                    ...uniqueItems
+                    ...added
                 ]
 
                 state.conversations[index].pagination = newModule.pagination
             }
+
+            // Badge "Não lidas": total do servidor (1ª página) + ajuste incremental
+            const target = modules.find(m => m?.source === source)
+            if (target) {
+                if (newModule.unreadConversations !== undefined) {
+                    target.unreadConversations = newModule.unreadConversations
+                    target.unreadLocalAtFetch = (target.items || [])
+                        .filter(c => Number(c?.unread_count) > 0).length
+                } else if (index !== -1) {
+                    target.unreadLocalAtFetch = (target.unreadLocalAtFetch || 0)
+                        + added.filter(c => Number(c?.unread_count) > 0).length
+                }
+            }
+        },
+
+        SET_FILTERED_CONVERSATIONS(state, { key, items, pagination, append = false }) {
+            if (append && state.filtered?.key === key) {
+                const existing = state.filtered.items
+                const unique = items.filter(c => !existing.some(e => e._id === c._id))
+                state.filtered.items = [...existing, ...unique]
+                state.filtered.pagination = pagination
+            } else {
+                state.filtered = { key, items, pagination }
+            }
+        },
+
+        RESET_FILTERED_CONVERSATIONS(state) {
+            state.filtered = null
         },
 
         LOAD_MESSAGES(state, newModule) {
@@ -622,13 +654,14 @@ export default {
                     page: data.page, // Página atual
                     total: data.total, // Total de itens
                     totalPages: data.totalPages, // Total de páginas
-                    hasMore: data.hasMore // Novo campo indicando se há mais páginas    
+                    hasMore: data.hasMore // Novo campo indicando se há mais páginas
                 };
 
                 const newModule = {
                     source: status,
                     pagination,
-                    items
+                    items,
+                    unreadConversations: data.unread_conversations   // undefined fora da 1ª página
                 }
 
                 // Atualiza o store com as conversas
@@ -639,6 +672,35 @@ export default {
                 // Log de erro
                 logger.error("Failed to fetch conversations:", err);
                 throw err;
+            }
+        },
+
+        // Busca/filtro feito no servidor (acha conversas de qualquer página)
+        async loadFilteredConversations({ commit }, { page = 1, limit = 10, filter = 'all', q = '', status = 'active', loadMore = false }) {
+            const seq = ++filteredRequestSeq
+            try {
+                const response = await api.get('/conversations', {
+                    params: { page, limit, status, filter, ...(q && { q }) }
+                })
+                if (seq !== filteredRequestSeq) return null
+
+                const data = response.data
+                commit('SET_FILTERED_CONVERSATIONS', {
+                    key: `${status}|${filter}|${q}`,
+                    items: data.conversations || [],
+                    pagination: {
+                        page: data.page,
+                        total: data.total,
+                        totalPages: data.totalPages,
+                        hasMore: data.hasMore
+                    },
+                    append: loadMore
+                })
+                return data.conversations
+            } catch (err) {
+                if (seq !== filteredRequestSeq) return null
+                logger.error("Failed to fetch filtered conversations:", err)
+                throw err
             }
         },
 
@@ -663,7 +725,7 @@ export default {
                     page: data.page, // Página atual
                     total: data.total, // Total de itens
                     totalPages: data.totalPages, // Total de páginas
-                    hasMore: data.hasMore // Novo campo indicando se há mais páginas    
+                    hasMore: data.hasMore // Novo campo indicando se há mais páginas
                 }
 
                 const newModule = {
@@ -681,7 +743,7 @@ export default {
         },
 
         // Função para enviar mensagem
-        async sendMessage({ commit }, { convId, tempId, message_type = 'text', 
+        async sendMessage({ commit }, { convId, tempId, message_type = 'text',
             source, replyToId, file_url, file_duration, file_height, file_width, content }) {
             try {
                 const response = await api.post("/messages/new-message", {
@@ -819,6 +881,7 @@ export default {
     },
     getters: {
         conversations: (state) => state.conversations,
+        filteredConversations: (state) => state.filtered,
         messages: (state) => state.messages,
         currentConversation: (state) => state.conversation,
     }
