@@ -80,5 +80,4 @@ export const applyGuestSystemTheme = () => {
     color: "00000000",
     overlay: true, // Somente Android
   })
-  document.documentElement.classList.add("dark", dark)
 }
