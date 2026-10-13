@@ -1,4 +1,5 @@
 import Cookies from "js-cookie"
+import { statusBar } from "webtonative"
 
 /**
  * Aplica o tema (light | dark | system), persiste em cookie,
@@ -73,23 +74,11 @@ export const setThemeColor = (theme, { savedTheme, store }) => {
  * segue o tema do sistema, com status bar em overlay.
  */
 export const applyGuestSystemTheme = () => {
-  const dark = window.matchMedia('(prefers-color-scheme: dark)').matches
-
-  if (dark) {
-    window.WTN?.setNavigationBarColor({ color: "000000" })
-    window.WTN?.statusBar({
-      style: "light",
-      color: "00000000",
-      overlay: true, // Somente Android
-    })
-    document.documentElement.classList.add("dark", dark)
-  } else {
-    window.WTN.statusBar({
-      style: "dark",
-      color: "00000000",
-      overlay: true // Somente Android
-    })
-    window.WTN.setNavigationBarColor({ color: "FFFFFF" })
-    document.documentElement.classList.remove("dark")
-  }
+  window.WTN?.setNavigationBarColor({ color: "000000" })
+  statusBar({
+    style: "light",
+    color: "00000000",
+    overlay: true, // Somente Android
+  })
+  document.documentElement.classList.add("dark", dark)
 }

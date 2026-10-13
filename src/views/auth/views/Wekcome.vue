@@ -72,16 +72,10 @@ const GRAB_RADIUS = 56; // raio para "agarrar" uma corda
 const PUSH_RADIUS = 84; // raio de influência ao arrastar o dedo
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-// Paleta das cordas [r, g, b] — cores da marca TikTok (ciano, vermelho, branco e cinzas)
+// Paleta das cordas [r, g, b] — apenas ciano e vermelho TikTok
 const PALETTE = [
-  [37, 244, 238], // ciano TikTok
-  [254, 44, 85], // vermelho TikTok
-  [255, 255, 255], // branco
-  [37, 244, 238], // ciano
-  [254, 44, 85], // vermelho
-  [138, 138, 148], // cinza médio
-  [255, 255, 255], // branco
-  [64, 64, 72], // grafite
+  [37, 244, 238], // ciano #25F4EE
+  [254, 44, 85], // vermelho #FE2C55
 ];
 
 const shuffle = (arr) => {
@@ -540,7 +534,7 @@ onBeforeUnmount(() => {
           <use href="#logo-shape" fill="#FFFFFF" />
         </svg>
 
-        <h1 class="glitch-text mb-3 text-[40px] font-extrabold leading-[1.05] tracking-tight">
+        <h1 class="mb-3 text-[40px] font-extrabold leading-[1.05] tracking-tight text-white">
           Fica perto<br />de quem importa
         </h1>
         <p class="max-w-[30ch] text-[17px] leading-snug text-white/60">
@@ -578,11 +572,6 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-/* Glitch estático estilo TikTok: sombras ciano e vermelha deslocadas */
-.glitch-text {
-  text-shadow: -2px -1px 0 #25f4ee, 2px 1px 0 #fe2c55;
-}
-
 /* Uma única entrada orquestrada: texto e botão sobem juntos, o botão logo depois */
 .hero-in {
   animation: rise 0.8s 0.1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
