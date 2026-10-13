@@ -21,7 +21,7 @@
       <!-- Bolinha de status -->
       <span
         v-if="conversation?.is_online"
-        class="absolute bottom-0 right-0 block h-[14px] w-[14px] rounded-full bg-[#25D366] ring-[2.5px] ring-white dark:ring-[#121212]"
+        class="absolute bottom-0 right-0 block h-[14px] w-[14px] rounded-full bg-[#25f4ee] ring-[2.5px] ring-white dark:ring-[#121212]"
       ></span>
     </div>
 

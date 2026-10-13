@@ -3,34 +3,34 @@
     <reply-to-message-card v-if="replyTo?.show" :user-id="userId" :message="replyTo?.message"
       @on-close="closeReplyTo" />
 
-    <!-- ===== UI DE GRAVAÇÃO (estilo Instagram) ===== -->
-    <div v-if="isRecording || audioBlob" class="px-4 py-3.5 flex items-center gap-3">
+    <!-- ===== UI DE GRAVAÇÃO (estilo TikTok) ===== -->
+    <div v-if="isRecording || audioBlob" class="px-4 py-3 flex items-center gap-3">
       <button @click="handleCancelRecording" type="button"
-        class="w-9 h-9 flex items-center justify-center rounded-full text-[#8e8e8e] hover:bg-[#f0f0f0] dark:hover:bg-[#1a1a1a] active:opacity-60 transition-colors flex-shrink-0">
+        class="w-9 h-9 flex items-center justify-center rounded-full text-black/50 dark:text-white/50 active:bg-black/5 dark:active:bg-white/10 transition-colors flex-shrink-0">
         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none">
           <path d="M6 6L18 18M6 18L18 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" />
         </svg>
       </button>
 
       <div
-        class="flex-1 flex items-center gap-2.5 h-10 px-4 rounded-full border border-[#dbdbdb] dark:border-[#363636] bg-white dark:bg-[#000] min-w-0">
+        class="flex-1 flex items-center gap-2.5 h-11 px-4 rounded-full bg-[#F1F1F2] dark:bg-[#2B2B2B] min-w-0">
 
         <!-- ===== Estado: gravando ===== -->
         <template v-if="isRecording">
-          <div class="w-2 h-2 rounded-full bg-[#ff3040] animate-pulse flex-shrink-0"></div>
-          <span class="text-[13px] font-medium tabular-nums text-[#262626] dark:text-[#f5f5f5] flex-shrink-0">
+          <div class="w-2 h-2 rounded-full bg-[#FE2C55] animate-pulse flex-shrink-0"></div>
+          <span class="text-[13px] font-medium tabular-nums text-black dark:text-white flex-shrink-0">
             {{ formatTime(recordingTime) }}
           </span>
-          <span class="text-[13px] text-[#8e8e8e] flex-shrink-0">/ {{ formatTime(maxDuration) }}</span>
+          <span class="text-[13px] text-black/45 dark:text-white/45 flex-shrink-0">/ {{ formatTime(maxDuration) }}</span>
 
           <!-- pseudo-waveform ao vivo enquanto grava -->
           <div class="flex-1 flex items-center gap-[3px] justify-center overflow-hidden">
-            <span v-for="n in 18" :key="n" class="w-[2px] rounded-full animate-pulse bg-[#c7c7c7] dark:bg-[#4a4a4a]"
+            <span v-for="n in 18" :key="n" class="w-[2px] rounded-full animate-pulse bg-black/25 dark:bg-white/30"
               :style="{ height: (6 + ((n * 37) % 14)) + 'px', animationDelay: (n * 0.05) + 's' }"></span>
           </div>
         </template>
 
-        <!-- ===== Estado: preview do áudio gravado (player custom estilo Instagram) ===== -->
+        <!-- ===== Estado: preview do áudio gravado (player custom) ===== -->
         <template v-else-if="audioUrl">
           <!-- elemento de áudio real, invisível, controlado via JS -->
           <audio ref="previewAudioRef" :src="audioUrl" preload="metadata" class="hidden" @play="onPreviewPlay"
@@ -38,7 +38,7 @@
             @ended="onPreviewEnded"></audio>
 
           <button @click="togglePreviewPlay" type="button"
-            class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-full bg-[#0095f6] text-white active:scale-90 transition-transform">
+            class="w-7 h-7 flex-shrink-0 flex items-center justify-center rounded-full bg-[#FE2C55] text-white active:scale-90 transition-transform">
             <svg v-if="!isPreviewPlaying" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
               fill="white">
               <path d="M8 5v14l11-7L8 5z" />
@@ -53,11 +53,11 @@
           <div class="flex-1 flex items-center gap-[2px] h-7 min-w-0 cursor-pointer select-none"
             @click="seekPreviewFromClick">
             <span v-for="(h, n) in waveformBars" :key="n" class="flex-1 rounded-full transition-colors duration-75"
-              :class="n <= activeBarIndex ? 'bg-[#0095f6]' : 'bg-[#c7c7c7] dark:bg-[#4a4a4a]'"
+              :class="n <= activeBarIndex ? 'bg-[#FE2C55]' : 'bg-black/20 dark:bg-white/25'"
               :style="{ height: h + 'px' }"></span>
           </div>
 
-          <span class="text-[12px] tabular-nums text-[#8e8e8e] flex-shrink-0">
+          <span class="text-[12px] tabular-nums text-black/50 dark:text-white/50 flex-shrink-0">
             {{ formatTime(Math.floor(isPreviewPlaying || previewCurrentTime ? previewCurrentTime : previewDuration)) }}
           </span>
         </template>
@@ -65,7 +65,7 @@
 
       <!-- Enquanto grava: botão de parar -->
       <button v-if="isRecording" @click="stopRecording" type="button"
-        class="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-[#0095f6] text-white rounded-full active:scale-90 transition-transform">
+        class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-[#FE2C55] text-white rounded-full active:scale-90 transition-transform">
         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="white">
           <rect x="6" y="6" width="12" height="12" rx="2" />
         </svg>
@@ -73,7 +73,7 @@
 
       <!-- Depois de gravar: botão de enviar -->
       <button v-else @click="sendVoiceMessage" :disabled="isUploadingVoice" type="button"
-        class="w-9 h-9 flex-shrink-0 flex items-center justify-center bg-[#0095f6] disabled:opacity-40 text-white rounded-full active:scale-90 transition-transform">
+        class="w-10 h-10 flex-shrink-0 flex items-center justify-center bg-[#FE2C55] disabled:opacity-40 text-white rounded-full active:scale-90 transition-transform">
         <SpinnerSmall v-if="isUploadingVoice" class="!w-4 !h-4" />
         <svg v-else xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none">
           <path
@@ -83,24 +83,23 @@
       </button>
     </div>
 
-    <!-- ===== FORM PADRÃO (estilo Instagram) ===== -->
-    <form v-else @submit.prevent="send" class="px-4 py-3.5 flex items-center gap-2">
+    <!-- ===== FORM PADRÃO (estilo TikTok) ===== -->
+    <form v-else @submit.prevent="send" class="px-4 py-3 flex items-center gap-2">
 
-      <!-- Campo de texto em pill, com borda fina estilo Instagram, min-height 56px -->
-      <div class="flex-1 flex items-center min-h-[50px] rounded-[25px]
-                  bg-x-light-surface dark:bg-[#1a1a1a] focus-within:border-[#a8a8a8] dark:focus-within:border-[#5a5a5a]
-                  transition-colors pl-1.5 pr-1.5 py-1.5 min-w-0" :class="{ 'pl-3': replyTo?.show }">
+      <!-- Campo de texto em pill cinza, sem borda, como o do TikTok -->
+      <div class="flex-1 flex items-center min-h-[48px] rounded-full
+                  bg-[#F1F1F2] dark:bg-[#2B2B2B]
+                  transition-colors pl-1.5 pr-1.5 py-1.5 min-w-0" :class="{ 'pl-4': replyTo?.show }">
 
         <!--
-          Botão de câmara (estilo Instagram) — agora DENTRO da pill, antes do
-          textarea, junto aos demais botões. flex-shrink-0 para nunca perder
-          espaço para o textarea encolher.
+          Botão de câmara — DENTRO da pill, antes do textarea, junto aos demais
+          botões. flex-shrink-0 para nunca perder espaço para o textarea encolher.
         -->
         <button v-if="!replyTo?.show" @click.prevent="handleOpenCamera" type="button" :disabled="props.disabled" class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-full mr-1.5
 
-                 text-[#f5f5f5] bg-black
+                 text-white bg-[#FE2C55]
                  active:scale-90 transition-all disabled:opacity-40">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="22" height="22" viewBox="0 -2 28 28">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="#fff" width="20" height="20" viewBox="0 -2 28 28">
             <path
               d="m13.846 9.692c2.293.004 4.15 1.862 4.154 4.154v.004c0 2.294-1.86 4.154-4.154 4.154s-4.154-1.86-4.154-4.154c0-1.148.466-2.187 1.218-2.939.728-.753 1.747-1.22 2.876-1.22h.063-.003zm10.154-6h.055c1.002 0 1.908.414 2.554 1.081l.001.001c.668.647 1.082 1.553 1.082 2.555v.058-.003 12.924c-.001 2.039-1.653 3.691-3.692 3.692h-20.308c-2.039-.001-3.691-1.653-3.692-3.692v-12.923c0-.016 0-.036 0-.055 0-1.002.414-1.908 1.081-2.554l.001-.001c.647-.668 1.553-1.082 2.555-1.082h.058-.003 3.23l.735-1.962c.212-.507.557-.922.993-1.213l.01-.006c.411-.311.929-.501 1.49-.512h.002 7.385c.564.011 1.081.201 1.499.517l-.006-.005c.445.297.791.712.996 1.201l.007.018.735 1.962zm-10.154 16.616c.027 0 .059.001.091.001 1.755 0 3.341-.727 4.472-1.896l.002-.002c1.171-1.133 1.897-2.719 1.897-4.474 0-.032 0-.064-.001-.096v.005c0-.027.001-.06.001-.092 0-1.755-.727-3.341-1.896-4.472l-.002-.002c-1.167-1.172-2.781-1.897-4.565-1.897s-3.398.725-4.565 1.896c-1.171 1.133-1.897 2.719-1.897 4.474 0 .032 0 .064.001.096v-.005c0 .028-.001.061-.001.094 0 1.755.726 3.34 1.894 4.471l.002.002c1.133 1.171 2.719 1.897 4.474 1.897.033 0 .065 0 .097-.001h-.005z" />
           </svg>
@@ -115,13 +114,13 @@
           botões ao lado ocupam espaço.
         -->
         <textarea ref="textareaRef" v-model="inputMessage" @input="autoResize" @keydown.enter.shift.exact="allowNewLine"
-          @focus="handleFocus" rows="1" :placeholder="replyTo?.show ? 'Responder' : 'Enviar mensagem...'" class="w-full min-w-0 caret-[#0095f6]
-                resize-none text-[18px] overflow-hidden scroll-pt-4 bg-transparent
+          @focus="handleFocus" rows="1" :placeholder="replyTo?.show ? 'Responder' : 'Enviar mensagem...'" class="w-full min-w-0 caret-[#FE2C55]
+                resize-none text-[16px] overflow-hidden scroll-pt-4 bg-transparent
                  py-1.5
                   leading-tight
-                 placeholder-[#8e8e8e]
-                 dark:placeholder-[rgb(168,171,178)]
-                 focus:outline-none text-[#262626] dark:text-[#f5f5f5]
+                 placeholder-black/40
+                 dark:placeholder-white/40
+                 focus:outline-none text-black dark:text-white
                  whitespace-pre-wrap break-words
                  min-h-[24px]" style="line-height: 20px;" />
 
@@ -130,9 +129,9 @@
 
         <input ref="cameraInputRef" type="file" accept="image/*" capture="environment" class="hidden" @change="onCameraFileChange" />
 
-        <!-- Botão de microfone (só aparece sem texto digitado), dentro do campo estilo Instagram -->
+        <!-- Botão de microfone (só aparece sem texto digitado) -->
         <button v-if="!inputMessage.trim() && !replyTo?.show" @click.prevent="handleStartRecording" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
-                 text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
+                 text-black/70 dark:text-white/70 active:bg-black/5 dark:active:bg-white/10
                  active:scale-90 transition-all">
           <svg aria-label="Clipe de voz" class="x1lliihq x1n2onr6 x5n08af" fill="currentColor" height="24" role="img"
             viewBox="0 0 24 24" width="24">
@@ -151,7 +150,7 @@
         <!-- Botão de mídia/imagem (só aparece sem texto digitado) -->
         <button v-if="!inputMessage.trim() && !replyTo?.show" @click.prevent="handleOpenMediaPicker" type="button"
           class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
-                 text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
+                 text-black/70 dark:text-white/70 active:bg-black/5 dark:active:bg-white/10
                  active:scale-90 transition-all">
           <svg aria-label="Adicionar foto ou vídeo" class="text-inherit" fill="currentColor" height="22" role="img"
             viewBox="0 0 24 24" width="24">
@@ -169,7 +168,7 @@
 
         <!-- Botão de GIF (só aparece sem texto digitado) -->
         <button v-if="!inputMessage.trim() && !replyTo?.show" @click.prevent="handleOpenGifPicker" type="button" class="w-8 h-8 flex-shrink-0 flex items-center justify-center rounded-full
-                 text-[#262626] dark:text-[#f5f5f5] hover:bg-[#f0f0f0] dark:hover:bg-[#0c1014]
+                 text-black/70 dark:text-white/70 active:bg-black/5 dark:active:bg-white/10
                  active:scale-90 transition-all">
           <svg aria-label="Escolher um GIF ou uma figurinha" class="text-inherit" fill="currentColor" height="22"
             role="img" viewBox="0 0 24 24" width="22">
@@ -192,14 +191,18 @@
 
       </div>
 
-      <!-- Botão enviar, estilo texto azul do Instagram -->
+      <!-- Botão enviar: círculo vermelho TikTok com seta -->
       <transition enter-active-class="transition ease-out duration-150" enter-from-class="opacity-0 scale-90"
         enter-to-class="opacity-100 scale-100" leave-active-class="transition ease-in duration-100"
         leave-from-class="opacity-100 scale-100" leave-to-class="opacity-0 scale-90">
-        <button v-if="inputMessage.trim() || replyTo?.show" :disabled="!canSend" type="submit" class="h-10 px-1 flex items-center justify-center flex-shrink-0
-                 text-[#0095f6] disabled:text-[#0095f6]/40 font-semibold text-[15px]
-                 active:opacity-50 transition-opacity">
-          Enviar
+        <button v-if="inputMessage.trim() || replyTo?.show" :disabled="!canSend" type="submit" aria-label="Enviar"
+          class="w-10 h-10 flex items-center justify-center flex-shrink-0 rounded-full
+                 bg-[#FE2C55] text-white disabled:opacity-40
+                 active:scale-90 transition-all">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M12 19V5M5 12l7-7 7 7" />
+          </svg>
         </button>
       </transition>
     </form>
@@ -352,7 +355,7 @@ const {
 
 const isUploadingVoice = ref(false)
 
-// === Player customizado do preview de áudio (estilo Instagram) ===
+// === Player customizado do preview de áudio ===
 const previewAudioRef = ref(null)
 const isPreviewPlaying = ref(false)
 const previewCurrentTime = ref(0)
@@ -517,7 +520,7 @@ const handleOpenGifPicker = () => {
   emit('open-gif-picker')
 }
 
-// === NOVO: botão de câmara (estilo Instagram) ===
+// === NOVO: botão de câmara ===
 // Apenas emite o evento para o componente pai — toda a lógica de abrir a
 // câmara, capturar foto/vídeo e enviar fica por conta de quem escuta este
 // evento (o Chat.vue, tal como já acontece com 'open-gif-picker').

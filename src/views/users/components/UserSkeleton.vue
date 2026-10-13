@@ -1,6 +1,6 @@
 <!-- components/User/UserSkeleton.vue -->
 <template>
-    <div class="flex items-center px-4 h-16 box-border">
+    <div class="flex items-center px-4 h-[72px] box-border">
         <!-- Avatar Skeleton -->
         <div class="flex-shrink-0">
             <div class="rounded-full bg-[rgb(230,231,232)] dark:bg-[#404143] animate-pulse relative overflow-hidden"
@@ -10,7 +10,7 @@
         </div>
 
         <!-- Conteúdo Skeleton -->
-        <div class="flex-1 ml-2 min-w-0 space-y-2">
+        <div class="flex-1 ml-3 min-w-0 space-y-2">
             <div class="flex items-center w-full gap-[4px]">
                 <div class="h-3.5 bg-[rgb(230,231,232)] dark:bg-[#404143] rounded relative overflow-hidden animate-pulse"
                     :style="{ width: nameWidth }">
@@ -41,7 +41,7 @@ defineProps({
     },
     avatarSize: {
         type: String,
-        default: '46px' // igual ao tamanho real do Avatar "xl" usado no UserListItem
+        default: '48px' // igual ao avatar do UserItem
     },
     nameWidth: {
         type: String,

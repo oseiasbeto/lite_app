@@ -1,9 +1,9 @@
 <template>
   <div v-if="!isDeletedForMe" :id="`message-${props.message._id}`" class="relative over" :class="wrapperSpacingClass">
 
-    <!-- Separador de data/hora estilo Messenger -->
-    <div v-if="showDateSeparator" class="flex justify-center my-3">
-      <span class="text-[13px] font-medium text-x-light-textSecondary dark:text-x-dark-textSecondary  px-3">
+    <!-- Separador de data/hora estilo TikTok -->
+    <div v-if="showDateSeparator" class="flex justify-center my-4">
+      <span class="text-[12px] font-medium text-black/45 dark:text-white/45 px-3">
         {{ dateSeparatorText }}
       </span>
     </div>
@@ -15,11 +15,11 @@
     -->
     <div class="swipe-row relative overflow-visible" @touchstart.passive="onTouchStart" @touchmove.passive="onTouchMove"
       @touchend="onTouchEnd">
-      <!-- Ícone de reply (estilo Messenger), fixo, surge por detrás do balão conforme o swipe -->
+      <!-- Ícone de reply, fixo, surge por detrás do balão conforme o swipe -->
       <div class="absolute inset-y-0 flex items-center pointer-events-none z-0" :class="isSent ? 'right-2' : 'left-2'"
         :style="{ opacity: replyIconOpacity, transform: `scale(${replyIconScale})` }">
-        <div class="w-8 h-8 rounded-full bg-black/10 dark:bg-white/15 flex items-center justify-center">
-          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" class="text-x-light-textSecondary dark:text-x-dark-textSecondary"
+        <div class="w-8 h-8 rounded-full bg-black/5 dark:bg-white/10 flex items-center justify-center">
+          <svg viewBox="0 0 16 16" width="16" height="16" fill="currentColor" class="text-black/50 dark:text-white/60"
             aria-hidden="true">
             <path
               d="M6.497 1.035C7.593-.088 9.5.688 9.5 2.257V4.54c1.923.215 3.49 1.246 4.593 2.672C15.328 8.808 16 10.91 16 13v.305c0 .632-.465 1.017-.893 1.127-.422.11-.99.005-1.318-.493-.59-.894-1.2-1.482-1.951-1.859-.611-.307-1.359-.496-2.338-.558v2.23c0 1.57-1.908 2.346-3.003 1.222L.893 9.223a1.75 1.75 0 0 1 .001-2.444l5.603-5.744z">
@@ -33,21 +33,21 @@
         :style="{ transform: `translateX(${swipeOffset}px)`, transition: isSwipeActive ? 'none' : 'transform 0.25s cubic-bezier(0.25,0.46,0.45,0.94)' }">
         <div class="flex items-end" :class="isSent ? 'justify-end' : 'justify-start'">
           <!-- Avatar: só no último balão do grupo recebido -->
-          <div class="flex flex-col justify-end w-6 flex-shrink-0 mb-[1px]" v-if="!isSent && !isEmojiOnly">
-            <Avatar @click="goToProfile(message?.sender?._id)" class="w-[28px] h-[28px]" v-if="isLastOfGroup" size="xl"
+          <div class="flex flex-col justify-end w-8 flex-shrink-0 mb-[1px]" v-if="!isSent && !isEmojiOnly">
+            <Avatar @click="goToProfile(message?.sender?._id)" class="w-[32px] h-[32px]" v-if="isLastOfGroup" size="xl"
               :url="message?.sender?.profile_image?.thumbnails?.xs || message?.sender?.profile_image?.url" />
           </div>
 
           <div :class="[
             'flex flex-col relative max-w-[75%] min-w-0',
-            isSent ? 'items-end ml-0' : 'items-start ml-3'
+            isSent ? 'items-end ml-0' : 'items-start ml-2'
           ]">
 
             <!-- Bloco de resposta -->
             <div v-if="message.reply_to && !isEmojiOnly && message.status !== 'is_deleted'"
               class="w-full min-w-0 relative" style="margin-bottom: -10px;">
               <span
-                class="flex items-center w-full text-[13px] mb-1 font-normal text-x-light-textSecondary dark:text-x-dark-textSecondary"
+                class="flex items-center w-full text-[12px] mb-1 font-normal text-black/50 dark:text-white/50"
                 :class="isSent ? 'justify-end' : 'justify-start'">
                 <svg viewBox="0 0 16 16" width="12" height="12" fill="currentColor" aria-hidden="true"
                   class="mr-1 flex-shrink-0">
@@ -58,10 +58,10 @@
                 <span class="truncate">{{ replyLabel }}</span>
               </span>
               <button type="button" @click="scrollToReply" :class="[
-                'block max-w-full min-w-0 text-left rounded-[16px] px-3 py-[10px] text-[13px] leading-tight text-inherit bg-[#f3f5f7] cursor-pointer transition-opacity dark:bg-[#25292e] opacity-60 dark:text-[rgb(245,245,245)] hover:opacity-100',
+                'block max-w-full min-w-0 text-left rounded-[16px] px-3 py-[10px] text-[13px] leading-tight text-inherit bg-[#F1F1F2] cursor-pointer transition-opacity dark:bg-[#2B2B2B] opacity-60 dark:text-white hover:opacity-100',
                 isSent ? 'ml-auto' : ''
               ]" :style="isSent ? 'border-radius: 16px 16px 4px 16px;' : 'border-radius: 16px 16px 16px 4px;'">
-                <span class="block text-sm truncate text-[rgb(40,40,41)] dark:text-white">
+                <span class="block text-[13px] truncate text-black dark:text-white">
                   {{ replyPreviewText }}
                 </span>
               </button>
@@ -74,12 +74,12 @@
                 'relative z-[1] text-left transition-transform active:scale-[0.99] max-w-full min-w-0',
                 !isEmojiOnly && !isGif && !isSticker && !isImage && message.status !== 'is_deleted'
                   ? (isSent
-                    ? 'bg-[#7639f9f7] text-white p-[6px_12px]'
-                    : 'dark:bg-[#1a1a1a] dark:text-white text-[rgb(40,40,41)] bg-[#f3f5f7] p-[8px_12px]')
+                    ? 'bg-[#FE2C55] text-white p-[8px_12px]'
+                    : 'bg-[#F1F1F2] text-black dark:bg-[#2B2B2B] dark:text-white p-[8px_12px]')
                   : '',
                 isVoice && message.status !== 'is_deleted' ? 'rounded-full' : '',
                 message.status === 'is_deleted'
-                  ? 'border border-[#b0b3b8] dark:border-[#555] rounded-[18px] px-3 py-[6px] bg-transparent italic opacity-80'
+                  ? 'border border-black/15 dark:border-white/20 rounded-[18px] px-3 py-[6px] bg-transparent italic opacity-80'
                   : '',
                 isEmojiOnly ? '!bg-transparent m-0 p-0' : '',
                 isGif ? '!bg-transparent m-0 p-0' : '',
@@ -87,19 +87,19 @@
                 isImage ? '!bg-transparent m-0 p-0' : '',
                 isEmojiOnly && groupedReactions.length ? 'mb-3' : '',
                 message.status === 'sending' || message.status === 'error' ? 'pointer-events-none' : '',
-                isHighlighted ? 'ring-2 ring-yellow-400 ring-offset-1' : '',
+                isHighlighted ? 'ring-2 ring-[#25F4EE] ring-offset-1 ring-offset-white dark:ring-offset-black' : '',
               ]">
 
               <!-- Mensagem eliminada -->
-              <p v-if="message.status === 'is_deleted'" class="text-base text-grey dark:text-greyDark">
+              <p v-if="message.status === 'is_deleted'" class="text-[15px] text-black/50 dark:text-white/50">
                 Mensagem eliminada
               </p>
 
-              <!-- Player de áudio (estilo Instagram), dentro do balão -->
+              <!-- Player de áudio, dentro do balão -->
               <div v-else-if="message.message_type === 'voice'" class="flex items-center gap-2 min-w-[205px] py-[2px]">
                 <div @click.stop="toggleAudio"
                   class="w-9 h-9 flex-shrink-0 flex items-center justify-center rounded-full cursor-pointer active:scale-90 transition-transform"
-                  :class="isSent ? 'bg-white/25 text-white' : 'bg-black/10 dark:bg-white/15 text-[rgb(40,40,41)] dark:text-white'">
+                  :class="isSent ? 'bg-white/25 text-white' : 'bg-black/10 dark:bg-white/15 text-black dark:text-white'">
 
                   <!-- Loading (buffering) -->
                   <svg v-if="isAudioLoading" class="animate-spin" width="20" height="20" viewBox="0 0 24 24"
@@ -125,13 +125,13 @@
                   :class="{ 'opacity-60 animate-pulse': !isWaveformReady }" @click.stop="seekAudioFromClick">
                   <span v-for="(h, n) in audioWaveformBars" :key="n"
                     class="flex-1 rounded-full transition-colors duration-75" :class="n <= activeAudioBarIndex
-                      ? (isSent ? 'bg-white' : 'bg-black')
+                      ? (isSent ? 'bg-white' : 'bg-black dark:bg-white')
                       : (isSent ? 'bg-white/35' : 'bg-black/15 dark:bg-white/20')"
                     :style="{ height: h + 'px' }"></span>
                 </div>
 
-                <span class="text-sm pr-3.5 tabular-nums flex-shrink-0"
-                  :class="isSent ? 'text-white' : 'text-inherit dark:text-x-dark-textPrimary'">
+                <span class="text-[13px] pr-3.5 tabular-nums flex-shrink-0"
+                  :class="isSent ? 'text-white' : 'text-black/60 dark:text-white/70'">
                   {{ formatAudioTime(isPlaying ? audioCurrentTime : audioDuration) }}
                 </span>
 
@@ -212,7 +212,7 @@
               <!-- Conteúdo normal -->
               <p v-else :class="[
                 'break-words [overflow-wrap:anywhere] whitespace-pre-wrap leading-snug min-w-0',
-                isEmojiOnly ? 'text-5xl' : 'text-base',
+                isEmojiOnly ? 'text-5xl' : 'text-[15px]',
                 isEmojiOnly && !isSent ? 'ml-6' : 'ml-0'
               ]">
                 {{ message.content }}
@@ -220,7 +220,7 @@
 
               <!-- Reações sobrepostas no canto inferior do balão -->
               <div v-if="groupedReactions.length && message.status !== 'is_deleted'"
-                class="absolute z-[99] flex items-center bg-x-light-surface dark:bg-[#25282c] border-2 border-white dark:border-[#0c1014] rounded-full"
+                class="absolute z-[99] flex items-center bg-white dark:bg-[#2B2B2B] border-2 border-white dark:border-black shadow-sm rounded-full"
                 :class="[
                   isSent ? 'right-1' : 'left-1',
                   '-bottom-3',
@@ -232,30 +232,30 @@
                   <img v-if="getEmojiImage(r.emoji)" :src="'/img/emojis/' + getEmojiImage(r.emoji)" :alt="r.emoji"
                     class="w-[14px] h-[14px] object-contain" />
                   <span v-else>{{ r.emoji }}</span>
-                  <span v-if="r.count > 1" class="text-[11px] text-grey dark:text-greyDark font-medium">{{ r.count
+                  <span v-if="r.count > 1" class="text-[11px] text-black/60 dark:text-white/60 font-medium">{{ r.count
                     }}</span>
                 </span>
               </div>
             </button>
 
-            <!-- Indicador "A enviar..." (estilo Messenger), por baixo do balão -->
-            <span v-if="message.status === 'sending'" class="text-[13px] text-x-light-textSecondary dark:text-x-dark-textSecondary mt-[6px] px-1">
+            <!-- Indicador "A enviar...", por baixo do balão -->
+            <span v-if="message.status === 'sending'" class="text-[12px] text-black/45 dark:text-white/45 mt-[6px] px-1">
               A enviar...
             </span>
 
-            <!-- Indicador "Entregue" na última mensagem enviada (estilo Messenger) -->
+            <!-- Indicador "Entregue" na última mensagem enviada -->
             <span v-else-if="message.status == 'sent' && isLastSentMessage && !isReadByOther"
-              class="text-[13px] text-x-light-textSecondary dark:text-x-dark-textSecondary mt-[6px] px-1"
+              class="text-[12px] text-black/45 dark:text-white/45 mt-[6px] px-1"
               :class="{ '!mt-2.5': groupedReactions.length }">
               Entregue
             </span>
 
             <!--
-              Indicador "Erro ao enviar" (estilo Instagram).
+              Indicador "Erro ao enviar".
               Fica preso à mensagem que falhou, independentemente de novas mensagens
               terem sido enviadas depois dela — por isso NÃO depende de isLastSentMessage.
             -->
-            <span v-if="message.status == 'error'" class="text-[13px] text-red-500 px-1"
+            <span v-if="message.status == 'error'" class="text-[12px] text-[#FE2C55] font-medium px-1"
               :class="{ '!mt-2.5': groupedReactions.length }">
               Erro ao enviar
             </span>
