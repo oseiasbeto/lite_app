@@ -3,8 +3,7 @@
         leave-active-class="transition-transform duration-100 ease-in" enter-from-class="translate-y-full"
         enter-to-class="translate-y-0" leave-from-class="translate-y-0" leave-to-class="translate-y-full">
         <!--Barra solida (branca / preta) com linha fina no topo, como a do TikTok-->
-        <!-- Sempre visível (não some ao fazer scroll); só fica oculta na própria tela de criação -->
-        <nav v-show="!isComposer" aria-label="Navegação principal"
+        <nav v-show="showBottomNav" aria-label="Navegação principal"
             class="fixed inset-x-0 bottom-0 z-[999] w-full border-t pb-[env(safe-area-inset-bottom,0px)] text-text-primary backdrop-blur-md [-webkit-tap-highlight-color:transparent]"
             :class="[
                 isReelsActive
@@ -144,7 +143,6 @@ defineProps({
         type: Boolean,
         default: false
     },
-    // Mantida para compatibilidade com o componente pai; a barra já não some ao scroll
     showBottomNav: {
         type: Boolean,
         default: true
@@ -156,9 +154,6 @@ const isActive = (name) => route.name === name
 
 // O separador "Vídeos" fica ativo em qualquer rota /reels (o nome da rota pode variar)
 const isReelsActive = computed(() => route.path?.startsWith('/reels'))
-
-// A barra só fica oculta na tela de criação de publicação
-const isComposer = computed(() => route.path?.startsWith('/composer'))
 
 // Estilo TikTok: ícone + rótulo pequeno; ativo pleno, inativo mais apagado.
 // Em /reels a barra fica sempre escura, independentemente do tema do sistema.

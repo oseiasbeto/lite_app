@@ -1,5 +1,6 @@
 <template>
-  <div v-if="users?.length" class="border dark:border-[rgb(57,56,57)] flex flex-col overflow-x-hidden" ref="listContainer">
+  <!-- Estilo TikTok: lista sem caixa/borda, a toda a largura, fundo do próprio tema -->
+  <div v-if="users?.length" class="flex flex-col overflow-x-hidden bg-white dark:bg-black" ref="listContainer">
     <!-- Skeletons enquanto carrega -->
     <div v-if="loading" class="w-full">
       <UserSkeleton v-for="n in 5" :key="n" />
@@ -11,9 +12,17 @@
     </div>
 
     <!-- Trigger para carregar mais -->
-    <div v-if="hasMore || loadingMore" class="load-more-container flex items-center justify-center h-[34px]">
-      <div v-if="!loadingMore">
-        <button class="w-full h-full tapHighlight text-[rgba(25,95,170)] dark:text-[#4894fd] text-[13px]" @click="emit('load-more');">Ver mais ></button>
+    <div v-if="hasMore || loadingMore" class="load-more-container flex h-[52px] items-center justify-center">
+      <div v-if="!loadingMore" class="h-full w-full">
+        <button type="button"
+          class="tapHighlight flex h-full w-full items-center justify-center gap-1 text-[14px] font-semibold text-black/50 transition active:opacity-60 dark:text-white/50"
+          @click="emit('load-more');">
+          <span>Ver mais</span>
+          <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" />
+          </svg>
+        </button>
       </div>
       <div v-else>
         <Spinner />

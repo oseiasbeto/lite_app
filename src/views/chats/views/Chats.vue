@@ -34,7 +34,7 @@
                         <path d="M20 20l-3.5-3.5" />
                     </svg>
                     <input v-model.trim="query" type="search" placeholder="Buscar" maxlength="50"
-                        class="w-full h-10 rounded-full bg-black/5 dark:bg-white/10 pl-10 pr-4 text-[15px] outline-none focus:ring-2 focus:ring-[#fe2c55]/40" />
+                        class="w-full h-10 rounded-full bg-black/5 dark:bg-white/10 pl-10 pr-4 text-[15px] outline-none" />
                 </label>
 
                 <div class="flex gap-2 mt-2.5" role="tablist" aria-label="Filtrar conversas">

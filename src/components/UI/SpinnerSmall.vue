@@ -13,7 +13,7 @@
 .loader {
   --color-1: #25F4EE; /* ciano TikTok */
   --color-2: #FE2C55; /* vermelho TikTok */
-  --size: 1px;
+  --size: 0.6px;
   --travel: calc(14 * var(--size));
   position: relative;
   display: inline-block;

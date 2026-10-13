@@ -16,7 +16,7 @@
 
                     <input v-model="groupName" type="text" :maxlength="MAX_GROUP_NAME"
                         placeholder="Nome do grupo (opcional)" autocomplete="off"
-                        class="mt-6 w-full h-11 rounded-xl bg-black/5 dark:bg-white/10 px-4 text-[15px] outline-none focus:ring-2 focus:ring-[#fe2c55]/40" />
+                        class="mt-6 w-full h-11 rounded-xl bg-black/5 dark:bg-white/10 px-4 text-[15px] outline-none" />
                     <p class="mt-1 self-end text-[12px] opacity-50">{{ groupName.length }}/{{ MAX_GROUP_NAME }}</p>
                 </div>
 
@@ -73,7 +73,7 @@
                         <input ref="searchInputRef" v-model.trim="query" type="search" placeholder="Buscar"
                             maxlength="50" autocomplete="off" autocapitalize="off" enterkeyhint="search"
                             :disabled="loadingChatSuggestions"
-                            class="w-full h-10 rounded-full bg-black/5 dark:bg-white/10 pl-10 pr-4 text-[15px] outline-none focus:ring-2 focus:ring-[#fe2c55]/40 disabled:opacity-60" />
+                            class="w-full h-10 rounded-full bg-black/5 dark:bg-white/10 pl-10 pr-4 text-[15px] outline-none disabled:opacity-60" />
                     </label>
 
                     <template v-if="groupMode">
@@ -144,7 +144,7 @@
                             <UsersList ref="UsersListComponent"
                                 :users="isSearching ? searchUsers.items || [] : chatSuggestions.items || []"
                                 :loading="loadingChatSuggestions" :loading-more="loadingMoreUsers"
-                                :has-more="isSearching ? searchUsers?.pagination?.hasMore : chatSuggestions?.pagination?.hasMore"
+                                :has-more="false"
                                 @load-more="loadMoreChatSuggetions" @select="select">
                             </UsersList>
                         </div>
@@ -544,7 +544,7 @@ onMounted(async () => {
 
     await store.dispatch("loadChatSuggestions", {
         page: 1,
-        limit: 5
+        limit: 20
     }).finally(() => {
         loadingChatSuggestions.value = false
     })

@@ -65,7 +65,6 @@ const { isOnline: isReallyOnline } = useNetworkStatus()
 const user = computed(() => store.getters.currentUser)
 const isNewSession = computed(() => store.getters.isNewSession)
 const isLoadingComponent = computed(() => store.getters.isLoadingComponent)
-const showBottomNav = computed(() => store.getters.showBottomNav)
 const unreadNotificationsCount = computed(() => store.getters?.unreadNotificationsCount || 0)
 const unreadMessagesCount = computed(() => store.getters?.unreadMessagesCount || 0)
 
@@ -517,7 +516,7 @@ watch(isReallyOnline, (online) => {
     <!-- start main app area-->
     <div v-if="!loading">
       <!--start sidebar-->
-      <Navegator :show-bottom-nav="isAuthenticated && route.meta.rootPage == 'main' && showBottomNav" />
+      <Navegator :show-bottom-nav="isAuthenticated && route.meta.rootPage == 'main'" />
 
       <Confirmdialog />
 
