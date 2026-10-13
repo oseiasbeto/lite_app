@@ -807,6 +807,26 @@ export default {
             }
         },
 
+        // Cria um grupo (até 50 membros, incluindo quem cria) e já o abre como conversa atual.
+        // Igual à conversa direta: só entra na lista quando a 1ª mensagem for enviada
+        // (o socket `new_message` + ADD_OR_UPDATE_CONVERSATION fazem isso).
+        async createGroupConversation({ commit }, { name = '', members = [] }) {
+            try {
+                const res = await api.post('/conversations/group', { name, members })
+                const { conversation } = res.data
+
+                commit('SET_CONVERSATION', {
+                    ...conversation,
+                    source: 'active'
+                })
+
+                return conversation
+            } catch (err) {
+                logger.error("Failed to create group:", err);
+                throw err;
+            }
+        },
+
         async getConversation({ commit }, convId) {
             try {
                 const res = await api.get(`/conversations/${convId}`)

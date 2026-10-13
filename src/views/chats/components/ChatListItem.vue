@@ -153,6 +153,8 @@ const readBy = computed(() => {
   return Array.from(map.values());
 });
 
+const firstName = (name) => String(name || '').trim().split(/\s+/)[0]
+
 const previewText = computed(() => {
 
   const messageType = props?.conversation?.last_message?.message_type
@@ -162,11 +164,19 @@ const previewText = computed(() => {
 
   const itsMe = senderId === userId
 
+  // Em grupos, mostra quem enviou (nome curto) quando não fui eu
+  const isGroup = props?.conversation?.type === 'group'
+  const senderName = !itsMe && isGroup
+    ? firstName(props?.conversation?.last_message?.sender?.name)
+    : ''
+
   switch (messageType) {
     case 'text':
-      return `${itsMe ? 'Tu: ' : ''} ${props?.conversation?.last_message?.content}`
-    case 'reaction_message':
-      return `${itsMe ? 'Reagiste' : 'Reagiu'} com ${emoji} a uma mensagem`
+      return `${itsMe ? 'Tu: ' : senderName ? `${senderName}: ` : ''}${props?.conversation?.last_message?.content}`
+    case 'reaction_message': {
+      const who = itsMe ? 'Reagiste' : (senderName ? `${senderName} reagiu` : 'Reagiu')
+      return `${who} com ${emoji} a uma mensagem`
+    }
     default:
       return props?.conversation?.last_message?.content
   }
@@ -174,14 +184,16 @@ const previewText = computed(() => {
 
 defineEmits(['click', 'more-options'])
 
+let interval = null
+
 onMounted(() => {
   // Atualiza o tempo atual a cada minuto
-  const interval = setInterval(() => {
+  interval = setInterval(() => {
     currentTime.value = Date.now()
   }, 60000)
+})
 
-  onUnmounted(() => {
-    clearInterval(interval)
-  })
+onUnmounted(() => {
+  clearInterval(interval)
 })
 </script>
