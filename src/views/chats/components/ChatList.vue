@@ -15,7 +15,7 @@
             <SpinnerSmall />
           </div>
         </div>
-        <div v-else>
+        <div v-else-if="showEmptyState">
           <ChatEmpty/>
         </div>
       </div>
@@ -44,6 +44,10 @@ defineProps({
   userId: String,
   source: String,
   hasMore: Boolean,
+  showEmptyState: {
+    type: Boolean,
+    default: true
+  },
   showBtnFloating: {
     type: Boolean,
     default: true

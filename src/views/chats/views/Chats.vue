@@ -58,6 +58,7 @@
             <ChatList ref="virtualChatListComponent" :conversations="displayedConversations"
                 :loading="loadingConversations || (useServerFilter && loadingFiltered)"
                 :loading-more="loadingMoreConversations" :user-id="user?._id"
+                :show-empty-state="!isFiltering && !loadingConversations && !loadingFiltered"
                 :has-more="hasMore" @select="select" source="active"
                 @load-more="loadMoreConversations" @on-scroll="handleScroll" @more-options="handleMoreOptions" />
 
