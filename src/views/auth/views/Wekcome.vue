@@ -535,10 +535,10 @@ onBeforeUnmount(() => {
         </svg>
 
         <h1 class="mb-3 text-[40px] font-extrabold leading-[1.05] tracking-tight text-white">
-          Fica perto<br />de quem importa
+          Está a<br /> acontecer agora
         </h1>
         <p class="max-w-[30ch] text-[17px] leading-snug text-white/60">
-          Mensagens, stories e momentos com os teus amigos, num só lugar.
+          Junta-te hoje e descobre o que está a ser dito no mundo inteiro.
         </p>
       </div>
 

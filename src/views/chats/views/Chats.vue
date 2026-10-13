@@ -15,7 +15,7 @@
 
     <div class="h-[calc(100vh-100px)] mt-[44px] relative overflow-y-scroll">
         <!-- Cabeçalho fixo: stories + busca + filtros -->
-        <div class="shrink-0 sticky flex flex-col top-0 w-full z-[10] bg-background-primary">
+        <div class="flex flex-col top-0 w-full z-[10] bg-background-primary">
             <!-- A bandeja recolhe ao rolar a lista (como no TikTok) -->
             <div class="grid transition-[grid-template-rows] duration-200 ease-out"
                 :class="trayCollapsed ? 'grid-rows-[0fr]' : 'grid-rows-[1fr]'">

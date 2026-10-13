@@ -3,7 +3,8 @@
         leave-active-class="transition-transform duration-100 ease-in" enter-from-class="translate-y-full"
         enter-to-class="translate-y-0" leave-from-class="translate-y-0" leave-to-class="translate-y-full">
         <!--Barra solida (branca / preta) com linha fina no topo, como a do TikTok-->
-        <nav v-show="showBottomNav" aria-label="Navegação principal"
+        <!-- Sempre visível (não some ao fazer scroll); só fica oculta na própria tela de criação -->
+        <nav v-show="!isComposer" aria-label="Navegação principal"
             class="fixed inset-x-0 bottom-0 z-[999] w-full border-t pb-[env(safe-area-inset-bottom,0px)] text-text-primary backdrop-blur-md [-webkit-tap-highlight-color:transparent]"
             :class="[
                 isReelsActive
@@ -56,43 +57,21 @@
                     </router-link>
                 </li>
 
-                <!-- Vídeos / Reels (planeta com anel, maior, legenda alinhada) -->
+                <!-- Criar publicação (botão central estilo TikTok) -->
                 <li class="h-full flex-1">
-                    <router-link to="/reels" aria-label="Vídeos" :aria-current="isReelsActive ? 'page' : undefined"
-                        :class="itemClass(isReelsActive)">
-                        <span :class="iconWrapClass">
-                            <svg viewBox="0 0 24 24" class="h-[28px] w-[28px] shrink-0" fill="none"
-                                stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-                                aria-hidden="true">
-                                <defs>
-                                    <!-- Abre um espaço no planeta onde o anel da frente passa -->
-                                    <mask id="planet-ring-gap" maskUnits="userSpaceOnUse" x="-4" y="-4" width="32"
-                                        height="32">
-                                        <rect x="-4" y="-4" width="32" height="32" fill="white" stroke="none" />
-                                        <path d="M1.5 12A10.5 3.5 0 0 0 22.5 12" fill="none" stroke="black"
-                                            stroke-width="4.4" stroke-linecap="butt" />
-                                    </mask>
-                                </defs>
-
-                                <g transform="rotate(-22 12 12)">
-                                    <!-- Anel: parte de trás (só as pontas visíveis fora do planeta) -->
-                                    <path d="M1.5 12A10.5 3.5 0 0 1 6.83 8.95" />
-                                    <path d="M17.17 8.95A10.5 3.5 0 0 1 22.5 12" />
-
-                                    <!-- Planeta (preenchido quando a rota é /reels) -->
-                                    <circle cx="12" cy="12" r="6" mask="url(#planet-ring-gap)"
-                                        :fill="isReelsActive ? 'currentColor' : 'none'" />
-
-                                    <!-- Anel: parte da frente -->
-                                    <path d="M1.5 12A10.5 3.5 0 0 0 22.5 12" />
-                                </g>
-
-                                <!-- Estrela de brilho -->
-                                <path d="M5 2.8l.65 1.55L7.2 5l-1.55.65L5 7.2l-.65-1.55L2.8 5l1.55-.65z"
-                                    fill="currentColor" stroke="none" />
-                            </svg>
+                    <router-link to="/composer?module=feed" aria-label="Criar publicação"
+                        class="group flex h-full w-full items-center justify-center outline-none">
+                        <span class="relative h-[30px] w-[46px] transition duration-150 ease-out group-active:scale-90">
+                            <span class="absolute inset-y-0 left-0 w-[38px] rounded-[9px] bg-[#25F4EE]"></span>
+                            <span class="absolute inset-y-0 right-0 w-[38px] rounded-[9px] bg-[#FE2C55]"></span>
+                            <span :class="createCenterClass"
+                                class="absolute inset-y-0 left-[4px] right-[4px] flex items-center justify-center rounded-[8px]">
+                                <svg viewBox="0 0 24 24" class="h-[18px] w-[18px]" fill="none" stroke="currentColor"
+                                    stroke-width="3" stroke-linecap="round" aria-hidden="true">
+                                    <path d="M12 5v14M5 12h14" />
+                                </svg>
+                            </span>
                         </span>
-                        <span :class="labelClass(isReelsActive)">Mundo</span>
                     </router-link>
                 </li>
 
@@ -165,6 +144,7 @@ defineProps({
         type: Boolean,
         default: false
     },
+    // Mantida para compatibilidade com o componente pai; a barra já não some ao scroll
     showBottomNav: {
         type: Boolean,
         default: true
@@ -176,6 +156,9 @@ const isActive = (name) => route.name === name
 
 // O separador "Vídeos" fica ativo em qualquer rota /reels (o nome da rota pode variar)
 const isReelsActive = computed(() => route.path?.startsWith('/reels'))
+
+// A barra só fica oculta na tela de criação de publicação
+const isComposer = computed(() => route.path?.startsWith('/composer'))
 
 // Estilo TikTok: ícone + rótulo pequeno; ativo pleno, inativo mais apagado.
 // Em /reels a barra fica sempre escura, independentemente do tema do sistema.
@@ -190,6 +173,12 @@ const labelClass = (active) =>
 const iconWrapClass =
     'relative flex h-7 w-7 items-center justify-center transition duration-150 ease-out group-active:scale-90'
 const iconClass = 'h-[24px] w-[24px]'
+// Miolo do botão criar: contrasta com o fundo da barra (branco no escuro, preto no claro)
+const createCenterClass = computed(() =>
+    isReelsActive.value
+        ? 'bg-white text-black'
+        : 'bg-black text-white dark:bg-white dark:text-black'
+)
 // Badge vermelho TikTok no canto do ícone (o anel acompanha o fundo da barra)
 const badgeClass = computed(() =>
     'absolute -right-2 -top-1 flex h-[17px] min-w-[17px] items-center justify-center rounded-full bg-[#FE2C55] px-1 text-[10px] font-bold leading-none text-white ring-2 ' +
